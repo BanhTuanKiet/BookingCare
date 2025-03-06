@@ -1,0 +1,95 @@
+import React from "react"
+import "bootstrap/dist/css/bootstrap.min.css"
+import { Col, Row } from "react-bootstrap"
+
+const Home = () => {
+  const services = [
+    {
+      id: 1,
+      image: "https://via.placeholder.com/150",
+      title: "Khám tổng quát",
+      description: "Dịch vụ khám tổng quát để kiểm tra sức khỏe định kỳ.",
+    },
+    {
+      id: 2,
+      image: "https://via.placeholder.com/150",
+      title: "Xét nghiệm máu",
+      description: "Cung cấp dịch vụ xét nghiệm máu chính xác và nhanh chóng.",
+    },
+    {
+      id: 3,
+      image: "https://via.placeholder.com/150",
+      title: "Khám nha khoa",
+      description: "Dịch vụ chăm sóc và điều trị nha khoa chuyên nghiệp.",
+    },
+    {
+      id: 4,
+      image: "https://via.placeholder.com/150",
+      title: "Siêu âm",
+      description: "Trang thiết bị hiện đại cho dịch vụ siêu âm chất lượng cao.",
+    },
+  ]
+
+  const specialities = [
+    { name: "Khoa Nội tổng quát", link: "/specialty/internal-medicine", src: "https://benhviennamsaigon.com.vn/vnt_upload/doctor/10_2021/iicon33.png" },
+    { name: "Khoa Nhi", link: "/specialty/pediatrics" },
+    { name: "Khoa Tai - Mũi - Họng", link: "/specialty/ent", src: "https://benhviennamsaigon.com.vn/vnt_upload/doctor/10_2021/iicon1.png" },
+    { name: "Khoa Mắt (Nhãn khoa)", link: "/specialty/ophthalmology", src: "https://benhviennamsaigon.com.vn/vnt_upload/service/12_2022/icon_mat.png" },
+    { name: "Khoa Gây Mê", link: "/specialty/dermatology", src: "https://benhviennamsaigon.com.vn/vnt_upload/doctor/08_2022/icon_hoisuc.png" },
+    { name: "Khoa Răng - Hàm - Mặt", link: "/specialty/dentistry" },
+  ]
+
+  return (
+    <div className="mx-auto">
+      <div className="py-5 text-center">
+        <h1 className="text-primary fw-bold">Chào mừng đến với Phòng Khám ABC</h1>
+        <p className="text-muted">Nơi chăm sóc sức khỏe tận tâm và chuyên nghiệp</p>
+      </div>
+
+
+      <Row className="mx-auto" style={{ width: "88%" }}>
+        {specialities.map((speciality, index) => (
+          <Col key={index} sm={12} lg={6} className="d-flex justify-content-center px-0">
+            <div className="bg-white rounded w-100 text-start m-1 p-4">
+              <span className="d-inline-flex align-items-center justify-content-center rounded-circle text-white" style={{ width: "40px", height: "40px", zIndex: "1", backgroundColor: "#0646a3" }}>
+                <img src={speciality.src} alt="icon" style={{ width: "60%", height: "60%" }} />   
+              </span>
+              <span className="ms-2">{speciality.name}</span>
+            </div>
+          </Col>
+        ))}
+      </Row>
+
+
+
+      <div className="container my-5" id="services">
+        <h2 className="text-center text-primary fw-bold mb-4">Dịch vụ của chúng tôi</h2>
+        <div className="row g-4">
+          {services.map((service) => (
+            <div className="col-md-6 col-lg-4" key={service.id}>
+              <div className="card h-100 shadow-sm">
+                <img
+                  src={service.image}
+                  className="card-img-top"
+                  alt={service.title}
+                />
+                <div className="card-body">
+                  <h5 className="card-title text-primary">{service.title}</h5>
+                  <p className="card-text text-muted">{service.description}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <footer className="bg-light text-center py-3">
+        <p className="mb-0 text-muted">
+          &copy; 2025 Phòng Khám ABC. Tất cả các quyền được bảo lưu.
+        </p>
+      </footer>
+    </div>
+  )
+}
+
+export default Home
