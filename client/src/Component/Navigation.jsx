@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import { Container, Nav, Navbar, NavDropdown } from "react-bootstrap"
 import { useLocation } from "react-router-dom"
+import "../Style/Nav.css"
 
 const Navigation = () => {
   const location = useLocation()
@@ -9,8 +10,8 @@ const Navigation = () => {
     { name: "Trang chủ", link: "/" },
     { name: "Giới thiệu", link: "/about" },
     { name: "Đội ngũ bác sĩ", link: "/team" },
-    { name: "Chuyên khoa", link: "/specialty" },
-    { name: "Tin tức", link: "/news" },
+    { name: "Chuyên khoa", link: "/specialty"},
+    { name: "Tin tức", link: "/news"},
     { name: "Đặt lịch khám", link: "/appointment" },
     { name: "Liên hệ", link: "/contact" },
   ]
@@ -32,15 +33,15 @@ const Navigation = () => {
 
   const RenderNav = () => {
     return pages.map((page, index) => {
-      const isActive = location.pathname === page.link
+      const isActive = location.pathname === page.link || (page.link !== "/" && location.pathname.startsWith(page.link))
 
       if (index === 3 || index === 4) {
         return (
-          <NavDropdown title={page.name}
+          <NavDropdown
+            title={<span className={isActive ? "text-primary fw-bold" : "text-dark"}>{page.name}</span>}
             key={index}
             id="basic-nav-dropdown"
-            className={isActive ? "text-primary" : "text-dark"}
-            show={openDropdown === index} // Kiểm soát hiển thị dropdown
+            show={openDropdown === index} 
             onMouseEnter={() => handleMouseEnter(index)}
             onMouseLeave={handleMouseLeave}
           >
@@ -50,7 +51,7 @@ const Navigation = () => {
       }
 
       return (
-        <Nav.Link href={page.link} key={index} className={isActive ? "text-primary fw-bold" : "text-dark"}>
+        <Nav.Link href={page.link} key={index} className={isActive ? "text-primary fw-bold nav" : "text-dark nav"} >
           {page.name}
         </Nav.Link>
       )

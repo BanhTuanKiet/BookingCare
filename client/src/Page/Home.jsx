@@ -1,6 +1,7 @@
 import React from "react"
-import "bootstrap/dist/css/bootstrap.min.css"
 import { Col, Row } from "react-bootstrap"
+import images from "../Image/Index"
+import "../Style/Home.css"
 
 const Home = () => {
   const services = [
@@ -31,14 +32,13 @@ const Home = () => {
   ]
 
   const specialities = [
-    { name: "Khoa Nội tổng quát", link: "/specialty/internal-medicine", src: "/assets/Images/1.png" },
-    { name: "Khoa Nhi", link: "/specialty/pediatrics", src: "/assets/Images/2_2.png" },
-    { name: "Khoa Tai - Mũi - Họng", link: "/specialty/ent", src: "/assets/Images/3.png" },
-    { name: "Khoa Mắt (Nhãn khoa)", link: "/specialty/ophthalmology", src: "/assets/Images/4.png" },
-    { name: "Khoa Gây Mê", link: "/specialty/dermatology", src: "/assets/Images/5.png" },
-    { name: "Khoa Răng - Hàm - Mặt", link: "/specialty/dentistry", src: "/assets/Images/6_2.png" },
+    { name: "Khoa Nội tổng quát", link: "/specialty/internal-medicine", src: images.internalMedicine },
+    { name: "Khoa Nhi", link: "/specialty/pediatrics", src: images.pediatrics },
+    { name: "Khoa Tai - Mũi - Họng", link: "/specialty/ent", src: images.ent },
+    { name: "Khoa Mắt (Nhãn khoa)", link: "/specialty/ophthalmology", src: images.ophthalmology },
+    { name: "Khoa Gây Mê", link: "/specialty/dermatology", src: images.dermatology },
+    { name: "Khoa Răng - Hàm - Mặt", link: "/specialty/dentistry", src: images.dentistry },
   ]
-
 
   return (
     <div className="mx-auto">
@@ -47,21 +47,18 @@ const Home = () => {
         <p className="text-muted">Nơi chăm sóc sức khỏe tận tâm và chuyên nghiệp</p>
       </div>
 
-
       <Row className="mx-auto" style={{ width: "88%" }}>
         {specialities.map((speciality, index) => (
           <Col key={index} sm={12} lg={6} className="d-flex justify-content-center px-0">
             <div className="bg-white rounded w-100 text-start m-1 p-4">
-              <span className="d-inline-flex align-items-center justify-content-center rounded-circle text-white" style={{ width: "40px", height: "40px", zIndex: "1", backgroundColor: "#0646a3" }}>
-                <img src={speciality.src} alt="icon" style={{ width: "60%", height: "60%" }} />
+              <span className="d-inline-flex align-items-center justify-content-center rounded-circle text-white specialities" style={{ width: "40px", height: "40px", zIndex: "1", backgroundColor: "#0646a3" }}>
+                <img src={speciality.src} alt="icon" className="specialities" style={{ width: "60%", height: "60%" }} />
               </span>
               <span className="ms-2">{speciality.name}</span>
             </div>
           </Col>
         ))}
       </Row>
-
-
 
       <div className="container my-5" id="services">
         <h2 className="text-center text-primary fw-bold mb-4">Dịch vụ của chúng tôi</h2>
@@ -83,12 +80,6 @@ const Home = () => {
           ))}
         </div>
       </div>
-
-      <footer className="bg-light text-center py-3">
-        <p className="mb-0 text-muted">
-          &copy; 2025 Phòng Khám ABC. Tất cả các quyền được bảo lưu.
-        </p>
-      </footer>
     </div>
   )
 }
