@@ -1,5 +1,5 @@
-import React from "react"
-import { Container, Nav, Navbar, NavDropdown } from 'react-bootstrap'
+import React, { useState } from "react"
+import { Container, Nav, Navbar, NavDropdown } from "react-bootstrap"
 import { useLocation } from "react-router-dom"
 
 const Navigation = () => {
@@ -24,40 +24,55 @@ const Navigation = () => {
     { name: "Khoa Răng - Hàm - Mặt", link: "/specialty/dentistry" },
   ]
 
+  // State để kiểm soát dropdown
+  const [openDropdown, setOpenDropdown] = useState(null)
+
+  const handleMouseEnter = (index) => setOpenDropdown(index)
+  const handleMouseLeave = () => setOpenDropdown(null)
+
   const RenderNav = () => {
     return pages.map((page, index) => {
-      const isActive = location.pathname === page.link 
+      const isActive = location.pathname === page.link
 
-      if (index === 3) {
-        console.log(index)
+      if (index === 3 || index === 4) {
         return (
-          <NavDropdown title={page.name} key={index} id="basic-nav-dropdown" className={isActive ? "text-primary" : "text-dark"}>
-            {RenderSpecialities()}
+          <NavDropdown title={page.name}
+            key={index}
+            id="basic-nav-dropdown"
+            className={isActive ? "text-primary" : "text-dark"}
+            show={openDropdown === index} // Kiểm soát hiển thị dropdown
+            onMouseEnter={() => handleMouseEnter(index)}
+            onMouseLeave={handleMouseLeave}
+          >
+            {index === 3 ? RenderSpecialities() : RenderNews()}
           </NavDropdown>
         )
       }
 
-      if (index === 4) {
-        console.log(index)
-        return (
-          <NavDropdown title={page.name} key={index} id="basic-nav-dropdown" className={isActive ? "text-primary" : "text-dark"}>
-            <NavDropdown.Item href="">Action</NavDropdown.Item>
-            <NavDropdown.Item href="">Another action</NavDropdown.Item>
-            <NavDropdown.Item href="">Something</NavDropdown.Item>
-          </NavDropdown>
-        )
-      }
-      console.log(index)
       return (
-        <Nav.Link href={page.link} key={index} className={isActive ? "text-primary fw-bold" : "text-dark"} >{page.name}</Nav.Link>
+        <Nav.Link href={page.link} key={index} className={isActive ? "text-primary fw-bold" : "text-dark"}>
+          {page.name}
+        </Nav.Link>
       )
     })
   }
 
   const RenderSpecialities = () => {
     return specialities.map((speciality, index) => (
-      <NavDropdown.Item href={speciality.link} key={index} >{speciality.name}</NavDropdown.Item>
+      <NavDropdown.Item href={speciality.link} key={index}>
+        {speciality.name}
+      </NavDropdown.Item>
     ))
+  }
+
+  const RenderNews = () => {
+    return (
+      <>
+        <NavDropdown.Item href="#">Action</NavDropdown.Item>
+        <NavDropdown.Item href="#">Another action</NavDropdown.Item>
+        <NavDropdown.Item href="#">Something</NavDropdown.Item>
+      </>
+    )
   }
 
   return (
@@ -66,9 +81,7 @@ const Navigation = () => {
         <Navbar.Brand href="/">React-Bootstrap</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="ms-auto">
-            {RenderNav()}
-          </Nav>
+          <Nav className="ms-auto">{RenderNav()}</Nav>
         </Navbar.Collapse>
       </Container>
     </Navbar>

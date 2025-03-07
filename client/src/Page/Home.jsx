@@ -31,13 +31,14 @@ const Home = () => {
   ]
 
   const specialities = [
-    { name: "Khoa Nội tổng quát", link: "/specialty/internal-medicine", src: "https://benhviennamsaigon.com.vn/vnt_upload/doctor/10_2021/iicon33.png" },
-    { name: "Khoa Nhi", link: "/specialty/pediatrics" },
-    { name: "Khoa Tai - Mũi - Họng", link: "/specialty/ent", src: "https://benhviennamsaigon.com.vn/vnt_upload/doctor/10_2021/iicon1.png" },
-    { name: "Khoa Mắt (Nhãn khoa)", link: "/specialty/ophthalmology", src: "https://benhviennamsaigon.com.vn/vnt_upload/service/12_2022/icon_mat.png" },
-    { name: "Khoa Gây Mê", link: "/specialty/dermatology", src: "https://benhviennamsaigon.com.vn/vnt_upload/doctor/08_2022/icon_hoisuc.png" },
-    { name: "Khoa Răng - Hàm - Mặt", link: "/specialty/dentistry" },
+    { name: "Khoa Nội tổng quát", link: "/specialty/internal-medicine", src: "/assets/Images/1.png" },
+    { name: "Khoa Nhi", link: "/specialty/pediatrics", src: "/assets/Images/2_2.png" },
+    { name: "Khoa Tai - Mũi - Họng", link: "/specialty/ent", src: "/assets/Images/3.png" },
+    { name: "Khoa Mắt (Nhãn khoa)", link: "/specialty/ophthalmology", src: "/assets/Images/4.png" },
+    { name: "Khoa Gây Mê", link: "/specialty/dermatology", src: "/assets/Images/5.png" },
+    { name: "Khoa Răng - Hàm - Mặt", link: "/specialty/dentistry", src: "/assets/Images/6_2.png" },
   ]
+
 
   return (
     <div className="mx-auto">
@@ -52,7 +53,7 @@ const Home = () => {
           <Col key={index} sm={12} lg={6} className="d-flex justify-content-center px-0">
             <div className="bg-white rounded w-100 text-start m-1 p-4">
               <span className="d-inline-flex align-items-center justify-content-center rounded-circle text-white" style={{ width: "40px", height: "40px", zIndex: "1", backgroundColor: "#0646a3" }}>
-                <img src={speciality.src} alt="icon" style={{ width: "60%", height: "60%" }} />   
+                <img src={speciality.src} alt="icon" style={{ width: "60%", height: "60%" }} />
               </span>
               <span className="ms-2">{speciality.name}</span>
             </div>
