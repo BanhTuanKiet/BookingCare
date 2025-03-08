@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Col, Form, Row } from 'react-bootstrap'
+import { Button, Col, Container, Form, Row } from 'react-bootstrap'
 
 function Appointment() {
   const [formData, setFormData] = useState({})
@@ -15,72 +15,82 @@ function Appointment() {
 
   useEffect(() => {
     const month = formData["dob.month"]
+
     if (!month) return
 
     if (["January", "March", "May", "July", "August", "October", "December"].includes(month)) {
-      setDays(31)
-    } else if (month === "February") {
-      setDays(28) // Cần thêm logic kiểm tra năm nhuận nếu cần
-    } else {
-      setDays(30)
+      return setDays(31)
     }
-  }, [formData["dob.month"]])
+    
+    if (month === "February") {
+      return setDays(28)
+    } 
+    
+    return setDays(30)
+  }, [setDays, formData])
+
+  const submit = () => {
+    console.log(formData)
+  }
 
   return (
-    <Row className="">
-      <Col lg={6} md={12}>
-        <Form>
-          <div className='d-flex'>
-            {/* Name */}
-            <Form.Group className="mb-3 d-flex flex-column w-75 me-5">
-              <Form.Label className="text-start">Họ tên</Form.Label>
-              <Form.Control type="text" placeholder="Enter name" className="w-100" onChange={handleChange} />
+    <Container className="d-flex justify-content-center align-items-center px-0">
+      <Row>
+        <Col>
+          <Form className="p-4 border rounded shadow bg-white">
+            <Form.Group className='mb-3'>
+              <Form.Control type='text' placeholder='Tên của bạn' name='name' onChange={handleChange} />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Row>
+                {/* Phone number */}
+                <Col md={7}>
+                  <Form.Control type="text" placeholder="Số điện thoại" name="phoneNumber" onChange={handleChange} />
+                </Col>
+                    
+                {/* Gender */}
+                <Col md={5} className='d-flex justify-content-around my-auto'>
+                  <Form.Check name="gender" type='radio' label='Nam' value={"nam"}  onChange={handleChange} />
+                  <Form.Check name="gender" type='radio' label='Nữ' value={"nữ"}  onChange={handleChange} />
+                </Col>
+              </Row>
             </Form.Group>
 
-            {/* Gender */}
-            <Form.Group className="ms-5 mb-3 d-flex flex-column w-25">
-              <Form.Label className="text-start">Giới tính</Form.Label>
-              <Form.Select name="dob.day" onChange={handleChange}>
-                    <option>Giới tính</option>
-                    <option key={0}>Nam</option>
-                    <option key={1}>Nữ</option>
+            {/* Date of Birth */}
+            <Form.Group className="mb-3">
+              <Row>
+                <Col md={4}>
+                  <Form.Select name="dob.day" onChange={handleChange}>
+                    <option>Ngày</option>
+                    {[...Array(days)].map((_, i) => <option key={i}>{i + 1}</option>)}
                   </Form.Select>
-            </Form.Group>
-          </div>
+                </Col>
 
-          {/* Date of Birth */}
-          <Form.Group className="d-flex flex-column">
-            <Form.Label className="text-start">Ngày sinh</Form.Label>
-            <Row>
-              <Col>
-                <Form.Select name="dob.day" onChange={handleChange}>
-                  <option>Ngày</option>
-                  {[...Array(days)].map((_, i) => (
-                    <option key={i}>{i + 1}</option>
-                  ))}
-                </Form.Select>
-              </Col>
-              <Col>
-                <Form.Select name="dob.month" onChange={handleChange}>
-                  <option>Tháng</option>
-                  {months.map((m, i) => (
-                    <option key={i}>{m}</option>
-                  ))}
-                </Form.Select>
-              </Col>
-              <Col>
-                <Form.Select name="dob.year" onChange={handleChange}>
-                  <option>Năm</option>
-                  {[...Array(100)].map((_, i) => (
-                    <option key={i}>{year - 99 + i}</option>
-                  ))}
-                </Form.Select>
-              </Col>
-            </Row>
-          </Form.Group>
-        </Form>
-      </Col>
-    </Row>
+                <Col md={4}>
+                  <Form.Select name="dob.month" onChange={handleChange}>
+                    <option>Tháng</option>
+                    {months.map((m, i) => <option key={i}>{m}</option>)}
+                  </Form.Select>
+                </Col>
+
+                <Col md={4}>
+                  <Form.Select name="dob.year" onChange={handleChange}>
+                    <option>Năm</option>
+                    {[...Array(100)].map((_, i) => <option key={i}>{year - 99 + i}</option>)}
+                  </Form.Select>
+                </Col>
+              </Row>
+            </Form.Group>
+
+            <Form.Group>
+              <Form.Control as="textarea" rows={3} placeholder='Vui lòng mô tả các triệu chứng anh/chị đang gặp phải' />
+            </Form.Group>
+
+            <Button onClick={submit} className="w-100">Đặt lịch</Button>
+          </Form>
+        </Col>
+      </Row>
+    </Container>
   )
 }
 

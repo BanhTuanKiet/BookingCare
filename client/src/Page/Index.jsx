@@ -6,7 +6,7 @@ function Index({ children }) {
   return (
     <>
       <Navigation />
-      <main className='mx-auto' style={{ width: "90%" }}>{children}</main>
+      <main className='mx-auto'>{children}</main>
       <Footer />
     </>
   )
