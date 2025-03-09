@@ -77,8 +77,8 @@ const Navigation = () => {
   }
 
   return (
-    <Navbar expand="lg" className="bg-body-tertiary">
-      <Container>
+    <Navbar expand="lg" style={{ backgroundColor: "#eff8ff"}}>
+      <Container style={{ width: "80%" }}>
         <Navbar.Brand href="/">React-Bootstrap</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
