@@ -48,12 +48,13 @@ const Home = () => {
       </div>
 
       <div style={{ backgroundColor: "#eff8ff" }}>
-        <Row className="mx-auto" style={{ width: "80%" }}>
+        <Row className="mx-auto py-3" style={{ width: "80%" }}>
+          <h5>Chuyên khoa</h5>
           {specialities.map(({ src, name }, index) => (
-            <Col key={index} xs={12} sm={6} className="d-flex justify-content-center px-2">
+            <Col key={index} xs={12} sm={6} className="specialities d-flex justify-content-center px-2">
               <div className="bg-white rounded w-100 text-start m-1 p-4 d-flex align-items-center">
                 <span
-                  className="d-inline-flex align-items-center justify-content-center rounded-circle text-white"
+                  className="logo d-inline-flex align-items-center justify-content-center rounded-circle text-white"
                   style={{ width: 40, height: 40, zIndex: 1, backgroundColor: "#0646a3" }}
                 >
                   <img src={src} alt="icon" style={{ width: "60%", height: "60%" }} />

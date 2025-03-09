@@ -60,7 +60,7 @@ const Navigation = () => {
 
   const RenderSpecialities = () => {
     return specialities.map((speciality, index) => (
-      <NavDropdown.Item href={speciality.link} key={index}>
+      <NavDropdown.Item href={speciality.link} key={index} className="nav-item">
         {speciality.name}
       </NavDropdown.Item>
     ))

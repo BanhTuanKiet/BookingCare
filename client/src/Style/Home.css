@@ -1,6 +1,6 @@
 .home-container {
 }
 
-.specialities:hover {
+.specialities:hover .logo {
     background-color: #ffc107 !important;
 }
