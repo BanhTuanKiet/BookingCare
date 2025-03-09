@@ -4,11 +4,11 @@ import Footer from '../Component/Footer'
 
 function Index({ children }) {
   return (
-    <>
+    <div>
       <Navigation />
       <main className='mx-auto'>{children}</main>
       <Footer />
-    </>
+    </div>
   )
 }
 
