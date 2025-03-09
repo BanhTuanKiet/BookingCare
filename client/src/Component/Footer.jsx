@@ -20,13 +20,13 @@ const Footer = () => {
           <Col md={4} className="mb-3">
             <h5 className="text-primary fw-bold">Liên kết nhanh</h5>
             <ul className="list-unstyled">
-              <li className="my-2"><Link to="/" className="text-dark text-decoration-none hover:text-primary">Trang chủ</Link></li>
-              <li className="my-2"><Link to="/about" className="text-dark text-decoration-none hover:text-primary">Giới thiệu</Link></li>
-              <li className="my-2"><Link to="/team" className="text-dark text-decoration-none hover:text-primary">Đội ngũ bác sĩ</Link></li>
-              <li className="my-2"><Link to="/specialty" className="text-dark text-decoration-none hover:text-primary">Chuyên khoa</Link></li>
-              <li className="my-2"><Link to="/news" className="text-dark text-decoration-none hover:text-primary">Tin tức</Link></li>
-              <li className="my-2"><Link to="/appointment" className="text-dark text-decoration-none hover:text-primary">Đặt lịch khám</Link></li>
-              <li className="my-2"><Link to="/contact" className="text-dark text-decoration-none hover:text-primary">Liên hệ</Link></li>
+              <li><Link to="/" className="text-dark text-decoration-none hover:text-primary">Trang chủ</Link></li>
+              <li><Link to="/about" className="text-dark text-decoration-none hover:text-primary">Giới thiệu</Link></li>
+              <li><Link to="/team" className="text-dark text-decoration-none hover:text-primary">Đội ngũ bác sĩ</Link></li>
+              <li><Link to="/specialty" className="text-dark text-decoration-none hover:text-primary">Chuyên khoa</Link></li>
+              <li><Link to="/news" className="text-dark text-decoration-none hover:text-primary">Tin tức</Link></li>
+              <li><Link to="/appointment" className="text-dark text-decoration-none hover:text-primary">Đặt lịch khám</Link></li>
+              <li><Link to="/contact" className="text-dark text-decoration-none hover:text-primary">Liên hệ</Link></li>
             </ul>
           </Col>
 
