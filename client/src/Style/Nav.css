@@ -8,3 +8,9 @@
     content: none !important;
     display: none !important;
 }
+
+@media (max-width: 768px) {
+    .drop-item {
+      padding-left: 16px;
+    }
+}

@@ -44,6 +44,7 @@ const Navigation = () => {
             show={openDropdown === index} 
             onMouseEnter={() => handleMouseEnter(index)}
             onMouseLeave={handleMouseLeave}
+            className="drop-item"
           >
             {index === 3 ? RenderSpecialities() : RenderNews()}
           </NavDropdown>
@@ -77,7 +78,7 @@ const Navigation = () => {
   }
 
   return (
-    <Navbar expand="lg" style={{ backgroundColor: "#eff8ff"}}>
+    <Navbar expand="lg" style={{ backgroundColor: "#e3f1fc"}}>
       <Container style={{ width: "80%" }}>
         <Navbar.Brand href="/">React-Bootstrap</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />

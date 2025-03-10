@@ -5,6 +5,7 @@ import internalMedicine from "./internal-medicine.png"
 import ophthalmology from "./ophthalmology.png"
 import pediatrics from "./pediatrics.png"
 import appointment from "./appointment.png"
+import specialty from "./specialty.png"
 
 const images = {
     dentistry,
@@ -13,7 +14,8 @@ const images = {
     internalMedicine,
     ophthalmology,
     pediatrics,
-    appointment
+    appointment,
+    specialty
 }
 
 export default images

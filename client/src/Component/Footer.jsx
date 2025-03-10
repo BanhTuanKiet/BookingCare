@@ -6,7 +6,7 @@ import { FaPhoneAlt, FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
 const Footer = () => {
   return (
     <footer className="bg-light text-dark py-4 mt-5 text-start">
-      <Container>
+      <Container style={{ width: "80%"}}>
         <Row>
           {/* Giới thiệu */}
           <Col md={4} className="mb-3">
@@ -33,7 +33,7 @@ const Footer = () => {
           {/* Liên hệ */}
           <Col md={4} className="mb-3">
             <h5 className="text-primary fw-bold">Liên hệ</h5>
-            <p><FaMapMarkerAlt className="text-primary me-2" /> 123 Đường ABC, Quận 1, TP.HCM</p>
+            <p><FaMapMarkerAlt className="text-primary me-2" /> 475A Đ. Điện Biên Phủ, Phường 25, Bình Thạnh, Hồ Chí Minh</p>
             <p><FaPhoneAlt className="text-primary me-2" /> 0123 456 789</p>
             <p><FaEnvelope className="text-primary me-2" /> contact@clinicxyz.com</p>
           </Col>
