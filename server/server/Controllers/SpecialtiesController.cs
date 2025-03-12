@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using server.Models;
 
@@ -20,14 +22,32 @@ namespace server.Controllers
             _context = context;
         }
 
-        // GET: api/Specialty
+        // GET: api/Specialties
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<String>>> GetSpecialties()
+        public async Task<List<Specialty>> GetSpecialties()
         {
-            return await _context.Specialties.Select(specialty => specialty.Name).ToListAsync();
+            return await _context.Specialties
+                .Select(s => new Specialty { SpecialtyId = s.SpecialtyId, Name = s.Name })
+                .ToListAsync();
         }
 
-        // GET: api/Specialty/5
+        // GET: api/Specialties/specialty/description
+        [HttpGet("{specialty}/description")]
+        public async Task<ActionResult<string>> GetDescription(string specialty)
+        {
+            var description = await _context.Specialties
+                 .Where(s => s.Name == specialty)
+                 .Select(s => s.Description)
+                 .FirstOrDefaultAsync();
+
+            if (description == null)
+            {
+                return NotFound("Không tìm thấy chuyên khoa!");
+            }
+
+            return Ok(description);
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<Specialty>> GetSpecialty(int id)
         {
@@ -41,7 +61,7 @@ namespace server.Controllers
             return specialty;
         }
 
-        // PUT: api/Specialty/5
+        // PUT: api/Specialties/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<IActionResult> PutSpecialty(int id, Specialty specialty)
@@ -72,7 +92,7 @@ namespace server.Controllers
             return NoContent();
         }
 
-        // POST: api/Specialty
+        // POST: api/Specialties
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<Specialty>> PostSpecialty(Specialty specialty)

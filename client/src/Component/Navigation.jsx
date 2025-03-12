@@ -8,23 +8,23 @@ const Navigation = () => {
 
   const pages = [
     { name: "Trang chủ", link: "/" },
-    { name: "Giới thiệu", link: "/about" },
-    { name: "Đội ngũ bác sĩ", link: "/team" },
-    { name: "Chuyên khoa", link: "/specialty"},
-    { name: "Tin tức", link: "/news"},
-    { name: "Đặt lịch khám", link: "/appointment" },
-    { name: "Liên hệ", link: "/contact" },
+    { name: "Giới thiệu", link: "/về chúng tôi" },
+    { name: "Đội ngũ bác sĩ", link: "/bác sĩ" },
+    { name: "Chuyên khoa", link: "/chuyên khoa" },
+    { name: "Dịch vụ", link: "/dịch vụ" },
+    { name: "Tin tức", link: "/tin tức" },
+    { name: "Đặt lịch khám", link: "/đặt lịch khám" },
+    { name: "Liên hệ", link: "/liên hệ" },
   ]
 
   const specialities = [
-    { name: "Khoa Nội tổng quát", link: "/specialty/internal-medicine" },
-    { name: "Khoa Nhi", link: "/specialty/pediatrics" },
-    { name: "Khoa Tai - Mũi - Họng", link: "/specialty/ent" },
-    { name: "Khoa Mắt (Nhãn khoa)", link: "/specialty/ophthalmology" },
-    { name: "Khoa Gây Mê", link: "/specialty/dermatology" },
-    { name: "Khoa Răng - Hàm - Mặt", link: "/specialty/dentistry" },
+    { name: "Khoa Nội tổng quát", link: "/chuyên khoa/Khoa Nội tổng quát" },
+    { name: "Khoa Nhi", link: "/chuyên khoa/Khoa Nhi" },
+    { name: "Khoa Tai - Mũi - Họng", link: "/chuyên khoa/Khoa Tai - Mũi - Họng" },
+    { name: "Khoa Mắt (Nhãn khoa)", link: "/chuyên khoa/Khoa Mắt (Nhãn khoa)" },
+    { name: "Khoa Gây Mê", link: "/chuyên khoa/Khoa Gây Mê" },
+    { name: "Khoa Răng - Hàm - Mặt", link: "/chuyên khoa/Khoa Răng - Hàm - Mặt" },
   ]
-
   // State để kiểm soát dropdown
   const [openDropdown, setOpenDropdown] = useState(null)
 

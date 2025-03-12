@@ -13,12 +13,13 @@ function AppRoute() {
     return (
         <Routes>
             <Route path='/' element={<Index><Home /></Index>} />
-            <Route path='/about' element={<Index><About /></Index>} />
-            <Route path='/team' element={<Index><Team /></Index>} />
-            <Route path='/specialty/:specialty' element={<Index><Specialty /></Index>}></Route>
-            <Route path='/news' element={<Index><News /></Index>} />
-            <Route path='/appointment' element={<Index><Appointment /></Index>} />
-            <Route path='/contact' element={<Index><Contact /></Index>} />
+            <Route path='/về chúng tôi' element={<Index><About /></Index>} />
+            <Route path='/bác sĩ' element={<Index><Team /></Index>} />
+            <Route path='/chuyên khoa/:specialty' element={<Index><Specialty /></Index>}></Route>
+            <Route path='/dịch vụ/:service' element={<Index></Index>}></Route>
+            <Route path='/tin tức' element={<Index><News /></Index>} />
+            <Route path='/đặt lịch khám' element={<Index><Appointment /></Index>} />
+            <Route path='/liên hệ' element={<Index><Contact /></Index>} />
             <Route path='/' element={<Index><Home /></Index>} />
         </Routes>
     )

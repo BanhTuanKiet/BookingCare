@@ -1,47 +1,49 @@
 import React, { useEffect, useState } from "react"
 import { useNavigate } from "react-router"
 import { Col, Row } from "react-bootstrap"
-import images from "../Image/Index"
-import "../Style/Home.css"
+import images from "../Image/Specalty/Index"
 import SpecialtyLogo from "../Component/SpecialtyLogo"
 import axios from "axios"
+import "../Style/Home.css"
 
 const Home = () => {
   const navigate = useNavigate()
   const [specialties, setSpecialties] = useState([])
 
-  const specialities = [
-    { name: "Khoa Nội tổng quát", link: "/specialty/internalMedicine", src: images.internalMedicine },
-    { name: "Khoa Nhi", link: "/specialty/pediatrics", src: images.pediatrics },
-    { name: "Khoa Tai - Mũi - Họng", link: "/specialty/ent", src: images.ent },
-    { name: "Khoa Mắt (Nhãn khoa)", link: "/specialty/ophthalmology", src: images.ophthalmology },
-    { name: "Khoa Gây Mê", link: "/specialty/dermatology", src: images.dermatology },
-    { name: "Khoa Răng - Hàm - Mặt", link: "/specialty/dentistry", src: images.dentistry },
-  ]
+    const specialities = [
+      { name: "Khoa Nội tổng quát", link: "/chuyên khoa/Khoa Nội tổng quát" },
+      { name: "Khoa Nhi", link: "/chuyên khoa/Khoa Nhi" },
+      { name: "Khoa Tai - Mũi - Họng", link: "/chuyên khoa/Khoa Tai - Mũi - Họng" },
+      { name: "Khoa Mắt (Nhãn khoa)", link: "/chuyên khoa/Khoa Mắt (Nhãn khoa)" },
+      { name: "Khoa Gây Mê", link: "/chuyên khoa/Khoa Gây Mê" },
+      { name: "Khoa Răng - Hàm - Mặt", link: "/chuyên khoa/Khoa Răng - Hàm - Mặt" },
+    ]
 
-  useEffect(() => {
-    const GetAllSpecialties = async () => {
-      try {
-        const response = await axios.get("http://127.0.0.1:5140/api/specialties")
+    useEffect(() => {
+      const GetAllSpecialties = async () => {
+        try {
+          const response = await axios.get("http://127.0.0.1:5140/api/specialties")
 
-        // Ghép dữ liệu từ API với danh sách link và src
-        const mergedSpecialties = response.data.map((spec) => {
-          const matchedSpec = specialities.find((s) => s.name === spec)
-          return {
-            name: spec,
-            link: matchedSpec?.link,
-            src: matchedSpec?.src,
-          }
-        })
+          // Ghép dữ liệu từ API với danh sách link và src
+          const mergedSpecialties = response.data.map((spec) => {
+            const matchedSpec = specialities.find((s) => s.name === spec.name)
 
-        setSpecialties(mergedSpecialties)
-      } catch (error) {
-        console.error("Lỗi khi lấy danh sách chuyên khoa:", error)
+            return {
+              id: spec.specialtyId,
+              name: spec.name,
+              link: matchedSpec?.link,
+              src: images[spec.name]
+            }
+          })        
+
+          setSpecialties(mergedSpecialties)
+        } catch (error) {
+          console.error("Lỗi khi lấy danh sách chuyên khoa:", error)
+        }
       }
-    }
 
-    GetAllSpecialties()
-  }, [])
+      GetAllSpecialties()
+    }, [])
 
   const HandleSpec = (link) => {
     navigate(link)

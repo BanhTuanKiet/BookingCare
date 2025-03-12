@@ -1,4 +1,5 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using server.Configs;
 using server.Controllers;
 using server.Models;
@@ -10,8 +11,17 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCorsPolicy();
 // Add services to the container.
 
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
 builder.Services.AddDbContext<ClinicManagementContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(connectionString, sqlOptions =>
+        sqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 5, // Số lần thử lại
+            maxRetryDelay: TimeSpan.FromSeconds(10), // Độ trễ tối đa giữa các lần thử
+            errorNumbersToAdd: null)
+    )
+);
+
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

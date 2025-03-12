@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Button, Col, Container, Form, Row } from 'react-bootstrap'
-import images from "../Image/Index"
+import images from "../Image/Others/Index"
 
 function Appointment() {
   const [formData, setFormData] = useState({})
