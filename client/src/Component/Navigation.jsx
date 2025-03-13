@@ -25,6 +25,7 @@ const Navigation = () => {
     { name: "Khoa Gây Mê", link: "/chuyên khoa/Khoa Gây Mê" },
     { name: "Khoa Răng - Hàm - Mặt", link: "/chuyên khoa/Khoa Răng - Hàm - Mặt" },
   ]
+  
   // State để kiểm soát dropdown
   const [openDropdown, setOpenDropdown] = useState(null)
 

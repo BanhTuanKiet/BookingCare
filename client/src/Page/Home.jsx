@@ -1,49 +1,13 @@
-import React, { useEffect, useState } from "react"
+import React, { useContext } from "react"
 import { useNavigate } from "react-router"
 import { Col, Row } from "react-bootstrap"
-import images from "../Image/Specalty/Index"
 import SpecialtyLogo from "../Component/SpecialtyLogo"
-import axios from "axios"
 import "../Style/Home.css"
+import { NavContext } from "../Context/NavContext"
 
 const Home = () => {
   const navigate = useNavigate()
-  const [specialties, setSpecialties] = useState([])
-
-    const specialities = [
-      { name: "Khoa Nội tổng quát", link: "/chuyên khoa/Khoa Nội tổng quát" },
-      { name: "Khoa Nhi", link: "/chuyên khoa/Khoa Nhi" },
-      { name: "Khoa Tai - Mũi - Họng", link: "/chuyên khoa/Khoa Tai - Mũi - Họng" },
-      { name: "Khoa Mắt (Nhãn khoa)", link: "/chuyên khoa/Khoa Mắt (Nhãn khoa)" },
-      { name: "Khoa Gây Mê", link: "/chuyên khoa/Khoa Gây Mê" },
-      { name: "Khoa Răng - Hàm - Mặt", link: "/chuyên khoa/Khoa Răng - Hàm - Mặt" },
-    ]
-
-    useEffect(() => {
-      const GetAllSpecialties = async () => {
-        try {
-          const response = await axios.get("http://127.0.0.1:5140/api/specialties")
-
-          // Ghép dữ liệu từ API với danh sách link và src
-          const mergedSpecialties = response.data.map((spec) => {
-            const matchedSpec = specialities.find((s) => s.name === spec.name)
-
-            return {
-              id: spec.specialtyId,
-              name: spec.name,
-              link: matchedSpec?.link,
-              src: images[spec.name]
-            }
-          })        
-
-          setSpecialties(mergedSpecialties)
-        } catch (error) {
-          console.error("Lỗi khi lấy danh sách chuyên khoa:", error)
-        }
-      }
-
-      GetAllSpecialties()
-    }, [])
+  const { specialties } = useContext(NavContext)
 
   const HandleSpec = (link) => {
     navigate(link)

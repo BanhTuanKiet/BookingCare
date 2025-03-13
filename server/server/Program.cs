@@ -3,8 +3,19 @@ using Microsoft.Extensions.Options;
 using server.Configs;
 using server.Controllers;
 using server.Models;
+using DotNetEnv;
+
+Env.Load();
+
+string db_server = Environment.GetEnvironmentVariable("DATABASE_SERVER");
+string db_port = Environment.GetEnvironmentVariable("DATABASE_PORT");
+string db_name = Environment.GetEnvironmentVariable("DATABASE_NAME");
+string user_id = Environment.GetEnvironmentVariable("USER_ID");
+string db_password = Environment.GetEnvironmentVariable("DATABASE_PASSWORD");
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration["ConnectionStrings:DefaultConnection"] = $"Server={db_server},{db_port};Database={db_name};User Id={user_id};Password={db_password};TrustServerCertificate=True;Connect Timeout=180;";
 
 // Add cors policy
 
