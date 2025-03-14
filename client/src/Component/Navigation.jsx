@@ -1,11 +1,12 @@
-import React, { useState } from "react"
+import React, { useContext, useState } from "react"
 import { Container, Nav, Navbar, NavDropdown } from "react-bootstrap"
 import { useLocation } from "react-router-dom"
 import "../Style/Nav.css"
+import { NavContext } from "../Context/NavContext"
 
 const Navigation = () => {
   const location = useLocation()
-
+  const { specialties, HandleNavigation } = useContext(NavContext)
   const pages = [
     { name: "Trang chủ", link: "/" },
     { name: "Giới thiệu", link: "/về chúng tôi" },
@@ -17,15 +18,6 @@ const Navigation = () => {
     { name: "Liên hệ", link: "/liên hệ" },
   ]
 
-  const specialities = [
-    { name: "Khoa Nội tổng quát", link: "/chuyên khoa/Khoa Nội tổng quát" },
-    { name: "Khoa Nhi", link: "/chuyên khoa/Khoa Nhi" },
-    { name: "Khoa Tai - Mũi - Họng", link: "/chuyên khoa/Khoa Tai - Mũi - Họng" },
-    { name: "Khoa Mắt (Nhãn khoa)", link: "/chuyên khoa/Khoa Mắt (Nhãn khoa)" },
-    { name: "Khoa Gây Mê", link: "/chuyên khoa/Khoa Gây Mê" },
-    { name: "Khoa Răng - Hàm - Mặt", link: "/chuyên khoa/Khoa Răng - Hàm - Mặt" },
-  ]
-  
   // State để kiểm soát dropdown
   const [openDropdown, setOpenDropdown] = useState(null)
 
@@ -47,7 +39,7 @@ const Navigation = () => {
             onMouseLeave={handleMouseLeave}
             className="drop-item"
           >
-            {index === 3 ? RenderSpecialities() : RenderNews()}
+            {index === 3 ? RenderSpecialties() : RenderNews()}
           </NavDropdown>
         )
       }
@@ -60,9 +52,9 @@ const Navigation = () => {
     })
   }
 
-  const RenderSpecialities = () => {
-    return specialities.map((speciality, index) => (
-      <NavDropdown.Item href={speciality.link} key={index} className="nav-item">
+  const RenderSpecialties = () => {
+    return specialties.map((speciality, index) => (
+      <NavDropdown.Item key={index} className="nav-item" onClick={() => HandleNavigation("chuyên khoa", speciality.name)}>
         {speciality.name}
       </NavDropdown.Item>
     ))

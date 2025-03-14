@@ -1,17 +1,11 @@
 import React, { useContext } from "react"
-import { useNavigate } from "react-router"
 import { Col, Row } from "react-bootstrap"
 import SpecialtyLogo from "../Component/SpecialtyLogo"
 import "../Style/Home.css"
 import { NavContext } from "../Context/NavContext"
 
 const Home = () => {
-  const navigate = useNavigate()
-  const { specialties } = useContext(NavContext)
-
-  const HandleSpec = (link) => {
-    navigate(link)
-  }
+  const { specialties, HandleNavigation } = useContext(NavContext)
 
   return (
     <div>
@@ -23,11 +17,11 @@ const Home = () => {
       <div style={{ backgroundColor: "#e3f1fc" }}>
         <Row className="mx-auto py-3" style={{ width: "80%" }}>
           <h5>Chuyên khoa</h5>
-          {specialties.map(({ name, link, src }, index) => (
+          {specialties.map((specialty, index) => (
             <Col key={index} xs={12} sm={6} className="specialities d-flex justify-content-center px-2">
-              <div className="bg-white rounded w-100 text-start m-1 p-4 d-flex align-items-center" onClick={() => HandleSpec(link)}>
-                <SpecialtyLogo src={src} />
-                <span className="ms-2">{name}</span>
+              <div className="bg-white rounded w-100 text-start m-1 p-4 d-flex align-items-center" onClick={() => HandleNavigation("chuyên khoa" , specialty.name)}>
+                <SpecialtyLogo src={specialty.src} />
+                <span className="ms-2">{specialty.name}</span>
               </div>
             </Col>
           ))}
