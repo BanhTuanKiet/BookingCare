@@ -4,42 +4,22 @@ const ServiceCard = ({ service }) => {
   return (
     <div
       key={service.ServiceID}
-      className="service-card"
-      style={{
-        border: '1px solid #ddd',
-        borderRadius: '8px',
-        padding: '15px',
-        width: '250px',
-        boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
-        transition: 'transform 0.3s',
-        cursor: 'pointer',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
+      className="card h-100 shadow-sm border-0"
+      style={{ width: '250px', cursor: 'pointer', transition: 'transform 0.3s' }}
     >
       <img
         src={service.image}
         alt={service.ServiceName}
-        style={{
-          width: '200px',
-          height: '200px',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          backgroundSize: 'cover',
-          borderRadius: '8px',
-          overflow: 'hidden',
-          marginBottom: '15px',
-        }}
+        className="card-img-top img-fluid rounded"
+        style={{ height: '200px', objectFit: 'cover' }}
       />
-      <h6 style={{ marginTop: '10px', marginBottom: '5px' }}>
-        {service.ServiceName}
-      </h6>
-      <p style={{ margin: '0', fontStyle: 'italic' }}>{service.Description}</p>
-      <p style={{ margin: '5px 0 0', fontWeight: 'bold' }}>
-        Giá: {service.Price.toLocaleString()} VNĐ
-      </p>
+      <div className="card-body text-center d-flex flex-column justify-content-center">
+        <h6 className="card-title my-2">{service.ServiceName}</h6>
+        <p className="card-text fst-italic mb-2">{service.Description}</p>
+        <p className="fw-bold text-danger mb-0">
+          Giá: {service.Price.toLocaleString()} VNĐ
+        </p>
+      </div>
     </div>
   );
 };

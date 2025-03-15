@@ -11,52 +11,45 @@ function SpecialtyNav() {
 
     const [activeNavItem, setActiveNavItem] = useState(navItems[0])
 
-    const [doctors, setDoctors] = useState([])
-    const [infor, setInfor] = useState(null)
-    const [services, setServices] = useState([]) // Nếu có dịch vụ riêng biệt
+    const [infor, setInfor] = useState([])
+
 
     useEffect(() => {
-        const GeInforSpecialty = async () => {
+        const fetchData = async () => {
             try {
-                let response
-
-                // Giới thiệu
-                if (activeNavItem === navItems[0]) {
-                    response = await axios.get(`http://127.0.0.1:5140/api/specialties/${specialty}/description`)
-                    console.log("Giới thiệu:", response.data)
-
-                    setInfor(response.data)
-                    setDoctors([])
-                    setServices([])
-                }
-
-                // Bác sĩ
-                if (activeNavItem === navItems[1]) {
-                    response = await axios.get(`http://127.0.0.1:5140/api/specialties/${specialty}/doctor`)
-                    console.log("Danh sách bác sĩ:", response.data)
-
-                    setDoctors(response.data) // Đưa response.data vào doctors
-                    setInfor(null)
-                    setServices([])
-                }
-
-                // Dịch vụ
-                if (activeNavItem === navItems[2]) {
-                    // response = await axios.get(`http://127.0.0.1:5140/api/specialties/${specialty}/services`)
-                    // console.log("Dịch vụ:", response.data)
-
-                    setServices("bbbbbbbbbbbb")
-                    // setInfor(null)
-                    // setDoctors([])
+                let response;
+    
+                switch (activeNavItem) {
+                    case navItems[0]: // Giới thiệu
+                        response = await axios.get(`http://127.0.0.1:5140/api/specialties/${specialty}/description`);
+                        console.log("Giới thiệu:", response.data);
+                        setInfor(response.data ?? "")
+                        break;
+    
+                    case navItems[1]: // Bác sĩ
+                        response = await axios.get(`http://127.0.0.1:5140/api/Doctors/${specialty}/doctor`);
+                        console.log("Danh sách bác sĩ:", response.data);
+                        setInfor(Array.isArray(response.data) ? response.data : []);
+                        break;
+    
+                    case navItems[2]: // Dịch vụ
+                        response = await axios.get(`http://127.0.0.1:5140/api/specialties/${specialty}/services`);
+                        console.log("Dịch vụ:", response.data);
+                        setInfor(Array.isArray(response.data) ? response.data : []);
+                        break;
+    
+                    default:
+                        setInfor(null);
+                        break;
                 }
             } catch (error) {
-                console.error("Lỗi lấy dữ liệu:", error)
+                console.error("Lỗi lấy dữ liệu:", error);
             }
-        }
-
-        GeInforSpecialty()
-    }, [activeNavItem, specialty])
-
+        };
+    
+        fetchData();
+    }, [activeNavItem, specialty]);
+    
     return (
         <div className="specialty-container">
             {/* Thanh điều hướng tab */}
@@ -76,7 +69,7 @@ function SpecialtyNav() {
             {/* Nội dung Giới thiệu */}
             {activeNavItem === navItems[0] && infor && (
                 <div className="specialty-description mt-3">
-                    <h5 className="mb-3">Giới thiệu chuyên khoa</h5>
+                    <h5 className="mb-3">Danh sách {activeNavItem}</h5>
                     <div>{infor}</div>
                 </div>
             )}
@@ -84,12 +77,12 @@ function SpecialtyNav() {
             {/* Nội dung Bác sĩ */}
             {activeNavItem === navItems[1] && (
                 <div className="specialty-doctors mt-3">
-                    <h5 className="mb-3">Danh sách Bác sĩ</h5>
-                    {doctors.length > 0 ? (
+                    <h5 className="mb-3">Danh sách {activeNavItem}</h5>
+                    {Array.isArray(infor) && infor.length > 0 ? (
                         <div className="doctor-list" style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
-                            {doctors.map(doctor => (
-                                <DoctorCard key={doctor.id} doctor={doctor} />
-                            ))}
+                        {infor.map(doctor => (
+                            <DoctorCard key={doctor.doctorId} doctor={doctor} />
+                        ))}
                         </div>
                     ) : (
                         <p>Hiện chưa có bác sĩ nào được hiển thị.</p>
@@ -100,10 +93,10 @@ function SpecialtyNav() {
             {/* Nội dung Dịch vụ */}
             {activeNavItem === navItems[2] && (
                 <div className="specialty-services mt-3">
-                    <h5 className="mb-3">Danh sách Dịch vụ</h5>
-                    {services.length > 0 ? (
+                    <h5 className="mb-3">Danh sách {activeNavItem}</h5>
+                    {Array.isArray(infor) && infor.length > 0 ? (
                         <div className="service-list" style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
-                            {services.map(service => (
+                            {infor.map(service => (
                                 <ServiceCard key={service.id} service={service} />
                             ))}
                         </div>

@@ -1,44 +1,38 @@
 import React from 'react';
 import images from '../Image/Doctors/Index';
+import '../Style/DoctorCard.css'; // Nhớ import file CSS
+
 const DoctorCard = ({ doctor }) => {
-    const doctorImage = images[doctor.doctorId] || '/default-doctor.png';
-    return (
+  const doctorImage = images[doctor.doctorId] || '/default-doctor.png';
+
+  return (
     <div
-        key={doctor.doctorId}
-        className="doctor-card"
-        style={{
-        border: '1px solid #ddd',
-        borderRadius: '8px',
-        padding: '15px',
-        width: '250px',
-        boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
-        transition: 'transform 0.3s',
-        cursor: 'pointer',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center', // Centers the content horizontally
-        justifyContent: 'center', // Centers the content vertically
-      }}
+      key={doctor.doctorId}
+      className="card text-center shadow-sm doctor-card-hover"
+      style={{ width: '18rem', cursor: 'pointer', transition: 'transform 0.3s, box-shadow 0.3s' }}
     >
-    <img
-        src={doctorImage}
-        alt={doctor.userName}
-        style={{
-            width: '200px',
-            height: '200px',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            backgroundSize: 'cover',
-            borderRadius: '100%',
-            overflow: 'hidden',
-            marginBottom: '15px',
-        }}
-    />
-        <h6 style={{ marginTop: '10px', marginBottom: '5px' }}>{doctor.userName}</h6>
-        <p style={{ margin: '0', fontStyle: 'italic' }}>{doctor.position}</p>
-        <p style={{ margin: '5px 0 0' }}>{doctor.experienceYears}</p>
+      <div className="card-body d-flex flex-column align-items-center">
+        <img
+          src={doctorImage}
+          alt={doctor.userName}
+          className="rounded-circle mb-3"
+          style={{
+            width: '150px',
+            height: '150px',
+            objectFit: 'cover',
+            border: '2px solid #ddd',
+          }}
+        />
+        <h5 className="card-title">{doctor.userName}</h5>
+        <p className="card-text text-muted fst-italic mb-1">
+          {doctor.position}
+        </p>
+        <p className="card-text fw-bold">
+          {doctor.experienceYears} năm kinh nghiệm
+        </p>
+      </div>
     </div>
-    );
+  );
 };
 
 export default DoctorCard;
