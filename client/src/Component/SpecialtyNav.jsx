@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import axios from 'axios'
+import axios from '../Util/AxiosConfig'
 import { useParams } from 'react-router-dom'
 import "../Style/SpecialtyNav.css"
 import DoctorCard from './DoctorCard'
@@ -8,9 +8,7 @@ import ServiceCard from './ServiceCard' // Nếu chưa có, có thể tạm ẩn
 function SpecialtyNav() {
     const { specialty } = useParams() // destructure params cho gọn
     const navItems = ["Giới thiệu", "Bác sĩ", "Dịch vụ"]
-
     const [activeNavItem, setActiveNavItem] = useState(navItems[0])
-
     const [infor, setInfor] = useState([])
 
 
