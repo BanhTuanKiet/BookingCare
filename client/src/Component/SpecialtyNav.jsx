@@ -66,9 +66,8 @@ function SpecialtyNav() {
 
             {/* Nội dung Giới thiệu */}
             {activeNavItem === navItems[0] && infor && (
-                <div className="specialty-description mt-3">
-                    <h5 className="mb-3">Danh sách {activeNavItem}</h5>
-                    <div>{infor}</div>
+                <div className="specialty-description mt-3 me-5">
+                    <div><span className='text-warning fw-bold'>{specialty}</span> {infor}</div>
                 </div>
             )}
 

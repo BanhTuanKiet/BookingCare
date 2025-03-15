@@ -35,12 +35,14 @@ const NavProvider = ({ children }) => {
     useEffect(() => {
         const GetAllServices = async () => {
             try {
-                const response = await axios.get("http://127.0.0.1:5140/api/services")
+                const response = await axios.get(`/services`)
+                console.log(response)
             } catch (error) {
                 console.error("Lỗi khi lấy danh sách dịch vụ:", error)
             }
         }
-    })
+        GetAllServices()
+    }, [])
   
     const HandleNavigation = (type, specialtyName) => {
       navigate(`/${type}/${specialtyName}`)
