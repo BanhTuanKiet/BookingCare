@@ -24,14 +24,14 @@ namespace server.Controllers
         }
 
         // GET: Services
-        [HttpGet("{id}")]
+        [HttpGet]
         public async Task<List<Service>> GetService() 
         { 
             var service = await _context.Services.ToListAsync();
             //if (service == null)
             //{
             //    return NotFound();
-            // }
+            //}
             return service;
         }
 
@@ -44,7 +44,7 @@ namespace server.Controllers
             return CreatedAtAction("GetService", new { id = service.ServiceId }, service);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut]
         public async Task<IActionResult> PutService(int id, Service service)
         {
             if (id != service.ServiceId)
@@ -70,7 +70,7 @@ namespace server.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete]
         public async Task<IActionResult> DeleteService(int id)
         {
             var service = await _context.Services.FindAsync(id);

@@ -5,22 +5,13 @@ import internalMedicine from "./internal-medicine.png"
 import ophthalmology from "./ophthalmology.png"
 import pediatrics from "./pediatrics.png"
 
-// const images = {
-//     "Khoa Răng - Hàm - Mặt": dentistry,
-//     "Khoa Gây Mê": dermatology,
-//     "Khoa Tai - Mũi - Họng": ent,
-//     "Khoa Nội tổng quát": internalMedicine,
-//     "Khoa Mắt (Nhãn khoa)": ophthalmology,
-//     "Khoa Nhi": pediatrics,
-// }
-
 const images = {
-    "1": dentistry,
-    "2": dermatology,
-    "3": ent,
-    "4": internalMedicine,
-    "5": ophthalmology,
-    "6": pediatrics,
+    "Khoa Răng - Hàm - Mặt": dentistry,
+    "Khoa Gây Mê": dermatology,
+    "Khoa Tai - Mũi - Họng": ent,
+    "Khoa Nội tổng quát": internalMedicine,
+    "Khoa Mắt (Nhãn khoa)": ophthalmology,
+    "Khoa Nhi": pediatrics,
 }
 
 export default images

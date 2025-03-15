@@ -1,8 +1,10 @@
 {
   "ExpandedNodes": [
     "",
-    "\\server"
+    "\\server",
+    "\\server\\server",
+    "\\server\\server\\Controllers"
   ],
-  "SelectedNode": "\\server\\server.sln",
+  "SelectedNode": "\\server\\server\\Controllers\\SpecialtiesController.cs",
   "PreviewInSolutionExplorer": false
 }

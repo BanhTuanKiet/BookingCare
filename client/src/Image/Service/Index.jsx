@@ -9,15 +9,15 @@ import supersonic from "./supersonic.png"
 import xRay from "./xRay.png"
 
 const images = {
-    "Khám tổng quát": generalExamination,
-    "Khám chuyên khoa Nội": dentistry,
-    "Khám Nhi khoa" : pediatrics,
-    "Khám Tai - Mũi - Họng": ent,
-    "Khám mắt": ophthalmology,
-    "Chụp X-quang": xRay,
-    "Siêu âm tổng quát": supersonic,
-    "Nội soi dạ dày": gastroscopy,
-    "Xét nghiệm máu tổng quát": bloodTest 
+    1 : generalExamination,
+    2 : dentistry,
+    3 : pediatrics,
+    4 : ent,
+    5 : ophthalmology,
+    6 : xRay,
+    7 : supersonic,
+    8 : gastroscopy,
+    9 : bloodTest 
 }
 
 export default images

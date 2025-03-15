@@ -77,19 +77,7 @@ namespace server.Controllers
 
 
         // GET: api/Services
-        [HttpGet("services")]
-
-        //public async Task<List<Service>> GetService()
-        //{
-        //    var services = await _context.Services.ToListAsync();
-
-        //    if (services == null || !services.Any())
-        //    {
-        //          return null; // Trả về NotFound nếu không có dữ liệu
-        //    }
-
-        //    return services; // Trả về danh sách các dịch vụ
-        //}
+        [HttpGet("{specialty}/services")]
 
         public async Task<ActionResult<List<object>>> GetAllServices()
         {
