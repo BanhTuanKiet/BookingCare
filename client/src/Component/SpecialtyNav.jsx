@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import axios from 'axios'
+import axios from '../Util/AxiosConfig'
 import { useParams } from 'react-router-dom'
 
 function SpecialtyNav() {
@@ -13,7 +13,7 @@ function SpecialtyNav() {
             try {
                 let response
                 if (activeNavItem === navItems[0]) {
-                    response = await axios.get(`http://127.0.0.1:5140/api/specialties/${specialty.specialty}/description`)
+                    response = await axios.get(`/specialties/${specialty.specialty}/description`)
 
                     setInfor(response.data)
                 } 

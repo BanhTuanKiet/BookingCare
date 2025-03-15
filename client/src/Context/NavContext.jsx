@@ -1,5 +1,5 @@
 import { createContext, useEffect, useState } from 'react'
-import axios from 'axios'
+import axios from '../Util/AxiosConfig'
 import images from '../Image/Specalty/Index'
 
 const NavContext = createContext()
@@ -19,7 +19,7 @@ const NavProvider = ({ children }) => {
 
         const GetAllSpecialties = async () => {
           try {
-            const response = await axios.get("http://127.0.0.1:5140/api/specialties")
+            const response = await axios.get("/specialties")
   
             // Ghép dữ liệu từ API với danh sách link và src
             const mergedSpecialties = response.data.map((spec) => {
