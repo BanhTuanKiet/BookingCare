@@ -18,4 +18,5 @@ public partial class Doctor
     public virtual Specialty? Specialty { get; set; }
 
     public virtual User? User { get; set; }
+    public string Position { get; internal set; }
 }

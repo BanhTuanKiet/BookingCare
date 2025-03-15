@@ -48,6 +48,67 @@ namespace server.Controllers
             return Ok(description);
         }
 
+        //// GET: api/Specialties/specialty/doctor
+        //[HttpGet("{specialty}/doctor")]
+        //public async Task<ActionResult<List<object>>> GetDoctors(string specialty)
+        //{
+        //    if (string.IsNullOrWhiteSpace(specialty))
+        //    {
+        //        return BadRequest("Tên chuyên khoa không hợp lệ!");
+        //    }
+
+        //    var doctors = await (
+        //        from d in _context.Doctors.AsNoTracking()
+        //        join u in _context.Users.AsNoTracking() on d.UserId equals u.UserId
+        //        join s in _context.Specialties.AsNoTracking() on d.SpecialtyId equals s.SpecialtyId
+        //        where s.Name.Trim().ToLower() == specialty.Trim().ToLower()
+        //        select new
+        //        {
+        //            DoctorId = d.DoctorId,
+        //            ExperienceYears = d.ExperienceYears,
+        //            SpecialtyId = d.SpecialtyId,
+        //            UserId = d.UserId,
+        //            UserName = u.FullName,
+        //            Position = d.Position
+        //        }).ToListAsync();
+
+        //    if (!doctors.Any())
+        //    {
+        //        return NotFound("Không tìm thấy bác sĩ!");
+        //    }
+
+        //    return Ok(doctors);
+        //}
+
+
+
+        // GET: api/Services
+        [HttpGet("services")]
+        public async Task<ActionResult<List<object>>> GetAllServices()
+        {
+            var services = await _context.Services
+                .AsNoTracking()
+                .Select(sv => new
+                {
+                    ServiceID = sv.ServiceId,
+                    ServiceName = sv.ServiceName,
+                    Description = sv.Description,
+                    Price = sv.Price,
+                })
+                .ToListAsync();
+
+            if (!services.Any())
+            {
+                return NotFound("Không tìm thấy dịch vụ nào!");
+            }
+
+            return Ok(services);
+        }
+
+
+
+
+
         [HttpGet("{id}")]
         public async Task<ActionResult<Specialty>> GetSpecialty(int id)
         {
