@@ -3,7 +3,7 @@ import axios from '../Util/AxiosConfig'
 import { useParams } from 'react-router-dom'
 
 function SpecialtyNav() {
-    const specialty = useParams()
+    const { specialty } = useParams()
     const navItems = ["Giới thiệu", "Bác sĩ", "Dịch vụ"]
     const [activeNavItem, setActiveNavItem] = useState(navItems[0])
     const [infor, setInfor] = useState()
@@ -11,9 +11,10 @@ function SpecialtyNav() {
     useEffect(() => {
         const GeInforSpecialty = async () => {
             try {
+                console.log(`/specialties/${specialty}/description`)
                 let response
                 if (activeNavItem === navItems[0]) {
-                    response = await axios.get(`/specialties/${specialty.specialty}/description`)
+                    response = await axios.get(`/specialties/${specialty}/description`)
 
                     setInfor(response.data)
                 } 
