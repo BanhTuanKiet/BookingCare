@@ -12,7 +12,7 @@ instance.interceptors.request.use(function (config) {
   }, function (error) {
     // Do something with request error
     return Promise.reject(error)
-  })
+})
 
 // Add a response interceptor
 instance.interceptors.response.use(function (response) {

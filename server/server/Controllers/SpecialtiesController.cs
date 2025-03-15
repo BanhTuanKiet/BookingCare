@@ -49,36 +49,36 @@ namespace server.Controllers
         }
 
         //// GET: api/Specialties/specialty/doctor
-        //[HttpGet("{specialty}/doctor")]
-        //public async Task<ActionResult<List<object>>> GetDoctors(string specialty)
-        //{
-        //    if (string.IsNullOrWhiteSpace(specialty))
-        //    {
-        //        return BadRequest("Tên chuyên khoa không hợp lệ!");
-        //    }
+        [HttpGet("{specialty}/doctor")]
+        public async Task<ActionResult<List<object>>> GetDoctors(string specialty)
+        {
+            if (string.IsNullOrWhiteSpace(specialty))
+            {
+                return BadRequest("Tên chuyên khoa không hợp lệ!");
+            }
 
-        //    var doctors = await (
-        //        from d in _context.Doctors.AsNoTracking()
-        //        join u in _context.Users.AsNoTracking() on d.UserId equals u.UserId
-        //        join s in _context.Specialties.AsNoTracking() on d.SpecialtyId equals s.SpecialtyId
-        //        where s.Name.Trim().ToLower() == specialty.Trim().ToLower()
-        //        select new
-        //        {
-        //            DoctorId = d.DoctorId,
-        //            ExperienceYears = d.ExperienceYears,
-        //            SpecialtyId = d.SpecialtyId,
-        //            UserId = d.UserId,
-        //            UserName = u.FullName,
-        //            Position = d.Position
-        //        }).ToListAsync();
+            var doctors = await (
+                from d in _context.Doctors.AsNoTracking()
+                join u in _context.Users.AsNoTracking() on d.UserId equals u.UserId
+                join s in _context.Specialties.AsNoTracking() on d.SpecialtyId equals s.SpecialtyId
+                where s.Name.Trim().ToLower() == specialty.Trim().ToLower()
+                select new
+                {
+                    DoctorId = d.DoctorId,
+                    ExperienceYears = d.ExperienceYears,
+                    SpecialtyId = d.SpecialtyId,
+                    UserId = d.UserId,
+                    UserName = u.FullName,
+                    Position = d.Position
+                }).ToListAsync();
 
-        //    if (!doctors.Any())
-        //    {
-        //        return NotFound("Không tìm thấy bác sĩ!");
-        //    }
+            if (!doctors.Any())
+            {
+                return NotFound("Không tìm thấy bác sĩ!");
+            }
 
-        //    return Ok(doctors);
-        //}
+            return Ok(doctors);
+        }
 
 
 
