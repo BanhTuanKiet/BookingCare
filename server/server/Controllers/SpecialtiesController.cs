@@ -52,7 +52,9 @@ namespace server.Controllers
             }
             catch (Exception ex)
             {
-                throw new ErrorHandlingException(ex.Message);
+                if (ex is ErrorHandlingException) throw;
+                
+                throw new ErrorHandlingException(500, ex.Message);
             }
         }
 

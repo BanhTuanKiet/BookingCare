@@ -23,6 +23,7 @@ public class ExceptionHandlingMiddleware
         catch (ErrorHandlingException exception)
         {
             _logger.LogError(exception, "An unhandled exception occurred.");
+            Console.WriteLine(exception.ErrorMessage);
             await HandleExceptionAsync(context, exception);
         }
     }
@@ -32,9 +33,7 @@ public class ExceptionHandlingMiddleware
         var response = context.Response;
         response.ContentType = "application/json";
         string defaultMessageError = "Xảy ra lỗi! Vui lòng thử lại!";
-        Console.WriteLine($"📌 Nhận request: {context.Request.Method} {context.Request.Path}");
-        Console.WriteLine(exception.ErrorMessage);
-        Console.WriteLine(exception.StackTrace);
+
         //var statusCode = exception switch
         //{
             //UnauthorizedAccessException => (int)HttpStatusCode.Unauthorized, // 401
