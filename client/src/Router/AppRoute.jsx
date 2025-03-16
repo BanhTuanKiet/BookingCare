@@ -15,6 +15,7 @@ function AppRoute() {
             <Route path='/' element={<Index><Home /></Index>} />
             <Route path='/về chúng tôi' element={<Index><About /></Index>} />
             <Route path='/bác sĩ' element={<Index><Team /></Index>} />
+            <Route path='/bác sĩ/:doctorName' element={<Index></Index>} />
             <Route path='/chuyên khoa/:specialty' element={<Index><Specialty /></Index>}></Route>
             <Route path='/dịch vụ/:service' element={<Index></Index>}></Route>
             <Route path='/tin tức' element={<Index><News /></Index>} />

@@ -9,14 +9,14 @@ const Home = () => {
 
   return (
     <div>
-      <div className="py-5 text-center">
+      {/* <div className="py-5 text-center">
         <h1 className="text-primary fw-bold">Chào mừng đến với Phòng Khám ABC</h1>
         <p className="text-muted">Nơi chăm sóc sức khỏe tận tâm và chuyên nghiệp</p>
-      </div>
+      </div> */}
 
       <div style={{ backgroundColor: "#e3f1fc" }}>
         <Row className="mx-auto py-3" style={{ width: "80%" }}>
-          <h5>Chuyên khoa</h5>
+          <h5 className="text-primary fw-bold">Chuyên khoa</h5>
           {specialties.map((specialty, index) => (
             <Col key={index} xs={12} sm={6} className="specialities d-flex justify-content-center px-2">
               <div className="bg-white rounded w-100 text-start m-1 p-4 d-flex align-items-center" onClick={() => HandleNavigation("chuyên khoa" , specialty.name)}>
