@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
+using server.Middleware;
 using server.Models;
 
 namespace server.Controllers
@@ -35,18 +36,28 @@ namespace server.Controllers
         [HttpGet("{specialty}/description")]
         public async Task<ActionResult<string>> GetDescription(string specialty)
         {
-            var description = await _context.Specialties
-                 .Where(s => s.Name == specialty)
-                 .Select(s => s.Description)
-                 .FirstOrDefaultAsync();
-
-            if (description == null)
+            try
             {
-                return NotFound("Không tìm thấy chuyên khoa!");
-            }
+                var description = await _context.Specialties
+                     .Where(s => s.Name == specialty)
+                     .Select(s => s.Description)
+                     .FirstOrDefaultAsync();
 
-            return Ok(description);
+                if (description == null)
+                {
+                    throw new ErrorHandlingException(500, "Không tìm thấy chuyên khoa!");
+                }
+
+                return Ok(description);
+            }
+            catch (Exception ex)
+            {
+                if (ex is ErrorHandlingException) throw;
+                
+                throw new ErrorHandlingException(500, ex.Message);
+            }
         }
+
 
         //// GET: api/Specialties/specialty/doctor
         [HttpGet("{specialty}/doctor")]

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import images from '../Image/Specalty/Index'
 import SpecialtyNav from '../Component/SpecialtyNav'
 import SpecialtyLogo from '../Component/SpecialtyLogo'
@@ -7,7 +7,12 @@ import "../Style/Specialty.css"
 
 function Specialty() {
     const { specialty }  = useParams()
+    const navigate = useNavigate()
     const src = images[specialty]
+
+    const HandleAppointment = () => {
+        navigate("/đặt lịch khám")
+    }
 
     return (
         <div>
@@ -25,7 +30,7 @@ function Specialty() {
                     </div>
                     <div className='w-25'>
                         <div className='w-75 text-center'>
-                            <div className='appointment bg-primary text-white py-2'>Đặt lịch hẹn</div>
+                            <div className='appointment bg-primary text-white py-2' onClick={HandleAppointment}>Đặt lịch hẹn</div>
                             <div className='text-start p-3 pb-1 mt-2 border' style={{ backgroundColor: "#e3f1fc" }} >
                                 <p><strong>Địa chỉ phòng khám</strong></p>
                                 <p>475A Đ. Điện Biên Phủ, Phường 25, Bình Thạnh, Hồ Chí Minh</p>

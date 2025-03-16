@@ -10,14 +10,14 @@ const toastConfig = {
     theme: "light",
 }
 
-export const success = (content) => {
+export const SuccessNotify = (content) => {
     toast.success(`${content}`, toastConfig)
 }
 
-export const warning = (content) => {
+export const WarningNotify = (content) => {
     toast.warning(`${content}`, toastConfig)
 }
 
-export const error = (content) => {
+export const ErrorNotify = (content) => {
     toast.error(`${content}`, toastConfig)
 }

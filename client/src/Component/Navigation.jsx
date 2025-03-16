@@ -6,7 +6,7 @@ import { NavContext } from "../Context/NavContext"
 
 const Navigation = () => {
   const location = useLocation()
-  const { specialties, HandleNavigation } = useContext(NavContext)
+  const { specialties, services, HandleNavigation } = useContext(NavContext)
   const pages = [
     { name: "Trang chủ", link: "/" },
     { name: "Giới thiệu", link: "/về chúng tôi" },
@@ -39,7 +39,7 @@ const Navigation = () => {
             onMouseLeave={handleMouseLeave}
             className="drop-item"
           >
-            {index === 3 ? RenderSpecialties() : RenderNews()}
+            {index === 3 ? RenderSpecialties() : RenderServices()}
           </NavDropdown>
         )
       }
@@ -60,14 +60,12 @@ const Navigation = () => {
     ))
   }
 
-  const RenderNews = () => {
-    return (
-      <>
-        <NavDropdown.Item href="#">Action</NavDropdown.Item>
-        <NavDropdown.Item href="#">Another action</NavDropdown.Item>
-        <NavDropdown.Item href="#">Something</NavDropdown.Item>
-      </>
-    )
+  const RenderServices = () => {
+    return services.map((service, index) => (
+      <NavDropdown.Item key={index} className="nav-item" onClick={() => HandleNavigation("dịch vụ", service.serviceName)}>
+        {service.serviceName}
+      </NavDropdown.Item>
+    ))
   }
 
   return (
