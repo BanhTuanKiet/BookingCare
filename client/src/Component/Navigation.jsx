@@ -1,12 +1,15 @@
 import React, { useContext, useState } from "react"
-import { Container, Nav, Navbar, NavDropdown } from "react-bootstrap"
-import { useLocation } from "react-router-dom"
+import { Container, Nav, Navbar, NavDropdown, Form, FormControl, Button } from "react-bootstrap"
+import { useLocation, useNavigate } from "react-router-dom"
+import { FaSearch } from "react-icons/fa" // icon tìm kiếm
 import "../Style/Nav.css"
 import { NavContext } from "../Context/NavContext"
 
 const Navigation = () => {
   const location = useLocation()
-  const { specialties, services, HandleNavigation } = useContext(NavContext)
+  const navigate = useNavigate()
+  const { specialties, HandleNavigation } = useContext(NavContext)
+
   const pages = [
     { name: "Trang chủ", link: "/" },
     { name: "Giới thiệu", link: "/về chúng tôi" },
@@ -18,11 +21,34 @@ const Navigation = () => {
     { name: "Liên hệ", link: "/liên hệ" },
   ]
 
-  // State để kiểm soát dropdown
   const [openDropdown, setOpenDropdown] = useState(null)
+  const [searchInput, setSearchInput] = useState("")
+  const [showSearch, setShowSearch] = useState(false)
 
   const handleMouseEnter = (index) => setOpenDropdown(index)
   const handleMouseLeave = () => setOpenDropdown(null)
+
+  const toggleSearch = () => {
+    setShowSearch(!showSearch)
+  }
+
+  const handleSearch = (e) => {
+    e.preventDefault()
+
+    if (!searchInput.trim()) return
+
+    const foundSpecialty = specialties.find((specialty) =>
+      specialty.name.toLowerCase() === searchInput.trim().toLowerCase()
+    )
+
+    if (foundSpecialty) {
+      HandleNavigation("chuyên khoa", foundSpecialty.name)
+      setShowSearch(false) // ẩn thanh tìm kiếm sau khi tìm
+      setSearchInput("")   // reset input sau tìm kiếm
+    } else {
+      alert("Không tìm thấy chuyên khoa phù hợp!")
+    }
+  }
 
   const RenderNav = () => {
     return pages.map((page, index) => {
@@ -34,18 +60,18 @@ const Navigation = () => {
             title={<span className={isActive ? "text-primary fw-bold" : "text-dark"}>{page.name}</span>}
             key={index}
             id="basic-nav-dropdown"
-            show={openDropdown === index} 
+            show={openDropdown === index}
             onMouseEnter={() => handleMouseEnter(index)}
             onMouseLeave={handleMouseLeave}
             className="drop-item"
           >
-            {index === 3 ? RenderSpecialties() : RenderServices()}
+            {index === 3 ? RenderSpecialties() : RenderNews()}
           </NavDropdown>
         )
       }
 
       return (
-        <Nav.Link href={page.link} key={index} className={isActive ? "text-primary fw-bold nav" : "text-dark nav"} >
+        <Nav.Link href={page.link} key={index} className={isActive ? "text-primary fw-bold nav" : "text-dark nav"}>
           {page.name}
         </Nav.Link>
       )
@@ -54,27 +80,55 @@ const Navigation = () => {
 
   const RenderSpecialties = () => {
     return specialties.map((speciality, index) => (
-      <NavDropdown.Item key={index} className="nav-item" onClick={() => HandleNavigation("chuyên khoa", speciality.name)}>
+      <NavDropdown.Item
+        key={index}
+        className="nav-item"
+        onClick={() => HandleNavigation("chuyên khoa", speciality.name)}
+      >
         {speciality.name}
       </NavDropdown.Item>
     ))
   }
 
-  const RenderServices = () => {
-    return services.map((service, index) => (
-      <NavDropdown.Item key={index} className="nav-item" onClick={() => HandleNavigation("dịch vụ", service.serviceName)}>
-        {service.serviceName}
-      </NavDropdown.Item>
-    ))
+  const RenderNews = () => {
+    return (
+      <>
+        <NavDropdown.Item href="#">Action</NavDropdown.Item>
+        <NavDropdown.Item href="#">Another action</NavDropdown.Item>
+        <NavDropdown.Item href="#">Something</NavDropdown.Item>
+      </>
+    )
   }
 
   return (
-    <Navbar expand="lg" style={{ backgroundColor: "#e3f1fc"}}>
+    <Navbar expand="lg" style={{ backgroundColor: "#e3f1fc" }}>
       <Container style={{ width: "80%" }}>
         <Navbar.Brand href="/">React-Bootstrap</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto">{RenderNav()}</Nav>
+
+          <div className="d-flex align-items-center ms-3">
+            <Button variant="outline-primary" onClick={toggleSearch} className="d-flex align-items-center">
+              <FaSearch />
+            </Button>
+
+            {showSearch && (
+              <Form className="d-flex ms-2" onSubmit={handleSearch}>
+                <FormControl
+                  type="search"
+                  placeholder="Tìm chuyên khoa..."
+                  className="me-2"
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  autoFocus
+                />
+                <Button type="submit" variant="primary">
+                  Tìm
+                </Button>
+              </Form>
+            )}
+          </div>
         </Navbar.Collapse>
       </Container>
     </Navbar>

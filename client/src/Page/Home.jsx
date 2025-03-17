@@ -9,10 +9,10 @@ const Home = () => {
 
   return (
     <div>
-      {/* <div className="py-5 text-center">
+      <div className="py-5 text-center">
         <h1 className="text-primary fw-bold">Chào mừng đến với Phòng Khám ABC</h1>
         <p className="text-muted">Nơi chăm sóc sức khỏe tận tâm và chuyên nghiệp</p>
-      </div> */}
+      </div>
 
       <div style={{ backgroundColor: "#e3f1fc" }}>
         <Row className="mx-auto py-3" style={{ width: "80%" }}>
