@@ -8,44 +8,43 @@ function SpecialtyNav() {
     const { specialty } = useParams() // destructure params cho gọn
     const navItems = ["Giới thiệu", "Bác sĩ", "Dịch vụ"]
     const [activeNavItem, setActiveNavItem] = useState(navItems[0])
-    const [infor, setInfor] = useState([])
-
+    const [infor, setInfor] = useState(activeNavItem === "Giới thiệu" ? "" : [])
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                let response;
-    
+                let response
+
                 switch (activeNavItem) {
                     case navItems[0]: // Giới thiệu
-                        response = await axios.get(`/specialties/${specialty}/description`);
-                        console.log("Giới thiệu:", response.data);
+                        response = await axios.get(`/specialties/${specialty}/description`)
+                        console.log("Giới thiệu:", response.data)
                         setInfor(response.data ?? "")
-                        break;
+                        break
     
                     case navItems[1]: // Bác sĩ
-                        response = await axios.get(`/specialties/${specialty}/doctor`);
-                        console.log("Danh sách bác sĩ:", response.data);
-                        setInfor(Array.isArray(response.data) ? response.data : []);
-                        break;
+                        response = await axios.get(`/specialties/${specialty}/doctor`)
+                        console.log("Danh sách bác sĩ:", response.data)
+                        setInfor(Array.isArray(response.data) ? response.data : [])
+                        break
     
                     case navItems[2]: // Dịch vụ
-                        response = await axios.get(`/specialties/${specialty}/services`);
-                        console.log("Dịch vụ:", response.data);
-                        setInfor(Array.isArray(response.data) ? response.data : []);
-                        break;
+                        response = await axios.get(`/specialties/${specialty}/services`)
+                        console.log("Dịch vụ:", response.data)
+                        setInfor(Array.isArray(response.data) ? response.data : [])
+                        break
     
                     default:
-                        setInfor(null);
-                        break;
+                        setInfor(null)
+                        break
                 }
             } catch (error) {
-                console.error("Lỗi lấy dữ liệu:", error);
+                console.error("Lỗi lấy dữ liệu:", error)
             }
-        };
+        }
     
-        fetchData();
-    }, [activeNavItem, specialty]);
+        fetchData()
+    }, [activeNavItem, specialty])
     
     return (
         <div className="specialty-container">
@@ -64,9 +63,9 @@ function SpecialtyNav() {
             </div>
 
             {/* Nội dung Giới thiệu */}
-            {activeNavItem === navItems[0] && infor && (
+            {activeNavItem === navItems[0] && typeof infor === "string" && (
                 <div className="specialty-description mt-3">
-                    <div><span className='text-warning fw-bold'>{specialty}</span> {infor}</div>
+                    <div><span className='text-warning fw-bold'>{specialty} </span>{infor}</div>
                 </div>
             )}
 
