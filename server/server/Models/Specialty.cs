@@ -12,4 +12,6 @@ public partial class Specialty
     public string? Description { get; set; }
 
     public virtual ICollection<Doctor> Doctors { get; set; } = new List<Doctor>();
+
+    public virtual ICollection<Service> Services { get; set; } = new List<Service>();
 }

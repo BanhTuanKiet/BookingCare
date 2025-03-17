@@ -8,6 +8,7 @@ import News from '../Page/News'
 import Team from '../Page/Team'
 import Appointment from '../Page/Appointment'
 import Specialty from '../Page/Specialty'
+import UploadDoctorImage from '../Page/UploadDoctorImage'
 
 function AppRoute() {
     return (
@@ -22,6 +23,7 @@ function AppRoute() {
             <Route path='/đặt lịch khám' element={<Index><Appointment /></Index>} />
             <Route path='/liên hệ' element={<Index><Contact /></Index>} />
             <Route path='/' element={<Index><Home /></Index>} />
+            <Route path='/upload' element={<UploadDoctorImage></UploadDoctorImage>} />
         </Routes>
     )
 }

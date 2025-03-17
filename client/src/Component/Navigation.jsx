@@ -101,8 +101,8 @@ const Navigation = () => {
   }
 
   return (
-    <Navbar expand="lg" style={{ backgroundColor: "#e3f1fc" }}>
-      <Container style={{ width: "80%" }}>
+    <Navbar expand="lg" style={{ backgroundColor: "#e3f1fc"}}>
+      <Container className="w-75 px-0">
         <Navbar.Brand href="/">React-Bootstrap</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
