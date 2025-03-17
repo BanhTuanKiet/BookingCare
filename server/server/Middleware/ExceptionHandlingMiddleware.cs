@@ -34,13 +34,6 @@ public class ExceptionHandlingMiddleware
         response.ContentType = "application/json";
         string defaultMessageError = "Xảy ra lỗi! Vui lòng thử lại!";
 
-        //var statusCode = exception switch
-        //{
-            //UnauthorizedAccessException => (int)HttpStatusCode.Unauthorized, // 401
-            //KeyNotFoundException => (int)HttpStatusCode.NotFound,            // 404
-            //_ => (int)HttpStatusCode.InternalServerError                     // 500
-        //};
-
         if (exception.StatusCode == 500) {
             exception.ErrorMessage = defaultMessageError;
         }

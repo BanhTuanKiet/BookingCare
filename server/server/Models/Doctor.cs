@@ -13,10 +13,21 @@ public partial class Doctor
 
     public int? ExperienceYears { get; set; }
 
+    public string? Position { get; set; }
+
+    public string? Biography { get; set; }
+
+    public string? Qualifications { get; set; }
+
+    public string? WorkExperience { get; set; }
+
+    public string? Degree { get; set; }
+
+    public byte[]? DoctorImage { get; set; }
+
     public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
 
     public virtual Specialty? Specialty { get; set; }
 
     public virtual User? User { get; set; }
-    public string Position { get; internal set; }
 }

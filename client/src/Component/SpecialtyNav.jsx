@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import axios from '../Util/AxiosConfig'
 import { useParams } from 'react-router-dom'
-import "../Style/SpecialtyNav.css"
 import DoctorCard from './DoctorCard'
-import ServiceCard from './ServiceCard' // Nếu chưa có, có thể tạm ẩn
+import ServiceCard from './ServiceCard'
 
 function SpecialtyNav() {
     const { specialty } = useParams() // destructure params cho gọn
@@ -66,7 +65,7 @@ function SpecialtyNav() {
 
             {/* Nội dung Giới thiệu */}
             {activeNavItem === navItems[0] && infor && (
-                <div className="specialty-description mt-3 me-5">
+                <div className="specialty-description mt-3">
                     <div><span className='text-warning fw-bold'>{specialty}</span> {infor}</div>
                 </div>
             )}

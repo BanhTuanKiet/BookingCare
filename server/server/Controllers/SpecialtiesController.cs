@@ -34,7 +34,7 @@ namespace server.Controllers
 
         // GET: api/Specialties/specialty/description
         [HttpGet("{specialty}/description")]
-        public async Task<ActionResult<string>> GetDescription(string specialty)
+        public async Task<IActionResult> GetDescription(string specialty)
         {
             try
             {
@@ -45,7 +45,7 @@ namespace server.Controllers
 
                 if (description == null)
                 {
-                    throw new ErrorHandlingException(500, "Không tìm thấy chuyên khoa!");
+                    throw new ErrorHandlingException("Không tìm thấy chuyên khoa!");
                 }
 
                 return Ok(description);
@@ -54,48 +54,60 @@ namespace server.Controllers
             {
                 if (ex is ErrorHandlingException) throw;
                 
-                throw new ErrorHandlingException(500, ex.Message);
+                throw new ErrorHandlingException(ex.Message);
             }
         }
 
 
         //// GET: api/Specialties/specialty/doctor
         [HttpGet("{specialty}/doctor")]
-        public async Task<ActionResult<List<object>>> GetDoctors(string specialty)
+        public async Task<IActionResult> GetDoctors(string specialty)
         {
-            if (string.IsNullOrWhiteSpace(specialty))
+            try
             {
-                return BadRequest("Tên chuyên khoa không hợp lệ!");
-            }
-
-            var doctors = await (
-                from d in _context.Doctors.AsNoTracking()
-                join u in _context.Users.AsNoTracking() on d.UserId equals u.UserId
-                join s in _context.Specialties.AsNoTracking() on d.SpecialtyId equals s.SpecialtyId
-                where s.Name.Trim().ToLower() == specialty.Trim().ToLower()
-                select new
+                if (string.IsNullOrWhiteSpace(specialty))
                 {
-                    DoctorId = d.DoctorId,
-                    ExperienceYears = d.ExperienceYears,
-                    SpecialtyId = d.SpecialtyId,
-                    UserId = d.UserId,
-                    UserName = u.FullName,
-                    Position = d.Position
-                }).ToListAsync();
+                    throw new ErrorHandlingException(500, "Tên chuyên khoa không hợp lệ!");
+                }
 
-            if (!doctors.Any())
-            {
-                return NotFound("Không tìm thấy bác sĩ!");
+                var doctors = await (
+                    from d in _context.Doctors
+                    join u in _context.Users on d.UserId equals u.UserId
+                    join s in _context.Specialties on d.SpecialtyId equals s.SpecialtyId
+                    where s.Name.Trim().ToLower() == specialty.Trim().ToLower()
+                    select new
+                    {
+                        DoctorId = d.DoctorId,
+                        ExperienceYears = d.ExperienceYears,
+                        SpecialtyId = d.SpecialtyId,
+                        UserId = d.UserId,
+                        UserName = u.FullName,
+                        Degree = d.Degree,
+                        Position = d.Position,
+                        DoctorImage = d.DoctorImage != null ? $"data:image/png;base64,{Convert.ToBase64String(d.DoctorImage)}" : null
+                    }).ToListAsync();
+
+                if (!doctors.Any())
+                {
+                    throw new ErrorHandlingException(500, "Lỗi lấy bác sĩ theo khoa");
+                }
+
+                return Ok(doctors);
             }
+            catch (Exception ex)
+            {
+                if (ex is ErrorHandlingException)
+                {
+                    throw;
+                }
 
-            return Ok(doctors);
+                throw new ErrorHandlingException(ex.Message);
+            }
         }
-
-
 
         // GET: api/Services
         [HttpGet("services")]
-        public async Task<ActionResult<List<object>>> GetAllServices()
+        public async Task<IActionResult> GetAllServices()
         {
             var services = await _context.Services
                 .AsNoTracking()
@@ -114,23 +126,6 @@ namespace server.Controllers
             }
 
             return Ok(services);
-        }
-
-
-
-
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Specialty>> GetSpecialty(int id)
-        {
-            var specialty = await _context.Specialties.FindAsync(id);
-
-            if (specialty == null)
-            {
-                return NotFound();
-            }
-
-            return specialty;
         }
 
         // PUT: api/Specialties/5

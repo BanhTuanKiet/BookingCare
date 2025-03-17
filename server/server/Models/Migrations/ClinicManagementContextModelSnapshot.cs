@@ -65,9 +65,6 @@ namespace server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DoctorId"));
 
-                    b.Property<byte[]>("DoctorImage")
-                        .HasColumnType("varbinary(max)");
-
                     b.Property<int?>("ExperienceYears")
                         .HasColumnType("int");
 

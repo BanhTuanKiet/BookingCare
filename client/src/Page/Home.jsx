@@ -15,7 +15,7 @@ const Home = () => {
       </div> */}
 
       <div style={{ backgroundColor: "#e3f1fc" }}>
-        <Row className="mx-auto py-3" style={{ width: "80%" }}>
+        <Row className="mx-auto py-3 w-75">
           <h5 className="text-primary fw-bold">Chuyên khoa</h5>
           {specialties.map((specialty, index) => (
             <Col key={index} xs={12} sm={6} className="specialities d-flex justify-content-center px-2">
