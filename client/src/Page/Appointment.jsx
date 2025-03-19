@@ -35,9 +35,9 @@ function Appointment() {
   }
 
   return (
-    <Container className='p-0'>
-      <img data-ck-zoom="no" src={images.appointment} alt="" className="d-block mx-auto py-5" style={{ width: "90%" }} />
-      <Row className='mx-auto p-0' style={{ width: "92%" }}>
+    <Container className='p-0 w-75'>
+      <img data-ck-zoom="no" src={images.appointment} alt="" className="d-block mx-auto py-5" style={{ width: "98%" }} />
+      <Row className='mx-auto p-0 w-100'>
           <Col className=''>
             <Form className="p-4 border" style={{ backgroundColor: "#eff8ff" }}>
               <Form.Group className='mb-3'>

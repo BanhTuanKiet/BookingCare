@@ -1,4 +1,5 @@
 .specialty-nav:hover {
+    cursor: pointer;
     border-bottom: 4px solid #0d6efd; 
 }
 

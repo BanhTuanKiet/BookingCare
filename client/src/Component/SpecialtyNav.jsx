@@ -45,6 +45,10 @@ function SpecialtyNav() {
     
         fetchData()
     }, [activeNavItem, specialty])
+
+    useEffect(() => {
+
+    })
     
     return (
         <div className="specialty-container">
@@ -53,9 +57,12 @@ function SpecialtyNav() {
                 {navItems.map((item, index) => (
                     <div
                         key={index}
-                        className={`specialty-nav mt-3 me-5 ${activeNavItem === item ? 'active' : ''}`}
+                        className={`specialty-nav mt-3 me-5  ${activeNavItem === item ? 'active' : ''}`}
                         onClick={() => setActiveNavItem(item)}
-                        style={{ cursor: 'pointer', fontWeight: activeNavItem === item ? 'bold' : 'normal' }}
+                        style={{ 
+                            fontWeight: activeNavItem === item ? 'bold' : 'normal',
+                            borderBottom: activeNavItem === item ? "4px solid #0d6efd" : "" 
+                        }}
                     >
                         <span>{item}</span>
                     </div>

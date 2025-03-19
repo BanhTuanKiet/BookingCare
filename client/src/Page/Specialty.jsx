@@ -16,7 +16,7 @@ function Specialty() {
     }
 
     return (
-        <div>
+        <div className='px-3'>
             <div className=''>
                 <img className='w-100' src={images.specialty} alt="" />
             </div>
