@@ -4,6 +4,7 @@ using server.Configs;
 using server.Controllers;
 using server.Models;
 using DotNetEnv;
+using server.Middleware;
 
 Env.Load();
 
@@ -20,6 +21,7 @@ builder.Configuration["ConnectionStrings:DefaultConnection"] = $"Server={db_serv
 // Add cors policy
 
 builder.Services.AddCorsPolicy();
+builder.Services.AddJWT();
 // Add services to the container.
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -44,24 +46,20 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+app.UseCors("_allowSpecificOrigins");
 // Add errohandling middlware
 app.UseMiddleware<ExceptionHandlingMiddleware>();
-
+//app.UseMiddleware<AuthToken>();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-}
-
-//if (app.Environment.IsDevelopment())
-//{
 //    app.UseSwagger();
 //    app.UseSwaggerUI();
-//};
-
-app.UseCors("_allowSpecificOrigins");
+}
 
 app.UseHttpsRedirection();
+//app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 

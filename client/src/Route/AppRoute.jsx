@@ -9,6 +9,7 @@ import Team from '../Page/Team'
 import Appointment from '../Page/Appointment'
 import Specialty from '../Page/Specialty'
 import UploadDoctorImage from '../Page/UploadDoctorImage'
+import Login from '../Page/Login'
 
 function AppRoute() {
     return (
@@ -20,6 +21,7 @@ function AppRoute() {
             <Route path='/chuyên khoa/:specialty' element={<Index><Specialty /></Index>}></Route>
             <Route path='/dịch vụ/:service' element={<Index></Index>}></Route>
             <Route path='/tin tức' element={<Index><News /></Index>} />
+            <Route path='/login' element={<Login /> } />
             <Route path='/đặt lịch khám' element={<Index><Appointment /></Index>} />
             <Route path='/liên hệ' element={<Index><Contact /></Index>} />
             <Route path='/' element={<Index><Home /></Index>} />
