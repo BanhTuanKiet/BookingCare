@@ -8,6 +8,7 @@ const NavContext = createContext()
 const NavProvider = ({ children }) => {
   const navigate = useNavigate()
     const [specialties, setSpecialties] = useState([])
+    const [services, setServices] = useState([])
 
     useEffect(() => {
         const GetAllSpecialties = async () => {
@@ -35,19 +36,22 @@ const NavProvider = ({ children }) => {
     useEffect(() => {
         const GetAllServices = async () => {
             try {
-                const response = await axios.get("http://127.0.0.1:5140/api/services")
+                const response = await axios.get(`/services`)
+                setServices(response.data)
             } catch (error) {
                 console.error("Lỗi khi lấy danh sách dịch vụ:", error)
             }
         }
-    })
+
+        GetAllServices()
+    }, [])
   
     const HandleNavigation = (type, specialtyName) => {
       navigate(`/${type}/${specialtyName}`)
     }
 
     return (
-        <NavContext.Provider value={{ specialties, HandleNavigation }}>
+        <NavContext.Provider value={{ specialties, services, HandleNavigation }}>
             {children}
         </NavContext.Provider>
     )

@@ -1,12 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using server.Models;
 
@@ -25,17 +22,12 @@ namespace server.Controllers
 
         // GET: Services
         [HttpGet]
-        public async Task<List<Service>> GetService() 
-        { 
-            var service = await _context.Services.ToListAsync();
-            //if (service == null)
-            //{
-            //    return NotFound();
-            //}
-            return service;
+        public async Task<List<Service>> GetService()
+        {
+            return await _context.Services.ToListAsync();
         }
 
-        // GET: Services/Details/5
+        // POST: Services
         [HttpPost]
         public async Task<ActionResult<Service>> PostService(Service service)
         {
@@ -44,13 +36,15 @@ namespace server.Controllers
             return CreatedAtAction("GetService", new { id = service.ServiceId }, service);
         }
 
-        [HttpPut]
+        // PUT: Services/{id}
+        [HttpPut("{id}")]
         public async Task<IActionResult> PutService(int id, Service service)
         {
             if (id != service.ServiceId)
             {
                 return BadRequest();
             }
+
             _context.Entry(service).State = EntityState.Modified;
             try
             {
@@ -70,7 +64,8 @@ namespace server.Controllers
             return NoContent();
         }
 
-        [HttpDelete]
+        // DELETE: Services/{id}
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteService(int id)
         {
             var service = await _context.Services.FindAsync(id);
@@ -87,6 +82,5 @@ namespace server.Controllers
         {
             return _context.Services.Any(e => e.ServiceId == id);
         }
-
     }
 }

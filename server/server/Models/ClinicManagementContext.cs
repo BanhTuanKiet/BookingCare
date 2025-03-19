@@ -187,8 +187,25 @@ public partial class ClinicManagementContext : DbContext
             entity.HasIndex(e => e.Name, "UQ__Specialt__737584F6A3F2D7BE").IsUnique();
 
             entity.Property(e => e.SpecialtyId).HasColumnName("SpecialtyID");
-            entity.Property(e => e.Description).HasMaxLength(255);
+            entity.Property(e => e.Description).HasMaxLength(500);
             entity.Property(e => e.Name).HasMaxLength(100);
+
+            entity.HasMany(d => d.Services).WithMany(p => p.Specialties)
+                .UsingEntity<Dictionary<string, object>>(
+                    "SpecialtyService",
+                    r => r.HasOne<Service>().WithMany()
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK__Specialty__Servi__09746778"),
+                    l => l.HasOne<Specialty>().WithMany()
+                        .HasForeignKey("SpecialtyId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK__Specialty__Speci__0880433F"),
+                    j =>
+                    {
+                        j.HasKey("SpecialtyId", "ServiceId").HasName("PK__Specialt__6B394DA853777237");
+                        j.ToTable("SpecialtyService");
+                    });
         });
 
         modelBuilder.Entity<User>(entity =>

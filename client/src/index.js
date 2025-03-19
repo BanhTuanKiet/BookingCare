@@ -8,11 +8,11 @@ import Context from './Context/Index'
 
 const root = ReactDOM.createRoot(document.getElementById('root'))
 root.render(
-  <BrowserRouter>
-    {/* <React.StrictMode> */}
-    <Context>
-      <App />
-    </Context>
-    {/* </React.StrictMode> */}
-  </BrowserRouter>
+  // <React.StrictMode>
+    <BrowserRouter>
+      <Context>
+        <App />
+      </Context>
+    </BrowserRouter>
+// {/* </React.StrictMode> */}
 )

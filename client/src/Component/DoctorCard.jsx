@@ -1,37 +1,24 @@
-import React from 'react';
-import images from '../Image/Doctors/Index';
-import '../Style/DoctorCard.css'; // Nhớ import file CSS
+import React from "react";
+import { Card, Button } from "react-bootstrap"
+import "../Style/DoctorCard.css"
 
 const DoctorCard = ({ doctor }) => {
-  const doctorImage = images[doctor.doctorId] || '/default-doctor.png';
-
   return (
-    <div
-      key={doctor.doctorId}
-      className="card text-center shadow-sm doctor-card-hover"
-      style={{ width: '18rem', cursor: 'pointer', transition: 'transform 0.3s, box-shadow 0.3s' }}
-    >
-      <div className="card-body d-flex flex-column align-items-center">
-        <img
-          src={doctorImage}
-          alt={doctor.userName}
-          className="rounded-circle mb-3"
-          style={{
-            width: '150px',
-            height: '150px',
-            objectFit: 'cover',
-            border: '2px solid #ddd',
-          }}
-        />
-        <h5 className="card-title">{doctor.userName}</h5>
-        <p className="card-text text-muted fst-italic mb-1">
+    <Card className="doctor-card text-center shadow-sm" >
+      <Card.Img variant="top" src={doctor.doctorImage} alt={doctor.userName} className="mx-auto mt-3 card-img"/>
+      <Card.Body className="pb-0">
+        <Card.Title className="fw-bold text-primary mb-3">{doctor.degree} {doctor.userName}</Card.Title>
+        <Card.Subtitle className="text-muted fst-italic mb-3">
           {doctor.position}
-        </p>
-        <p className="card-text fw-bold">
+        </Card.Subtitle>
+        <Card.Text className="small text-dark mb-3">
           {doctor.experienceYears} năm kinh nghiệm
-        </p>
-      </div>
-    </div>
+        </Card.Text>
+        <Button variant="primary" size="sm">
+          Xem chi tiết
+        </Button>
+      </Card.Body>
+    </Card>
   );
 };
 
