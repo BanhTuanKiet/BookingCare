@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using server.Middleware;
@@ -106,8 +100,9 @@ namespace server.Controllers
         }
 
         // GET: api/Services
-        [HttpGet("services")]
-        public async Task<IActionResult> GetAllServices()
+
+        [HttpGet("{specialty}/services")]
+        public async Task<ActionResult<List<object>>> GetAllServices()
         {
             var services = await _context.Services
                 .AsNoTracking()
