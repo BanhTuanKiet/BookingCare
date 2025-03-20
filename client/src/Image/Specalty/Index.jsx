@@ -10,7 +10,7 @@ const images = {
     "Khoa Gây Mê": dermatology,
     "Khoa Tai - Mũi - Họng": ent,
     "Khoa Nội tổng quát": internalMedicine,
-    "Khoa Mắt (Nhãn khoa)": ophthalmology,
+    "Khoa Mắt": ophthalmology,
     "Khoa Nhi": pediatrics,
 }
 

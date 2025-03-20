@@ -5,7 +5,8 @@ import Index from '../Page/Index'
 import About from '../Page/About'
 import Contact from '../Page/Contact'
 import News from '../Page/News'
-import Team from '../Page/Team'
+import Doctor from '../Page/Doctor'
+import DoctorDetail from '../Page/DoctorDetail'
 import Appointment from '../Page/Appointment'
 import Specialty from '../Page/Specialty'
 import UploadDoctorImage from '../Page/UploadDoctorImage'
@@ -15,8 +16,11 @@ function AppRoute() {
         <Routes>
             <Route path='/' element={<Index><Home /></Index>} />
             <Route path='/về chúng tôi' element={<Index><About /></Index>} />
-            <Route path='/bác sĩ' element={<Index><Team /></Index>} />
-            <Route path='/bác sĩ/:doctorName' element={<Index></Index>} />
+            <Route path='/bác sĩ' element={<Index><Doctor /></Index>} />
+
+            {/* Trang chi tiết bác sĩ */}
+            <Route path='/bac-si/:doctorName' element={<Index><DoctorDetail /></Index>} />
+
             <Route path='/chuyên khoa/:specialty' element={<Index><Specialty /></Index>}></Route>
             <Route path='/dịch vụ/:service' element={<Index></Index>}></Route>
             <Route path='/tin tức' element={<Index><News /></Index>} />

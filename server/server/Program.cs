@@ -59,10 +59,13 @@ if (app.Environment.IsDevelopment())
 //    app.UseSwaggerUI();
 //};
 
+app.UseRouting();
+
 app.UseCors("_allowSpecificOrigins");
 
-app.UseHttpsRedirection();
 app.UseAuthorization();
+
 app.MapControllers();
+
 
 app.Run();

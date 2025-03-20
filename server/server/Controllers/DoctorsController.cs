@@ -34,6 +34,56 @@ namespace server.Controllers
             return doctor;
         }
 
+        // GET: api/doctors/{doctorName}
+        [HttpGet("detail/{doctorName}")]
+        public async Task<ActionResult> GetDoctorByName(string doctorName)
+        {
+
+            try
+            {
+                if (string.IsNullOrEmpty(doctorName))
+                {
+                    throw new ErrorHandlingException(500, "UserName is required");
+                }
+
+                var doctors = await (
+                    from d in _context.Doctors
+                    join u in _context.Users on d.UserId equals u.UserId
+                    where u.FullName == doctorName
+                    select new
+                    {
+                        DoctorId = d.DoctorId,
+                        ExperienceYears = d.ExperienceYears,
+                        SpecialtyId = d.SpecialtyId,
+                        UserId = d.UserId,
+                        UserName = u.FullName,
+                        Degree = d.Degree,
+                        Position = d.Position,
+                        Biography = d.Biography,
+                        Qualifications = d.Qualifications,
+                        WorkExperience = d.WorkExperience,
+                        DoctorImage = d.DoctorImage != null ? $"data:image/png;base64,{Convert.ToBase64String(d.DoctorImage)}" : null
+                    }).ToListAsync();
+
+                if (!doctors.Any())
+                {
+                    throw new ErrorHandlingException(500, "Lỗi lấy bác sĩ theo tên");
+                }
+
+                return Ok(doctors);
+            }
+            catch (Exception ex)
+            {
+                if (ex is ErrorHandlingException)
+                {
+                    throw;
+                }
+
+                throw new ErrorHandlingException(ex.Message);
+            }
+        }
+
+
         [HttpPost]
         public async Task<ActionResult<Doctor>> PostDoctor(Doctor doctor)
         {

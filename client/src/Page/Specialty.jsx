@@ -20,7 +20,7 @@ function Specialty() {
             <div className=''>
                 <img className='w-100' src={images.specialty} alt="" />
             </div>
-            <div className='mx-auto w-75'>
+            <div className='mx-auto w-75'style={{ width: "80%" }}>
                 <div className='d-flex mt-3'>
                     <SpecialtyLogo src={src} />
                     <h4 className='ms-2 my-auto'>{specialty}</h4>

@@ -1,9 +1,9 @@
 import React from 'react'
 
-function Team() {
+function Doctor() {
   return (
     <div>Team</div>
   )
 }
 
-export default Team
+export default Doctor
