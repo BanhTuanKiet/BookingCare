@@ -49,6 +49,7 @@ var app = builder.Build();
 app.UseCors("_allowSpecificOrigins");
 // Add errohandling middlware
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseMiddleware<AuthToken>();
 // app.UseWhen(context => 
 
 // )
@@ -61,7 +62,7 @@ if (app.Environment.IsDevelopment())
 }
 app.UseRouting();
 // app.UseHttpsRedirection();
-app.UseAuthentication();
+// app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 

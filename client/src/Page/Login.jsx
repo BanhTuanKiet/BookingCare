@@ -6,9 +6,9 @@ function Login() {
     const [token, setToken] = useState()
     useEffect(() => {
         const fetchData = async () => {
-            // const respone = await axios.get("/auth/login")
-            // console.log(respone.data.token)
-            // setToken(respone.data.token)
+            const respone = await axios.get("/auth/login")
+            console.log(respone.data.token)
+            setToken(respone.data.token)
             console.log("login")
         }
 

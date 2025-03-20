@@ -40,7 +40,9 @@ namespace server.Controllers
         [HttpPost("")]
         public async Task<IActionResult> Auth()
         {
-            return Ok(new { Token = "HttpContext", message = "Xác thực thành công" });
+            var a = (string)null;
+            var b = a.Length;
+            return Ok(new { Token = "HttpContext", message = "Xác thực thành công", b = b });
         }
     }
 }
