@@ -20,7 +20,6 @@ function AppRoute() {
 
             {/* Trang chi tiết bác sĩ */}
             <Route path='/bac-si/:doctorName' element={<Index><DoctorDetail /></Index>} />
-
             <Route path='/chuyên khoa/:specialty' element={<Index><Specialty /></Index>}></Route>
             <Route path='/dịch vụ/:service' element={<Index></Index>}></Route>
             <Route path='/tin tức' element={<Index><News /></Index>} />

@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using server.Middleware;
 using server.Models;
@@ -23,6 +21,20 @@ namespace server.Controllers
             _context = context;
         }
 
+        /// <summary>
+        /// Lấy tất cả danh sách bác sĩ
+        /// GET: api/doctors
+        /// </summary>
+        [HttpGet("doctors")]
+        public async Task<ActionResult<List<Doctor>>> GetAllDoctors()
+        {
+            return await _context.Doctors.ToListAsync();
+        }
+
+        /// <summary>
+        /// Lấy bác sĩ theo ID
+        /// GET: api/doctors/{id}
+        /// </summary>
         [HttpGet("{id}")]
         public async Task<ActionResult<Doctor>> GetDoctor(int id)
         {
@@ -34,11 +46,13 @@ namespace server.Controllers
             return doctor;
         }
 
-        // GET: api/doctors/{doctorName}
+        /// <summary>
+        /// Lấy bác sĩ theo tên (chi tiết)
+        /// GET: api/doctors/detail/{doctorName}
+        /// </summary>
         [HttpGet("detail/{doctorName}")]
         public async Task<ActionResult> GetDoctorByName(string doctorName)
         {
-
             try
             {
                 if (string.IsNullOrEmpty(doctorName))
@@ -67,7 +81,7 @@ namespace server.Controllers
 
                 if (!doctors.Any())
                 {
-                    throw new ErrorHandlingException(500, "Lỗi lấy bác sĩ theo tên");
+                    throw new ErrorHandlingException(404, "Không tìm thấy bác sĩ theo tên");
                 }
 
                 return Ok(doctors);
@@ -79,27 +93,71 @@ namespace server.Controllers
                     throw;
                 }
 
-                throw new ErrorHandlingException(ex.Message);
+                throw new ErrorHandlingException(500, ex.Message);
             }
         }
 
+        /// <summary>
+        /// Lấy danh sách bác sĩ theo chuyên khoa
+        /// GET: api/doctors/specialty/{specialtyId}
+        /// </summary>
+        [HttpGet("specialty/{specialtyId}")]
+        public async Task<ActionResult<IEnumerable<Doctor>>> GetDoctorsBySpecialty(int specialtyId)
+        {
+            var doctors = await _context.Doctors
+                .Where(d => d.SpecialtyId == specialtyId)
+                .ToListAsync();
 
+            return Ok(doctors);
+        }
+
+        /// <summary>
+        /// Tìm kiếm bác sĩ theo từ khóa (tên)
+        /// GET: api/doctors/search?keyword=abc
+        /// </summary>
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<Doctor>>> SearchDoctors([FromQuery] string keyword)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+                return BadRequest("Keyword is required");
+
+            var doctors = await (
+                from d in _context.Doctors
+                join u in _context.Users on d.UserId equals u.UserId
+                where u.FullName.Contains(keyword)
+                select d
+            ).ToListAsync();
+
+            return Ok(doctors);
+        }
+
+        /// <summary>
+        /// Thêm bác sĩ mới
+        /// POST: api/doctors
+        /// </summary>
         [HttpPost]
         public async Task<ActionResult<Doctor>> PostDoctor(Doctor doctor)
         {
             _context.Doctors.Add(doctor);
             await _context.SaveChangesAsync();
+
             return CreatedAtAction("GetDoctor", new { id = doctor.DoctorId }, doctor);
         }
 
+        /// <summary>
+        /// Cập nhật thông tin bác sĩ
+        /// PUT: api/doctors/{id}
+        /// </summary>
         [HttpPut("{id}")]
         public async Task<IActionResult> PutDoctor(int id, Doctor doctor)
         {
             if (id != doctor.DoctorId)
             {
-                return BadRequest();
+                return BadRequest("ID không khớp với DoctorId");
             }
+
             _context.Entry(doctor).State = EntityState.Modified;
+
             try
             {
                 await _context.SaveChangesAsync();
@@ -108,16 +166,21 @@ namespace server.Controllers
             {
                 if (!DoctorExists(id))
                 {
-                    return NotFound();
+                    return NotFound("Không tìm thấy bác sĩ cần cập nhật");
                 }
                 else
                 {
                     throw;
                 }
             }
+
             return NoContent();
         }
 
+        /// <summary>
+        /// Xóa bác sĩ
+        /// DELETE: api/doctors/{id}
+        /// </summary>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteDoctor(int id)
         {
@@ -126,16 +189,27 @@ namespace server.Controllers
             {
                 return NotFound();
             }
+
             _context.Doctors.Remove(doctor);
             await _context.SaveChangesAsync();
+
             return NoContent();
         }
 
+        /// <summary>
+        /// Upload ảnh cho bác sĩ
+        /// POST: api/doctors/upload
+        /// </summary>
         [HttpPost("upload")]
         public async Task<ActionResult> Upload([FromForm] IFormFile file, [FromForm] int doctorId)
         {
             try
             {
+                if (file == null || file.Length == 0)
+                {
+                    return BadRequest("File is empty");
+                }
+
                 using var memoryStream = new MemoryStream();
                 await file.CopyToAsync(memoryStream);
                 var imageData = memoryStream.ToArray();
@@ -151,9 +225,12 @@ namespace server.Controllers
 
                 return Ok(new { message = "Image uploaded successfully." });
             }
-            catch (ErrorHandlingException ex)
+            catch (Exception ex)
             {
-                if (ex is ErrorHandlingException) throw;
+                if (ex is ErrorHandlingException)
+                {
+                    throw;
+                }
 
                 throw new ErrorHandlingException(500, ex.Message);
             }
@@ -163,7 +240,5 @@ namespace server.Controllers
         {
             return _context.Doctors.Any(e => e.DoctorId == id);
         }
-
     }
-
 }
