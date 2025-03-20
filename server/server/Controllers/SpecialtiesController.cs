@@ -108,7 +108,7 @@ namespace server.Controllers
                 .AsNoTracking()
                 .Select(sv => new
                 {
-                    ServiceID = sv.ServiceId,
+                    ServiceId = sv.ServiceId,
                     ServiceName = sv.ServiceName,
                     Description = sv.Description,
                     Price = sv.Price,

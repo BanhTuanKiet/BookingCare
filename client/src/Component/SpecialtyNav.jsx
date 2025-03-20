@@ -21,7 +21,7 @@ function SpecialtyNav() {
                         console.log("Giới thiệu:", response.data)
                         setInfor(response.data ?? "")
                         break
-    
+                    
                     case navItems[1]: // Bác sĩ
                         response = await axios.get(`/specialties/${specialty}/doctor`)
                         console.log("Danh sách bác sĩ:", response.data)
@@ -81,10 +81,10 @@ function SpecialtyNav() {
                 <div className="specialty-doctors mt-3">
                     <h5 className="mb-3">Danh sách {activeNavItem}</h5>
                     {Array.isArray(infor) && infor.length > 0 ? (
-                        <div className="doctor-list" style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
-                        {infor.map(doctor => (
-                            <DoctorCard key={doctor.doctorId} doctor={doctor} />
-                        ))}
+                        <div className="doctor-list d-flex flex-wrap gap-3">
+                            {infor.map(doctor => (
+                                <DoctorCard key={doctor.doctorId} doctor={doctor} />
+                            ))}
                         </div>
                     ) : (
                         <p>Hiện chưa có bác sĩ nào được hiển thị.</p>
@@ -97,7 +97,7 @@ function SpecialtyNav() {
                 <div className="specialty-services mt-3">
                     <h5 className="mb-3">Danh sách {activeNavItem}</h5>
                     {Array.isArray(infor) && infor.length > 0 ? (
-                        <div className="service-list" style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
+                        <div className="service-list d-flex flex-wrap gap-3">
                             {infor.map(service => (
                                 <ServiceCard key={service.id} service={service} />
                             ))}

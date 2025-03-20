@@ -4,7 +4,7 @@ import images from '../Image/Service/Index'
 import '../Style/ServiceCard.css'
 
 const ServiceCard = ({ service }) => {
-  const serviceImage = images[service.serviceID] || '/default-service.png'
+  const serviceImage = images[service.serviceId] || '/default-service.png'
 
   return (
     <Card className="shadow-sm border-0 p-3 service-card" >

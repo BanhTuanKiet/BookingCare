@@ -3,9 +3,10 @@ import { Col, Row } from "react-bootstrap"
 import SpecialtyLogo from "../Component/SpecialtyLogo"
 import "../Style/Home.css"
 import { NavContext } from "../Context/NavContext"
+import ServiceList from "../Component/ServiceList"
 
 const Home = () => {
-  const { specialties, HandleNavigation } = useContext(NavContext)
+  const { specialties, services, HandleNavigation } = useContext(NavContext)
 
   return (
     <div>
@@ -25,6 +26,10 @@ const Home = () => {
               </div>
             </Col>
           ))}
+          <h5>Dịch vụ</h5>
+          <div className="service-list d-flex flex-wrap gap-3">
+            <ServiceList services={services} />
+          </div>
         </Row>
       </div>
     </div>
