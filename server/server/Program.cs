@@ -49,17 +49,19 @@ var app = builder.Build();
 app.UseCors("_allowSpecificOrigins");
 // Add errohandling middlware
 app.UseMiddleware<ExceptionHandlingMiddleware>();
-//app.UseMiddleware<AuthToken>();
-// Configure the HTTP request pipeline.
+// app.UseWhen(context => 
+
+// )
+// // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 //    app.UseSwagger();
 //    app.UseSwaggerUI();
 }
-
-app.UseHttpsRedirection();
-//app.UseAuthentication();
+app.UseRouting();
+// app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 

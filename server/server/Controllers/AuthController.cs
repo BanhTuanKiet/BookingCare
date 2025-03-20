@@ -19,9 +19,7 @@ namespace server.Controllers
             _context = context;
             _configuration = configuration;
         }
-
-        [Authorize]
-        [Route("login")]
+        [HttpGet("login")]
         public async Task<IActionResult> Login()
         {
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -30,10 +28,19 @@ namespace server.Controllers
             {
                 Subject = new ClaimsIdentity(new[] { new Claim("id", "1") }),
                 Expires = DateTime.UtcNow.AddDays(7),
+                Issuer = "http://127.0.0.1:5140",
+                Audience = "http://127.0.0.1:3000",
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
+
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return Ok(new { token = tokenHandler.WriteToken(token) });
+        }
+        [Authorize]
+        [HttpPost("")]
+        public async Task<IActionResult> Auth()
+        {
+            return Ok(new { Token = "HttpContext", message = "Xác thực thành công" });
         }
     }
 }
