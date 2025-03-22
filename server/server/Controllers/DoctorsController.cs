@@ -23,11 +23,24 @@ namespace server.Controllers
             _context = context;
         }
 
-        [HttpGet()]
-        public async Task<ActionResult<List<Doctor>>> GetAllDoctors()
+        [HttpGet]
+        public async Task<ActionResult> GetAllDoctors()
         {
-            return await _context.Doctors.ToListAsync();
+            var doctors = await (
+                from d in _context.Doctors
+                join u in _context.Users on d.UserId equals u.UserId
+                    select new
+                    {
+                        DoctorId = d.DoctorId,
+                        SpecialtyId = d.SpecialtyId,
+                        UserName = u.FullName,
+                        Position = d.Position,
+                        DoctorImage = d.DoctorImage != null ? $"data:image/png;base64,{Convert.ToBase64String(d.DoctorImage)}" : null
+                    }).ToListAsync();
+
+            return Ok(doctors);
         }
+
 
         [HttpGet("detail/{doctorName}")]
         public async Task<ActionResult> GetDoctorByName(string doctorName)
@@ -76,6 +89,22 @@ namespace server.Controllers
             }
         }
 
+        [HttpGet("filter")]
+        public async Task<ActionResult<IEnumerable<Doctor>>> FilterDoctors([FromQuery] int? specialtyId, [FromQuery] string keyword)
+        {
+            var query = _context.Doctors.Include(d => d.User).AsQueryable();
+
+            if (specialtyId.HasValue)
+                query = query.Where(d => d.SpecialtyId == specialtyId);
+
+            if (!string.IsNullOrEmpty(keyword))
+                query = query.Where(d => d.User.FullName.Contains(keyword));
+
+            var result = await query.ToListAsync();
+            return Ok(result);
+        }
+
+
         [HttpGet("{id}")]
         public async Task<ActionResult<Doctor>> GetDoctor(int id)
         {
@@ -90,11 +119,22 @@ namespace server.Controllers
         [HttpGet("specialty/{specialtyId}")]
         public async Task<ActionResult<IEnumerable<Doctor>>> GetDoctorsBySpecialty(int specialtyId)
         {
-            var doctors = await _context.Doctors
-                .Where(d => d.SpecialtyId == specialtyId)
-                .ToListAsync();
+            var doctors = await (
+                    from d in _context.Doctors
+                    join u in _context.Users on d.UserId equals u.UserId
+                    where d.SpecialtyId == specialtyId
+                    select new
+                    {
+                        DoctorId = d.DoctorId,
+                        ExperienceYears = d.ExperienceYears,
+                        SpecialtyId = d.SpecialtyId,
+                        UserId = d.UserId,
+                        UserName = u.FullName,
+                        Position = d.Position,
+                        DoctorImage = d.DoctorImage != null ? $"data:image/png;base64,{Convert.ToBase64String(d.DoctorImage)}" : null
+                    }).ToListAsync();
 
-            return Ok(doctors);
+                    return Ok(doctors);
         }
 
         /// <summary>
