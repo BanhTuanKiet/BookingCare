@@ -153,6 +153,15 @@ namespace server.Controllers
                 where u.FullName.Contains(keyword)
                 select d
             ).ToListAsync();
+            //phải trả về cái form này chứ
+            // select new
+            // {
+            //     DoctorId = d.DoctorId,
+            //     SpecialtyId = d.SpecialtyId,
+            //     UserName = u.FullName,
+            //     Position = d.Position,
+            //     DoctorImage = d.DoctorImage != null ? $"data:image/png;base64,{Convert.ToBase64String(d.DoctorImage)}" : null
+            // }).ToListAsync();
 
             return Ok(doctors);
         }

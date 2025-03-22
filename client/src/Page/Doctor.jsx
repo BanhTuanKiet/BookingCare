@@ -8,16 +8,15 @@ import { NavContext } from '../Context/NavContext';
 
 const Doctor = () => {
   const { specialties } = useContext(NavContext);
-
   const [doctors, setDoctors] = useState([]);
   const [activeSpecialty, setActiveSpecialty] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
-
+// cái phần hiển thị loading được thì viết ở componets luôn, không viết thì file nào cũng phải làm -> MỆT LẮM
   // Load all doctors khi mới vào trang
   useEffect(() => {
-    fetchDoctors();
-  }, []);
+    fetchDoctors()
+  }, [])
 
   // Hàm lấy danh sách bác sĩ
   const fetchDoctors = async () => {
@@ -41,15 +40,16 @@ const Doctor = () => {
 
     try {
       setLoading(true);
-
+// hạn chế if else m có thể return cái fetchDoctors() luôn còn bên dưới không cần lồng else vào
       // Nếu chọn tất cả thì fetch lại tất cả
       if (specialty === 'all') {
         fetchDoctors();
       } else {
         const response = await axios.get(`/doctors/specialty/${specialty}`);
         console.log(`Bác sĩ theo chuyên khoa ${specialty}:`, response.data);
-
+//lọc object có id để làm gì trong khi ở server đẫ lấy ra (id là khóa chính nên không thể null)
         const filteredDoctors = response.data.filter(doctor => doctor.doctorId);
+        console.log("rewefse ", filteredDoctors)
         setDoctors(filteredDoctors);
       }
     } catch (error) {
@@ -57,9 +57,10 @@ const Doctor = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   // Xử lý tìm kiếm (keyword)
+  // dùng settimeout
   const handleSearch = async (e) => {
     e.preventDefault();
 
@@ -137,15 +138,20 @@ const Doctor = () => {
           </div>
         </div>
       ) : (
-        <Row className="justify-content-center g-1">
+        <Row className="d-flex flex-wrap g-1">
           {doctors.length > 0 ? (
             doctors.map(doctor => (
-              <Col key={doctor.doctorId} lg={3} md={4} sm={6} className="mb-4" >
+              <Col 
+                key={doctor.doctorId} 
+                lg={3} md={4} sm={6} 
+                className="mb-4 d-flex justify-content-center"
+                style={{ minHeight: '300px' }} // tuỳ chỉnh thêm để thấy rõ vertical center
+              >
                 <DoctorCard doctor={doctor} />
               </Col>
             ))
           ) : (
-            <div className="text-center my-5">
+            <div className="text-center my-5 w-100">
               <h5>Không tìm thấy bác sĩ phù hợp!</h5>
             </div>
           )}
