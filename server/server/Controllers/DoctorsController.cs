@@ -35,6 +35,7 @@ namespace server.Controllers
                         SpecialtyId = d.SpecialtyId,
                         UserName = u.FullName,
                         Position = d.Position,
+                        ExperienceYears = d.ExperienceYears,
                         DoctorImage = d.DoctorImage != null ? $"data:image/png;base64,{Convert.ToBase64String(d.DoctorImage)}" : null
                     }).ToListAsync();
 

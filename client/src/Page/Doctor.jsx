@@ -3,6 +3,7 @@ import { Container, Row, Col, Form, InputGroup, Button, Nav } from 'react-bootst
 import { FaSearch } from 'react-icons/fa';
 import DoctorCard from '../Component/DoctorCard';
 import axios from '../Util/AxiosConfig';
+import Loading from '../Component/Loading';
 import '../Style/DoctorPage.css';
 import { NavContext } from '../Context/NavContext';
 
@@ -37,21 +38,18 @@ const Doctor = () => {
   // Hàm lọc theo chuyên khoa
   const handleSpecialtyFilter = async (specialty) => {
     setActiveSpecialty(specialty);
-
+    setLoading(true);
     try {
-      setLoading(true);
 // hạn chế if else m có thể return cái fetchDoctors() luôn còn bên dưới không cần lồng else vào
       // Nếu chọn tất cả thì fetch lại tất cả
       if (specialty === 'all') {
-        fetchDoctors();
-      } else {
+        await fetchDoctors(); // Gọi luôn, khỏi cần else
+        return;
+      }
         const response = await axios.get(`/doctors/specialty/${specialty}`);
         console.log(`Bác sĩ theo chuyên khoa ${specialty}:`, response.data);
 //lọc object có id để làm gì trong khi ở server đẫ lấy ra (id là khóa chính nên không thể null)
-        const filteredDoctors = response.data.filter(doctor => doctor.doctorId);
-        console.log("rewefse ", filteredDoctors)
-        setDoctors(filteredDoctors);
-      }
+        setDoctors(response.data);
     } catch (error) {
       console.error('Lỗi lọc theo chuyên khoa:', error);
     } finally {
@@ -132,18 +130,14 @@ const Doctor = () => {
 
       {/* Hiển thị danh sách bác sĩ */}
       {loading ? (
-        <div className="text-center my-5">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Đang tải...</span>
-          </div>
-        </div>
+          <Loading text="Đang tải danh sách bác sĩ..." />
       ) : (
         <Row className="d-flex flex-wrap g-1">
           {doctors.length > 0 ? (
             doctors.map(doctor => (
-              <Col 
-                key={doctor.doctorId} 
-                lg={3} md={4} sm={6} 
+              <Col
+                key={doctor.doctorId}
+                lg={3} md={4} sm={6}
                 className="mb-4 d-flex justify-content-center"
                 style={{ minHeight: '300px' }} // tuỳ chỉnh thêm để thấy rõ vertical center
               >

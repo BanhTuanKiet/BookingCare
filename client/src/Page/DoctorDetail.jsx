@@ -69,7 +69,7 @@ const DoctorDetail = () => {
                     <Card className="border-0">
                         <Row>
                             <Col md={6}>
-                                <h3 className="text-primary fw-bold">{doctor.userName}</h3>
+                                <h3 className="text-primary fw-bold">{doctor.degree +" "+ doctor.userName}</h3>
                                 <p className="mb-1">{doctor.position || 'Chức vụ đang cập nhật'}</p>
 
                                 <Nav className="flex-column">
