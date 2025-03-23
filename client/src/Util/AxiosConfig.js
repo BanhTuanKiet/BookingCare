@@ -32,7 +32,7 @@ instance.interceptors.response.use(function (response) {
 console.log(error.response)
   if (error && error.response && error.response.data) {
     const errorMessage = error.response.data.ErrorMessage
-    const statusCode = error.response.data.StatusCode
+    const statusCode = error.response.status
 
     switch (statusCode) {
       case 401:
