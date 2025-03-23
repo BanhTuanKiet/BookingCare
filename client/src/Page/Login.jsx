@@ -18,7 +18,7 @@ function Login() {
     const Auth = async () => {
         try {
             console.log("auth")
-            const respone = await axios.post('/auth', null, {
+            const respone = await axios.post('/auth/auth_user', { name: null }, {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }

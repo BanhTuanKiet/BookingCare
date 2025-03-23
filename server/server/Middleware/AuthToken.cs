@@ -27,7 +27,6 @@ public class AuthToken
         }
 
         var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-        Console.WriteLine($"Token: {token}");
 
         if (string.IsNullOrEmpty(token))
         {

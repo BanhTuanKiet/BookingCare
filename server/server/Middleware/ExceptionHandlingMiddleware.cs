@@ -17,7 +17,6 @@ public class ExceptionHandlingMiddleware
     {
         try
         {
-            Console.WriteLine(context);
             Console.WriteLine("Error handling");
             await _next(context); // Chuyển request đến middleware tiếp theo
         }
@@ -37,6 +36,7 @@ public class ExceptionHandlingMiddleware
 
     private static Task HandleExceptionAsync(HttpContext context, ErrorHandlingException exception)
     {
+        Console.WriteLine("HandleExceptionAsync;");
         var response = context.Response;
         response.ContentType = "application/json";
         string defaultMessageError = "Xảy ra lỗi! Vui lòng thử lại!";
@@ -58,6 +58,7 @@ public class ExceptionHandlingMiddleware
 
     private static Task HandleOtherExceptionAsync(HttpContext context, Exception exception)
     {
+        Console.WriteLine("HandleOtherExceptionAsync");
         var response = context.Response;
         response.ContentType = "application/json";
         string defaultMessageError = "Xảy ra lỗi! Vui lòng thử lại!";

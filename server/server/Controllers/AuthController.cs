@@ -1,9 +1,11 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using server.Middleware;
 using server.Models;
 
 namespace server.Controllers
@@ -37,12 +39,16 @@ namespace server.Controllers
             return Ok(new { token = tokenHandler.WriteToken(token) });
         }
         [Authorize]
-        [HttpPost("")]
-        public async Task<IActionResult> Auth()
+        [HttpPost("auth_user")]
+        public async Task<IActionResult> AuthUser([FromBody] JsonElement data)
         {
-            var a = (string)null;
-            var b = a.Length;
-            return Ok(new { Token = "HttpContext", message = "Xác thực thành công", b = b });
+            string nameValue = data.GetProperty("ưegwe").GetString();
+
+            if (string.IsNullOrEmpty(nameValue)){
+                throw new ErrorHandlingException(400, "name is null!");
+            }
+            Console.WriteLine($"Name: {nameValue}");
+            return Ok(new { Token = "HttpContext", message = "Xác thực thành công", name = nameValue });
         }
     }
 }
