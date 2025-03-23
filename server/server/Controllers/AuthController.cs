@@ -40,15 +40,23 @@ namespace server.Controllers
         }
         [Authorize]
         [HttpPost("auth_user")]
-        public async Task<IActionResult> AuthUser([FromBody] JsonElement data)
+        public async Task<IActionResult> AuthUser([FromBody] LoginForm user)
         {
-            string nameValue = data.GetProperty("ưegwe").GetString();
+            // string nameValue = data.GetProperty("ưegwe").GetString();
 
-            if (string.IsNullOrEmpty(nameValue)){
-                throw new ErrorHandlingException(400, "name is null!");
+            // if (string.IsNullOrEmpty(nameValue)){
+            //     throw new ErrorHandlingException(400, "name is null!");
+            // }
+            // Console.WriteLine($"Name: {nameValue}");
+            // return Ok(new { Token = "HttpContext", message = "Xác thực thành công", name = nameValue });
+
+            Console.WriteLine($"User: {user.Email} - {user.Password}");
+
+            if (string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.Password)) {
+                throw new ErrorHandlingException(400, "Vui lòng nhập đủ thông tin!");
             }
-            Console.WriteLine($"Name: {nameValue}");
-            return Ok(new { Token = "HttpContext", message = "Xác thực thành công", name = nameValue });
+            
+            return Ok(new { Token = "HttpContext", message = "Xác thực thành công", user = user });
         }
     }
 }
