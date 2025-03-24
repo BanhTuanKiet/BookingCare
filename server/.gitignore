@@ -11,6 +11,9 @@ obj/
 *.vs/
 .vscode/
 .DS_Store
+node_modules/
+client/node_modules/
+
 
 # Thư viện cài qua NuGet
 packages/
