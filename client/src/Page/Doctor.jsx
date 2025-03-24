@@ -82,7 +82,7 @@ const Doctor = () => {
       setLoading(false);
     }
   };
-
+console.log(doctors)
   return (
     <Container className="doctor-page py-5">
       <h1 className="text-center text-primary mb-5">Đội ngũ bác sĩ</h1>
@@ -132,7 +132,7 @@ const Doctor = () => {
       {loading ? (
           <Loading text="Đang tải danh sách bác sĩ..." />
       ) : (
-        <Row className="d-flex flex-wrap g-1">
+        <Row className="d-flex justify-conte g-1">
           {doctors.length > 0 ? (
             doctors.map(doctor => (
               <Col
