@@ -21,7 +21,7 @@ builder.Configuration["ConnectionStrings:DefaultConnection"] = $"Server={db_serv
 // Add cors policy
 
 builder.Services.AddCorsPolicy();
-builder.Services.AddJWT();
+// builder.Services.AddJWT();
 // Add services to the container.
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");

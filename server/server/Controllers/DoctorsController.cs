@@ -23,6 +23,89 @@ namespace server.Controllers
             _context = context;
         }
 
+        [HttpGet]
+        public async Task<ActionResult> GetAllDoctors()
+        {
+            var doctors = await (
+                from d in _context.Doctors
+                join u in _context.Users on d.UserId equals u.UserId
+                    select new
+                    {
+                        DoctorId = d.DoctorId,
+                        SpecialtyId = d.SpecialtyId,
+                        UserName = u.FullName,
+                        Position = d.Position,
+                        ExperienceYears = d.ExperienceYears,
+                        DoctorImage = d.DoctorImage != null ? $"data:image/png;base64,{Convert.ToBase64String(d.DoctorImage)}" : null
+                    }).ToListAsync();
+
+            return Ok(doctors);
+        }
+
+
+        [HttpGet("detail/{doctorName}")]
+        public async Task<ActionResult> GetDoctorByName(string doctorName)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(doctorName))
+                {
+                    throw new ErrorHandlingException(500, "UserName is required");
+                }
+
+                var doctors = await (
+                    from d in _context.Doctors
+                    join u in _context.Users on d.UserId equals u.UserId
+                    where u.FullName == doctorName
+                    select new
+                    {
+                        DoctorId = d.DoctorId,
+                        ExperienceYears = d.ExperienceYears,
+                        SpecialtyId = d.SpecialtyId,
+                        UserId = d.UserId,
+                        UserName = u.FullName,
+                        Degree = d.Degree,
+                        Position = d.Position,
+                        Biography = d.Biography,
+                        Qualifications = d.Qualifications,
+                        WorkExperience = d.WorkExperience,
+                        DoctorImage = d.DoctorImage != null ? $"data:image/png;base64,{Convert.ToBase64String(d.DoctorImage)}" : null
+                    }).FirstOrDefaultAsync();
+
+                if (doctors == null)
+                {
+                    throw new ErrorHandlingException(404, "Không tìm thấy bác sĩ theo tên");
+                }
+
+                return Ok(doctors);
+            }
+            catch (Exception ex)
+            {
+                if (ex is ErrorHandlingException)
+                {
+                    throw;
+                }
+
+                throw new ErrorHandlingException(500, ex.Message);
+            }
+        }
+
+        [HttpGet("filter")]
+        public async Task<ActionResult<IEnumerable<Doctor>>> FilterDoctors([FromQuery] int? specialtyId, [FromQuery] string keyword)
+        {
+            var query = _context.Doctors.Include(d => d.User).AsQueryable();
+
+            if (specialtyId.HasValue)
+                query = query.Where(d => d.SpecialtyId == specialtyId);
+
+            if (!string.IsNullOrEmpty(keyword))
+                query = query.Where(d => d.User.FullName.Contains(keyword));
+
+            var result = await query.ToListAsync();
+            return Ok(result);
+        }
+
+
         [HttpGet("{id}")]
         public async Task<ActionResult<Doctor>> GetDoctor(int id)
         {
@@ -32,6 +115,66 @@ namespace server.Controllers
                 return NotFound();
             }
             return doctor;
+        }
+
+        [HttpGet("specialty/{specialtyId}")]
+        public async Task<ActionResult<IEnumerable<Doctor>>> GetDoctorsBySpecialty(int specialtyId)
+        {
+            var doctors = await (
+                    from d in _context.Doctors
+                    join u in _context.Users on d.UserId equals u.UserId
+                    where d.SpecialtyId == specialtyId
+                    select new
+                    {
+                        DoctorId = d.DoctorId,
+                        ExperienceYears = d.ExperienceYears,
+                        SpecialtyId = d.SpecialtyId,
+                        UserId = d.UserId,
+                        UserName = u.FullName,
+                        Position = d.Position,
+                        DoctorImage = d.DoctorImage != null ? $"data:image/png;base64,{Convert.ToBase64String(d.DoctorImage)}" : null
+                    }).ToListAsync();
+
+                    return Ok(doctors);
+        }
+
+        /// <summary>
+        /// Tìm kiếm bác sĩ theo từ khóa (tên)
+        /// GET: api/doctors/search?keyword=abc
+        /// </summary>
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<Doctor>>> SearchDoctors([FromQuery] string keyword)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+                return BadRequest("Keyword is required");
+
+            var doctors = await (
+                from d in _context.Doctors
+                join u in _context.Users on d.UserId equals u.UserId
+                where u.FullName.Contains(keyword)
+            select new
+            {
+                DoctorId = d.DoctorId,
+                SpecialtyId = d.SpecialtyId,
+                UserName = u.FullName,
+                Position = d.Position,
+                DoctorImage = d.DoctorImage != null ? $"data:image/png;base64,{Convert.ToBase64String(d.DoctorImage)}" : null
+            }).ToListAsync();
+
+            return Ok(doctors);
+        }
+
+        /// <summary>
+        /// Thêm bác sĩ mới
+        /// POST: api/doctors
+        /// </summary>
+        [HttpPost]
+        public async Task<ActionResult<Doctor>> PostDoctor(Doctor doctor)
+        {
+            _context.Doctors.Add(doctor);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetDoctor", new { id = doctor.DoctorId }, doctor);
         }
 
         [HttpPost("upload")]

@@ -46,10 +46,6 @@ function SpecialtyNav() {
         fetchData()
     }, [activeNavItem, specialty])
 
-    useEffect(() => {
-
-    })
-    
     return (
         <div className="specialty-container">
             {/* Thanh điều hướng tab */}
