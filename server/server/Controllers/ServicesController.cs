@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
+using server.Middleware;
 using server.Models;
 
 namespace server.Controllers
@@ -26,6 +29,48 @@ namespace server.Controllers
         {
             return await _context.Services.ToListAsync();
         }
+
+        // GET: ServicesByName
+        [HttpGet("detail/{serviceName}")]
+        public async Task<IActionResult> GetServiceByName(string serviceName)
+        {
+
+            try
+            {
+                if (string.IsNullOrEmpty(serviceName))
+                {
+                    throw new ErrorHandlingException(500, "Service Name is required");
+                }
+
+                var service = await (
+                    from s in _context.Services
+                    where s.ServiceName == serviceName
+                    select new
+                    {
+                        ServiceId = s.ServiceId,
+                        ServiceName = s.ServiceName,
+                        Description = s.Description,
+                        Price = s.Price,
+                    }).FirstOrDefaultAsync();
+
+                if (service == null)
+                {
+                    throw new ErrorHandlingException(500, "Lỗi lấy dịch vụ theo tên");
+                }
+
+                return Ok(service);
+            }
+            catch (Exception ex)
+            {
+                if (ex is ErrorHandlingException)
+                {
+                    throw;
+                }
+
+                throw new ErrorHandlingException(ex.Message);
+            }
+        }
+
 
         // POST: Services
         [HttpPost]
