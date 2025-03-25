@@ -1,4 +1,5 @@
 ﻿using server.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace server.Services
 {
@@ -6,8 +7,5 @@ namespace server.Services
     {
         Task<List<server.Models.Specialty>> GetSpecialties();
         Task<string?> GetDescription(string specialty);
-        Task<List<Doctor>> GetDoctors(string specialty);
-        Task<List<server.Models.Service>> GetAllServices();
-        Task<bool> UpdateSpecialty(int id, server.Models.Specialty specialty);
     }
 }

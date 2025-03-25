@@ -5,6 +5,8 @@ using server.Controllers;
 using server.Models;
 using DotNetEnv;
 using server.Middleware;
+using server.Services;
+using static server.Configs.AutoMapperConfig;
 
 Env.Load();
 
@@ -24,6 +26,11 @@ builder.Services.AddCorsPolicy();
 // builder.Services.AddJWT();
 // Add services to the container.
 
+builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddScoped<ISpecialty, SpecialtyServices>();
+builder.Services.AddScoped<IService,  ServiceServices>();
+builder.Services.AddScoped<IDoctor, DoctorServices>();
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<ClinicManagementContext>(options =>
@@ -39,7 +46,7 @@ builder.Services.AddDbContext<ClinicManagementContext>(options =>
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-
+builder.Services.AddAutoMapper(typeof(AutoMapperConfig));
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen();

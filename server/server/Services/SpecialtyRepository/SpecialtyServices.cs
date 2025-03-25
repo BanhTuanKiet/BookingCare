@@ -1,32 +1,26 @@
-﻿using server.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using server.Models;
 
-namespace server.Services.Specialty
+namespace server.Services
 {
     public class SpecialtyServices : ISpecialty
     {
-        public Task<List<Models.Service>> GetAllServices()
+        private readonly ClinicManagementContext _context;
+
+        public SpecialtyServices(ClinicManagementContext context)
         {
-            throw new NotImplementedException();
+            _context = context;
+        }
+        public async Task<List<Specialty>> GetSpecialties()
+        {
+            return await _context.Specialties.ToListAsync();
         }
 
-        public Task<string?> GetDescription(string specialty)
+        public async Task<string?> GetDescription(string specialty)
         {
-            throw new NotImplementedException();
-        }
+            var description = await _context.Specialties.Where(s => s.Name == specialty).Select(s => s.Description).FirstOrDefaultAsync();
 
-        public Task<List<Doctor>> GetDoctors(string specialty)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<List<Models.Specialty>> GetSpecialties()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> UpdateSpecialty(int id, Models.Specialty specialty)
-        {
-            throw new NotImplementedException();
+            return description;
         }
     }
 }

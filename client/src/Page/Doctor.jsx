@@ -23,66 +23,65 @@ const Doctor = () => {
   const fetchDoctors = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/doctors');
-      console.log('Dữ liệu bác sĩ:', response.data);
+      const response = await axios.get('/doctors')
 
-      const filteredDoctors = response.data.filter(doctor => doctor.doctorId);
-      setDoctors(filteredDoctors);
+      const filteredDoctors = response.data.filter(doctor => doctor.doctorId)
+      setDoctors(filteredDoctors)
     } catch (error) {
-      console.error('Lỗi khi lấy danh sách bác sĩ:', error);
+      console.error('Lỗi khi lấy danh sách bác sĩ:', error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   // Hàm lọc theo chuyên khoa
   const handleSpecialtyFilter = async (specialty) => {
-    setActiveSpecialty(specialty);
-    setLoading(true);
+    setActiveSpecialty(specialty)
+    setLoading(true)
     try {
 // hạn chế if else m có thể return cái fetchDoctors() luôn còn bên dưới không cần lồng else vào
       // Nếu chọn tất cả thì fetch lại tất cả
       if (specialty === 'all') {
-        await fetchDoctors(); // Gọi luôn, khỏi cần else
-        return;
+        await fetchDoctors() // Gọi luôn, khỏi cần else
+        return
       }
-        const response = await axios.get(`/doctors/specialty/${specialty}`);
-        console.log(`Bác sĩ theo chuyên khoa ${specialty}:`, response.data);
+        const response = await axios.get(`/doctors/specialty/${specialty}`)
 //lọc object có id để làm gì trong khi ở server đẫ lấy ra (id là khóa chính nên không thể null)
-        setDoctors(response.data);
+        setDoctors(response.data)
     } catch (error) {
-      console.error('Lỗi lọc theo chuyên khoa:', error);
+      console.error('Lỗi lọc theo chuyên khoa:', error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   }
 
   // Xử lý tìm kiếm (keyword)
   // dùng settimeout
   const handleSearch = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
     try {
-      setLoading(true);
+      setLoading(true)
 
       // Nếu không có từ khóa thì fetch lại theo chuyên khoa hiện tại
       if (!searchTerm.trim()) {
-        handleSpecialtyFilter(activeSpecialty);
-        return;
+        handleSpecialtyFilter(activeSpecialty)
+        return
       }
 
-      const response = await axios.get(`/doctors/search?keyword=${searchTerm}`);
-      console.log('Kết quả tìm kiếm:', response.data);
+      const response = await axios.get(`/doctors/search?keyword=${searchTerm}`)
+      console.log(searchTerm)
+      console.log('Kết quả tìm kiếm:', response.data)
 
-      const filteredDoctors = response.data.filter(doctor => doctor.doctorId);
-      setDoctors(filteredDoctors);
+      const filteredDoctors = response.data.filter(doctor => doctor.doctorId)
+      setDoctors(filteredDoctors)
     } catch (error) {
-      console.error('Lỗi tìm kiếm:', error);
+      console.error('Lỗi tìm kiếm:', error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
-console.log(doctors)
+  }
+
   return (
     <Container className="doctor-page py-5">
       <h1 className="text-center text-primary mb-5">Đội ngũ bác sĩ</h1>

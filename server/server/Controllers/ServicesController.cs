@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using server.Middleware;
 using server.Models;
+using server.Services;
 
 namespace server.Controllers
 {
@@ -17,17 +18,19 @@ namespace server.Controllers
     public class ServicesController : ControllerBase
     {
         private readonly ClinicManagementContext _context;
+        private readonly IService _serviceService;
 
-        public ServicesController(ClinicManagementContext context)
+        public ServicesController(ClinicManagementContext context, IService serviceService)
         {
             _context = context;
+            _serviceService = serviceService;
         }
 
         // GET: Services
         [HttpGet]
         public async Task<List<Service>> GetService()
         {
-            return await _context.Services.ToListAsync();
+            return await _serviceService.GetAllServices();
         }
 
         // GET: ServicesByName
@@ -35,97 +38,71 @@ namespace server.Controllers
         public async Task<IActionResult> GetServiceByName(string serviceName)
         {
 
-            try
+            if (string.IsNullOrEmpty(serviceName))
             {
-                if (string.IsNullOrEmpty(serviceName))
-                {
-                    throw new ErrorHandlingException(500, "Service Name is required");
-                }
-
-                var service = await (
-                    from s in _context.Services
-                    where s.ServiceName == serviceName
-                    select new
-                    {
-                        ServiceId = s.ServiceId,
-                        ServiceName = s.ServiceName,
-                        Description = s.Description,
-                        Price = s.Price,
-                    }).FirstOrDefaultAsync();
-
-                if (service == null)
-                {
-                    throw new ErrorHandlingException(500, "Lỗi lấy dịch vụ theo tên");
-                }
-
-                return Ok(service);
+                throw new ErrorHandlingException(500, "Service Name is required");
             }
-            catch (Exception ex)
-            {
-                if (ex is ErrorHandlingException)
-                {
-                    throw;
-                }
 
-                throw new ErrorHandlingException(ex.Message);
-            }
+            Service? service = await _serviceService.GetServiceByName(serviceName) ?? throw new ErrorHandlingException(500, "Lỗi lấy dịch vụ theo tên");
+            
+            return Ok(service);
         }
 
 
         // POST: Services
-        [HttpPost]
-        public async Task<ActionResult<Service>> PostService(Service service)
-        {
-            _context.Services.Add(service);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction("GetService", new { id = service.ServiceId }, service);
-        }
+        // [HttpPost]
+        // public async Task<ActionResult<Service>> PostService(Service service)
+        // {
+        //     _context.Services.Add(service);
+        //     await _context.SaveChangesAsync();
+        //     return CreatedAtAction("GetService", new { id = service.ServiceId }, service);
+        // }
 
-        // PUT: Services/{id}
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutService(int id, Service service)
-        {
-            if (id != service.ServiceId)
-            {
-                return BadRequest();
-            }
+        // // PUT: Services/{id}
+        // [HttpPut("{id}")]
+        // public async Task<IActionResult> PutService(int id, Service service)
+        // {
+        //     if (id != service.ServiceId)
+        //     {
+        //         return BadRequest();
+        //     }
 
-            _context.Entry(service).State = EntityState.Modified;
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ServiceExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            return NoContent();
-        }
+        //     _context.Entry(service).State = EntityState.Modified;
+        //     try
+        //     {
+        //         await _context.SaveChangesAsync();
+        //     }
+        //     catch (DbUpdateConcurrencyException)
+        //     {
+        //         if (!ServiceExists(id))
+        //         {
+        //             return NotFound();
+        //         }
+        //         else
+        //         {
+        //             throw;
+        //         }
+        //     }
+        //     return NoContent();
+        // }
 
-        // DELETE: Services/{id}
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteService(int id)
-        {
-            var service = await _context.Services.FindAsync(id);
-            if (service == null)
-            {
-                return NotFound();
-            }
-            _context.Services.Remove(service);
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
+        // // DELETE: Services/{id}
+        // [HttpDelete("{id}")]
+        // public async Task<IActionResult> DeleteService(int id)
+        // {
+        //     var service = await _context.Services.FindAsync(id);
+        //     if (service == null)
+        //     {
+        //         return NotFound();
+        //     }
+        //     _context.Services.Remove(service);
+        //     await _context.SaveChangesAsync();
+        //     return NoContent();
+        // }
 
-        private bool ServiceExists(int id)
-        {
-            return _context.Services.Any(e => e.ServiceId == id);
-        }
+        // private bool ServiceExists(int id)
+        // {
+        //     return _context.Services.Any(e => e.ServiceId == id);
+        // }
     }
 }
