@@ -38,6 +38,7 @@ const NavProvider = ({ children }) => {
             try {
                 const response = await axios.get(`/services`)
                 setServices(response.data)
+                console.log(response.data)
             } catch (error) {
                 console.error("Lỗi khi lấy danh sách dịch vụ:", error)
             }
