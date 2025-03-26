@@ -57,10 +57,10 @@ namespace server.Controllers
         //     return doctor;
         // }
 
-        [HttpGet("specialty/{specialtyId}")]
-        public async Task<ActionResult<List<DoctorDTO.DoctorBasic>>> GetDoctorsBySpecialty(int specialtyId)
+        [HttpGet("{specialty}")]
+        public async Task<ActionResult<List<DoctorDTO.DoctorBasic>>> GetDoctorsBySpecialty(string specialty)
         {
-            List<DoctorDTO.DoctorBasic> doctors = await _doctorService.GetDoctorsBySpecialty(specialtyId);
+            List<DoctorDTO.DoctorBasic> doctors = await _doctorService.GetDoctorsBySpecialty(specialty);
 
             return Ok(doctors);
         }

@@ -44,12 +44,25 @@ namespace server.Controllers
 
             if (string.IsNullOrEmpty(serviceName))
             {
-                throw new ErrorHandlingException(500, "Service Name is required");
+                throw new ErrorHandlingException(500, "Service Name is required!");
             }
 
             ServiceDTO.ServiceDetail service = await _serviceService.GetServiceByName(serviceName) ?? throw new ErrorHandlingException(500, "Lỗi lấy dịch vụ theo tên");
             
             return Ok(service);
+        }
+        
+        [HttpGet("{specialty}/services")]
+        public async Task<ActionResult<List<ServiceDTO.ServiceDetail>>> GetServiceBySpecialtyName(string specialty)
+        {
+            if (string.IsNullOrEmpty(specialty))
+            {
+                throw new ErrorHandlingException(500, "Specialty name is required!");
+            }
+            
+            var services = await _serviceService.GetServiceBySpecialty(specialty) ?? throw new ErrorHandlingException(500, "Lỗi lấy dịch vụ theo khoa");
+
+            return Ok(services);
         }
 
         // [HttpGet("{specialty}/services")]

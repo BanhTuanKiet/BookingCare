@@ -7,7 +7,7 @@ namespace server.Services
     {
         Task<List<ServiceDTO.ServiceDetail>> GetAllServices();
         Task<ServiceDTO.ServiceDetail> GetServiceByName(string serviceName);
-        // Task<ServiceDTO.ServiceDetail> GetServiceBySpecialty(string specialtyName);
+        Task<List<ServiceDTO.ServiceDetail>> GetServiceBySpecialty(string specialtyName);
         // Task<Service> PostService(Service service);
     }
 }

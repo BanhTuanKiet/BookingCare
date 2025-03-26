@@ -6,7 +6,7 @@ import '../Style/ServiceCard.css';
 
 const ServiceCard = ({ service }) => {
   const navigate = useNavigate();
-  const serviceImage = images[service.serviceID] || '/default-service.png';
+  const serviceImage = images[service.serviceId] || '/default-service.png';
 
   const truncateText = (text = "", wordLimit) => {
     const words = text ? text.split(' ') : [];

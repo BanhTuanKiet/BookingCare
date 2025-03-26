@@ -25,7 +25,6 @@ namespace server.Controllers
         public async Task<List<Specialty>> GetSpecialties()
         {
             return await _speciatyService.GetSpecialties();
-
         }
 
         // GET: api/Specialties/specialty/description

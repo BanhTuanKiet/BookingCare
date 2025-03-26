@@ -23,13 +23,13 @@ function SpecialtyNav() {
                         break
     
                     case navItems[1]: // Bác sĩ
-                        response = await axios.get(`/doctors/${specialty}/doctor`)
+                        response = await axios.get(`/doctors/${specialty}`)
                         console.log("Danh sách bác sĩ:", response.data)
                         setInfor(Array.isArray(response.data) ? response.data : [])
                         break
     
                     case navItems[2]: // Dịch vụ
-                        response = await axios.get(`/serivces/${specialty}/services`)
+                        response = await axios.get(`/services/${specialty}/services`)
                         console.log("Dịch vụ:", response.data)
                         setInfor(Array.isArray(response.data) ? response.data : [])
                         break

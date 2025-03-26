@@ -35,7 +35,7 @@ public partial class ClinicManagementContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
     
-    public virtual DbSet<SpecialtyService> SpecialtyServices { get; set; }
+    // public virtual DbSet<SpecialtyService> SpecialtyServices { get; set; }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -226,27 +226,8 @@ public partial class ClinicManagementContext : DbContext
             entity.Property(e => e.PhoneNumber).HasMaxLength(20);
             entity.Property(e => e.Role).HasMaxLength(50);
         });
-        
-        modelBuilder.Entity<Specialty>(entity =>
-        {
-            entity.HasMany(d => d.Services).WithMany(p => p.Specialties)
-                .UsingEntity<Dictionary<string, object>>(
-                    "SpecialtyService",
-                    r => r.HasOne<Service>().WithMany()
-                        .HasForeignKey("ServiceId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__Specialty__Servi__09746778"),
-                    l => l.HasOne<Specialty>().WithMany()
-                        .HasForeignKey("SpecialtyId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__Specialty__Speci__0880433F"),
-                    j =>
-                    {
-                        j.HasKey("SpecialtyId", "ServiceId").HasName("PK__Specialt__6B394DA853777237");
-                        j.ToTable("SpecialtyService");
-                    });
-        });
-
+    
+    
 
         OnModelCreatingPartial(modelBuilder);
     }

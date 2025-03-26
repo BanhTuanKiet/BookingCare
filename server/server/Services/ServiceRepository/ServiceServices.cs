@@ -4,7 +4,8 @@ using server.Middleware;
 using AutoMapper;
 using server.DTO;
  using AutoMapper;
- 
+using Microsoft.AspNetCore.Http.HttpResults;
+
 namespace server.Services
 {
     public class ServiceServices : IService
@@ -33,16 +34,20 @@ namespace server.Services
             return serviceDTOs;
         }
 
-        // public async Task<ServiceDTO.ServiceDetail> GetServiceBySpecialty(string specialtyName)
-        // {
-        //     var service = await _context.s
-        // }
+        public async Task<List<ServiceDTO.ServiceDetail>> GetServiceBySpecialty(string specialtyName)
+        {
+            var services = await _context.Services.Where(s => s.Specialties.Any(sp => sp.Name == specialtyName)).ToListAsync();
 
-        // public async Task<Service> PostService(Service service)
-        // {
-        //     _context.Services.Add(service);
-        //     await _context.SaveChangesAsync();
-        //     return service;
-        // }
+            var serviceDTOs = _mapper.Map<List<ServiceDTO.ServiceDetail>>(services);
+
+            return serviceDTOs;
+        }
+
+        public async Task<Service> PostService(Service service)
+        {
+            _context.Services.Add(service);
+            await _context.SaveChangesAsync();
+            return service;
+        }
     }
 }

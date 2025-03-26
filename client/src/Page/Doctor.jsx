@@ -45,7 +45,7 @@ const Doctor = () => {
         await fetchDoctors() // Gọi luôn, khỏi cần else
         return
       }
-        const response = await axios.get(`/doctors/specialty/${specialty}`)
+        const response = await axios.get(`/doctors/${specialty}`)
 //lọc object có id để làm gì trong khi ở server đẫ lấy ra (id là khóa chính nên không thể null)
         setDoctors(response.data)
     } catch (error) {
@@ -119,7 +119,7 @@ const Doctor = () => {
           <Nav.Item key={specialty.id}>
             <Nav.Link
               className={activeSpecialty === specialty.id ? 'active' : ''}
-              onClick={() => handleSpecialtyFilter(specialty.id)}
+              onClick={() => handleSpecialtyFilter(specialty.name)}
             >
               {specialty.name}
             </Nav.Link>
