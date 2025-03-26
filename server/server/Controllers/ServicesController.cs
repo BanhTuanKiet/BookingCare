@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using server.Middleware;
 using server.Models;
 using server.Services;
+using server.DTO;
 
 namespace server.Controllers
 {
@@ -28,9 +29,11 @@ namespace server.Controllers
 
         // GET: Services
         [HttpGet]
-        public async Task<List<Service>> GetService()
+        public async Task<List<ServiceDTO.ServiceDetail>> GetService()
         {
-            return await _serviceService.GetAllServices();
+            var service = await _serviceService.GetAllServices();
+             Console.WriteLine(service);
+             return service;
         }
 
         // GET: ServicesByName
@@ -43,7 +46,7 @@ namespace server.Controllers
                 throw new ErrorHandlingException(500, "Service Name is required");
             }
 
-            Service? service = await _serviceService.GetServiceByName(serviceName) ?? throw new ErrorHandlingException(500, "Lỗi lấy dịch vụ theo tên");
+            ServiceDTO.ServiceDetail service = await _serviceService.GetServiceByName(serviceName) ?? throw new ErrorHandlingException(500, "Lỗi lấy dịch vụ theo tên");
             
             return Ok(service);
         }
