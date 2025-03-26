@@ -23,6 +23,10 @@ namespace server.Configs
                         ? $"data:image/png;base64,{Convert.ToBase64String(source.DoctorImage)}"
                         : null
                 ));
+
+
+
+            CreateMap<Service, ServiceDTO.ServiceDetail>();
         }
     }
 }
