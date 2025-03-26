@@ -23,7 +23,7 @@ const Navigation = () => {
 
   const handleMouseEnter = (index) => setOpenDropdown(index)
   const handleMouseLeave = () => setOpenDropdown(null)
-
+  
   const RenderNav = () => {
     return pages.map((page, index) => {
       const isActive = location.pathname === page.link || (page.link !== "/" && location.pathname.startsWith(page.link))
@@ -61,7 +61,9 @@ const Navigation = () => {
   }
 
   const RenderServices = () => {
+    
     return services.map((service, index) => (
+      
       <NavDropdown.Item key={index} className="nav-item" onClick={() => HandleNavigation("dịch vụ", service.serviceName)}>
         {service.serviceName}
       </NavDropdown.Item>
