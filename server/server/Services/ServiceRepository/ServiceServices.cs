@@ -29,9 +29,14 @@ namespace server.Services
         public async Task<ServiceDTO.ServiceDetail> GetServiceByName(string serviceName)
         {
             var service = await _context.Services.FirstOrDefaultAsync(s => s.ServiceName == serviceName);
-             var serviceDTOs = _mapper.Map<ServiceDTO.ServiceDetail>(service);
-             return serviceDTOs;
+            var serviceDTOs = _mapper.Map<ServiceDTO.ServiceDetail>(service);
+            return serviceDTOs;
         }
+
+        // public async Task<ServiceDTO.ServiceDetail> GetServiceBySpecialty(string specialtyName)
+        // {
+        //     var service = await _context.s
+        // }
 
         // public async Task<Service> PostService(Service service)
         // {

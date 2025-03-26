@@ -41,27 +41,5 @@ namespace server.Controllers
 
             return Ok(description);
         }
-
-        [HttpGet("{specialty}/services")]
-        public async Task<ActionResult<List<object>>> GetAllServices()
-        {
-            var services = await _context.Services
-                .AsNoTracking()
-                .Select(sv => new
-                {
-                    ServiceID = sv.ServiceId,
-                    ServiceName = sv.ServiceName,
-                    Description = sv.Description,
-                    Price = sv.Price,
-                })
-                .ToListAsync();
-
-            if (!services.Any())
-            {
-                return NotFound("Không tìm thấy dịch vụ nào!");
-            }
-
-            return Ok(services);
-        }
     }
 }

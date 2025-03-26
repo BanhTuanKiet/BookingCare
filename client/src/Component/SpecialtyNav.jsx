@@ -29,7 +29,7 @@ function SpecialtyNav() {
                         break
     
                     case navItems[2]: // Dịch vụ
-                        response = await axios.get(`/specialties/${specialty}/services`)
+                        response = await axios.get(`/serivces/${specialty}/services`)
                         console.log("Dịch vụ:", response.data)
                         setInfor(Array.isArray(response.data) ? response.data : [])
                         break
