@@ -3,10 +3,11 @@ import { Col, Row } from "react-bootstrap"
 import SpecialtyLogo from "../Component/SpecialtyLogo"
 import "../Style/Home.css"
 import { NavContext } from "../Context/NavContext"
-import Carousels from "../Component/Carousels"
+import ServiceCarousels from "../Component/ServiceCarousels"
+import DoctorCarousels from "../Component/DoctorCarousels"
 
 const Home = () => {
-  const { specialties, services, HandleNavigation } = useContext(NavContext)
+  const { specialties, services, doctors, HandleNavigation } = useContext(NavContext)
 
   return (
     <div>
@@ -26,7 +27,8 @@ const Home = () => {
               </div>
             </Col>
           ))}
-          <Carousels services={services} />
+          <ServiceCarousels services={services}/>
+          <DoctorCarousels doctors={doctors}/>
         </Row>
       </div>
     </div>
