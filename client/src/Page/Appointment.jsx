@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Button, Col, Container, Form, Row } from 'react-bootstrap'
+import axios from "../Util/AxiosConfig"
 import images from "../Image/Others/Index"
 
 function Appointment() {
@@ -11,11 +12,17 @@ function Appointment() {
   const year = new Date().getFullYear()
 
   const handleChange = (event) => {
-    setFormData({ ...formData, [event.target.name]: event.target.value })
+    let value = event.target.value;
+
+    if (event.target.name === "gender") {
+      value = value === "true";
+    }
+  
+    setFormData({ ...formData, [event.target.name]: value })
   }
 
   useEffect(() => {
-    const month = formData["dob.month"]
+    const month = formData["month"]
 
     if (!month) return
 
@@ -28,10 +35,16 @@ function Appointment() {
     } 
     
     return setDays(30)
-  }, [setDays, formData])
+  }, [formData])
 
-  const submit = () => {
-    console.log(formData)
+  const submit = async () => {
+      try {
+        console.log(formData)
+        const response = await axios.post("/appointments", formData)
+        console.log(response)
+      } catch (error) {
+        console.log(error)
+      }
   }
 
   return (
@@ -52,8 +65,8 @@ function Appointment() {
                       
                   {/* Gender */}
                   <Col md={5} className='d-flex justify-content-around my-auto'>
-                    <Form.Check name="gender" type='radio' label='Nam' value={"nam"}  onChange={handleChange} />
-                    <Form.Check name="gender" type='radio' label='Nữ' value={"nữ"}  onChange={handleChange} />
+                    <Form.Check name="gender" type='radio' label='Nam' value={true}  onChange={handleChange} />
+                    <Form.Check name="gender" type='radio' label='Nữ' value={false}  onChange={handleChange} />
                   </Col>
                 </Row>
               </Form.Group>
@@ -62,21 +75,21 @@ function Appointment() {
               <Form.Group className="mb-3">
                 <Row>
                   <Col md={4}>
-                    <Form.Select name="dob.day" onChange={handleChange}>
+                    <Form.Select name="day" onChange={handleChange}>
                       <option>Ngày</option>
                       {[...Array(days)].map((_, i) => <option key={i}>{i + 1}</option>)}
                     </Form.Select>
                   </Col>
 
                   <Col md={4}>
-                    <Form.Select name="dob.month" onChange={handleChange}>
+                    <Form.Select name="month" onChange={handleChange}>
                       <option>Tháng</option>
                       {months.map((m, i) => <option key={i}>{m}</option>)}
                     </Form.Select>
                   </Col>
 
                   <Col md={4}>
-                    <Form.Select name="dob.year" onChange={handleChange}>
+                    <Form.Select name="year" onChange={handleChange}>
                       <option>Năm</option>
                       {[...Array(100)].map((_, i) => <option key={i}>{year - 99 + i}</option>)}
                     </Form.Select>

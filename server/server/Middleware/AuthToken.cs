@@ -21,7 +21,8 @@ public class AuthToken
             context.Request.Path.StartsWithSegments("/api/auth/login") ||
             context.Request.Path.StartsWithSegments("/api/services") ||
             context.Request.Path.StartsWithSegments("/api/other-public-api") ||
-            context.Request.Path.StartsWithSegments("/api/doctors"))
+            context.Request.Path.StartsWithSegments("/api/doctors") || 
+            context.Request.Path.StartsWithSegments("/api/appointments"))
         {
             await _next(context);
             return;
