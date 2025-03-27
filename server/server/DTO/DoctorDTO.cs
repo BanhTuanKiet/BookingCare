@@ -10,6 +10,7 @@
             public string? Position { get; set; }
             public int? ExperienceYears { get; set; }
             public string? DoctorImage { get; set; }
+            public string? Degree { get; set; }
         }
 
         public class DoctorDetail

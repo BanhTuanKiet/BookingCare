@@ -1,4 +1,4 @@
-import dentistry from "././dentistry.png"
+import dentistry from "./dentistry.png"
 import dermatology from "./dermatology.png"
 import ent from "./ent.png"
 import internalMedicine from "./internal-medicine.png"

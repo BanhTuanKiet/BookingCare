@@ -16,7 +16,7 @@ const UploadDoctorImage = ({ doctorId }) => {
 
     const formData = new FormData()
     formData.append("file", file)
-    formData.append("doctorId", 16)
+    formData.append("doctorId", 11)
 
     try {
         const response = await axios.post("/doctors/upload", formData, {

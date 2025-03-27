@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import images from '../Image/Specalty/Index'
+import images from '../Image/Specialty/Index'
 import SpecialtyNav from '../Component/SpecialtyNav'
 import SpecialtyLogo from '../Component/SpecialtyLogo'
 import "../Style/Specialty.css"

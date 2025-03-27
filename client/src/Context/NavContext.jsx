@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState } from 'react'
 import axios from '../Util/AxiosConfig'
-import images from '../Image/Specalty/Index'
+import images from '../Image/Specialty/Index'
 import { useNavigate } from 'react-router-dom'
 
 const NavContext = createContext()

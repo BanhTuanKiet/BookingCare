@@ -21,12 +21,12 @@ const Footer = () => {
             <h5 className="text-primary fw-bold">Liên kết nhanh</h5>
             <ul className="list-unstyled">
               <li className="my-2"><Link to="/" className="text-dark text-decoration-none hover:text-primary">Trang chủ</Link></li>
-              <li className="my-2"><Link to="/about" className="text-dark text-decoration-none hover:text-primary">Giới thiệu</Link></li>
-              <li className="my-2"><Link to="/team" className="text-dark text-decoration-none hover:text-primary">Đội ngũ bác sĩ</Link></li>
-              <li className="my-2"><Link to="/specialty" className="text-dark text-decoration-none hover:text-primary">Chuyên khoa</Link></li>
-              <li className="my-2"><Link to="/news" className="text-dark text-decoration-none hover:text-primary">Tin tức</Link></li>
-              <li className="my-2"><Link to="/appointment" className="text-dark text-decoration-none hover:text-primary">Đặt lịch khám</Link></li>
-              <li className="my-2"><Link to="/contact" className="text-dark text-decoration-none hover:text-primary">Liên hệ</Link></li>
+              <li className="my-2"><Link to="/về chúng tôi" className="text-dark text-decoration-none hover:text-primary">Giới thiệu</Link></li>
+              <li className="my-2"><Link to="/bác sĩ" className="text-dark text-decoration-none hover:text-primary">Đội ngũ bác sĩ</Link></li>
+              <li className="my-2"><Link to="/dịch vụ" className="text-dark text-decoration-none hover:text-primary">Chuyên khoa</Link></li>
+              <li className="my-2"><Link to="/tin tức" className="text-dark text-decoration-none hover:text-primary">Tin tức</Link></li>
+              <li className="my-2"><Link to="/đặt lịch khám" className="text-dark text-decoration-none hover:text-primary">Đặt lịch khám</Link></li>
+              <li className="my-2"><Link to="/liên hệ" className="text-dark text-decoration-none hover:text-primary">Liên hệ</Link></li>
             </ul>
           </Col>
 
