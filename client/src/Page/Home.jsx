@@ -1,5 +1,5 @@
 import React, { useContext } from "react"
-import { Col, Row } from "react-bootstrap"
+import { Col, Row, Container } from "react-bootstrap"
 import SpecialtyLogo from "../Component/SpecialtyLogo"
 import "../Style/Home.css"
 import { NavContext } from "../Context/NavContext"
@@ -27,9 +27,23 @@ const Home = () => {
               </div>
             </Col>
           ))}
-          <ServiceCarousels services={services}/>
-          <DoctorCarousels doctors={doctors}/>
         </Row>
+      </div>
+
+      {/* Phần Dịch vụ */}
+      <div className="service-section py-5">
+        <Container>
+          <h3 className="text-primary fw-bold text-center">DỊCH VỤ</h3>
+          <ServiceCarousels services={services} />
+        </Container>
+      </div>
+
+      {/* Phần Đội ngũ bác sĩ */}
+      <div className="doctor-section py-5" style={{ backgroundColor: "#f5f5f5" }}>
+        <Container>
+          <h3 className="text-primary fw-bold text-center">ĐỘI NGŨ BÁC SĨ</h3>
+          <DoctorCarousels doctors={doctors} />
+        </Container>
       </div>
     </div>
   )
