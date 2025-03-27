@@ -27,6 +27,11 @@ function UncontrolledExample({ doctors }) {
         setActiveIndex((prev) => getLoopedIndex(prev + 1));
     };
 
+    // Khi click vào 1 bác sĩ trong danh sách nhỏ, đưa bác sĩ đó lên đầu
+    const handleSelectDoctor = (index) => {
+        setActiveIndex(getLoopedIndex(activeIndex + index));
+    };
+
     // Lấy danh sách 4 bác sĩ theo chỉ mục vòng lặp
     const visibleDoctors = [
         doctors[getLoopedIndex(activeIndex)],
@@ -35,7 +40,6 @@ function UncontrolledExample({ doctors }) {
         doctors[getLoopedIndex(activeIndex + 3)]
     ];
 
-    console.log(visibleDoctors[0])
     return (
         <div>
             {/* Hiển thị thông tin bác sĩ đầu tiên */}
@@ -49,8 +53,8 @@ function UncontrolledExample({ doctors }) {
                         borderRadius: '50%',
                         objectFit: 'cover',
                         border: '1px solid blue', // Viền xanh
-                        padding: '5px', // Giữ khoảng cách giữa ảnh và viền
-                        backgroundColor: 'white' // Đảm bảo nền viền trắng không bị hòa lẫn
+                        padding: '5px',
+                        backgroundColor: 'white'
                     }}
                 />
                 <div>
@@ -91,6 +95,7 @@ function UncontrolledExample({ doctors }) {
                                 cursor: 'pointer',
                                 border: index === 0 ? '2px solid blue' : '1px solid lightgray',
                             }}
+                            onClick={() => handleSelectDoctor(index)} // Xử lý khi click vào bác sĩ
                         />
                     ))}
                 </div>
