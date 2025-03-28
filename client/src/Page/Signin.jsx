@@ -1,58 +1,88 @@
 import React, { useState } from "react";
-import { Container, Form, Button, Card } from "react-bootstrap";
-import { motion } from "framer-motion";
+import { Container, Col, Form, Button, InputGroup } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
-// import "./styles.css";
+import "../Style/Signin.css";
 
 const Signin = () => {
-  const [isSignUp, setIsSignUp] = useState(false);
-
-  const toggleForm = () => {
-    setIsSignUp(!isSignUp);
-  };
+  const [isLogin, setIsLogin] = useState(true);
+  const [showPasswords, setShowPasswords] = useState(false);
 
   return (
-    <Container className="d-flex justify-content-center align-items-center vh-100">
-      <Card className="p-4 shadow-lg form-container">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <h2 className="text-center mb-4">
-            {isSignUp ? "Sign Up" : "Sign In"}
-          </h2>
-          <Form>
-            {isSignUp && (
-              <Form.Group className="mb-3">
-                <Form.Label>Name</Form.Label>
-                <Form.Control type="text" placeholder="Enter name" />
-              </Form.Group>
-            )}
-            <Form.Group className="mb-3">
-              <Form.Label>Email address</Form.Label>
-              <Form.Control type="email" placeholder="Enter email" />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Password</Form.Label>
-              <Form.Control type="password" placeholder="Enter password" />
-            </Form.Group>
-            <Button variant="primary" className="w-100" type="submit">
-              {isSignUp ? "Sign Up" : "Sign In"}
-            </Button>
-          </Form>
-          <motion.p
-            className="toggle-text mt-3 text-center"
-            onClick={toggleForm}
-            whileHover={{ scale: 1.1 }}
-            style={{ cursor: "pointer" }}
-          >
-            {isSignUp
-              ? "Already have an account? Sign In"
-              : "Don't have an account? Sign Up"}
-          </motion.p>
-        </motion.div>
-      </Card>
+    <Container className="auth-container">
+      <Col md={6} className={`auth-section ${isLogin ? "show" : "hide"}`}>
+        <h2>Đăng Nhập</h2>
+        <Form className="auth-form">
+          <Form.Control type="text" placeholder="Tên đăng nhập" className="mb-3" />
+          <Form.Control type="password" placeholder="Mật khẩu" className="mb-3" />
+          <Button variant="primary" block>
+            Đăng Nhập
+          </Button>
+        </Form>
+        <p>Quên mật khẩu?</p>
+        <p>
+          Chưa có tài khoản?{" "}
+          <Button variant="link" onClick={() => setIsLogin(false)}>
+            Đăng ký
+          </Button>
+        </p>
+      </Col>
+
+      <Col md={6} className={`auth-section ${isLogin ? "hide" : "show"}`}>
+        <h2>Đăng Ký</h2>
+        <Form className="auth-form">
+          <Form.Control type="text" placeholder="Họ và Tên" className="mb-3" />
+          <Form.Control type="text" placeholder="Số điện thoại" className="mb-3" />
+          <Form.Control type="email" placeholder="Email" className="mb-3" />
+
+          {/* Mật khẩu */}
+          <InputGroup className="mb-3">
+            <Form.Control
+              type={showPasswords ? "text" : "password"}
+              placeholder="Mật khẩu"
+            />
+          </InputGroup>
+
+          {/* Xác nhận mật khẩu */}
+          <InputGroup className="mb-3">
+            <Form.Control
+              type={showPasswords ? "text" : "password"}
+              placeholder="Xác nhận mật khẩu"
+            />
+          </InputGroup>
+
+          {/* Checkbox hiện/ẩn mật khẩu */}
+            <div className="checkbox-container">
+                <input
+                    type="checkbox"
+                    id="showPasswordToggle"
+                    className="small-checkbox"
+                    checked={showPasswords}
+                    onChange={() => setShowPasswords(!showPasswords)}
+                />
+                <label htmlFor="showPasswordToggle">
+                    {showPasswords ? "Ẩn mật khẩu" : "Hiển thị mật khẩu"}
+                </label>
+                </div>
+
+          <Button variant="primary" block>
+            Đăng Ký
+          </Button>
+        </Form>
+        <p>
+          Đã có tài khoản?{" "}
+          <Button variant="link" onClick={() => setIsLogin(true)}>
+            Đăng nhập
+          </Button>
+        </p>
+      </Col>
+      {/* Phần giao diện động */}
+      <div className={`toggle-section ${isLogin ? "" : "move"}`}>
+        <h2>{isLogin ? "Chào Mừng!" : "Chào Mừng Trở Lại!"}</h2>
+        <p>{isLogin ? "Bạn chưa có tài khoản?" : "Bạn đã có tài khoản?"}</p>
+        <Button className="toggle-btn" onClick={() => setIsLogin(!isLogin)}>
+          {isLogin ? "Đăng ký" : "Đăng nhập"}
+        </Button>
+      </div>
     </Container>
   );
 };
