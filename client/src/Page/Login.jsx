@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import axios from "../Util/AxiosConfig"
 import { Button } from 'react-bootstrap'
+import { jwtDecode } from "jwt-decode";
 
 function Login() {
     const [token, setToken] = useState()
@@ -9,7 +10,8 @@ function Login() {
             const respone = await axios.get("/auth/login")
             console.log(respone.data.token)
             setToken(respone.data.token)
-            console.log("login")
+            const decoded = jwtDecode(respone.data.token)
+            console.log("Decoded Token:", decoded);
         }
 
         fetchData()
@@ -18,7 +20,7 @@ function Login() {
     const Auth = async () => {
         try {
             console.log("auth")
-            const respone = await axios.post('/auth/auth_user', { email: null, password: "wegweg"}, {
+            const respone = await axios.post('/auth/auth_user', { email: "wef", password: "agsegf" }, {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }

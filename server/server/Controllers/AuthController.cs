@@ -26,10 +26,16 @@ namespace server.Controllers
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes("uX9#2fB!rT7z$KpV@8dG%qL*eJ4mW!sN^ZbC@1yH");
+            var claims = new[]
+            {
+            new Claim(ClaimTypes.Name, "ưegwge"),
+            new Claim("email", "nguyenvana@gmail.com"),
+            new Claim(ClaimTypes.Role, "admin") // Nếu muốn thêm role
+            };
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[] { new Claim("id", "1") }),
-                Expires = DateTime.UtcNow.AddDays(7),
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddHours(1),
                 Issuer = "http://127.0.0.1:5140",
                 Audience = "http://127.0.0.1:3000",
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -38,7 +44,7 @@ namespace server.Controllers
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return Ok(new { token = tokenHandler.WriteToken(token) });
         }
-        [Authorize]
+        [Authorize(Roles = "doctor")]
         [HttpPost("auth_user")]
         public async Task<IActionResult> AuthUser([FromBody] LoginForm user)
         {
