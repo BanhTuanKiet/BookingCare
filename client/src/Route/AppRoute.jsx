@@ -11,6 +11,7 @@ import Appointment from '../Page/Appointment'
 import Specialty from '../Page/Specialty'
 import UploadDoctorImage from '../Page/UploadDoctorImage'
 import Login from '../Page/Login'
+import Signin from '../Page/Signin'
 import ServiceDetail from '../Page/ServiceDetail'
 
 function AppRoute() {
@@ -27,6 +28,7 @@ function AppRoute() {
             <Route path='/dịch vụ/:serviceName' element={<Index><ServiceDetail/></Index>}></Route>
             <Route path='/tin tức' element={<Index><News /></Index>} />
             <Route path='/login' element={<Login /> } />
+            <Route path='/Đăng nhập' element={<Signin/>} />
             <Route path='/đặt lịch khám' element={<Index><Appointment /></Index>} />
             <Route path='/liên hệ' element={<Index><Contact /></Index>} />
             <Route path='/' element={<Index><Home /></Index>} />

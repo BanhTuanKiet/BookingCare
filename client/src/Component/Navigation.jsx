@@ -16,6 +16,7 @@ const Navigation = () => {
     { name: "Tin tức", link: "/tin tức" },
     { name: "Đặt lịch khám", link: "/đặt lịch khám" },
     { name: "Liên hệ", link: "/liên hệ" },
+    { name: "Đăng nhập", link: "/Đăng nhập" },
   ]
 
   // State để kiểm soát dropdown
