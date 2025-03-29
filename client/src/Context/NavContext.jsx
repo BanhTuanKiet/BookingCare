@@ -64,7 +64,7 @@ const NavProvider = ({ children }) => {
     const HandleNavigation = (type, specialtyName) => {
       navigate(`/${type}/${specialtyName}`)
     }
-
+console.log(doctors)
     return (
         <NavContext.Provider value={{ specialties, services, doctors, HandleNavigation }}>
             {children}

@@ -55,7 +55,7 @@ const Signin = () => {
                 <input
                     type="checkbox"
                     id="showPasswordToggle"
-                    className="small-checkbox"
+                    className="small-checkbox mb-0"
                     checked={showPasswords}
                     onChange={() => setShowPasswords(!showPasswords)}
                 />
