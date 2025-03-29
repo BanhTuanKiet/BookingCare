@@ -17,7 +17,7 @@ public class ExceptionHandlingMiddleware
     {
         try
         {
-            Console.WriteLine("Error handling");
+            Console.WriteLine("Not Error");
             await _next(context); // Chuyển request đến middleware tiếp theo
         }
         catch (ErrorHandlingException exception)

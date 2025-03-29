@@ -11,7 +11,7 @@ using server.Models;
 
 namespace server.Migrations
 {
-    [DbContext(typeof(ClinicManagementContext))]
+    [DbContext(typeof(AspContext))]
     [Migration("20250317032805_Initial")]
     partial class Initial
     {

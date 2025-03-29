@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -26,6 +27,7 @@ namespace server.Controllers
             _context = context;
             _doctorService = doctorService;
         }
+        
         [HttpGet]
         public async Task<ActionResult<List<DoctorDTO.DoctorBasic>>> GetAllDoctors()
         {
@@ -81,6 +83,7 @@ namespace server.Controllers
         }
 
         [HttpPost("upload")]
+        [Authorize(Roles = "admin")]
         public async Task<ActionResult> Upload([FromForm] IFormFile file, [FromForm] int doctorId)
         {
             try

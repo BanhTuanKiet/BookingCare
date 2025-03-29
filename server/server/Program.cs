@@ -7,6 +7,7 @@ using DotNetEnv;
 using server.Middleware;
 using server.Services;
 using static server.Configs.AutoMapperConfig;
+using Microsoft.AspNetCore.Identity;
 
 Env.Load();
 
@@ -23,7 +24,7 @@ builder.Configuration["ConnectionStrings:DefaultConnection"] = $"Server={db_serv
 // Add cors policy
 
 builder.Services.AddCorsPolicy();
-// builder.Services.AddJWT();
+builder.Services.AddJWT();
 // Add services to the container.
 
 builder.Services.AddAutoMapper(typeof(Program));
@@ -42,6 +43,9 @@ builder.Services.AddDbContext<ClinicManagementContext>(options =>
     )
 );
 
+builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
+ .AddDefaultTokenProviders()
+ .AddEntityFrameworkStores<ClinicManagementContext>();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -56,7 +60,7 @@ var app = builder.Build();
 app.UseCors("_allowSpecificOrigins");
 // Add errohandling middlware
 app.UseMiddleware<ExceptionHandlingMiddleware>();
-app.UseMiddleware<AuthToken>();
+// app.UseMiddleware<AuthToken>();
 // app.UseWhen(context => 
 
 // )
@@ -69,7 +73,7 @@ if (app.Environment.IsDevelopment())
 }
 app.UseRouting();
 // app.UseHttpsRedirection();
-// app.UseAuthentication();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 

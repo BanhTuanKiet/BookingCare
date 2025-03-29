@@ -21,14 +21,15 @@ public class AuthToken
             context.Request.Path.StartsWithSegments("/api/auth/login") ||
             context.Request.Path.StartsWithSegments("/api/services") ||
             context.Request.Path.StartsWithSegments("/api/other-public-api") ||
-            context.Request.Path.StartsWithSegments("/api/doctors"))
+            context.Request.Path.StartsWithSegments("/api/doctors") || 
+            context.Request.Path.StartsWithSegments("/api/appointments"))
         {
             await _next(context);
             return;
         }
 
         var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-
+        Console.WriteLine(token);
         if (string.IsNullOrEmpty(token))
         {
             throw new ErrorHandlingException(401, "Please log in to continue!");
@@ -56,9 +57,13 @@ public class AuthToken
             }, out SecurityToken validatedToken);
 
             var jwtToken = (JwtSecurityToken)validatedToken;
-            var userId = int.Parse(jwtToken.Claims.First(x => x.Type == "id").Value);
+            // var userId = int.Parse(jwtToken.Claims.First(x => x.Type == "id").Value);
+            var userEmail = jwtToken.Claims.First(x => x.Type == "email").Value;
+            var userRole = jwtToken.Claims.First(x => x.Type == "role").Value;
 
-            context.Items["User"] = userId;
+            // context.Items["User"] = userId;
+            context.Items["Email"] = userEmail;
+            context.Items["Role"] = userRole;
         }
         catch (Exception ex)
         {

@@ -31,12 +31,15 @@ instance.interceptors.response.use(function (response) {
 // Do something with response error
 console.log(error.response)
   if (error && error.response && error.response.data) {
-    const errorMessage = error.response.data.ErrorMessage
+    const errorMessage = error.response.data.message
     const statusCode = error.response.status
 
     switch (statusCode) {
       case 401:
       case 404:
+        WarningNotify(errorMessage)
+        break
+      case 403:
         WarningNotify(errorMessage)
         break
       case 500:
