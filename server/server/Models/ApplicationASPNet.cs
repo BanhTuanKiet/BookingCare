@@ -1,0 +1,8 @@
+﻿using Microsoft.AspNetCore.Identity;
+
+namespace server.Models
+{
+    public class ApplicationUser : IdentityUser<int> { }
+
+    public class ApplicationRole : IdentityRole<int> { }
+}

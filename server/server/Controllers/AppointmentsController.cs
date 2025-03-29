@@ -21,7 +21,7 @@ namespace server.Controllers
             _context = context;
         }
 
-        // GET: Appointments
+    // GET: Appointments
     [HttpPost]
     public async Task<ActionResult> Appointment([FromBody] object appointmentForm)
     {

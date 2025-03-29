@@ -17,5 +17,5 @@ public partial class Patient
 
     public virtual ICollection<ServiceRegistration> ServiceRegistrations { get; set; } = new List<ServiceRegistration>();
 
-    public virtual User? User { get; set; }
+    public virtual ApplicationUser? User { get; set; }
 }

@@ -43,11 +43,9 @@ builder.Services.AddDbContext<ClinicManagementContext>(options =>
     )
 );
 
-
-//builder.Services.AddIdentity<DBco, IdentityRole>()
-// .AddDefaultTokenProviders()
-// .AddEntityFrameworkStores<ClinicManagementContext>();
-
+builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
+ .AddDefaultTokenProviders()
+ .AddEntityFrameworkStores<ClinicManagementContext>();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using server.Middleware;
@@ -14,13 +15,25 @@ namespace server.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly ClinicManagementContext _context;
         private readonly IConfiguration _configuration;
-        public AuthController(ClinicManagementContext context, IConfiguration configuration)
+        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly ClinicManagementContext _context;
+
+        public AuthController(ClinicManagementContext context, IConfiguration configuration, SignInManager<IdentityUser> signInManager)
         {
             _context = context;
             _configuration = configuration;
+            _signInManager = signInManager;
         }
+
+
+        [HttpPost("signin")]
+        public async Task<ActionResult> Signin()
+        {
+            var user = new { email = "sedfsdf", password = "aefwe" };
+            return Ok(user);
+        }
+
         [HttpGet("login")]
         public async Task<IActionResult> Login()
         {

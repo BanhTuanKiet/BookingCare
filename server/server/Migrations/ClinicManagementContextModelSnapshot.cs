@@ -10,7 +10,7 @@ using server.Models;
 
 namespace server.Migrations
 {
-    [DbContext(typeof(ClinicManagementContext))]
+    [DbContext(typeof(AspContext))]
     partial class ClinicManagementContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
