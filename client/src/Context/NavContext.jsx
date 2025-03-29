@@ -9,6 +9,8 @@ const NavProvider = ({ children }) => {
   const navigate = useNavigate()
     const [specialties, setSpecialties] = useState([])
     const [services, setServices] = useState([])
+    const [doctors, setDoctors] = useState([])
+
 
     useEffect(() => {
         const GetAllSpecialties = async () => {
@@ -38,7 +40,6 @@ const NavProvider = ({ children }) => {
             try {
                 const response = await axios.get(`/services`)
                 setServices(response.data)
-                console.log(response.data)
             } catch (error) {
                 console.error("Lỗi khi lấy danh sách dịch vụ:", error)
             }
@@ -46,13 +47,26 @@ const NavProvider = ({ children }) => {
 
         GetAllServices()
     }, [])
-  
+
+    useEffect(() => {
+      const fetchDoctors = async () => {
+        try {
+          const response = await axios.get('/doctors');
+          setDoctors(response.data);
+        } catch (error) {
+          console.error('Lỗi khi lấy danh sách bác sĩ:', error);
+        }
+      };
+    
+      fetchDoctors(); // GỌI HÀM Ở ĐÂY!!!
+    }, []);
+    
     const HandleNavigation = (type, specialtyName) => {
       navigate(`/${type}/${specialtyName}`)
     }
 
     return (
-        <NavContext.Provider value={{ specialties, services, HandleNavigation }}>
+        <NavContext.Provider value={{ specialties, services, doctors, HandleNavigation }}>
             {children}
         </NavContext.Provider>
     )
