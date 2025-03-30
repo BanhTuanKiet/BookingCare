@@ -8,6 +8,10 @@ using server.Middleware;
 using server.Services;
 using static server.Configs.AutoMapperConfig;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
+using Microsoft.AspNetCore.Mvc;
+using server.Filter;
+// using server.Filter;
 
 Env.Load();
 
@@ -21,16 +25,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration["ConnectionStrings:DefaultConnection"] = $"Server={db_server},{db_port};Database={db_name};User Id={user_id};Password={db_password};TrustServerCertificate=True;Connect Timeout=180;";
 
-// Add cors policy
-
 builder.Services.AddCorsPolicy();
 builder.Services.AddJWT();
-// Add services to the container.
 
+// Add services to the container.
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddScoped<ISpecialty, SpecialtyServices>();
 builder.Services.AddScoped<IService,  ServiceServices>();
 builder.Services.AddScoped<IDoctor, DoctorServices>();
+// builder.Services.AddScoped<SignInManager<ApplicationUser>>();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
@@ -44,10 +47,20 @@ builder.Services.AddDbContext<ClinicManagementContext>(options =>
 );
 
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
- .AddDefaultTokenProviders()
- .AddEntityFrameworkStores<ClinicManagementContext>();
+    .AddEntityFrameworkStores<ClinicManagementContext>()
+    .AddDefaultTokenProviders();
 
-builder.Services.AddControllers();
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
+
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ValidationFilter>();
+    options.ModelMetadataDetailsProviders.Add(new SystemTextJsonValidationMetadataProvider());
+});
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddAutoMapper(typeof(AutoMapperConfig));
@@ -60,10 +73,7 @@ var app = builder.Build();
 app.UseCors("_allowSpecificOrigins");
 // Add errohandling middlware
 app.UseMiddleware<ExceptionHandlingMiddleware>();
-// app.UseMiddleware<AuthToken>();
-// app.UseWhen(context => 
 
-// )
 // // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
