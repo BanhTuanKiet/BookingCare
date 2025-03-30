@@ -16,10 +16,10 @@ namespace server.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IConfiguration _configuration;
-        private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ClinicManagementContext _context;
 
-        public AuthController(ClinicManagementContext context, IConfiguration configuration, SignInManager<IdentityUser> signInManager)
+        public AuthController(ClinicManagementContext context, IConfiguration configuration, SignInManager<ApplicationUser> signInManager)
         {
             _context = context;
             _configuration = configuration;
@@ -57,17 +57,11 @@ namespace server.Controllers
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return Ok(new { token = tokenHandler.WriteToken(token) });
         }
+        
         [Authorize(Roles = "doctor")]
         [HttpPost("auth_user")]
         public async Task<IActionResult> AuthUser([FromBody] LoginForm user)
         {
-            // string nameValue = data.GetProperty("ưegwe").GetString();
-
-            // if (string.IsNullOrEmpty(nameValue)){
-            //     throw new ErrorHandlingException(400, "name is null!");
-            // }
-            // Console.WriteLine($"Name: {nameValue}");
-            // return Ok(new { Token = "HttpContext", message = "Xác thực thành công", name = nameValue });
 
             Console.WriteLine($"User: {user.Email} - {user.Password}");
 
@@ -76,6 +70,19 @@ namespace server.Controllers
             }
             
             return Ok(new { Token = "HttpContext", message = "Xác thực thành công", user = user });
+        }
+
+        [HttpPost("demo_signin")]
+        public async Task<IActionResult> OnPostAsync([FromBody] LoginForm input)
+        {
+            //if (!ModelState.IsValid)
+            //{
+            //    var message = string.Join(" | ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
+
+            //    return Ok( new { error = message });                     
+            //}
+
+            return Ok( new { email = input.Email, password = input.Password });         
         }
     }
 }
