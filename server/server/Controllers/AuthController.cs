@@ -1,4 +1,5 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using System;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
@@ -15,28 +16,79 @@ namespace server.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IConfiguration _configuration;
-        private readonly SignInManager<IdentityUser> _signInManager;
         private readonly ClinicManagementContext _context;
 
-        public AuthController(ClinicManagementContext context, IConfiguration configuration, SignInManager<IdentityUser> signInManager)
+        public AuthController(ClinicManagementContext context, IConfiguration configuration, 
+                            SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _configuration = configuration;
             _signInManager = signInManager;
+            _userManager = userManager;
         }
 
 
-        [HttpPost("signin")]
-        public async Task<ActionResult> Signin()
+
+        [HttpPost("Signin")]
+public async Task<IActionResult> Signin([FromBody] SigninForm login)
+{
+    Console.WriteLine($"Login attempt: {JsonSerializer.Serialize(login)}");
+
+    if (string.IsNullOrEmpty(login.Email) || string.IsNullOrEmpty(login.Password))
+    {
+        return BadRequest(new { message = "Vui lòng nhập đầy đủ thông tin!" });
+    }
+
+    var user = await _userManager.FindByEmailAsync(login.Email);
+    if (user == null)
+    {
+        Console.WriteLine($"Không tìm thấy user: {login.Email}");
+        return Unauthorized(new { message = "Tài khoản không tồn tại!" });
+    }
+
+    // Kiểm tra mật khẩu đúng hay không (đúng cách dùng Identity)
+    var isPasswordValid = await _userManager.CheckPasswordAsync(user, login.Password);
+    if (!isPasswordValid)
+    {
+        Console.WriteLine($"Sai mật khẩu: {login.Email}");
+        return Unauthorized(new { message = "Sai mật khẩu!" });
+    }
+
+    // Tạo JWT Token
+    var tokenHandler = new JwtSecurityTokenHandler();
+    var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
+    var tokenDescriptor = new SecurityTokenDescriptor
+    {
+        Subject = new ClaimsIdentity(new[]
         {
-            var user = new { email = "sedfsdf", password = "aefwe" };
-            return Ok(user);
-        }
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.Role, "user") // Có thể lấy từ _userManager nếu có nhiều role
+        }),
+        Expires = DateTime.UtcNow.AddHours(1),
+        Issuer = _configuration["Jwt:Issuer"],
+        Audience = _configuration["Jwt:Audience"],
+        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+    };
 
-        [HttpGet("login")]
+    var token = tokenHandler.CreateToken(tokenDescriptor);
+    string jwtToken = tokenHandler.WriteToken(token);
+
+    Console.WriteLine($"Đăng nhập thành công: {login.Email}");
+    return Ok(new { message = "Đăng nhập thành công!", token = jwtToken });
+}
+
+
+
+
+
+        [HttpPost("login")]
         public async Task<IActionResult> Login()
         {
+            Console.WriteLine(">>> API Signin được gọi");
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes("uX9#2fB!rT7z$KpV@8dG%qL*eJ4mW!sN^ZbC@1yH");
             var claims = new[]
@@ -57,6 +109,8 @@ namespace server.Controllers
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return Ok(new { token = tokenHandler.WriteToken(token) });
         }
+
+
         [Authorize(Roles = "doctor")]
         [HttpPost("auth_user")]
         public async Task<IActionResult> AuthUser([FromBody] LoginForm user)
@@ -77,5 +131,6 @@ namespace server.Controllers
             
             return Ok(new { Token = "HttpContext", message = "Xác thực thành công", user = user });
         }
+
     }
 }
