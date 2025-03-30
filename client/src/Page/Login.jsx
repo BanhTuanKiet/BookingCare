@@ -31,21 +31,10 @@ function Login() {
         }
     }
 
-    const demo_signin = async () => {
-        try {
-            const response = await axios.post("/auth/demo_signin", { email: "kiett5153@gmail.com", password: "" })
-
-            console.log(response)
-        } catch (error) {
-            console.log(error)
-        }
-    }
-
     return (
         <>
             <div>Login</div>
             <Button onClick={Auth}>Auth</Button>
-            <Button onClick={demo_signin}>Signin</Button>
         </>
     )
 }

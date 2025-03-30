@@ -71,18 +71,5 @@ namespace server.Controllers
             
             return Ok(new { Token = "HttpContext", message = "Xác thực thành công", user = user });
         }
-
-        [HttpPost("demo_signin")]
-        public async Task<IActionResult> OnPostAsync([FromBody] LoginForm input)
-        {
-            //if (!ModelState.IsValid)
-            //{
-            //    var message = string.Join(" | ", ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
-
-            //    return Ok( new { error = message });                     
-            //}
-
-            return Ok( new { email = input.Email, password = input.Password });         
-        }
     }
 }
