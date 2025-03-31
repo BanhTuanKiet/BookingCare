@@ -21,7 +21,7 @@ const Signin = () => {
       const response = await axios.post("/auth/Signin", loginData);
       console.log(response.data);
       SuccessNotify("Đăng nhập thành công!");
-      localStorage.setItem("token", response.data.token);
+      console.log("Token:", response.data.token);
       window.location.href = "/"; // Điều hướng sau khi đăng nhập
     } catch (error) {
       ErrorNotify(error.response?.data?.message || "Đăng nhập thất bại!");

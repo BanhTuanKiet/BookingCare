@@ -33,53 +33,62 @@ namespace server.Controllers
 
 
         [HttpPost("Signin")]
-public async Task<IActionResult> Signin([FromBody] SigninForm login)
-{
-    Console.WriteLine($"Login attempt: {JsonSerializer.Serialize(login)}");
-
-    if (string.IsNullOrEmpty(login.Email) || string.IsNullOrEmpty(login.Password))
-    {
-        return BadRequest(new { message = "Vui lòng nhập đầy đủ thông tin!" });
-    }
-
-    var user = await _userManager.FindByEmailAsync(login.Email);
-    if (user == null)
-    {
-        Console.WriteLine($"Không tìm thấy user: {login.Email}");
-        return Unauthorized(new { message = "Tài khoản không tồn tại!" });
-    }
-
-    // Kiểm tra mật khẩu đúng hay không (đúng cách dùng Identity)
-    var isPasswordValid = await _userManager.CheckPasswordAsync(user, login.Password);
-    if (!isPasswordValid)
-    {
-        Console.WriteLine($"Sai mật khẩu: {login.Email}");
-        return Unauthorized(new { message = "Sai mật khẩu!" });
-    }
-
-    // Tạo JWT Token
-    var tokenHandler = new JwtSecurityTokenHandler();
-    var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
-    var tokenDescriptor = new SecurityTokenDescriptor
-    {
-        Subject = new ClaimsIdentity(new[]
+        public async Task<IActionResult> Signin([FromBody] SigninForm login)
         {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Role, "user") // Có thể lấy từ _userManager nếu có nhiều role
-        }),
-        Expires = DateTime.UtcNow.AddHours(1),
-        Issuer = _configuration["Jwt:Issuer"],
-        Audience = _configuration["Jwt:Audience"],
-        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-    };
+            Console.WriteLine($"Login attempt: {JsonSerializer.Serialize(login)}");
 
-    var token = tokenHandler.CreateToken(tokenDescriptor);
-    string jwtToken = tokenHandler.WriteToken(token);
+            if (string.IsNullOrEmpty(login.Email) || string.IsNullOrEmpty(login.Password))
+            {
+                return BadRequest(new { message = "Vui lòng nhập đầy đủ thông tin!" });
+            }
 
-    Console.WriteLine($"Đăng nhập thành công: {login.Email}");
-    return Ok(new { message = "Đăng nhập thành công!", token = jwtToken });
-}
+            var user = await _userManager.FindByEmailAsync(login.Email);
+            if (user == null)
+            {
+                Console.WriteLine($"Không tìm thấy user: {login.Email}");
+                return Unauthorized(new { message = "Tài khoản không tồn tại!" });
+            }
+
+            // Kiểm tra mật khẩu
+            var isPasswordValid = await _userManager.CheckPasswordAsync(user, login.Password);
+            if (!isPasswordValid)
+            {
+                Console.WriteLine($"Sai mật khẩu: {login.Email}");
+                return Unauthorized(new { message = "Sai mật khẩu!" });
+            }
+
+            // Tạo JWT Token
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new Claim(ClaimTypes.Email, user.Email),
+                    new Claim(ClaimTypes.Role, "user")
+                }),
+                Expires = DateTime.UtcNow.AddHours(1),
+                Issuer = _configuration["Jwt:Issuer"],
+                Audience = _configuration["Jwt:Audience"],
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            string jwtToken = tokenHandler.WriteToken(token);
+
+            // Lưu token vào HttpOnly Cookie
+            Response.Cookies.Append("AuthToken", jwtToken, new CookieOptions
+            {
+                HttpOnly = true,  // Ngăn JavaScript truy cập cookie
+                Secure = true,    // Chỉ gửi qua HTTPS (bật trong môi trường production)
+                SameSite = SameSiteMode.Strict, // Bảo vệ CSRF
+                Expires = DateTime.UtcNow.AddHours(1) // Hết hạn cùng thời gian với token
+            });
+
+            Console.WriteLine($"Đăng nhập thành công: {login.Email}");
+            return Ok(new { message = "Đăng nhập thành công!" });
+        }
 
 
 
