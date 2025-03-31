@@ -10,7 +10,7 @@ const Signin = () => {
   const [showPasswords, setShowPasswords] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loginData, setLoginData] = useState({ Email: "", Password: "" });
-  const [registerData, setRegisterData] = useState({ fullname: "", phone: "", email: "", password: "" });
+  const [registerData, setRegisterData] = useState({ fullname: "", phone: "", email: "", password: "" , passwordConfirmed: ""});
 
   // Gọi API đăng nhập
   const handleLogin = async (e) => {
@@ -80,56 +80,66 @@ const Signin = () => {
         <h2>Đăng Ký</h2>
         <Form className="auth-form" onSubmit={handleRegister}>
           <Form.Control
-            type="text"
-            placeholder="Họ và Tên"
-            className="mb-3"
-            value={registerData.fullname}
-            onChange={(e) => setRegisterData({ ...registerData, fullname: e.target.value })}
-            required
-          />
+          type="text"
+          placeholder="Họ và Tên"
+          className="mb-3"
+          value={registerData.fullname}
+          onChange={(e) => setRegisterData({ ...registerData, fullname: e.target.value })}
+          required
+        />
+        <Form.Control
+          type="text"
+          placeholder="Số điện thoại"
+          className="mb-3"
+          value={registerData.phone}
+          onChange={(e) => setRegisterData({ ...registerData, phone: e.target.value })}
+          required
+        />
+        <Form.Control
+          type="email"
+          placeholder="Email"
+          className="mb-3"
+          value={registerData.email}
+          onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })}
+          required
+        />
+        <InputGroup className="mb-3">
           <Form.Control
-            type="text"
-            placeholder="Số điện thoại"
-            className="mb-3"
-            value={registerData.phone}
-            onChange={(e) => setRegisterData({ ...registerData, phone: e.target.value })}
+            type={showPasswords ? "text" : "password"}
+            placeholder="Mật khẩu"
+            value={registerData.password}
+            onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
             required
           />
-          <Form.Control
-            type="email"
-            placeholder="Email"
-            className="mb-3"
-            value={registerData.email}
-            onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })}
-            required
-          />
-          <InputGroup className="mb-3">
+        </InputGroup>
+        <InputGroup className="mb-3">
             <Form.Control
               type={showPasswords ? "text" : "password"}
-              placeholder="Mật khẩu"
-              value={registerData.password}
-              onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
-              required
+              placeholder="Xác nhận mật khẩu"
+              value={registerData.passwordConfirmed}
+              onChange={(e) => setRegisterData({ ...registerData, passwordConfirmed: e.target.value })}
             />
           </InputGroup>
-          <div className="checkbox-container">
-            <input
-              type="checkbox"
-              id="showPasswordToggle"
-              className="small-checkbox mb-0"
-              checked={showPasswords}
-              onChange={() => setShowPasswords(!showPasswords)}
-            />
-            <label htmlFor="showPasswordToggle">{showPasswords ? "Ẩn mật khẩu" : "Hiển thị mật khẩu"}</label>
-          </div>
-          <Button variant="primary" type="submit" block disabled={loading}>
-            {loading ? "Đang xử lý..." : "Đăng Ký"}
-          </Button>
-        </Form>
-        <p>
-          Đã có tài khoản? <Button variant="link" onClick={() => setIsLogin(true)}>Đăng nhập</Button>
-        </p>
-      </Col>
+          
+        <div className="checkbox-container">
+          <input
+            type="checkbox"
+            id="showPasswordToggle"
+            className="small-checkbox mb-0"
+            checked={showPasswords}
+            onChange={() => setShowPasswords(!showPasswords)}
+          />
+          <label htmlFor="showPasswordToggle">{showPasswords ? "Ẩn mật khẩu" : "Hiển thị mật khẩu"}</label>
+        </div>
+        <Button variant="primary" type="submit" block disabled={loading}>
+          {loading ? "Đang xử lý..." : "Đăng Ký"}
+
+        </Button>
+      </Form>
+      <p>
+        Đã có tài khoản? <Button variant="link" onClick={() => setIsLogin(true)}>Đăng nhập</Button>
+      </p>
+    </Col>
 
       {/* Chuyển đổi giữa đăng nhập và đăng ký */}
       <div className={`toggle-section ${isLogin ? "" : "move"}`}>

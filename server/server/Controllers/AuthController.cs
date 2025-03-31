@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using server.DTO;
 using server.Middleware;
 using server.Models;
 
@@ -91,7 +92,66 @@ namespace server.Controllers
         }
 
 
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegistryForm user)
+        {
+            Console.WriteLine($"UserName: {user.fullname}");
+            Console.WriteLine($"PhoneNumber: {user.phone}");
+            Console.WriteLine($"Email: {user.email}");
 
+            // Kiểm tra nếu email hoặc username bị null
+            if (string.IsNullOrEmpty(user.email) || string.IsNullOrEmpty(user.fullname))
+            {
+                return BadRequest(new { message = "Tên đăng nhập và email không được để trống!" });
+            }
+
+            // Kiểm tra email đã tồn tại chưa
+            var existUser = await _signInManager.UserManager.FindByEmailAsync(user.email);
+            if (existUser != null)
+            {
+                return BadRequest(new { message = "Email đã tồn tại!!" });
+            }
+
+            // Kiểm tra xác nhận mật khẩu
+            if (user.password != user.passwordConfirmed)
+            {
+                return BadRequest(new { message = "Mật khẩu hoặc Xác nhận mật khẩu không đúng!!!" });
+            }
+
+            // Tạo tài khoản mới, dùng Email làm Username
+            var newUser = new ApplicationUser
+            {
+                UserName = user.fullname,
+                Email = user.email,
+                PhoneNumber = user.phone
+            };
+
+            // Thử tạo tài khoản
+            var result = await _signInManager.UserManager.CreateAsync(newUser, user.password);
+
+            if (!result.Succeeded)
+            {
+                Console.WriteLine("Lỗi khi tạo tài khoản:");
+                foreach (var error in result.Errors)
+                {
+                    Console.WriteLine($"Code: {error.Code}, Mô tả: {error.Description}");
+                }
+                return BadRequest(new { message = "Đăng ký không thành công", errors = result.Errors });
+            }
+
+            Console.WriteLine($"Tài khoản {user.email} đã được tạo thành công!");
+
+            // Nếu có xác thực email, không đăng nhập ngay
+            //if (_signInManager.Options.SignIn.RequireConfirmedEmail)
+            //{
+            //    return Ok(new { message = "Đăng ký thành công! Vui lòng xác thực email trước khi đăng nhập." });
+            //}
+
+            // Đăng nhập ngay sau khi đăng ký (có thể không cần nếu yêu cầu xác thực email)
+            await _signInManager.SignInAsync(newUser, isPersistent: false);
+
+            return Ok(new { message = "Đăng ký thành công!", user = newUser.Email });
+        }
 
 
         [HttpPost("login")]
