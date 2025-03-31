@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useContext  } from "react";
 import { Container, Col, Form, Button, InputGroup } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../Style/Signin.css";
 import axios from '../Util/AxiosConfig';
 import { SuccessNotify, ErrorNotify } from "../Util/ToastConfig";
+import { AuthContext } from "../Context/AuthContext";
+
 
 const Signin = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -11,6 +13,8 @@ const Signin = () => {
   const [loading, setLoading] = useState(false);
   const [loginData, setLoginData] = useState({ Email: "", Password: "" });
   const [registerData, setRegisterData] = useState({ fullname: "", phone: "", email: "", password: "" , passwordConfirmed: ""});
+  const { login } = useContext(AuthContext);
+
 
   // Gọi API đăng nhập
   const handleLogin = async (e) => {
@@ -21,6 +25,8 @@ const Signin = () => {
       const response = await axios.post("/auth/Signin", loginData);
       console.log(response.data);
       SuccessNotify("Đăng nhập thành công!");
+
+      login(response.data.token, response.data.userName);
       console.log("Token:", response.data.token);
       window.location.href = "/"; // Điều hướng sau khi đăng nhập
     } catch (error) {

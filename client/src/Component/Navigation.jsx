@@ -1,12 +1,16 @@
 import React, { useContext, useState } from "react"
 import { Container, Nav, Navbar, NavDropdown } from "react-bootstrap"
-import { useLocation } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import "../Style/Nav.css"
 import { NavContext } from "../Context/NavContext"
+import { AuthContext } from "../Context/AuthContext"
 
 const Navigation = () => {
   const location = useLocation()
+  const navigate = useNavigate();
+  const { isAuthenticated, UserName, logout } = useContext(AuthContext);
   const { specialties, services, HandleNavigation } = useContext(NavContext)
+  
   const pages = [
     { name: "Trang chủ", link: "/" },
     { name: "Giới thiệu", link: "/về chúng tôi" },
@@ -16,8 +20,12 @@ const Navigation = () => {
     { name: "Tin tức", link: "/tin tức" },
     { name: "Đặt lịch khám", link: "/đặt lịch khám" },
     { name: "Liên hệ", link: "/liên hệ" },
-    { name: "Đăng nhập", link: "/Đăng nhập" },
+    // { name: "Đăng nhập", link: "/Đăng nhập" },
   ]
+
+  // if (!isAuthenticated) {
+  //   pages.push({ name: "Đăng nhập", link: "/Đăng nhập" });
+  // }
 
   // State để kiểm soát dropdown
   const [openDropdown, setOpenDropdown] = useState(null)
@@ -25,6 +33,12 @@ const Navigation = () => {
   const handleMouseEnter = (index) => setOpenDropdown(index)
   const handleMouseLeave = () => setOpenDropdown(null)
   
+  
+  const handleLogout = () => {
+    logout();
+    navigate("/"); // Chuyển hướng về trang chủ sau khi đăng xuất
+};
+
   const RenderNav = () => {
     return pages.map((page, index) => {
       const isActive = location.pathname === page.link || (page.link !== "/" && location.pathname.startsWith(page.link))
@@ -77,7 +91,14 @@ const Navigation = () => {
         <Navbar.Brand href="/">React-Bootstrap</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="ms-auto">{RenderNav()}</Nav>
+        <Nav className="me-auto">{RenderNav()}</Nav>
+                    {isAuthenticated ? (
+                        <NavDropdown title={`Xin chào, ${UserName}`} id="user-dropdown">
+                            <NavDropdown.Item onClick={handleLogout}>Đăng xuất</NavDropdown.Item>
+                        </NavDropdown>
+                    ) : (
+                        <Nav.Link onClick={() => navigate("/Đăng nhập")}>Đăng nhập</Nav.Link>
+                    )}
         </Navbar.Collapse>
       </Container>
     </Navbar>

@@ -67,6 +67,7 @@ namespace server.Controllers
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                     new Claim(ClaimTypes.Email, user.Email),
+                    new Claim(ClaimTypes.Name, user.UserName),
                     new Claim(ClaimTypes.Role, "user")
                 }),
                 Expires = DateTime.UtcNow.AddHours(1),
@@ -87,8 +88,16 @@ namespace server.Controllers
                 Expires = DateTime.UtcNow.AddHours(1) // Hết hạn cùng thời gian với token
             });
 
+            Response.Cookies.Append("UserName", user.UserName, new CookieOptions
+                {
+                    HttpOnly = false, // Cho phép JavaScript truy cập để hiển thị UI
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTime.UtcNow.AddHours(1)
+                });
+            Console.WriteLine($"User found: {user?.UserName}");
             Console.WriteLine($"Đăng nhập thành công: {login.Email}");
-            return Ok(new { message = "Đăng nhập thành công!" });
+            return Ok(new { message = "Đăng nhập thành công!" , UserName = user.UserName });
         }
 
 
