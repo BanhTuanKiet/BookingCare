@@ -17,15 +17,16 @@ namespace server.Controllers
     {
         private readonly IConfiguration _configuration;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly ClinicManagementContext _context;
 
-        public AuthController(ClinicManagementContext context, IConfiguration configuration, SignInManager<ApplicationUser> signInManager)
+        public AuthController(ClinicManagementContext context, IConfiguration configuration, SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager)
         {
-            _context = context;
-            _configuration = configuration;
+            _userManager = userManager;
             _signInManager = signInManager;
+            _configuration = configuration;
+            _context = context;
         }
-
 
         [HttpPost("signin")]
         public async Task<ActionResult> Signin()
@@ -70,6 +71,20 @@ namespace server.Controllers
             }
             
             return Ok(new { Token = "HttpContext", message = "Xác thực thành công", user = user });
+        }
+
+        [HttpPost("signup")]
+        public async Task<IActionResult> Register([FromBody] RegisterForm user)
+        {
+            var newUser = new ApplicationUser { UserName = user.Email, Email = user.Email, PhoneNumber = user.PhoneNumber };
+            var result = await _userManager.CreateAsync(newUser, user.Password);
+
+            if (result.Succeeded)
+            {
+                return Ok(new { message = "Đăng ký thành công!" });
+            }
+
+            return new BadRequestObjectResult(new { message = "Đăng ký không thành công!", errors = result.Errors.Select(e => e.Description) });   
         }
     }
 }

@@ -31,10 +31,22 @@ function Login() {
         }
     }
 
+    const signup = async () => {
+        try {
+            const response = await axios.post('/auth/signup', { email: "kiett5153@gmail.com", password: "agsAA34eg@f", userName: "tuankiet", phoneNumber: "0987654321", confirmPassword: "agsAA34eg@f" })
+
+            console.log(response.data)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     return (
         <>
             <div>Login</div>
             <Button onClick={Auth}>Auth</Button>
+            <Button onClick={signup}>Sign Up</Button>
+            <div>{token}</div>
         </>
     )
 }
