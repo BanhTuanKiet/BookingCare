@@ -1,10 +1,31 @@
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { Button, Col, Container, Form, Row } from "react-bootstrap"
+import { NavContext } from "../Context/NavContext"
 import axios from "../Util/AxiosConfig"
 
 function Appointment() {
   const [formData, setFormData] = useState({})
+  const { specialties } = useContext(NavContext)
+  const [specialty, setSpecialty] = useState()
+  const [doctors, setDoctors] = useState()
 
+  useEffect(() => {
+    if (specialties.length > 0) {
+      setSpecialty(specialties[0].name)
+    }
+  }, [specialties])
+
+  useEffect(() => {
+    const fetchDoctors =  async () => {
+      console.log(specialty)
+      const response = await axios.get(`/doctors/${specialty}`)
+      console.log(response.data)
+      setDoctors(response.data)
+    }
+
+    fetchDoctors()
+  }, [specialty])
+  
   const handleChange = (event) => {
     let value = event.target.value
 
@@ -111,13 +132,20 @@ function Appointment() {
               </Form.Group>
 
               <Form.Group className="mb-3">
-                <Form.Select name="department" onChange={handleChange}>
-                  <option>Chuyên khoa</option>
-                  <option>Nội khoa</option>
-                  <option>Ngoại khoa</option>
-                  <option>Sản phụ khoa</option>
-                  <option>Nhi khoa</option>
-                  <option>Da liễu</option>
+                <Form.Select name="department" onChange={(e) => setSpecialty(e.target.value)}>
+                  {specialties.map((specialty, index) => (
+                    <option key={index} value={specialty.name}>
+                      {specialty.name}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>x
+
+              <Form.Group className="mb-3">
+                <Form.Select name="doctor" onChange={handleChange}>
+                  {doctors?.map((doctor, index) => (
+                    <option key={index}>{doctor.userName}</option>
+                  ))}
                 </Form.Select>
               </Form.Group>
 
