@@ -19,9 +19,10 @@ public class AuthToken
     {
         if (context.Request.Path.StartsWithSegments("/api/specialties") ||
             context.Request.Path.StartsWithSegments("/api/auth/login") ||
+            context.Request.Path.StartsWithSegments("/api/auth/Signin") ||
             context.Request.Path.StartsWithSegments("/api/services") ||
             context.Request.Path.StartsWithSegments("/api/other-public-api") ||
-            context.Request.Path.StartsWithSegments("/api/doctors") || 
+            context.Request.Path.StartsWithSegments("/api/doctors") ||
             context.Request.Path.StartsWithSegments("/api/appointments"))
         {
             await _next(context);
