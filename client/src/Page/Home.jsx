@@ -39,12 +39,17 @@ const Home = () => {
       </div>
 
       {/* Phần Đội ngũ bác sĩ */}
-      <div className="doctor-section py-5" style={{ backgroundColor: "#f5f5f5" }}>
+      {/* <div className="doctor-section py-5" style={{ backgroundColor: "#f5f5f5" }}>
         <Container>
           <h3 className="text-primary fw-bold text-center">ĐỘI NGŨ BÁC SĨ</h3>
           <DoctorCarousels doctors={doctors} />
         </Container>
-      </div>
+      </div> */}
+      <div className="doctor-section py-4" style={{ backgroundColor: "#f8f9fa" }}>
+      <Container>
+        <DoctorCarousels doctors={doctors} />
+      </Container>
+    </div>
     </div>
   )
 }

@@ -31,8 +31,6 @@ namespace server.Controllers
             _userManager = userManager;
         }
 
-
-
         [HttpPost("Signin")]
         public async Task<IActionResult> Signin([FromBody] SigninForm login)
         {
@@ -162,7 +160,6 @@ namespace server.Controllers
             return Ok(new { message = "Đăng ký thành công!", user = newUser.Email });
         }
 
-
         [HttpPost("login")]
         public async Task<IActionResult> Login()
         {
@@ -188,18 +185,10 @@ namespace server.Controllers
             return Ok(new { token = tokenHandler.WriteToken(token) });
         }
 
-
         [Authorize(Roles = "doctor")]
         [HttpPost("auth_user")]
         public async Task<IActionResult> AuthUser([FromBody] LoginForm user)
         {
-            // string nameValue = data.GetProperty("ưegwe").GetString();
-
-            // if (string.IsNullOrEmpty(nameValue)){
-            //     throw new ErrorHandlingException(400, "name is null!");
-            // }
-            // Console.WriteLine($"Name: {nameValue}");
-            // return Ok(new { Token = "HttpContext", message = "Xác thực thành công", name = nameValue });
 
             Console.WriteLine($"User: {user.Email} - {user.Password}");
 

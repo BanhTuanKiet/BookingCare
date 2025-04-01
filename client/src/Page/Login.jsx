@@ -5,6 +5,7 @@ import { jwtDecode } from "jwt-decode";
 
 function Login() {
     const [token, setToken] = useState()
+    
     useEffect(() => {
         const fetchData = async () => {
             const respone = await axios.get("/auth/login")
@@ -19,7 +20,6 @@ function Login() {
 
     const Auth = async () => {
         try {
-            console.log("auth")
             const respone = await axios.post('/auth/auth_user', { email: "wef", password: "agsegf" }, {
                 headers: {
                     "Authorization": `Bearer ${token}`
