@@ -60,6 +60,10 @@ namespace server.Controllers
                 throw new ErrorHandlingException(500, "Specialty name is required!");
             }
             
+            // var services = await _context.Services.Include(s => s.SpecialtyServices).ToListAsync();
+            
+            // var services = await _context.Services.Where(s => s.SpecialtyServices.Any(sp => sp.Specialty.Name == specialty)).ToListAsync();
+
             var services = await _serviceService.GetServiceBySpecialty(specialty) ?? throw new ErrorHandlingException(500, "Lỗi lấy dịch vụ theo khoa");
 
             return Ok(services);

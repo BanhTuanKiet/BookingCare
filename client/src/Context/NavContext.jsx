@@ -61,8 +61,6 @@ const NavProvider = ({ children }) => {
     navigate(`/${type}/${specialtyName}`);
   };
 
-  console.log(doctors);
-
   return (
     <NavContext.Provider
       value={{

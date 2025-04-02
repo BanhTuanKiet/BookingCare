@@ -7,14 +7,14 @@ using server.DTO;
 namespace server.Services
 {
     public class DoctorServices : IDoctor
+    {
+        private readonly ClinicManagementContext _context;
+        private readonly IMapper _mapper;
+        public DoctorServices(ClinicManagementContext context, IMapper mapper)
         {
-            private readonly ClinicManagementContext _context;
-            private readonly IMapper _mapper;
-            public DoctorServices(ClinicManagementContext context, IMapper mapper)
-            {
-                _context = context;
-                _mapper = mapper;
-            }
+            _context = context;
+            _mapper = mapper;
+        }
         public async Task<List<DoctorDTO.DoctorBasic>> GetAllDoctors()
         {
             var doctors = await _context.Doctors.Include(doctor => doctor.User).ToListAsync();
@@ -34,7 +34,7 @@ namespace server.Services
 
         public async Task<List<DoctorDTO.DoctorBasic>> GetDoctorsBySpecialty(string specialtyName)
         {
-            var doctors = await _context.Doctors.Include(d => d.User).Where(d => d.Specialty.Name == specialtyName).ToListAsync();
+            var doctors = await _context.Doctors.Where(d => d.Specialty.Name == specialtyName).ToListAsync();
 
             var doctorDTOs = _mapper.Map<List<DoctorDTO.DoctorBasic>>(doctors);
 
