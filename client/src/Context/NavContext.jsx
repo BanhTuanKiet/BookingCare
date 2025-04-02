@@ -7,12 +7,9 @@ const NavContext = createContext();
 
 const NavProvider = ({ children }) => {
   const navigate = useNavigate();
-  const [specialties, setSpecialties] = useState([]);
-  const [services, setServices] = useState([]);
-  const [doctors, setDoctors] = useState([]);
-  // const [isAuthenticated, setIsAuthenticated] = useState(false);
-  // const [UserName, setUserName] = useState("");
-
+  const [specialties, setSpecialties] = useState([])
+  const [services, setServices] = useState([])
+  const [doctors, setDoctors] = useState([])
 
   useEffect(() => {
     const GetAllSpecialties = async () => {
@@ -63,8 +60,6 @@ const NavProvider = ({ children }) => {
   const HandleNavigation = (type, specialtyName) => {
     navigate(`/${type}/${specialtyName}`);
   };
-
-  console.log(doctors);
 
   return (
     <NavContext.Provider

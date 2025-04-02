@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 
 namespace server.Models;
@@ -18,4 +18,8 @@ public partial class User
     public string? PhoneNumber { get; set; }
 
     public DateTime? CreatedAt { get; set; }
+
+    public virtual Doctor? Doctor { get; set; }
+
+    public virtual Patient? Patient { get; set; }
 }

@@ -20,19 +20,19 @@ function SpecialtyNav() {
                 switch (activeNavItem) {
                     case navItems[0]: // Giới thiệu
                         response = await axios.get(`/specialties/${specialty}/description`)
-                        console.log("Giới thiệu:", response.data)
+
                         setInfor(response.data ?? "")
                         break
     
                     case navItems[1]: // Bác sĩ
                         response = await axios.get(`/doctors/${specialty}`)
-                        console.log("Danh sách bác sĩ:", response.data)
+console.log(response.data)
                         setInfor(Array.isArray(response.data) ? response.data : [])
                         break
     
                     case navItems[2]: // Dịch vụ
                         response = await axios.get(`/services/${specialty}/services`)
-                        console.log("Dịch vụ:", response.data)
+
                         setInfor(Array.isArray(response.data) ? response.data : [])
                         break
     
