@@ -3,12 +3,14 @@ import axios from '../Util/AxiosConfig'
 import { useParams } from 'react-router-dom'
 import DoctorCard from './DoctorCard'
 import ServiceCard from './ServiceCard'
+import SpecialtyIntroduce from '../Image/SpecialtyIntroduce/Index';
 
 function SpecialtyNav() {
     const { specialty } = useParams() // destructure params cho gọn
     const navItems = ["Giới thiệu", "Bác sĩ", "Dịch vụ"]
     const [activeNavItem, setActiveNavItem] = useState(navItems[0])
     const [infor, setInfor] = useState(activeNavItem === "Giới thiệu" ? "" : [])
+    const images = SpecialtyIntroduce
 
     useEffect(() => {
         const fetchData = async () => {
@@ -68,6 +70,13 @@ function SpecialtyNav() {
             {/* Nội dung Giới thiệu */}
             {activeNavItem === navItems[0] && typeof infor === "string" && (
                 <div className="specialty-description mt-3">
+                    {/* Hiển thị hình ảnh */}
+                    <img 
+                        src={images[specialty]} 
+                        alt={`Hình ảnh của ${specialty}`} 
+                        style={{ width: "98%", maxHeight: "400px", objectFit: "cover", marginBottom: "20px" }} 
+                    />
+
                     <div><span className='text-warning fw-bold'>{specialty} </span>{infor}</div>
                 </div>
             )}
