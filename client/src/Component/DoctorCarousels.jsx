@@ -68,7 +68,10 @@ function DoctorCarousels({ doctors }) {
               <img
                 src={activeDoctor?.doctorImage || "/placeholder.svg"}
                 alt={activeDoctor?.userName}
-                style={{ width: "80%", maxWidth: "560px" }}
+                style={{ width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    borderRadius: "50%",}}
               />
             </div>
           </Col>
