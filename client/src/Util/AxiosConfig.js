@@ -3,7 +3,15 @@ import { SuccessNotify, WarningNotify, ErrorNotify } from "./ToastConfig"
 
 const instance = axios.create({
     baseURL: "http://127.0.0.1:5140/api",
-    withCredentials: true
+    withCredentials: true,
+    headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Credentials": true,
+        "Access-Control-Allow-Headers": "*",
+        "Access-Control-Allow-Methods": "*"
+    }
 })
 
 // Add a request interceptor

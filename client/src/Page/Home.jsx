@@ -1,13 +1,23 @@
-import React, { useContext } from "react"
+import React, { useContext, useEffect } from "react"
 import { Col, Row, Container } from "react-bootstrap"
 import SpecialtyLogo from "../Component/SpecialtyLogo"
 import "../Style/Home.css"
 import { NavContext } from "../Context/NavContext"
 import ServiceCarousels from "../Component/ServiceCarousels"
 import DoctorCarousels from "../Component/DoctorCarousels"
+import axios from "../Util/AxiosConfig"
 
 const Home = () => {
   const { specialties, services, doctors, HandleNavigation } = useContext(NavContext)
+
+  useEffect(() => {
+    const fetchUserRoles = async () => {
+      const response = await axios.get("/auth/getUserRoles")
+
+      console.log(response.data)
+    }
+    fetchUserRoles()
+  }, [])
 
   return (
     <div>
