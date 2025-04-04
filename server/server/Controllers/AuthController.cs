@@ -31,32 +31,6 @@ namespace server.Controllers
             _userManager = userManager;
         }
 
-        [HttpGet("getUserRoles")]
-        public async Task<ActionResult> GetUserRoles()
-        {
-            var cookies = Request.Cookies;
-            var token = cookies["token"];
-                        var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes("uX9#2fB!rT7z$KpV@8dG%qL*eJ4mW!sN^ZbC@1yH");
-
-            tokenHandler.ValidateToken(token, new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                ClockSkew = TimeSpan.Zero
-            }, out SecurityToken validatedToken);
-
-            var jwtToken = (JwtSecurityToken)validatedToken;
-            // var userId = int.Parse(jwtToken.Claims.First(x => x.Type == "id").Value);
-            // var userEmail = jwtToken.Claims.First(x => x.Type == "email").Value;
-            var userRole = jwtToken.Claims.First(x => x.Type == "role").Value;
-            var roles = await _userManager.GetRolesAsync(new ApplicationUser { Id = 22 });
-            Console.WriteLine($"UserRole: {userRole}");
-            return Ok( new { roles = roles, message = "Lấy danh sách role thành công!" });
-        }
-
         [HttpPost("Signin")]
         public async Task<IActionResult> Signin([FromBody] SigninForm login)
         {
@@ -84,16 +58,16 @@ namespace server.Controllers
 
             // Tạo JWT Token
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes("uX9#2fB!rT7z$KpV@8dG%qL*eJ4mW!sN^ZbC@1yH");
-            var claims = new[]
-            {
-                new Claim(ClaimTypes.Name, "ưegwge"),
-                new Claim("email", "nguyenvana@gmail.com"),
-                new Claim(ClaimTypes.Role, "doctor") // Nếu muốn thêm role
-            };
+            var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(claims),
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new Claim(ClaimTypes.Email, user.Email),
+                    new Claim(ClaimTypes.Name, user.UserName),
+                    new Claim(ClaimTypes.Role, "user")
+                }),
                 Expires = DateTime.UtcNow.AddHours(1),
                 Issuer = _configuration["Jwt:Issuer"],
                 Audience = _configuration["Jwt:Audience"],
@@ -104,19 +78,24 @@ namespace server.Controllers
             string jwtToken = tokenHandler.WriteToken(token);
 
             // Lưu token vào HttpOnly Cookie
-
-            Response.Cookies.Append("token", jwtToken, new CookieOptions
+            Response.Cookies.Append("AuthToken", jwtToken, new CookieOptions
             {
-                HttpOnly = true,  // Chặn JavaScript truy cập cookie (Bảo mật)
-                Secure = true,    // Chỉ gửi cookie qua HTTPS (Bật khi lên production)
-                SameSite = SameSiteMode.None, // Hỗ trợ gửi cookie khi frontend và backend khác domain
-                Expires = DateTime.UtcNow.AddHours(1),
-                Path = "/" // Cookie áp dụng cho toàn bộ site
+                HttpOnly = true,  // Ngăn JavaScript truy cập cookie
+                Secure = true,    // Chỉ gửi qua HTTPS (bật trong môi trường production)
+                SameSite = SameSiteMode.Strict, // Bảo vệ CSRF
+                Expires = DateTime.UtcNow.AddHours(1) // Hết hạn cùng thời gian với token
             });
 
-            var role = await _userManager.GetRolesAsync(user);
-
-            return Ok(new { message = "Đăng nhập thành công!" , UserName = user.UserName, role = role, jwtToken = jwtToken });
+            Response.Cookies.Append("UserName", user.UserName, new CookieOptions
+                {
+                    HttpOnly = false, // Cho phép JavaScript truy cập để hiển thị UI
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTime.UtcNow.AddHours(1)
+                });
+            Console.WriteLine($"User found: {user?.UserName}");
+            Console.WriteLine($"Đăng nhập thành công: {login.Email}");
+            return Ok(new { message = "Đăng nhập thành công!" , UserName = user.UserName });
         }
 
 

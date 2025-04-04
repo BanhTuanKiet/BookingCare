@@ -1,108 +1,192 @@
-import React, { useContext, useState } from "react"
-import { Container, Nav, Navbar, NavDropdown } from "react-bootstrap"
-import { useLocation, useNavigate } from "react-router-dom"
-import "../Style/Nav.css"
-import { NavContext } from "../Context/NavContext"
-import { AuthContext } from "../Context/AuthContext"
+import React, { useContext, useState, useRef, useEffect } from "react";
+import { Container, Nav, Navbar, NavDropdown } from "react-bootstrap";
+import { useLocation, useNavigate } from "react-router-dom";
+import "../Style/Nav.css";
+import { NavContext } from "../Context/NavContext";
+import { AuthContext } from "../Context/AuthContext";
 
 const Navigation = () => {
-  const location = useLocation()
+  const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated, UserName, logout } = useContext(AuthContext);
-  const { specialties, services, HandleNavigation } = useContext(NavContext)
+  const { specialties, services, HandleNavigation } = useContext(NavContext);
+  
+  // Reference for the underline indicator
+  const indicatorRef = useRef(null);
+  const navRefs = useRef([]);
   
   const pages = [
     { name: "Trang chủ", link: "/" },
-    { name: "Giới thiệu", link: "/về chúng tôi" },
+    { name: "Giới Thiệu", link: "/về chúng tôi" },
     { name: "Đội ngũ bác sĩ", link: "/bác sĩ" },
     { name: "Chuyên khoa", link: "/chuyên khoa" },
     { name: "Dịch vụ", link: "/dịch vụ" },
     { name: "Tin tức", link: "/tin tức" },
     { name: "Đặt lịch khám", link: "/đặt lịch khám" },
     { name: "Liên hệ", link: "/liên hệ" },
-    // { name: "Đăng nhập", link: "/Đăng nhập" },
-  ]
+  ];
 
-  // if (!isAuthenticated) {
-  //   pages.push({ name: "Đăng nhập", link: "/Đăng nhập" });
-  // }
+  // State to control dropdown
+  const [openDropdown, setOpenDropdown] = useState(null);
+  const [activeIndex, setActiveIndex] = useState(null);
 
-  // State để kiểm soát dropdown
-  const [openDropdown, setOpenDropdown] = useState(null)
+  const handleMouseEnter = (index) => {
+    setOpenDropdown(index);
+    
+    // Position the indicator under the hovered item
+    if (indicatorRef.current && navRefs.current[index]) {
+      const navItem = navRefs.current[index];
+      const indicator = indicatorRef.current;
+      
+      indicator.style.width = `${navItem.offsetWidth}px`;
+      indicator.style.left = `${navItem.offsetLeft}px`;
+      indicator.style.opacity = '1';
+    }
+  };
 
-  const handleMouseEnter = (index) => setOpenDropdown(index)
-  const handleMouseLeave = () => setOpenDropdown(null)
-  
-  
+  const handleMouseLeave = () => {
+    setOpenDropdown(null);
+    
+    // Reset indicator based on current active page
+    const currentIndex = pages.findIndex(page => 
+      location.pathname === page.link || 
+      (page.link !== "/" && location.pathname.startsWith(page.link))
+    );
+    
+    if (indicatorRef.current && currentIndex !== -1 && navRefs.current[currentIndex]) {
+      // Keep indicator under current active page
+      const navItem = navRefs.current[currentIndex];
+      const indicator = indicatorRef.current;
+      
+      indicator.style.width = `${navItem.offsetWidth}px`;
+      indicator.style.left = `${navItem.offsetLeft}px`;
+      indicator.style.opacity = '1';
+    }
+  };
+
+  // Initialize active item based on current location
+  useEffect(() => {
+    const currentIndex = pages.findIndex(page => 
+      location.pathname === page.link || 
+      (page.link !== "/" && location.pathname.startsWith(page.link))
+    );
+    
+    if (currentIndex !== -1) {
+      setActiveIndex(currentIndex);
+      
+      // Position indicator under active item on page load
+      setTimeout(() => {
+        if (indicatorRef.current && navRefs.current[currentIndex]) {
+          const navItem = navRefs.current[currentIndex];
+          const indicator = indicatorRef.current;
+          
+          indicator.style.width = `${navItem.offsetWidth}px`;
+          indicator.style.left = `${navItem.offsetLeft}px`;
+          indicator.style.opacity = '1';
+        }
+      }, 100);
+    }
+  }, [location.pathname]);
+
   const handleLogout = () => {
     logout();
-    navigate("/"); // Chuyển hướng về trang chủ sau khi đăng xuất
-};
+    navigate("/");
+  };
+
+  const isPageActive = (pageLink) => {
+    return location.pathname === pageLink || 
+           (pageLink !== "/" && location.pathname.startsWith(pageLink));
+  };
 
   const RenderNav = () => {
     return pages.map((page, index) => {
-      const isActive = location.pathname === page.link || (page.link !== "/" && location.pathname.startsWith(page.link))
+      const isActive = isPageActive(page.link);
 
       if (index === 3 || index === 4) {
         return (
           <NavDropdown
-            title={<span className={isActive ? "text-primary fw-bold" : "text-dark"}>{page.name}</span>}
+            title={page.name}
             key={index}
             id="basic-nav-dropdown"
-            show={openDropdown === index} 
+            show={openDropdown === index}
             onMouseEnter={() => handleMouseEnter(index)}
             onMouseLeave={handleMouseLeave}
-            className="drop-item"
+            className={`drop-item nav-item ${isActive ? 'active' : ''}`}
+            ref={el => navRefs.current[index] = el}
           >
             {index === 3 ? RenderSpecialties() : RenderServices()}
           </NavDropdown>
-        )
+        );
       }
 
       return (
-        <Nav.Link href={page.link} key={index} className={isActive ? "text-primary fw-bold nav" : "text-dark nav"} >
+        <Nav.Link
+          key={index}
+          href={page.link}
+          className={`nav ${isActive ? 'active' : ''}`}
+          onMouseEnter={() => handleMouseEnter(index)}
+          onMouseLeave={handleMouseLeave}
+          ref={el => navRefs.current[index] = el}
+        >
           {page.name}
         </Nav.Link>
-      )
-    })
-  }
+      );
+    });
+  };
 
   const RenderSpecialties = () => {
     return specialties.map((speciality, index) => (
-      <NavDropdown.Item key={index} className="nav-item" onClick={() => HandleNavigation("chuyên khoa", speciality.name)}>
+      <NavDropdown.Item 
+        key={index} 
+        onClick={() => HandleNavigation("chuyên khoa", speciality.name)}
+      >
         {speciality.name}
       </NavDropdown.Item>
-    ))
-  }
+    ));
+  };
 
   const RenderServices = () => {
-    
     return services.map((service, index) => (
-      
-      <NavDropdown.Item key={index} className="nav-item" onClick={() => HandleNavigation("dịch vụ", service.serviceName)}>
+      <NavDropdown.Item 
+        key={index} 
+        onClick={() => HandleNavigation("dịch vụ", service.serviceName)}
+      >
         {service.serviceName}
       </NavDropdown.Item>
-    ))
-  }
+    ));
+  };
 
   return (
-    <Navbar expand="lg" style={{ backgroundColor: "#e3f1fc"}}>
-      <Container className="w-75">
-        <Navbar.Brand href="/">React-Bootstrap</Navbar.Brand>
+    <Navbar expand="lg" className="bg-info-subtle py-3">
+      <Container>
+        <Navbar.Brand href="/" className="me-4">
+          <div className="logo-container">
+            <div className="heart-logo">
+              <span className="text-primary fw-bold">DBK</span>
+            </div>
+          </div>
+        </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
-        <Nav className="me-auto">{RenderNav()}</Nav>
-                    {isAuthenticated ? (
-                        <NavDropdown title={`Xin chào, ${UserName}`} id="user-dropdown">
-                            <NavDropdown.Item onClick={handleLogout}>Đăng xuất</NavDropdown.Item>
-                        </NavDropdown>
-                    ) : (
-                        <Nav.Link onClick={() => navigate("/Đăng nhập")}>Đăng nhập</Nav.Link>
-                    )}
+          <Nav className="me-auto position-relative">
+            {RenderNav()}
+            <div className="nav-indicator" ref={indicatorRef}></div>
+          </Nav>
+          <Nav>
+            {isAuthenticated ? (
+              <Nav.Link onClick={handleLogout} className="btn-login">
+                Đăng xuất
+              </Nav.Link>
+            ) : (
+              <Nav.Link onClick={() => navigate("/Đăng nhập")} className="btn-login">
+                Đăng nhập / Đăng ký
+              </Nav.Link>
+            )}
+          </Nav>
         </Navbar.Collapse>
       </Container>
     </Navbar>
-  )
-}
+  );
+};
 
-export default Navigation
+export default Navigation;
