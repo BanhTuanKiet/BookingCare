@@ -158,7 +158,7 @@ const Navigation = () => {
 
   return (
     <Navbar expand="lg" className="bg-info-subtle py-2">
-      <Container>
+      <Container className="w-75 mx-auto">
         <Navbar.Brand href="/" className="">
           {/* <div className="logo-container">
             <div className="heart-logo">
