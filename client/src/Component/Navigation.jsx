@@ -26,6 +26,9 @@ const Navigation = () => {
     { name: "Liên hệ", link: "/liên hệ" },
   ];
 
+  const [triggerHoverEffect, setTriggerHoverEffect] = useState(false);
+
+
   // State to control dropdown
   const [openDropdown, setOpenDropdown] = useState(null);
   const [activeIndex, setActiveIndex] = useState(null);
@@ -66,32 +69,57 @@ const Navigation = () => {
 
   // Initialize active item based on current location
   useEffect(() => {
-    const currentIndex = pages.findIndex(page => 
-      location.pathname === page.link || 
+    const currentIndex = pages.findIndex(page =>
+      location.pathname === page.link ||
       (page.link !== "/" && location.pathname.startsWith(page.link))
     );
-    
     if (currentIndex !== -1) {
       setActiveIndex(currentIndex);
-      
-      // Position indicator under active item on page load
-      setTimeout(() => {
+      requestAnimationFrame(() => {
         if (indicatorRef.current && navRefs.current[currentIndex]) {
           const navItem = navRefs.current[currentIndex];
           const indicator = indicatorRef.current;
-          
+  
           indicator.style.width = `${navItem.offsetWidth}px`;
           indicator.style.left = `${navItem.offsetLeft}px`;
           indicator.style.opacity = '1';
         }
-      }, 1000);
+      });
     }
   }, [location.pathname]);
-
+  
   const handleLogout = () => {
     logout();
     navigate("/");
   };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      const index = pages.length; // vì login nằm ngoài danh sách pages
+      setTriggerHoverEffect(true);
+  
+      // Position indicator under login button
+      setTimeout(() => {
+        if (indicatorRef.current && navRefs.current[index]) {
+          const navItem = navRefs.current[index];
+          const indicator = indicatorRef.current;
+  
+          indicator.style.width = `${navItem.offsetWidth}px`;
+          indicator.style.left = `${navItem.offsetLeft}px`;
+          indicator.style.opacity = '1';
+        }
+      }, 200); // delay nhỏ để đảm bảo ref sẵn sàng
+  
+      // Remove effect after 3s
+      const timer = setTimeout(() => {
+        setTriggerHoverEffect(false);
+        indicatorRef.current.style.opacity = '0';
+      }, 3000);
+  
+      return () => clearTimeout(timer);
+    }
+  }, [isAuthenticated]);
+  
 
   const isPageActive = (pageLink) => {
     return location.pathname === pageLink || 
@@ -174,7 +202,13 @@ const Navigation = () => {
           </Nav>
           <Nav>
           {isAuthenticated ? (
-            <NavDropdown className="btn-login" title={`Xin chào, ${UserName}`} id="user-dropdown" >
+            <NavDropdown
+              className={`btn-login ${triggerHoverEffect ? 'hovered' : ''}`}
+              title={`Xin chào, ${UserName}`}
+              id="user-dropdown"
+              ref={(el) => (navRefs.current[pages.length] = el)}
+            >
+
               <NavDropdown.Item onClick={() => navigate("/hồ sơ")}>Hồ sơ</NavDropdown.Item>
               <NavDropdown.Item onClick={handleLogout}>Đăng xuất</NavDropdown.Item>
             </NavDropdown>

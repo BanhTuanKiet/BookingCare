@@ -42,7 +42,7 @@ const Home = () => {
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
           position: "relative",
-          zIndex: 1,
+          zIndex: 0,
         }}
       >
         
