@@ -1,17 +1,12 @@
 import axios from "axios"
 import { SuccessNotify, WarningNotify, ErrorNotify } from "./ToastConfig"
+import { useContext } from "react"
+import { AuthContext } from "../Context/AuthContext"
+import { useLocation } from "react-router-dom"
 
 const instance = axios.create({
     baseURL: "http://127.0.0.1:5140/api",
     withCredentials: true,
-    headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Credentials": true,
-        "Access-Control-Allow-Headers": "*",
-        "Access-Control-Allow-Methods": "*"
-    }
 })
 
 // Add a request interceptor
@@ -27,7 +22,6 @@ instance.interceptors.request.use(function (config) {
 instance.interceptors.response.use(function (response) {
 // Any status code that lie within the range of 2xx cause this function to trigger
 // Do something with response data
-
   if (response.status === 200 && response.data.message) {
     const message = response.data.message
     SuccessNotify(message)
@@ -44,7 +38,6 @@ console.log(error.response)
 
     switch (statusCode) {
       case 400:
-      case 401:
       case 404:
         WarningNotify(errorMessage)
         break
@@ -53,6 +46,15 @@ console.log(error.response)
         break
       case 500:
         ErrorNotify(errorMessage)
+        break
+      case 401:
+        const currentPath = window.location.pathname + window.location.search;
+        localStorage.setItem("prevPage", currentPath);
+        WarningNotify(errorMessage);
+  
+        setTimeout(() => {
+          window.location.href = "/đăng nhập"
+        }, 1700);
         break
       default:
         ErrorNotify(errorMessage)

@@ -28,7 +28,7 @@ namespace server.Controllers
             _context = context;
             _doctorService = doctorService;
         }
-        // [Authorize(Roles = "doctor")]
+
         [HttpGet]
         public async Task<ActionResult<List<DoctorDTO.DoctorBasic>>> GetAllDoctors()
         {   
@@ -82,8 +82,8 @@ namespace server.Controllers
             return Ok(doctors);
         }
 
+        [Authorize(Roles = "admin")]
         [HttpPost("upload")]
-        // [Authorize(Roles = "admin")]
         public async Task<ActionResult> Upload([FromForm] IFormFile file, [FromForm] int doctorId)
         {
             try

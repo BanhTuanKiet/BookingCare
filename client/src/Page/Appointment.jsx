@@ -17,9 +17,7 @@ function Appointment() {
 
   useEffect(() => {
     const fetchDoctors =  async () => {
-      console.log(specialty)
       const response = await axios.get(`/doctors/${specialty}`)
-      console.log(response.data)
       setDoctors(response.data)
     }
 
@@ -38,9 +36,8 @@ function Appointment() {
 
   const submit = async () => {
     try {
-      console.log(formData)
-      // const response = await axios.post("/appointments", formData)
-      // console.log(response)
+      const response = await axios.post("/appointments", formData)
+      console.log(response)
     } catch (error) {
       console.log(error)
     }
@@ -139,7 +136,7 @@ function Appointment() {
                     </option>
                   ))}
                 </Form.Select>
-              </Form.Group>x
+              </Form.Group>
 
               <Form.Group className="mb-3">
                 <Form.Select name="doctor" onChange={handleChange}>
