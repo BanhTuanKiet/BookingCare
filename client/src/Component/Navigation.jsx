@@ -96,11 +96,11 @@ const Navigation = () => {
   const isPageActive = (pageLink) => {
     return location.pathname === pageLink || 
            (pageLink !== "/" && location.pathname.startsWith(pageLink));
-  };
+  }
 
   const RenderNav = () => {
     return pages.map((page, index) => {
-      const isActive = isPageActive(page.link);
+      const isActive = isPageActive(page.link)
 
       if (index === 3 || index === 4) {
         return (
@@ -157,14 +157,14 @@ const Navigation = () => {
   };
 
   return (
-    <Navbar expand="lg" className="bg-info-subtle py-3">
+    <Navbar expand="lg" className="bg-info-subtle py-2">
       <Container>
-        <Navbar.Brand href="/" className="me-4">
-          <div className="logo-container">
+        <Navbar.Brand href="/" className="">
+          {/* <div className="logo-container">
             <div className="heart-logo">
               <span className="text-primary fw-bold">DBK</span>
             </div>
-          </div>
+          </div> */}
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
