@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -27,13 +28,12 @@ namespace server.Controllers
             _context = context;
             _doctorService = doctorService;
         }
-        
+        // [Authorize(Roles = "doctor")]
         [HttpGet]
         public async Task<ActionResult<List<DoctorDTO.DoctorBasic>>> GetAllDoctors()
-        {
+        {   
             return await _doctorService.GetAllDoctors();
         }
-
 
         [HttpGet("detail/{doctorName}")]
         public async Task<ActionResult<DoctorDTO.DoctorDetail>> GetDoctorByName(string doctorName)
@@ -83,7 +83,7 @@ namespace server.Controllers
         }
 
         [HttpPost("upload")]
-        [Authorize(Roles = "admin")]
+        // [Authorize(Roles = "admin")]
         public async Task<ActionResult> Upload([FromForm] IFormFile file, [FromForm] int doctorId)
         {
             try

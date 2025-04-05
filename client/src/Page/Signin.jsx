@@ -15,25 +15,36 @@ const Signin = () => {
   const [registerData, setRegisterData] = useState({ fullname: "", phone: "", email: "", password: "" , passwordConfirmed: ""});
   const { login } = useContext(AuthContext);
 
+  // Hàm lấy danh sách bác sĩ
+  const fetchDoctors = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get('/doctors')
 
+      console.log(response.data)
+    } catch (error) {
+      console.error('Lỗi khi lấy danh sách bác sĩ:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
   // Gọi API đăng nhập
   const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+    e.preventDefault()
+    setLoading(true)
     try {
-      console.log("Dữ liệu gửi:", loginData);
-      const response = await axios.post("/auth/Signin", loginData);
-      console.log(response.data);
-      SuccessNotify("Đăng nhập thành công!");
+      console.log("Dữ liệu gửi:", loginData)
+      const response = await axios.post("/auth/Signin", { Email: "kiet2908@gmail.com", Password: "2908Tk@" })
+      console.log(response.data)
+      SuccessNotify("Đăng nhập thành công!")
 
-      login(response.data.token, response.data.userName);
-      console.log("Token:", response.data.token);
+      login(response.data.token, response.data.userName)
       window.location.href = "/"; // Điều hướng sau khi đăng nhập
     } catch (error) {
       ErrorNotify(error.response?.data?.message || "Đăng nhập thất bại!");
     }
-    setLoading(false);
-  };
+    setLoading(false)
+  }
 
   // Gọi API đăng ký
   const handleRegister = async (e) => {
@@ -155,6 +166,7 @@ const Signin = () => {
           {isLogin ? "Đăng ký" : "Đăng nhập"}
         </Button>
       </div>
+      <Button onClick={fetchDoctors}>Click me!</Button>
     </Container>
   );
 };

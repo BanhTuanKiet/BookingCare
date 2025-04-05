@@ -7,11 +7,11 @@ namespace server.Models
         public virtual Doctor? Doctor { get; set; }
 
         public virtual Patient? Patient { get; set; }
-        public virtual ICollection<ApplicationUserClaim> AspNetUserClaims { get; set; } = new List<ApplicationUserClaim>();
+        // public virtual ICollection<ApplicationUserClaim> AspNetUserClaims { get; set; } = new List<ApplicationUserClaim>();
 
-        public virtual ICollection<ApplicationUserLogin> AspNetUserLogins { get; set; } = new List<ApplicationUserLogin>();
+        // public virtual ICollection<ApplicationUserLogin> AspNetUserLogins { get; set; } = new List<ApplicationUserLogin>();
 
-        public virtual ICollection<ApplicationUserToken> AspNetUserTokens { get; set; } = new List<ApplicationUserToken>();
+        // public virtual ICollection<ApplicationUserToken> AspNetUserTokens { get; set; } = new List<ApplicationUserToken>();
 
         public virtual ICollection<ApplicationRole> Roles { get; set; } = new List<ApplicationRole>();
     }
@@ -27,23 +27,23 @@ namespace server.Models
     //     public virtual ApplicationRole? Role { get; set; }
     // }
 
-        public class ApplicationUserClaim : IdentityUserClaim<int>
-    {
-        public virtual ApplicationUser? User { get; set; }
-    }
+    //     public class ApplicationUserClaim : IdentityUserClaim<int>
+    // {
+    //     public virtual ApplicationUser? User { get; set; }
+    // }
     
-    public class ApplicationUserLogin : IdentityUserLogin<int>
-    {
-        public virtual ApplicationUser? User { get; set; }
-    }
+    // public class ApplicationUserLogin : IdentityUserLogin<int>
+    // {
+    //     public virtual ApplicationUser? User { get; set; }
+    // }
     
     // public class ApplicationRoleClaim : IdentityRoleClaim<int>
     // {
     //     public virtual ApplicationRole? Role { get; set; }
     // }
     
-    public class ApplicationUserToken : IdentityUserToken<int>
-    {
-        public virtual ApplicationUser? User { get; set; }
-    }
+    // public class ApplicationUserToken : IdentityUserToken<int>
+    // {
+    //     public virtual ApplicationUser? User { get; set; }
+    // }
 }

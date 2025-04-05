@@ -49,8 +49,10 @@ public partial class ClinicManagementContext : IdentityDbContext<ApplicationUser
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+        
         modelBuilder.Entity<Appointment>(entity =>
-       {
+        {
            entity.HasKey(e => e.AppointmentId).HasName("PK__Appointm__8ECDFCA2D8B95A6A");
 
            entity.Property(e => e.AppointmentId).HasColumnName("AppointmentID");
@@ -221,108 +223,28 @@ public partial class ClinicManagementContext : IdentityDbContext<ApplicationUser
                        j.ToTable("SpecialtyService");
                    });
        });
-
-    //     modelBuilder.Entity<User>(entity =>
-    //    {
-    //        entity.HasKey(e => e.UserId).HasName("PK__Users__1788CCACA34D314B");
-
-    //        entity.HasIndex(e => e.Email, "UQ__Users__A9D10534404F7C68").IsUnique();
-
-    //        entity.Property(e => e.UserId).HasColumnName("UserID");
-    //        entity.Property(e => e.CreatedAt)
-    //            .HasDefaultValueSql("(getdate())")
-    //            .HasColumnType("datetime");
-    //        entity.Property(e => e.Email).HasMaxLength(100);
-    //        entity.Property(e => e.FullName).HasMaxLength(100);
-    //        entity.Property(e => e.PasswordHash).HasMaxLength(255);
-    //        entity.Property(e => e.PhoneNumber).HasMaxLength(20);
-    //        entity.Property(e => e.Role).HasMaxLength(50);
-    //    });
-
-        modelBuilder.Entity<IdentityUserLogin<int>>(entity =>
-        {
-            entity.HasKey(e => new { e.LoginProvider, e.ProviderKey });
-        });
-
-        modelBuilder.Entity<IdentityUserClaim<int>>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-        });
-
-        modelBuilder.Entity<IdentityUserToken<int>>(entity =>
-        {
-            entity.HasKey(e => new { e.UserId, e.LoginProvider, e.Name });
-        });
-
-        modelBuilder.Entity<IdentityUserRole<int>>(entity =>
-        {
-            entity.HasKey(e => new { e.UserId, e.RoleId });
-        });
-
-    //    modelBuilder.Entity<AspNetRole>(entity =>
-    //    {
-    //        entity.Property(e => e.Name).HasMaxLength(256);
-    //        entity.Property(e => e.NormalizedName).HasMaxLength(256);
-    //    });
-
+       
         modelBuilder.Entity<ApplicationUser>(entity =>
         {
             modelBuilder.Entity<ApplicationUser>().ToTable("AspNetUsers");
 
-            entity.HasKey(e => e.Id).HasName("PK__AspNetUs__3214EC078E309BBC");
-
+            entity.HasKey(e => e.Id).HasName("PK_AspNetUsers");
             entity.Property(e => e.Email).HasMaxLength(256);
             entity.Property(e => e.LockoutEnabled).HasDefaultValue(true);
             entity.Property(e => e.NormalizedEmail).HasMaxLength(256);
             entity.Property(e => e.NormalizedUserName).HasMaxLength(256);
             entity.Property(e => e.UserName).HasMaxLength(256);
-
-            entity.HasMany(d => d.Roles).WithMany(p => p.Users)
-                .UsingEntity<Dictionary<string, object>>(
-                    "AspNetUserRole",
-                    r => r.HasOne<ApplicationRole>().WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK_AspNetUserRoles_Roles"),
-                    l => l.HasOne<ApplicationUser>().WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK_AspNetUserRoles_Users"),
-                    j =>
-                    {
-                        j.HasKey("UserId", "RoleId").HasName("PK__AspNetUs__AF2760AD9458BD5D");
-                        j.ToTable("AspNetUserRoles");
-                    });
         });
 
-    //    modelBuilder.Entity<AspNetUserClaim>(entity =>
-    //    {
-    //        entity.HasKey(e => e.Id).HasName("PK__AspNetUs__3214EC07677B5BC0");
+        modelBuilder.Entity<ApplicationRole>(entity =>
+        {
+            modelBuilder.Entity<ApplicationRole>().ToTable("AspNetRoles");
 
-    //        entity.HasOne(d => d.User).WithMany(p => p.AspNetUserClaims)
-    //            .HasForeignKey(d => d.UserId)
-    //            .HasConstraintName("FK__AspNetUse__UserI__558AAF1E");
-    //    });
-
-    //    modelBuilder.Entity<AspNetUserLogin>(entity =>
-    //    {
-    //        entity.HasKey(e => new { e.LoginProvider, e.ProviderKey }).HasName("PK__AspNetUs__2B2C5B52EFF08A85");
-
-    //        entity.Property(e => e.Id)
-    //            .ValueGeneratedOnAdd()
-    //            .HasColumnName("ID");
-
-    //        entity.HasOne(d => d.User).WithMany(p => p.AspNetUserLogins)
-    //            .HasForeignKey(d => d.UserId)
-    //            .HasConstraintName("FK__AspNetUse__UserI__567ED357");
-    //    });
-
-    //    modelBuilder.Entity<AspNetUserToken>(entity =>
-    //    {
-    //        entity.HasKey(e => new { e.UserId, e.LoginProvider, e.Name }).HasName("PK__AspNetUs__8CC49841968C5E5D");
-
-    //        entity.Property(e => e.UserId).ValueGeneratedOnAdd();
-    //    });
+            entity.HasKey(e => e.Id).HasName("PK_AspNetRoles");
+            entity.Property(e => e.Id).HasColumnName("Id"); // Đặt đúng tên cột trong DB
+            entity.Property(e => e.Name).HasMaxLength(256);
+            entity.Property(e => e.NormalizedName).HasMaxLength(256);
+        });
 
        OnModelCreatingPartial(modelBuilder);
     }
