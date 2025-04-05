@@ -31,21 +31,13 @@ instance.interceptors.response.use(function (response) {
 }, function (error) {
 // Any status codes that falls outside the range of 2xx cause this function to trigger
 // Do something with response error
+console.log(error.response)
   if (error && error.response && error.response.data) {
     const errorMessage = error.response.data.ErrorMessage
     const statusCode = error.response.status
 
     switch (statusCode) {
       case 400:
-      case 401:
-        const currentPath = window.location.pathname + window.location.search;
-        localStorage.setItem("prevPage", currentPath);
-        WarningNotify(errorMessage);
-
-        setTimeout(() => {
-          window.location.href = "/đăng nhập"
-        }, 1700);
-        break
       case 404:
         WarningNotify(errorMessage)
         break
@@ -54,6 +46,15 @@ instance.interceptors.response.use(function (response) {
         break
       case 500:
         ErrorNotify(errorMessage)
+        break
+      case 401:
+        const currentPath = window.location.pathname + window.location.search;
+        localStorage.setItem("prevPage", currentPath);
+        WarningNotify(errorMessage);
+  
+        setTimeout(() => {
+          window.location.href = "/đăng nhập"
+        }, 1700);
         break
       default:
         ErrorNotify(errorMessage)

@@ -13,32 +13,18 @@ const Signin = () => {
   const [loginData, setLoginData] = useState({ Email: "", Password: "" })
   const [registerData, setRegisterData] = useState({ fullname: "", phone: "", email: "", password: "" , passwordConfirmed: ""})
   const { login } = useContext(AuthContext)
-  const [token, setToken] = useState(null)
 
-  // Hàm lấy danh sách bác sĩ
-  const fetchDoctors = async () => {
-    try {
-      setLoading(true);
-      const response = await axios.get('/doctors')
-
-      console.log(response.data)
-    } catch (error) {
-      console.error('Lỗi khi lấy danh sách bác sĩ:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
   // Gọi API đăng nhập
   const handleLogin = async (e) => {
     e.preventDefault()
     setLoading(true)
     try {
-      const response = await axios.post("/auth/Signin", { Email: "kiet2908@gmail.com", Password: "2908Tk@" })
-      setToken(response.data.jwtToken)
+      const response = await axios.post("/auth/Signin", loginData)
+
       login(response.data.token, response.data.userName)
       // window.location.href = "/"; // Điều hướng sau khi đăng nhập
     } catch (error) {
-      ErrorNotify(error.response?.data?.message || "Đăng nhập thất bại!")
+      console.log(error)
     }
     setLoading(false)
   }
@@ -49,10 +35,9 @@ const Signin = () => {
     setLoading(true);
     try {
       await axios.post("/auth/register", registerData)
-      SuccessNotify("Đăng ký thành công! Hãy đăng nhập.")
       setIsLogin(true)
     } catch (error) {
-      ErrorNotify(error.response?.data?.message || "Đăng ký thất bại!")
+      console.log(error)
     }
     setLoading(false)
   }
@@ -62,12 +47,12 @@ const Signin = () => {
       {/* Form Đăng Nhập */}
       <Col md={6} className={`auth-section ${isLogin ? "show" : "hide"}`}>
         <h2>Đăng Nhập</h2>
-        <Form className="auth-form">
+        <Form className="auth-form" onSubmit={handleLogin}>
           <Form.Control
             type="email"
             placeholder="Email"
             className="mb-3"
-            value={"kiet2908@gmail.com"}
+            value={loginData.Email}
             onChange={(e) => setLoginData({ ...loginData, Email: e.target.value })}
             required
           />
@@ -75,11 +60,11 @@ const Signin = () => {
             type="password"
             placeholder="Mật khẩu"
             className="mb-3"
-            value={"2908Tk@"}
+            value={loginData.Password}
             onChange={(e) => setLoginData({ ...loginData, Password: e.target.value })}
             required
           />
-          <Button variant="primary" block disabled={loading} onClick={handleLogin}>
+          <Button variant="primary" block disabled={loading} type="submit" >
             {loading ? "Đang xử lý..." : "Đăng Nhập"}
           </Button>
         </Form>
@@ -163,7 +148,6 @@ const Signin = () => {
           {isLogin ? "Đăng ký" : "Đăng nhập"}
         </Button>
       </div>
-      <Button onClick={fetchDoctors}>Click me!</Button>
     </Container>
   )
 }

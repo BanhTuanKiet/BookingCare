@@ -10,7 +10,7 @@ namespace server.Filter
     {
         if (!context.ModelState.IsValid)
         {
-            var errors = context.ModelState.Values.SelectMany(v => v.Errors)
+            var error = context.ModelState.Values.SelectMany(v => v.Errors)
                 .Select(e => e.ErrorMessage)
                 .FirstOrDefault();
             //var errorMessage = string.Join(" | ", errors);
@@ -21,7 +21,8 @@ namespace server.Filter
             //     StatusCode = 400,
             //     ErrorMessage = errorMessage
             // });
-            throw new ErrorHandlingException(400, errors);
+            Console.WriteLine(error);
+            throw new ErrorHandlingException(400, error);
         }
     }
 
