@@ -16,13 +16,7 @@ const NavProvider = ({ children }) => {
       try {
         const response = await axios.get("/specialties");
 
-        const mergedSpecialties = response.data.map((spec) => ({
-          id: spec.specialtyId,
-          name: spec.name,
-          src: images[spec.name],
-        }));
-
-        setSpecialties(mergedSpecialties);
+        setSpecialties(response.data);
       } catch (error) {
         console.error("Lỗi khi lấy danh sách chuyên khoa:", error);
       }

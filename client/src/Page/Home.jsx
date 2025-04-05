@@ -1,38 +1,41 @@
-import React, { useContext, useEffect } from "react"
+import React, { useContext } from "react"
 import { Col, Row, Container } from "react-bootstrap"
-import SpecialtyLogo from "../Component/SpecialtyLogo"
+import images from '../Image/Others/Index'
+import "../Style/Home.css"
 import { NavContext } from "../Context/NavContext"
 import ServiceCarousels from "../Component/ServiceCarousels"
 import DoctorCarousels from "../Component/DoctorCarousels"
-import axios from "../Util/AxiosConfig"
-import "../Style/Home.css"
-import DepartmentCard from "../Component/DepartmentCard"
+import SpecialtyCarousels from "../Component/SpecialtyCarousels"
 
 const Home = () => {
-  const { specialties, services, doctors, HandleNavigation } = useContext(NavContext)
+  const { specialties, services, doctors } = useContext(NavContext);
 
   return (
-    <div>
-      {/* <div className="py-5 text-center">
-        <h1 className="text-primary fw-bold">Chào mừng đến với Phòng Khám ABC</h1>
-        <p className="text-muted">Nơi chăm sóc sức khỏe tận tâm và chuyên nghiệp</p>
-      </div> */}
+    <Row>
+      <div
+        className="specialty-section py-5"
+        style={{
+          backgroundImage: `url(${images.home})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          position: "relative",
+          zIndex: 1,
+        }}
+      >
 
-      <div style={{ backgroundColor: "#e3f1fc" }}>
-        <Row className="mx-auto py-3 w-75">
-          <h5 className="text-primary fw-bold">Chuyên khoa</h5>
-          {specialties.map((specialty, index) => (
-            <Col key={index} xs={12} sm={6} className="specialities d-flex justify-content-center px-2">
-              <div className="bg-white rounded w-100 text-start m-1 p-4 d-flex align-items-center" onClick={() => HandleNavigation("chuyên khoa" , specialty.name)}>
-                <SpecialtyLogo src={specialty.src} />
-                <span className="ms-2">{specialty.name}</span>
-              </div>
-            </Col>
-          ))}
-        </Row>
+          <Container fluid>
+            <Container className="text-center">
+              <h2 className="text-primary fw-bold mb-4">LĨNH VỰC ĐẦU NGÀNH</h2>
+              <p className="mb-5 fw-bold">
+                Bệnh viện DBK ngày nay đã trở thành địa chỉ tin cậy trong chăm sóc điều trị chất lượng cao của nhân dân
+              </p>
+              <SpecialtyCarousels specialties={specialties} />
+            </Container>
+          </Container>
       </div>
 
-      {/* Phần Dịch vụ */}
+      {/* Dịch vụ Section */}
       <div className="service-section py-5">
         <Container>
           <h3 className="text-primary fw-bold text-center">DỊCH VỤ</h3>
@@ -40,25 +43,13 @@ const Home = () => {
         </Container>
       </div>
 
-      {/* Phần Đội ngũ bác sĩ */}
-      {/* <div className="doctor-section py-5" style={{ backgroundColor: "#f5f5f5" }}>
+      {/* Đội ngũ bác sĩ Section */}
+      <div className="doctor-section py-4" style={{ backgroundColor: "#f8f9fa" }}>
         <Container>
-          <h3 className="text-primary fw-bold text-center">ĐỘI NGŨ BÁC SĨ</h3>
           <DoctorCarousels doctors={doctors} />
         </Container>
-      </div> */}
-      <div className="doctor-section py-4" style={{ backgroundColor: "#f8f9fa" }}>
-      <Container>
-        <DoctorCarousels doctors={doctors} />
-      </Container>
-    </div>
-    <DepartmentCard
-  image="https://example.com/khoa.jpg"
-  title="Khoa Y Dược"
-  description="Đào tạo chuyên sâu về Y học hiện đại và cổ truyền."
-/>
-
-    </div>
+      </div>
+    </Row>
   )
 }
 
