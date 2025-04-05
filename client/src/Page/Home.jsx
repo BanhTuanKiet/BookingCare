@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Col, Row, Container } from "react-bootstrap";
 import SpecialtyLogo from "../Component/SpecialtyLogo";
+import images from '../Image/Others/Index'
 import "../Style/Home.css";
 import { NavContext } from "../Context/NavContext";
 import ServiceCarousels from "../Component/ServiceCarousels";
@@ -28,23 +29,34 @@ const Home = () => {
 
   return (
     <div>
-      <div className="py-5 text-center" style={{ backgroundColor: "#007bff", color: "white" }}>
+      {/* <div className="py-5 text-center" style={{ backgroundColor: "#007bff", color: "white" }}>
         <h1 className="fw-bold">Chào mừng đến với Phòng Khám DBK</h1>
         <p className="lead">Nơi chăm sóc sức khỏe tận tâm và chuyên nghiệp</p>
+      </div> */}
+
+      <div
+        className="specialty-section py-5"
+        style={{
+          backgroundImage: `url(${images.home})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          position: "relative",
+          zIndex: 1,
+        }}
+      >
+        
+          <Container fluid>
+            <Container className="text-center">
+              <h2 className="text-primary fw-bold mb-4">LĨNH VỰC ĐẦU NGÀNH</h2>
+              <p className="mb-5 fw-bold">
+                Bệnh viện DBK ngày nay đã trở thành địa chỉ tin cậy trong chăm sóc điều trị chất lượng cao của nhân dân
+              </p>
+              <SpecialtyCarousels specialties={fetchedSpecialties} />
+            </Container>
+          </Container>
       </div>
 
-      <div className="specialty-section py-5" style={{ backgroundColor: "#f8f9fa" }}>
-        {/* Specialty Carousel Section */}
-        <Container fluid className="py-4">
-          <Container className="text-center">
-            <h2 className="text-primary fw-bold mb-4">LĨNH VỰC ĐẦU NGÀNH</h2>
-            <p className="mb-5">
-              Bệnh viện DBK ngày nay đã trở thành địa chỉ tin cậy trong chăm sóc điều trị chất lượng cao của nhân dân
-            </p>
-            <SpecialtyCarousels specialties={fetchedSpecialties} /> {/* Display Specialty Carousel */}
-          </Container>
-        </Container>
-      </div>
       {/* Dịch vụ Section */}
       <div className="service-section py-5">
         <Container>

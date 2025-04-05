@@ -18,6 +18,7 @@ function SpecialtyCard({ specialty }) {
 
     return (
         <div 
+            style={{height: "400px", objectFit: "cover" }}
             className="specialty-card"
             onClick={() => navigate(`/chuyên khoa/${specialty.name}`)} // ✅ Dùng backticks
         >

@@ -84,7 +84,7 @@ const Navigation = () => {
           indicator.style.left = `${navItem.offsetLeft}px`;
           indicator.style.opacity = '1';
         }
-      }, 100);
+      }, 1000);
     }
   }, [location.pathname]);
 
@@ -173,15 +173,16 @@ const Navigation = () => {
             <div className="nav-indicator" ref={indicatorRef}></div>
           </Nav>
           <Nav>
-            {isAuthenticated ? (
-              <Nav.Link onClick={handleLogout} className="btn-login">
-                Đăng xuất
-              </Nav.Link>
-            ) : (
-              <Nav.Link onClick={() => navigate("/Đăng nhập")} className="btn-login">
-                Đăng nhập / Đăng ký
-              </Nav.Link>
-            )}
+          {isAuthenticated ? (
+            <NavDropdown className="btn-login" title={`Xin chào, ${UserName}`} id="user-dropdown" >
+              <NavDropdown.Item onClick={() => navigate("/hồ sơ")}>Hồ sơ</NavDropdown.Item>
+              <NavDropdown.Item onClick={handleLogout}>Đăng xuất</NavDropdown.Item>
+            </NavDropdown>
+          ) : (
+            <Nav.Link onClick={() => navigate("/Đăng nhập")} className="btn-login">
+              Đăng nhập / Đăng ký
+            </Nav.Link>
+          )}
           </Nav>
         </Navbar.Collapse>
       </Container>
