@@ -6,12 +6,14 @@ using server.Models;
 using DotNetEnv;
 using server.Middleware;
 using server.Services;
-using static server.Configs.AutoMapperConfig;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.AspNetCore.Mvc;
 using server.Filter;
-// using server.Filter;
+using System.Text;
+using System.Text.Json;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 Env.Load();
 
@@ -26,22 +28,20 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration["ConnectionStrings:DefaultConnection"] = $"Server={db_server},{db_port};Database={db_name};User Id={user_id};Password={db_password};TrustServerCertificate=True;Connect Timeout=180;";
 
 builder.Services.AddCorsPolicy();
-builder.Services.AddJWT();
 
 // Add services to the container.
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddScoped<ISpecialty, SpecialtyServices>();
-builder.Services.AddScoped<IService,  ServiceServices>();
+builder.Services.AddScoped<IService, ServiceServices>();
 builder.Services.AddScoped<IDoctor, DoctorServices>();
-// builder.Services.AddScoped<SignInManager<ApplicationUser>>();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<ClinicManagementContext>(options =>
     options.UseSqlServer(connectionString, sqlOptions =>
         sqlOptions.EnableRetryOnFailure(
-            maxRetryCount: 5, // Số lần thử lại
-            maxRetryDelay: TimeSpan.FromSeconds(10), // Độ trễ tối đa giữa các lần thử
+            maxRetryCount: 5,
+            maxRetryDelay: TimeSpan.FromSeconds(10),
             errorNumbersToAdd: null)
     )
 );
@@ -49,6 +49,8 @@ builder.Services.AddDbContext<ClinicManagementContext>(options =>
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
     .AddEntityFrameworkStores<ClinicManagementContext>()
     .AddDefaultTokenProviders();
+
+builder.Services.AddJWT(); 
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
@@ -85,21 +87,19 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-app.UseCors("_allowSpecificOrigins");
-// Add errohandling middlware
 app.UseMiddleware<ExceptionHandlingMiddleware>();
-
-// // Configure the HTTP request pipeline.
+app.UseCors("_allowSpecificOrigins");
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
+// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-//    app.UseSwagger();
-//    app.UseSwaggerUI();
+    // app.UseSwagger();
+    // app.UseSwaggerUI();
 }
-app.UseRouting();
-// app.UseHttpsRedirection();
-app.UseAuthorization();
-app.UseAuthentication();
+
 app.MapControllers();
 
 app.Run();

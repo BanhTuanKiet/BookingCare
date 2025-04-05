@@ -1,19 +1,19 @@
-import React, { useState, useContext  } from "react";
-import { Container, Col, Form, Button, InputGroup } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "../Style/Signin.css";
-import axios from '../Util/AxiosConfig';
-import { SuccessNotify, ErrorNotify } from "../Util/ToastConfig";
-import { AuthContext } from "../Context/AuthContext";
-
+import React, { useState, useContext  } from "react"
+import { Container, Col, Form, Button, InputGroup } from "react-bootstrap"
+import "bootstrap/dist/css/bootstrap.min.css"
+import "../Style/Signin.css"
+import axios from '../Util/AxiosConfig'
+import { SuccessNotify, ErrorNotify } from "../Util/ToastConfig"
+import { AuthContext } from "../Context/AuthContext"
 
 const Signin = () => {
-  const [isLogin, setIsLogin] = useState(true);
-  const [showPasswords, setShowPasswords] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [loginData, setLoginData] = useState({ Email: "", Password: "" });
-  const [registerData, setRegisterData] = useState({ fullname: "", phone: "", email: "", password: "" , passwordConfirmed: ""});
-  const { login } = useContext(AuthContext);
+  const [isLogin, setIsLogin] = useState(true)
+  const [showPasswords, setShowPasswords] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [loginData, setLoginData] = useState({ Email: "", Password: "" })
+  const [registerData, setRegisterData] = useState({ fullname: "", phone: "", email: "", password: "" , passwordConfirmed: ""})
+  const { login } = useContext(AuthContext)
+  const [token, setToken] = useState(null)
 
   // Hàm lấy danh sách bác sĩ
   const fetchDoctors = async () => {
@@ -33,15 +33,12 @@ const Signin = () => {
     e.preventDefault()
     setLoading(true)
     try {
-      console.log("Dữ liệu gửi:", loginData)
       const response = await axios.post("/auth/Signin", { Email: "kiet2908@gmail.com", Password: "2908Tk@" })
-      console.log(response.data)
-      SuccessNotify("Đăng nhập thành công!")
-
+      setToken(response.data.jwtToken)
       login(response.data.token, response.data.userName)
-      window.location.href = "/"; // Điều hướng sau khi đăng nhập
+      // window.location.href = "/"; // Điều hướng sau khi đăng nhập
     } catch (error) {
-      ErrorNotify(error.response?.data?.message || "Đăng nhập thất bại!");
+      ErrorNotify(error.response?.data?.message || "Đăng nhập thất bại!")
     }
     setLoading(false)
   }
@@ -51,26 +48,26 @@ const Signin = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post("/auth/register", registerData);
-      SuccessNotify("Đăng ký thành công! Hãy đăng nhập.");
-      setIsLogin(true);
+      await axios.post("/auth/register", registerData)
+      SuccessNotify("Đăng ký thành công! Hãy đăng nhập.")
+      setIsLogin(true)
     } catch (error) {
-      ErrorNotify(error.response?.data?.message || "Đăng ký thất bại!");
+      ErrorNotify(error.response?.data?.message || "Đăng ký thất bại!")
     }
-    setLoading(false);
-  };
+    setLoading(false)
+  }
 
   return (
     <Container className="auth-container">
       {/* Form Đăng Nhập */}
       <Col md={6} className={`auth-section ${isLogin ? "show" : "hide"}`}>
         <h2>Đăng Nhập</h2>
-        <Form className="auth-form" onSubmit={handleLogin}>
+        <Form className="auth-form">
           <Form.Control
             type="email"
             placeholder="Email"
             className="mb-3"
-            value={loginData.Email}
+            value={"kiet2908@gmail.com"}
             onChange={(e) => setLoginData({ ...loginData, Email: e.target.value })}
             required
           />
@@ -78,11 +75,11 @@ const Signin = () => {
             type="password"
             placeholder="Mật khẩu"
             className="mb-3"
-            value={loginData.Password}
+            value={"2908Tk@"}
             onChange={(e) => setLoginData({ ...loginData, Password: e.target.value })}
             required
           />
-          <Button variant="primary" type="submit" block disabled={loading}>
+          <Button variant="primary" block disabled={loading} onClick={handleLogin}>
             {loading ? "Đang xử lý..." : "Đăng Nhập"}
           </Button>
         </Form>
@@ -168,7 +165,7 @@ const Signin = () => {
       </div>
       <Button onClick={fetchDoctors}>Click me!</Button>
     </Container>
-  );
-};
+  )
+}
 
-export default Signin;
+export default Signin

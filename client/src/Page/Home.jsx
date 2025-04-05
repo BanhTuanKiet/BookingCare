@@ -1,23 +1,15 @@
 import React, { useContext, useEffect } from "react"
 import { Col, Row, Container } from "react-bootstrap"
 import SpecialtyLogo from "../Component/SpecialtyLogo"
-import "../Style/Home.css"
 import { NavContext } from "../Context/NavContext"
 import ServiceCarousels from "../Component/ServiceCarousels"
 import DoctorCarousels from "../Component/DoctorCarousels"
 import axios from "../Util/AxiosConfig"
+import "../Style/Home.css"
+import DepartmentCard from "../Component/DepartmentCard"
 
 const Home = () => {
   const { specialties, services, doctors, HandleNavigation } = useContext(NavContext)
-
-  useEffect(() => {
-    const fetchUserRoles = async () => {
-      const response = await axios.get("/auth/getUserRoles")
-
-      console.log(response.data)
-    }
-    fetchUserRoles()
-  }, [])
 
   return (
     <div>
@@ -60,6 +52,12 @@ const Home = () => {
         <DoctorCarousels doctors={doctors} />
       </Container>
     </div>
+    <DepartmentCard
+  image="https://example.com/khoa.jpg"
+  title="Khoa Y Dược"
+  description="Đào tạo chuyên sâu về Y học hiện đại và cổ truyền."
+/>
+
     </div>
   )
 }

@@ -1,10 +1,13 @@
 import { createContext, useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [UserName, setUserName] = useState("");
+    const location = useLocation()
+    const navigate = useNavigate()
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -20,6 +23,12 @@ const AuthProvider = ({ children }) => {
         localStorage.setItem("UserName", name);
         setIsAuthenticated(true);
         setUserName(name);
+
+        setTimeout(() => {
+            const redirectPath = localStorage.getItem("prevPage") || "/";
+            localStorage.removeItem("prevPage");
+            navigate(redirectPath || "/");
+        }, 200);
     };
 
     const logout = () => {
@@ -29,8 +38,12 @@ const AuthProvider = ({ children }) => {
         setUserName("");
     };
 
+    const hanelePrevPage = () => {
+        console.log(location.pathname)
+    }
+
     return (
-        <AuthContext.Provider value={{ isAuthenticated, UserName, login, logout }}>
+        <AuthContext.Provider value={{ isAuthenticated, UserName, login, logout, hanelePrevPage }}>
             {children}
         </AuthContext.Provider>
     );

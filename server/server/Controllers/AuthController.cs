@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using server.DTO;
 using server.Middleware;
 using server.Models;
+using server.Util;
 
 namespace server.Controllers
 {
@@ -22,8 +23,7 @@ namespace server.Controllers
         private readonly IConfiguration _configuration;
         private readonly ClinicManagementContext _context;
 
-        public AuthController(ClinicManagementContext context, IConfiguration configuration, 
-                            SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager)
+        public AuthController(ClinicManagementContext context, IConfiguration configuration, SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager)
         {
             _context = context;
             _configuration = configuration;
@@ -36,8 +36,8 @@ namespace server.Controllers
         {
             var cookies = Request.Cookies;
             var token = cookies["token"];
-                        var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes("uX9#2fB!rT7z$KpV@8dG%qL*eJ4mW!sN^ZbC@1yH");
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Convert.FromBase64String("uXyK3Y2Uaxr6wB8s9WcRfDj1pQ8zLt0N9KzE4fWvMbA=");
 
             tokenHandler.ValidateToken(token, new TokenValidationParameters
             {
@@ -53,15 +53,14 @@ namespace server.Controllers
             // var userEmail = jwtToken.Claims.First(x => x.Type == "email").Value;
             var userRole = jwtToken.Claims.First(x => x.Type == "role").Value;
             var roles = await _userManager.GetRolesAsync(new ApplicationUser { Id = 22 });
-            Console.WriteLine($"UserRole: {userRole}");
+            var email = jwtToken.Claims.First(x => x.Type == "email").Value;
+            Console.WriteLine($"UserRole: {userRole} User Email: {email}");
             return Ok( new { roles = roles, message = "Lấy danh sách role thành công!" });
         }
 
         [HttpPost("Signin")]
         public async Task<IActionResult> Signin([FromBody] SigninForm login)
         {
-            Console.WriteLine($"Login attempt: {JsonSerializer.Serialize(login)}");
-
             if (string.IsNullOrEmpty(login.Email) || string.IsNullOrEmpty(login.Password))
             {
                 return BadRequest(new { message = "Vui lòng nhập đầy đủ thông tin!" });
@@ -76,43 +75,16 @@ namespace server.Controllers
 
             // Kiểm tra mật khẩu
             var isPasswordValid = await _userManager.CheckPasswordAsync(user, login.Password);
+
             if (!isPasswordValid)
             {
                 Console.WriteLine($"Sai mật khẩu: {login.Email}");
                 return Unauthorized(new { message = "Sai mật khẩu!" });
             }
 
-            // Tạo JWT Token
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes("uX9#2fB!rT7z$KpV@8dG%qL*eJ4mW!sN^ZbC@1yH");
-            var claims = new[]
-            {
-                new Claim(ClaimTypes.Name, "ưegwge"),
-                new Claim("email", "nguyenvana@gmail.com"),
-                new Claim(ClaimTypes.Role, "doctor") // Nếu muốn thêm role
-            };
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddHours(1),
-                Issuer = _configuration["Jwt:Issuer"],
-                Audience = _configuration["Jwt:Audience"],
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
+            string jwtToken = JwtUtil.GenerateToken(user, 1, _configuration);
 
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            string jwtToken = tokenHandler.WriteToken(token);
-
-            // Lưu token vào HttpOnly Cookie
-
-            Response.Cookies.Append("token", jwtToken, new CookieOptions
-            {
-                HttpOnly = true,  // Chặn JavaScript truy cập cookie (Bảo mật)
-                Secure = true,    // Chỉ gửi cookie qua HTTPS (Bật khi lên production)
-                SameSite = SameSiteMode.None, // Hỗ trợ gửi cookie khi frontend và backend khác domain
-                Expires = DateTime.UtcNow.AddHours(1),
-                Path = "/" // Cookie áp dụng cho toàn bộ site
-            });
+            CookieUtil.SetCookie(Response, "token", jwtToken, 1);
 
             var role = await _userManager.GetRolesAsync(user);
 
@@ -186,7 +158,7 @@ namespace server.Controllers
         {
             Console.WriteLine(">>> API Signin được gọi");
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes("uX9#2fB!rT7z$KpV@8dG%qL*eJ4mW!sN^ZbC@1yH");
+            var key = Encoding.ASCII.GetBytes("L1vxy4pDz1S6Q5z5X2C3HnA8YbZxJ7pLfX5Kg4Z4pT8=");
             var claims = new[]
             {
             new Claim(ClaimTypes.Name, "ưegwge"),
