@@ -5,8 +5,10 @@ import {Container,Row,Col,Card,Spinner,} from "react-bootstrap";
 import { BsCircleFill } from "react-icons/bs";
 import { BsJournalCheck } from "react-icons/bs";
 import { BsFillBuildingsFill } from "react-icons/bs";
+import serviceImage from "../Image/ServiceImage/Index"
 
 const ServiceDetail = () => {
+  const images = serviceImage;
   const { serviceName } = useParams();
   const [service, setService] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -19,6 +21,7 @@ const ServiceDetail = () => {
   useEffect(() => {
     const fetchServiceDetail = async () => {
       try {
+        
         const response = await axios.get(`/services/detail/${serviceName}`);
         console.log("Data của response data là:", response.data)
           setService(response.data);
@@ -46,11 +49,19 @@ const ServiceDetail = () => {
     <Container fluid>
       {/* Thông tin dịch vụ */}
       <Row className="mx-auto py-3 w-75">
-        <Col md={12} >
+        <Col md={12}>
           <Card className="border-0" >
             <Row>
-              <Col md={8}>
+              <Col md={8} xs={8}>
+              <div>
                 <h3 className="text-primary fw-bold">{service.serviceName}</h3>
+                  <img
+                    src={images[service.serviceName]}
+                    alt={`Hình ảnh của ${service.serviceName}`}
+                    style={{ width: "720px", height: "376.8px" }}
+                  />
+                
+
                 <h5 className="text-primary fw-bold pt-3 pb-1"><BsFillBuildingsFill /> Giới thiệu</h5>
                 <p className="mb-1">
                   {service.description || "Mô tả đang được cập nhật"}
@@ -67,6 +78,7 @@ const ServiceDetail = () => {
                 <p className="mb-1"><BsCircleFill style={{fontSize:"40%", color:"black"}}/> Bước 3: Khách hàng thực hiện theo hướng dẫn của các chuyên gia hàng đầu tại Phòng Khám Đa Khoa XYZ.
                 </p>
                 <p className="mb-1"><BsCircleFill style={{fontSize:"40%", color:"black"}}/> Bước 4: Khách hàng nhận kết quả, gặp bác sĩ để được tư vấn và hướng dẫn bước tiếp theo (nếu có).</p>
+                </div>
               </Col>
 
               <Col md = {2}>
