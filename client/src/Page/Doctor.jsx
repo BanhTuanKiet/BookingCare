@@ -23,7 +23,7 @@ const Doctor = () => {
   const fetchDoctors = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/doctors')
+      const response = await axios.get('/doctors', { withCredentials: true })
 
       const filteredDoctors = response.data.filter(doctor => doctor.doctorId)
       setDoctors(filteredDoctors)
