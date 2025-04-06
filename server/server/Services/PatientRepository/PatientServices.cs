@@ -1,4 +1,3 @@
-﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using server.DTO;
 using server.Models;
@@ -24,6 +23,5 @@ namespace server.Services
 
             return patientDTO;
         }
-
     }
 }

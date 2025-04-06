@@ -13,13 +13,14 @@ import UploadDoctorImage from '../Page/UploadDoctorImage'
 import Login from '../Page/Login'
 import Signin from '../Page/Signin'
 import ServiceDetail from '../Page/ServiceDetail'
+import Profile from '../Page/Profile'
 
 function AppRoute() {
     return (
         <Routes>
             <Route path='/' element={<Index><Home /></Index>} />
             <Route path='/về chúng tôi' element={<Index><About /></Index>} />
-            
+            <Route path='/thông tin cá nhân' element={<Index><Profile /></Index>} />
             {/* Trang chi tiết bác sĩ */}
             <Route path='/bác sĩ' element={<Index><Doctor /></Index>} />
             <Route path='/bac-si/:doctorName' element={<Index><DoctorDetail /></Index>} />

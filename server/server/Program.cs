@@ -34,7 +34,7 @@ builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddScoped<ISpecialty, SpecialtyServices>();
 builder.Services.AddScoped<IService, ServiceServices>();
 builder.Services.AddScoped<IDoctor, DoctorServices>();
-builder.Services.AddScoped<IPatient,PatientServices>();
+builder.Services.AddScoped<IPatient, PatientService>();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
