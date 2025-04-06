@@ -13,7 +13,7 @@ const Navigation = () => {
 
   const indicatorRef = useRef(null);
   const navRefs = useRef([]);
-
+  
   const pages = [
     { name: "Trang chủ", link: "/" },
     { name: "Giới Thiệu", link: "/về chúng tôi" },
@@ -27,16 +27,28 @@ const Navigation = () => {
 
   const [openDropdown, setOpenDropdown] = useState(null);
   const [activeIndex, setActiveIndex] = useState(null);
-  const savedIndexRef = useRef(null); // Lưu vị trí được click cuối cùng
+  const savedIndexRef = useRef(null);
+
+  // CHỈ THAY ĐỔI HÀM NÀY:
+  const normalizePath = (path) => {
+    // decode để chuyển /v%E1%BB%81%20ch%C3%BAng%20t%C3%B4i -> /về chúng tôi
+    // xóa dấu "/" ở cuối nếu có
+    return decodeURIComponent(path).replace(/\/$/, "");
+  };
+
+  const isPageActive = (pageLink) => {
+    const currentPath = normalizePath(location.pathname);
+    const targetPath = normalizePath(pageLink);
+    return currentPath === targetPath ;
+  };
 
   const moveIndicatorTo = (index) => {
     if (indicatorRef.current && navRefs.current[index]) {
       const navItem = navRefs.current[index];
       const indicator = indicatorRef.current;
-
       indicator.style.width = `${navItem.offsetWidth}px`;
       indicator.style.left = `${navItem.offsetLeft}px`;
-      indicator.style.opacity = '1';
+      indicator.style.opacity = "1";
     }
   };
 
@@ -54,22 +66,15 @@ const Navigation = () => {
 
   const handleClick = (index, link) => {
     savedIndexRef.current = index;
-    console.log(index)
-    console.log(index)
     setActiveIndex(index);
     navigate(link);
   };
 
   useEffect(() => {
-    const currentIndex = pages.findIndex(page => 
-      location.pathname === page.link || 
-      (page.link !== "/" && location.pathname.startsWith(page.link))
-    );
-
+    const currentIndex = pages.findIndex((page) => isPageActive(page.link));
     if (currentIndex !== -1) {
       savedIndexRef.current = currentIndex;
       setActiveIndex(currentIndex);
-
       setTimeout(() => {
         moveIndicatorTo(currentIndex);
       }, 300);
@@ -79,11 +84,6 @@ const Navigation = () => {
   const handleLogout = () => {
     logout();
     navigate("/");
-  };
-
-  const isPageActive = (pageLink) => {
-    return location.pathname === pageLink || 
-           (pageLink !== "/" && location.pathname.startsWith(pageLink));
   };
 
   const RenderNav = () => {
@@ -99,8 +99,8 @@ const Navigation = () => {
             show={openDropdown === index}
             onMouseEnter={() => handleMouseEnter(index)}
             onMouseLeave={handleMouseLeave}
-            className={`drop-item nav-item ${isActive ? 'active' : ''}`}
-            ref={el => navRefs.current[index] = el}
+            className={`drop-item nav-item ${isActive ? "active" : ""}`}
+            ref={(el) => (navRefs.current[index] = el)}
           >
             {index === 3 ? RenderSpecialties() : RenderServices()}
           </NavDropdown>
@@ -110,11 +110,11 @@ const Navigation = () => {
       return (
         <Nav.Link
           key={index}
-          className={`nav ${isActive ? 'active' : ''}`}
+          className={`nav ${isActive ? "active" : ""}`}
           onMouseEnter={() => handleMouseEnter(index)}
           onMouseLeave={handleMouseLeave}
           onClick={() => handleClick(index, page.link)}
-          ref={el => navRefs.current[index] = el}
+          ref={(el) => (navRefs.current[index] = el)}
         >
           {page.name}
         </Nav.Link>
@@ -124,8 +124,8 @@ const Navigation = () => {
 
   const RenderSpecialties = () => {
     return specialties.map((speciality, index) => (
-      <NavDropdown.Item 
-        key={index} 
+      <NavDropdown.Item
+        key={index}
         onClick={() => {
           HandleNavigation("chuyên khoa", speciality.name);
           savedIndexRef.current = 3;
@@ -135,11 +135,11 @@ const Navigation = () => {
       </NavDropdown.Item>
     ));
   };
-  
+
   const RenderServices = () => {
     return services.map((service, index) => (
-      <NavDropdown.Item 
-        key={index} 
+      <NavDropdown.Item
+        key={index}
         onClick={() => {
           HandleNavigation("dịch vụ", service.serviceName);
           savedIndexRef.current = 4;
@@ -149,14 +149,11 @@ const Navigation = () => {
       </NavDropdown.Item>
     ));
   };
-  
 
   return (
     <Navbar expand="lg" className="bg-info-subtle py-2">
       <Container className="w-75 mx-auto">
-        <Navbar.Brand href="/">
-          {/* Logo */}
-        </Navbar.Brand>
+        <Navbar.Brand href="/">{/* Logo */}</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto position-relative">
@@ -165,12 +162,23 @@ const Navigation = () => {
           </Nav>
           <Nav>
             {isAuthenticated ? (
-              <NavDropdown className="btn-login" title={`Xin chào, ${UserName}`} id="user-dropdown" >
-                <NavDropdown.Item onClick={() => navigate("/hồ sơ")}>Hồ sơ</NavDropdown.Item>
-                <NavDropdown.Item onClick={handleLogout}>Đăng xuất</NavDropdown.Item>
+              <NavDropdown
+                className="btn-login"
+                title={`Xin chào, ${UserName}`}
+                id="user-dropdown"
+              >
+                <NavDropdown.Item onClick={() => navigate("/hồ sơ")}>
+                  Hồ sơ
+                </NavDropdown.Item>
+                <NavDropdown.Item onClick={handleLogout}>
+                  Đăng xuất
+                </NavDropdown.Item>
               </NavDropdown>
             ) : (
-              <Nav.Link onClick={() => navigate("/Đăng nhập")} className="btn-login">
+              <Nav.Link
+                onClick={() => navigate("/Đăng nhập")}
+                className="btn-login"
+              >
                 Đăng nhập / Đăng ký
               </Nav.Link>
             )}
