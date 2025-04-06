@@ -25,6 +25,9 @@ namespace server.Configs
                 ));
 
             CreateMap<Service, ServiceDTO.ServiceDetail>();
+
+            CreateMap<Patient, PatientDTO.PatientBasic>()
+                .ForMember(dest => dest.UserName, m => m.MapFrom(source => source.User.UserName));
         }
     }
 }

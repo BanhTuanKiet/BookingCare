@@ -9,15 +9,16 @@ function Appointment() {
   const [specialty, setSpecialty] = useState()
   const [doctors, setDoctors] = useState()
 
-  useEffect(() => {
-    if (specialties.length > 0) {
-      setSpecialty(specialties[0].name)
-    }
-  }, [specialties])
+  // useEffect(() => {
+  //   if (specialties.length > 0) {
+  //     setSpecialty(specialties[0].name)
+  //   }
+  // }, [specialties])
 
   useEffect(() => {
     const fetchDoctors =  async () => {
       const response = await axios.get(`/doctors/${specialty}`)
+      console.log(response.data)
       setDoctors(response.data)
     }
 
@@ -26,6 +27,10 @@ function Appointment() {
   
   const handleChange = (event) => {
     let value = event.target.value
+
+    if (event.target.name === "department") {
+      setSpecialty(value)
+    }
 
     if (event.target.name === "gender") {
       value = value === "true"
@@ -36,6 +41,7 @@ function Appointment() {
 
   const submit = async () => {
     try {
+      console.log(formData)
       const response = await axios.post("/appointments", formData)
       console.log(response)
     } catch (error) {
@@ -58,7 +64,6 @@ function Appointment() {
 
       <div className="border rounded overflow-hidden">
         <Row className="m-0 p-0">
-          {/* Left side - Blue background with instructions */}
           <Col md={4} className="p-4 text-white" style={{ backgroundColor: "#0091ea" }}>
             <h5>Lưu ý:</h5>
             <div>
@@ -84,7 +89,7 @@ function Appointment() {
             </p>
 
             <Form>
-              <Row className="mb-3">
+              {/* <Row className="mb-3">
                 <Col md={6}>
                   <Form.Group className="mb-3">
                     <Form.Control type="text" placeholder="Họ và tên" name="name" onChange={handleChange} />
@@ -95,9 +100,9 @@ function Appointment() {
                     <Form.Control type="email" placeholder="Email" name="email" onChange={handleChange} />
                   </Form.Group>
                 </Col>
-              </Row>
+              </Row> */}
 
-              <Row className="mb-3">
+              {/* <Row className="mb-3">
                 <Col md={6}>
                   <Form.Group className="mb-3">
                     <Form.Control
@@ -114,22 +119,23 @@ function Appointment() {
                     <Form.Control type="tel" placeholder="Số điện thoại" name="phoneNumber" onChange={handleChange} />
                   </Form.Group>
                 </Col>
-              </Row>
+              </Row> */}
 
-              <Form.Group className="mb-3">
+              {/* <Form.Group className="mb-3">
                 <Form.Select name="gender" onChange={handleChange}>
                   <option>Giới tính</option>
                   <option value={true}>Nam</option>
                   <option value={false}>Nữ</option>
                 </Form.Select>
-              </Form.Group>
+              </Form.Group> */}
 
-              <Form.Group className="mb-3">
+              {/* <Form.Group className="mb-3">
                 <Form.Control type="text" placeholder="Địa chỉ" name="address" onChange={handleChange} />
-              </Form.Group>
+              </Form.Group> */}
 
               <Form.Group className="mb-3">
-                <Form.Select name="department" onChange={(e) => setSpecialty(e.target.value)}>
+                <Form.Select name="department" onChange={handleChange}>
+                  <option>Chọn chuyên khoa</option>
                   {specialties.map((specialty, index) => (
                     <option key={index} value={specialty.name}>
                       {specialty.name}
@@ -140,6 +146,7 @@ function Appointment() {
 
               <Form.Group className="mb-3">
                 <Form.Select name="doctor" onChange={handleChange}>
+                  <option>Chọn bác sĩ</option>
                   {doctors?.map((doctor, index) => (
                     <option key={index}>{doctor.userName}</option>
                   ))}
@@ -182,12 +189,7 @@ function Appointment() {
               <div className="text-end">
                 <Button
                   onClick={submit}
-                  className="px-5 py-2"
-                  style={{
-                    backgroundColor: "#4dabf7",
-                    border: "none",
-                    borderRadius: "20px",
-                  }}
+                  className="px-5 py-2 border-0 rounded-5" style={{backgroundColor: "#4dabf7"}}
                 >
                   GỬI
                 </Button>
