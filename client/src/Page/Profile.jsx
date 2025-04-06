@@ -1,61 +1,48 @@
-import React, { useEffect, useState, useContext } from "react";
-import axios from "../Util/AxiosConfig";
-import { useParams } from "react-router-dom";
+import React, { useEffect, useState, useContext } from "react"
+import axios from "../Util/AxiosConfig"
 import { AuthContext } from "../Context/AuthContext";
-import { Container, Row, Col, Card, Table, Badge, Button, Spinner, Alert } from "react-bootstrap";
+import { Container, Row, Col, Card, Table, Badge, Spinner } from "react-bootstrap"
 
 const PatientProfile = () => {
-  const [patientInfo, setPatientInfo] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const { UserName } = useContext(AuthContext);
+  const [patientInfo, setPatientInfo] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const { UserName } = useContext(AuthContext)
 
   useEffect(() => {
     const fetchPatientInfo = async () => {
       try {
-        const UserId = 26;
-        setLoading(true);
-        // Sửa lại URL để thêm prefix /api và đảm bảo kết nối đúng endpoint
-        const response = await axios.get(`/patients/user/${UserId}`);
-        console.log("Patient Info:", response.data);
-        setPatientInfo(response.data);
-        setError(null);
+        setLoading(true)
+        const response = await axios.get(`/patients/user`)
+        console.log("Patient Info:", response.data)
+        setPatientInfo(response.data)
       } catch (error) {
-        console.error("Error fetching patient information:", error);
-        setError(error.response?.data?.message || "Không thể tải thông tin bệnh nhân");
+        console.error("Error fetching patient information:", error)
         // Still set patientInfo to null to show empty form
-        setPatientInfo(null);
+        setPatientInfo(null)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
-
-    if (UserName) {
-      fetchPatientInfo();
-    } else {
-      // Nếu không có UserName, kết thúc loading state và hiển thị form trống
-      setLoading(false);
-      setError("Không tìm thấy thông tin đăng nhập");
     }
-  }, [UserName]);
+
+      fetchPatientInfo()
+  }, [UserName])
 
   // Calculate age from date of birth if available
   const calculateAge = (dateOfBirth) => {
-    if (!dateOfBirth) return "N/A";
+    if (!dateOfBirth) return "N/A"
     
-    const dob = new Date(dateOfBirth);
-    const today = new Date();
-    let age = today.getFullYear() - dob.getFullYear();
-    const monthDiff = today.getMonth() - dob.getMonth();
+    const dob = new Date(dateOfBirth)
+    const today = new Date()
+    let age = today.getFullYear() - dob.getFullYear()
+    const monthDiff = today.getMonth() - dob.getMonth()
     
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
-      age--;
+      age--
     }
     
-    return age;
-  };
+    return age
+  }
 
-  // Loading state
   if (loading) {
     return (
       <Container className="d-flex align-items-center justify-content-center" style={{ minHeight: "60vh" }}>
@@ -66,21 +53,11 @@ const PatientProfile = () => {
           <p className="mt-3">Đang tải thông tin bệnh nhân...</p>
         </div>
       </Container>
-    );
+    )
   }
 
-  // Render the form skeleton with empty fields or actual data if available
   return (
     <Container className="py-4">
-      {error && (
-        <Alert variant="danger" className="mb-3 py-2">
-          <small>
-            <i className="me-2 bi bi-exclamation-triangle-fill"></i>
-            {error}
-          </small>
-        </Alert>
-      )}
-      
       <Card className="border-0 shadow w-75 mx-auto">
         <Card.Header className="bg-primary text-white p-3">
           <h4 className="mb-0 fw-bold">Thông Tin Cá Nhân</h4>
@@ -180,21 +157,10 @@ const PatientProfile = () => {
             </Col>
           </Row>
           
-          {error && (
-            <div className="mt-3 text-center">
-              <Button 
-                variant="outline-primary"
-                size="sm"
-                onClick={() => window.location.reload()}
-              >
-                Thử lại tải dữ liệu
-              </Button>
-            </div>
-          )}
         </Card.Body>
       </Card>
     </Container>
-  );
-};
+  )
+}
 
-export default PatientProfile;
+export default PatientProfile

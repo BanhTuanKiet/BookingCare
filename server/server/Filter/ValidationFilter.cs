@@ -13,17 +13,21 @@ namespace server.Filter
             var error = context.ModelState.Values.SelectMany(v => v.Errors)
                 .Select(e => e.ErrorMessage)
                 .FirstOrDefault();
-            //var errorMessage = string.Join(" | ", errors);
+                //var errorMessage = string.Join(" | ", errors);
 
-            // Trả về lỗi 400 với thông điệp lỗi
-            // context.Result = new BadRequestObjectResult(new
-            // {
-            //     StatusCode = 400,
-            //     ErrorMessage = errorMessage
-            // });
-            Console.WriteLine(error);
-            throw new ErrorHandlingException(400, error);
-        }
+                // Trả về lỗi 400 với thông điệp lỗi
+                // context.Result = new BadRequestObjectResult(new
+                // {
+                //     StatusCode = 400,
+                //     ErrorMessage = errorMessage
+                // });
+                context.Result = new BadRequestObjectResult(new
+                {
+                    ErrorMessage = error
+                });
+
+                return;
+            }
     }
 
         

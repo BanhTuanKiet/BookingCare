@@ -33,7 +33,7 @@ instance.interceptors.response.use(function (response) {
 // Do something with response error
 console.log(error.response)
   if (error && error.response && error.response.data) {
-    const errorMessage = error.response.data.ErrorMessage
+    const errorMessage = error.response.data.ErrorMessage || error.response.data.errorMessage
     const statusCode = error.response.status
 
     switch (statusCode) {
