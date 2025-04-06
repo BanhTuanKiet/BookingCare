@@ -108,3 +108,18 @@
 .see-more-button:hover {
   background-color: #00a8b0;
 }
+
+
+.custom-service-card {
+  display: flex;
+  flex-direction: column;
+  height: 26rem; /* giữ nguyên */
+}
+
+.card-body-custom {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1;
+}
+

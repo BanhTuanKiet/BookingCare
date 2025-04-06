@@ -16,10 +16,8 @@ const ServiceCard = ({ service }) => {
   };
 
   return (
-    <div
-      className="custom-card-wrapper"
-    >
-      <Card className="custom-service-card">
+    <div className="custom-card-wrapper" onClick={() => navigate(`/dịch vụ/${service.serviceName}`)}>
+      <Card className="custom-service-card" style={{height:'414.6px', width: '272px'}}>
         <div className="image-container">
           <Card.Img
             variant="top"
@@ -30,35 +28,32 @@ const ServiceCard = ({ service }) => {
         </div>
 
         <div className="service-icon-wrapper custom-service-image">
-            <img
-              src={serviceImage}
-              alt={service.serviceName}
-              className="service-icon-img"
-            />
+          <img
+            src={serviceImage}
+            alt={service.serviceName}
+            className="service-icon-img"
+          />
+        </div>
+
+        <Card.Body className="card-body-custom text-center px-3 d-flex flex-column justify-content-between">
+          <div>
+            <Card.Text className="fw-bold card-title text-primary">
+              {service.serviceName}
+            </Card.Text>
+            <Card.Text className="card-description">
+              {truncateText(service.description, 15)}
+            </Card.Text>
           </div>
 
-          <Card.Body className="text-center p-30 flex-column justify-content-between">
-          
-            <div>
-              <Card.Text className="fw-bold card-title text-primary">
-                {service.serviceName}
-              </Card.Text>
-              <Card.Text className="card-description p-10">
-                {truncateText(service.description, 15)}
-              </Card.Text>
-            </div>
-
-            <Button
-              variant="info"
-              className="see-more-button mt-3"
-              onClick={() => navigate(`/dịch vụ/${service.serviceName}`)}
-            >
-              Xem thêm
-            </Button>
-          </Card.Body>
-        </Card>
-        
-      </div>
+          <Button
+            variant="info"
+            className="button-end see-more-button mt-3"
+          >
+            Xem thêm
+          </Button>
+        </Card.Body>
+      </Card>
+    </div>
   );
 };
 
