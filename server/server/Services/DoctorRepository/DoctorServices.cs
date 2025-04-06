@@ -34,7 +34,7 @@ namespace server.Services
 
         public async Task<List<DoctorDTO.DoctorBasic>> GetDoctorsBySpecialty(string specialtyName)
         {
-            var doctors = await _context.Doctors.Where(d => d.Specialty.Name == specialtyName).ToListAsync();
+            var doctors = await _context.Doctors.Include(doctor => doctor.User).Where(d => d.Specialty.Name == specialtyName).ToListAsync();
 
             var doctorDTOs = _mapper.Map<List<DoctorDTO.DoctorBasic>>(doctors);
 
