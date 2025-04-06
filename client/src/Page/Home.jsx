@@ -11,7 +11,12 @@ const Home = () => {
   const { specialties, services, doctors } = useContext(NavContext);
 
   return (
-    <Row>
+    <div>
+      {/* <div className="py-5 text-center" style={{ backgroundColor: "#007bff", color: "white" }}>
+        <h1 className="fw-bold">Chào mừng đến với Phòng Khám DBK</h1>
+        <p className="lead">Nơi chăm sóc sức khỏe tận tâm và chuyên nghiệp</p>
+      </div> */}
+
       <div
         className="specialty-section py-5"
         style={{
@@ -52,12 +57,12 @@ const Home = () => {
           position: "relative",
           zIndex: 0,
         }}>
-        <Container>
+          <Container>
           <DoctorCarousels doctors={doctors} />
         </Container>
       </div>
-    </Row>
-  )
-}
+    </div>
+  );
+};
 
-export default Home
+export default Home;
