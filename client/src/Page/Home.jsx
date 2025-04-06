@@ -25,10 +25,10 @@ const Home = () => {
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
           position: "relative",
-          zIndex: -11,
+          zIndex: 0,
         }}
       >
-
+        
           <Container fluid>
             <Container className="text-center">
               <h2 className="text-primary fw-bold mb-4">LĨNH VỰC ĐẦU NGÀNH</h2>

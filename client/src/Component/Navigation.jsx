@@ -166,6 +166,7 @@ const Navigation = () => {
                 className="btn-login"
                 title={`Xin chào, ${UserName}`}
                 id="user-dropdown"
+                style={{ zIndex: 1,}}
               >
                 <NavDropdown.Item onClick={() => navigate("/thông tin cá nhân")}>
                   Hồ sơ
