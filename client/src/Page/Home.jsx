@@ -20,7 +20,7 @@ const Home = () => {
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
           position: "relative",
-          zIndex: 0,
+          zIndex: -11,
         }}
       >
 
@@ -44,7 +44,14 @@ const Home = () => {
       </div>
 
       {/* Đội ngũ bác sĩ Section */}
-      <div className="doctor-section py-4" style={{ backgroundColor: "#f8f9fa" }}>
+      <div className="doctor-section py-4" style={{
+          backgroundImage: `url(${images.banner2})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          position: "relative",
+          zIndex: 0,
+        }}>
         <Container>
           <DoctorCarousels doctors={doctors} />
         </Container>

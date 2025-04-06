@@ -42,7 +42,7 @@ function DoctorCarousels({ doctors }) {
   const activeDoctor = doctors[activeIndex]
 
   return (
-    <div className="doctor-section py-0 w-75 mx-auto" style={{ backgroundColor: "#f8f9fa" }}>
+    <div className="doctor-section py-0 w-75 mx-auto" >
       <Container>
         <div className="mb-5">
           <h2 className="text-center fw-bold" style={{ color: "#1a56a8", fontSize: "2.5rem" }}>

@@ -10,8 +10,7 @@ const Navigation = () => {
   const navigate = useNavigate();
   const { isAuthenticated, UserName, logout } = useContext(AuthContext);
   const { specialties, services, HandleNavigation } = useContext(NavContext);
-  
-  // Reference for the underline indicator
+
   const indicatorRef = useRef(null);
   const navRefs = useRef([]);
   
@@ -26,109 +25,70 @@ const Navigation = () => {
     { name: "Liên hệ", link: "/liên hệ" },
   ];
 
-  const [triggerHoverEffect, setTriggerHoverEffect] = useState(false);
-
-
-  // State to control dropdown
   const [openDropdown, setOpenDropdown] = useState(null);
   const [activeIndex, setActiveIndex] = useState(null);
+  const savedIndexRef = useRef(null);
 
-  const handleMouseEnter = (index) => {
-    setOpenDropdown(index);
-    
-    // Position the indicator under the hovered item
+  // CHỈ THAY ĐỔI HÀM NÀY:
+  const normalizePath = (path) => {
+    // decode để chuyển /v%E1%BB%81%20ch%C3%BAng%20t%C3%B4i -> /về chúng tôi
+    // xóa dấu "/" ở cuối nếu có
+    return decodeURIComponent(path).replace(/\/$/, "");
+  };
+
+  const isPageActive = (pageLink) => {
+    const currentPath = normalizePath(location.pathname);
+    const targetPath = normalizePath(pageLink);
+    return currentPath === targetPath ;
+  };
+
+  const moveIndicatorTo = (index) => {
     if (indicatorRef.current && navRefs.current[index]) {
       const navItem = navRefs.current[index];
       const indicator = indicatorRef.current;
-      
       indicator.style.width = `${navItem.offsetWidth}px`;
       indicator.style.left = `${navItem.offsetLeft}px`;
-      indicator.style.opacity = '1';
+      indicator.style.opacity = "1";
     }
+  };
+
+  const handleMouseEnter = (index) => {
+    setOpenDropdown(index);
+    moveIndicatorTo(index);
   };
 
   const handleMouseLeave = () => {
     setOpenDropdown(null);
-    
-    // Reset indicator based on current active page
-    const currentIndex = pages.findIndex(page => 
-      location.pathname === page.link || 
-      (page.link !== "/" && location.pathname.startsWith(page.link))
-    );
-    
-    if (indicatorRef.current && currentIndex !== -1 && navRefs.current[currentIndex]) {
-      // Keep indicator under current active page
-      const navItem = navRefs.current[currentIndex];
-      const indicator = indicatorRef.current;
-      
-      indicator.style.width = `${navItem.offsetWidth}px`;
-      indicator.style.left = `${navItem.offsetLeft}px`;
-      indicator.style.opacity = '1';
+    if (savedIndexRef.current !== null) {
+      moveIndicatorTo(savedIndexRef.current);
     }
   };
 
-  // Initialize active item based on current location
+  const handleClick = (index, link) => {
+    savedIndexRef.current = index;
+    setActiveIndex(index);
+    navigate(link);
+  };
+
   useEffect(() => {
-    const currentIndex = pages.findIndex(page =>
-      location.pathname === page.link ||
-      (page.link !== "/" && location.pathname.startsWith(page.link))
-    );
+    const currentIndex = pages.findIndex((page) => isPageActive(page.link));
     if (currentIndex !== -1) {
+      savedIndexRef.current = currentIndex;
       setActiveIndex(currentIndex);
-      requestAnimationFrame(() => {
-        if (indicatorRef.current && navRefs.current[currentIndex]) {
-          const navItem = navRefs.current[currentIndex];
-          const indicator = indicatorRef.current;
-  
-          indicator.style.width = `${navItem.offsetWidth}px`;
-          indicator.style.left = `${navItem.offsetLeft}px`;
-          indicator.style.opacity = '1';
-        }
-      });
+      setTimeout(() => {
+        moveIndicatorTo(currentIndex);
+      }, 300);
     }
   }, [location.pathname]);
-  
+
   const handleLogout = () => {
     logout();
     navigate("/");
   };
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      const index = pages.length; // vì login nằm ngoài danh sách pages
-      setTriggerHoverEffect(true);
-  
-      // Position indicator under login button
-      setTimeout(() => {
-        if (indicatorRef.current && navRefs.current[index]) {
-          const navItem = navRefs.current[index];
-          const indicator = indicatorRef.current;
-  
-          indicator.style.width = `${navItem.offsetWidth}px`;
-          indicator.style.left = `${navItem.offsetLeft}px`;
-          indicator.style.opacity = '1';
-        }
-      }, 200); // delay nhỏ để đảm bảo ref sẵn sàng
-  
-      // Remove effect after 3s
-      const timer = setTimeout(() => {
-        setTriggerHoverEffect(false);
-        indicatorRef.current.style.opacity = '0';
-      }, 3000);
-  
-      return () => clearTimeout(timer);
-    }
-  }, [isAuthenticated]);
-  
-
-  const isPageActive = (pageLink) => {
-    return location.pathname === pageLink || 
-           (pageLink !== "/" && location.pathname.startsWith(pageLink));
-  }
-
   const RenderNav = () => {
     return pages.map((page, index) => {
-      const isActive = isPageActive(page.link)
+      const isActive = isPageActive(page.link);
 
       if (index === 3 || index === 4) {
         return (
@@ -139,8 +99,8 @@ const Navigation = () => {
             show={openDropdown === index}
             onMouseEnter={() => handleMouseEnter(index)}
             onMouseLeave={handleMouseLeave}
-            className={`drop-item nav-item ${isActive ? 'active' : ''}`}
-            ref={el => navRefs.current[index] = el}
+            className={`drop-item nav-item ${isActive ? "active" : ""}`}
+            ref={(el) => (navRefs.current[index] = el)}
           >
             {index === 3 ? RenderSpecialties() : RenderServices()}
           </NavDropdown>
@@ -150,11 +110,11 @@ const Navigation = () => {
       return (
         <Nav.Link
           key={index}
-          href={page.link}
-          className={`nav ${isActive ? 'active' : ''}`}
+          className={`nav ${isActive ? "active" : ""}`}
           onMouseEnter={() => handleMouseEnter(index)}
           onMouseLeave={handleMouseLeave}
-          ref={el => navRefs.current[index] = el}
+          onClick={() => handleClick(index, page.link)}
+          ref={(el) => (navRefs.current[index] = el)}
         >
           {page.name}
         </Nav.Link>
@@ -164,9 +124,12 @@ const Navigation = () => {
 
   const RenderSpecialties = () => {
     return specialties.map((speciality, index) => (
-      <NavDropdown.Item 
-        key={index} 
-        onClick={() => HandleNavigation("chuyên khoa", speciality.name)}
+      <NavDropdown.Item
+        key={index}
+        onClick={() => {
+          HandleNavigation("chuyên khoa", speciality.name);
+          savedIndexRef.current = 3;
+        }}
       >
         {speciality.name}
       </NavDropdown.Item>
@@ -175,9 +138,12 @@ const Navigation = () => {
 
   const RenderServices = () => {
     return services.map((service, index) => (
-      <NavDropdown.Item 
-        key={index} 
-        onClick={() => HandleNavigation("dịch vụ", service.serviceName)}
+      <NavDropdown.Item
+        key={index}
+        onClick={() => {
+          HandleNavigation("dịch vụ", service.serviceName);
+          savedIndexRef.current = 4;
+        }}
       >
         {service.serviceName}
       </NavDropdown.Item>
@@ -187,13 +153,7 @@ const Navigation = () => {
   return (
     <Navbar expand="lg" className="bg-info-subtle py-2">
       <Container className="w-75 mx-auto">
-        <Navbar.Brand href="/" className="">
-          {/* <div className="logo-container">
-            <div className="heart-logo">
-              <span className="text-primary fw-bold">DBK</span>
-            </div>
-          </div> */}
-        </Navbar.Brand>
+        <Navbar.Brand href="/">{/* Logo */}</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto position-relative">
@@ -201,22 +161,27 @@ const Navigation = () => {
             <div className="nav-indicator" ref={indicatorRef}></div>
           </Nav>
           <Nav>
-          {isAuthenticated ? (
-            <NavDropdown
-              className={`btn-login ${triggerHoverEffect ? 'hovered' : ''}`}
-              title={`Xin chào, ${UserName}`}
-              id="user-dropdown"
-              ref={(el) => (navRefs.current[pages.length] = el)}
-            >
-
-              <NavDropdown.Item onClick={() => navigate("/hồ sơ")}>Hồ sơ</NavDropdown.Item>
-              <NavDropdown.Item onClick={handleLogout}>Đăng xuất</NavDropdown.Item>
-            </NavDropdown>
-          ) : (
-            <Nav.Link onClick={() => navigate("/Đăng nhập")} className="btn-login">
-              Đăng nhập / Đăng ký
-            </Nav.Link>
-          )}
+            {isAuthenticated ? (
+              <NavDropdown
+                className="btn-login"
+                title={`Xin chào, ${UserName}`}
+                id="user-dropdown"
+              >
+                <NavDropdown.Item onClick={() => navigate("/hồ sơ")}>
+                  Hồ sơ
+                </NavDropdown.Item>
+                <NavDropdown.Item onClick={handleLogout}>
+                  Đăng xuất
+                </NavDropdown.Item>
+              </NavDropdown>
+            ) : (
+              <Nav.Link
+                onClick={() => navigate("/Đăng nhập")}
+                className="btn-login"
+              >
+                Đăng nhập / Đăng ký
+              </Nav.Link>
+            )}
           </Nav>
         </Navbar.Collapse>
       </Container>
