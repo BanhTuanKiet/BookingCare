@@ -3,7 +3,6 @@ import { Container, Col, Form, Button, InputGroup } from "react-bootstrap"
 import "bootstrap/dist/css/bootstrap.min.css"
 import "../Style/Signin.css"
 import axios from '../Util/AxiosConfig'
-import { SuccessNotify, ErrorNotify } from "../Util/ToastConfig"
 import { AuthContext } from "../Context/AuthContext"
 
 const Signin = () => {
@@ -22,7 +21,6 @@ const Signin = () => {
       const response = await axios.post("/auth/Signin", loginData)
 
       login(response.data.token, response.data.userName)
-      // window.location.href = "/"; // Điều hướng sau khi đăng nhập
     } catch (error) {
       console.log(error)
     }

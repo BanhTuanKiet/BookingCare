@@ -32,33 +32,6 @@ namespace server.Controllers
             _userManager = userManager;
         }
 
-        [HttpGet("getUserRoles")]
-        public async Task<ActionResult> GetUserRoles()
-        {
-            var cookies = Request.Cookies;
-            var token = cookies["token"];
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Convert.FromBase64String("uXyK3Y2Uaxr6wB8s9WcRfDj1pQ8zLt0N9KzE4fWvMbA=");
-
-            tokenHandler.ValidateToken(token, new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                ClockSkew = TimeSpan.Zero
-            }, out SecurityToken validatedToken);
-
-            var jwtToken = (JwtSecurityToken)validatedToken;
-            // var userId = int.Parse(jwtToken.Claims.First(x => x.Type == "id").Value);
-            // var userEmail = jwtToken.Claims.First(x => x.Type == "email").Value;
-            var userRole = jwtToken.Claims.First(x => x.Type == "role").Value;
-            var roles = await _userManager.GetRolesAsync(new ApplicationUser { Id = 22 });
-            var email = jwtToken.Claims.First(x => x.Type == "email").Value;
-            Console.WriteLine($"UserRole: {userRole} User Email: {email}");
-            return Ok( new { roles = roles, message = "Lấy danh sách role thành công!" });
-        }
-
         [HttpPost("Signin")]
         public async Task<IActionResult> Signin([FromBody] SigninForm login)
         {
@@ -72,16 +45,15 @@ namespace server.Controllers
                 Console.WriteLine($"Sai mật khẩu: {login.Email}");
                 throw new ErrorHandlingException(400, "Sai mật khẩu!");
             }
+            
+            IList<string> roles = await _userManager.GetRolesAsync(user);
 
-            string jwtToken = JwtUtil.GenerateToken(user, 1, _configuration);
-
+            string jwtToken = JwtUtil.GenerateToken(user, roles, 1, _configuration);
+        
             CookieUtil.SetCookie(Response, "token", jwtToken, 1);
 
-            var role = await _userManager.GetRolesAsync(user);
-
-            return Ok(new { message = "Đăng nhập thành công!" , UserName = user.UserName, role = role, jwtToken = jwtToken });
+            return Ok(new { message = "Đăng nhập thành công!" , UserName = user.UserName });
         }
-
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegistryForm user)

@@ -8,17 +8,20 @@ namespace server.Util
 {
     public static class JwtUtil
     {
-        public static string GenerateToken(ApplicationUser user, int timeExp, IConfiguration _configuration)
+        public static string GenerateToken(ApplicationUser user, IList<string> roles, int timeExp, IConfiguration _configuration)
         {
             var key = Encoding.UTF8.GetBytes("MộtPassphraseDàiÍtNhất32KýTự1234567890");
-            Console.WriteLine(key);
             var tokenHandler = new JwtSecurityTokenHandler();
-            var claims = new[]
+            var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, "BanhTuanKiet"),
-                new Claim(ClaimTypes.Email, "kiet2908@gmail.com"),
-                new Claim(ClaimTypes.Role, "doctor")
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             };
+
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),

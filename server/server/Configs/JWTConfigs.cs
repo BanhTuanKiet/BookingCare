@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
@@ -35,9 +37,35 @@ namespace server.Configs
                         {
                             Console.WriteLine("📩 OnMessageReceived triggered");
                             var token = context.Request.Cookies["token"];
+                            Console.WriteLine($"Token from cookie: {token}");   
                             if (!string.IsNullOrEmpty(token))
                             {
                                 context.Token = token;
+                            }
+                            return Task.CompletedTask;
+                        },
+                        OnTokenValidated = context =>
+                        {
+                            Console.WriteLine("✅ OnTokenValidated triggered");
+                            var token = context.Request.Cookies["token"];
+
+                            if (!string.IsNullOrEmpty(token))
+                            {
+                                var jwtHandler = new JwtSecurityTokenHandler();
+                                var jwtToken = jwtHandler.ReadJwtToken(token);
+
+                                if (jwtToken != null && jwtToken.Claims != null)
+                                {
+                                    var nameIdClaim = jwtToken.Claims.FirstOrDefault(claim => claim.Type == "nameid");
+
+                                    if (nameIdClaim != null)
+                                    {
+                                        string userId = nameIdClaim.Value;
+                                        Console.WriteLine($"nameIdClaim from token: {nameIdClaim}");
+
+                                        context.HttpContext.Items["UserId"] = userId;
+                                    }
+                                }
                             }
                             return Task.CompletedTask;
                         },

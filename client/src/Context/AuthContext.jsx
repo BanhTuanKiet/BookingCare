@@ -27,7 +27,7 @@ const AuthProvider = ({ children }) => {
         setTimeout(() => {
             const redirectPath = localStorage.getItem("prevPage") || "/";
             localStorage.removeItem("prevPage");
-            navigate(redirectPath || "/");
+            // navigate(redirectPath || "/");
         }, 200);
     };
 
