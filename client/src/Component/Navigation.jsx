@@ -10,11 +10,10 @@ const Navigation = () => {
   const navigate = useNavigate();
   const { isAuthenticated, UserName, logout } = useContext(AuthContext);
   const { specialties, services, HandleNavigation } = useContext(NavContext);
-  
-  // Reference for the underline indicator
+
   const indicatorRef = useRef(null);
   const navRefs = useRef([]);
-  
+
   const pages = [
     { name: "Trang chủ", link: "/" },
     { name: "Giới Thiệu", link: "/về chúng tôi" },
@@ -26,65 +25,54 @@ const Navigation = () => {
     { name: "Liên hệ", link: "/liên hệ" },
   ];
 
-  // State to control dropdown
   const [openDropdown, setOpenDropdown] = useState(null);
   const [activeIndex, setActiveIndex] = useState(null);
+  const savedIndexRef = useRef(null); // Lưu vị trí được click cuối cùng
 
-  const handleMouseEnter = (index) => {
-    setOpenDropdown(index);
-    
-    // Position the indicator under the hovered item
+  const moveIndicatorTo = (index) => {
     if (indicatorRef.current && navRefs.current[index]) {
       const navItem = navRefs.current[index];
       const indicator = indicatorRef.current;
-      
+
       indicator.style.width = `${navItem.offsetWidth}px`;
       indicator.style.left = `${navItem.offsetLeft}px`;
       indicator.style.opacity = '1';
     }
+  };
+
+  const handleMouseEnter = (index) => {
+    setOpenDropdown(index);
+    moveIndicatorTo(index);
   };
 
   const handleMouseLeave = () => {
     setOpenDropdown(null);
-    
-    // Reset indicator based on current active page
-    const currentIndex = pages.findIndex(page => 
-      location.pathname === page.link || 
-      (page.link !== "/" && location.pathname.startsWith(page.link))
-    );
-    
-    if (indicatorRef.current && currentIndex !== -1 && navRefs.current[currentIndex]) {
-      // Keep indicator under current active page
-      const navItem = navRefs.current[currentIndex];
-      const indicator = indicatorRef.current;
-      
-      indicator.style.width = `${navItem.offsetWidth}px`;
-      indicator.style.left = `${navItem.offsetLeft}px`;
-      indicator.style.opacity = '1';
+    if (savedIndexRef.current !== null) {
+      moveIndicatorTo(savedIndexRef.current);
     }
   };
 
-  // Initialize active item based on current location
+  const handleClick = (index, link) => {
+    savedIndexRef.current = index;
+    console.log(index)
+    console.log(index)
+    setActiveIndex(index);
+    navigate(link);
+  };
+
   useEffect(() => {
     const currentIndex = pages.findIndex(page => 
       location.pathname === page.link || 
       (page.link !== "/" && location.pathname.startsWith(page.link))
     );
-    
+
     if (currentIndex !== -1) {
+      savedIndexRef.current = currentIndex;
       setActiveIndex(currentIndex);
-      
-      // Position indicator under active item on page load
+
       setTimeout(() => {
-        if (indicatorRef.current && navRefs.current[currentIndex]) {
-          const navItem = navRefs.current[currentIndex];
-          const indicator = indicatorRef.current;
-          
-          indicator.style.width = `${navItem.offsetWidth}px`;
-          indicator.style.left = `${navItem.offsetLeft}px`;
-          indicator.style.opacity = '1';
-        }
-      }, 1000);
+        moveIndicatorTo(currentIndex);
+      }, 300);
     }
   }, [location.pathname]);
 
@@ -96,11 +84,11 @@ const Navigation = () => {
   const isPageActive = (pageLink) => {
     return location.pathname === pageLink || 
            (pageLink !== "/" && location.pathname.startsWith(pageLink));
-  }
+  };
 
   const RenderNav = () => {
     return pages.map((page, index) => {
-      const isActive = isPageActive(page.link)
+      const isActive = isPageActive(page.link);
 
       if (index === 3 || index === 4) {
         return (
@@ -122,10 +110,10 @@ const Navigation = () => {
       return (
         <Nav.Link
           key={index}
-          href={page.link}
           className={`nav ${isActive ? 'active' : ''}`}
           onMouseEnter={() => handleMouseEnter(index)}
           onMouseLeave={handleMouseLeave}
+          onClick={() => handleClick(index, page.link)}
           ref={el => navRefs.current[index] = el}
         >
           {page.name}
@@ -138,33 +126,36 @@ const Navigation = () => {
     return specialties.map((speciality, index) => (
       <NavDropdown.Item 
         key={index} 
-        onClick={() => HandleNavigation("chuyên khoa", speciality.name)}
+        onClick={() => {
+          HandleNavigation("chuyên khoa", speciality.name);
+          savedIndexRef.current = 3;
+        }}
       >
         {speciality.name}
       </NavDropdown.Item>
     ));
   };
-
+  
   const RenderServices = () => {
     return services.map((service, index) => (
       <NavDropdown.Item 
         key={index} 
-        onClick={() => HandleNavigation("dịch vụ", service.serviceName)}
+        onClick={() => {
+          HandleNavigation("dịch vụ", service.serviceName);
+          savedIndexRef.current = 4;
+        }}
       >
         {service.serviceName}
       </NavDropdown.Item>
     ));
   };
+  
 
   return (
     <Navbar expand="lg" className="bg-info-subtle py-2">
       <Container className="w-75 mx-auto">
-        <Navbar.Brand href="/" className="">
-          {/* <div className="logo-container">
-            <div className="heart-logo">
-              <span className="text-primary fw-bold">DBK</span>
-            </div>
-          </div> */}
+        <Navbar.Brand href="/">
+          {/* Logo */}
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
@@ -173,16 +164,16 @@ const Navigation = () => {
             <div className="nav-indicator" ref={indicatorRef}></div>
           </Nav>
           <Nav>
-          {isAuthenticated ? (
-            <NavDropdown className="btn-login" title={`Xin chào, ${UserName}`} id="user-dropdown" >
-              <NavDropdown.Item onClick={() => navigate("/hồ sơ")}>Hồ sơ</NavDropdown.Item>
-              <NavDropdown.Item onClick={handleLogout}>Đăng xuất</NavDropdown.Item>
-            </NavDropdown>
-          ) : (
-            <Nav.Link onClick={() => navigate("/Đăng nhập")} className="btn-login">
-              Đăng nhập / Đăng ký
-            </Nav.Link>
-          )}
+            {isAuthenticated ? (
+              <NavDropdown className="btn-login" title={`Xin chào, ${UserName}`} id="user-dropdown" >
+                <NavDropdown.Item onClick={() => navigate("/hồ sơ")}>Hồ sơ</NavDropdown.Item>
+                <NavDropdown.Item onClick={handleLogout}>Đăng xuất</NavDropdown.Item>
+              </NavDropdown>
+            ) : (
+              <Nav.Link onClick={() => navigate("/Đăng nhập")} className="btn-login">
+                Đăng nhập / Đăng ký
+              </Nav.Link>
+            )}
           </Nav>
         </Navbar.Collapse>
       </Container>
