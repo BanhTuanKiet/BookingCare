@@ -135,8 +135,7 @@
   .drop-item {
     padding-left: 16px;
   }
-  
-  .btn-login {
+.btn-login {
     margin-top: 10px;
     text-align: center;
     max-width: 200px; /* Limit width on mobile */
