@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace server.Models;
 
@@ -25,6 +26,7 @@ public partial class Doctor
 
     public byte[]? DoctorImage { get; set; }
 
+    // [JsonIgnore]
     public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
 
     public virtual Specialty? Specialty { get; set; }

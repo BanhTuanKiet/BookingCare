@@ -46,7 +46,7 @@ public class ExceptionHandlingMiddleware
         }
 
         response.StatusCode = exception.StatusCode;
-
+        Console.WriteLine(exception.StackTrace);
         var errorResponse = new
         {
             ErrorMessage = exception.ErrorMessage,
@@ -64,6 +64,7 @@ public class ExceptionHandlingMiddleware
         string defaultMessageError = "Xảy ra lỗi! Vui lòng thử lại!";
 
         response.StatusCode = 500;
+        Console.WriteLine(exception.StackTrace);
 
         var errorResponse = new
         {

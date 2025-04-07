@@ -21,14 +21,14 @@ namespace server.Controllers
         private readonly ClinicManagementContext _context;
         private readonly IDoctor _doctorService;
         private readonly IPatient _patientService;
-        // private readonly IAppointment _appointmentService;
+        private readonly IAppointment _appointmentService;
 
-        public AppointmentsController(ClinicManagementContext context, IDoctor doctorService, IPatient patientService)
+        public AppointmentsController(ClinicManagementContext context, IDoctor doctorService, IPatient patientService, IAppointment appointmentService)
         {
             _context = context;
             _doctorService = doctorService;
             _patientService = patientService;
-            // _appointmentService = appointmentService;
+            _appointmentService = appointmentService;
         }
         // GET: Appointments
         [HttpPost]
@@ -44,10 +44,26 @@ namespace server.Controllers
                 PatientId = patient.PatientId,
                 DoctorId = doctor.DoctorId,
                 AppointmentDate = appointmentForm.AppointmentDate,
+                ServiceId = 1,
                 Status = "Chờ xác nhận",
             };
-            return Ok( new { message = "Đặt lịch thành công!", appointment = appointment } );
+
+            await _context.Appointments.AddAsync(appointment);
+            await _context.SaveChangesAsync();
+            
+            return Ok( new { message = "Đặt lịch thành công!"} );
         }
 
+        [HttpGet()]
+        public async Task<ActionResult<List<AppointmentDTO.AppointmentDetail>>> GetAppointments()
+        {
+            Console.WriteLine("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+            var userId = HttpContext.Items["UserId"];
+            int parsedUserId = Convert.ToInt32(userId.ToString());
+
+            var appointments = await _appointmentService.GetAppointments();
+
+            return Ok(appointments);
+        }
     }
 }
