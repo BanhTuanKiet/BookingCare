@@ -7,6 +7,9 @@ namespace server.Models
         public virtual Doctor? Doctor { get; set; }
 
         public virtual Patient? Patient { get; set; }
+
+        public string? FullName { get; set; }
+        
         // public virtual ICollection<ApplicationUserClaim> AspNetUserClaims { get; set; } = new List<ApplicationUserClaim>();
 
         // public virtual ICollection<ApplicationUserLogin> AspNetUserLogins { get; set; } = new List<ApplicationUserLogin>();
@@ -21,11 +24,11 @@ namespace server.Models
         public virtual ICollection<ApplicationUser> Users { get; set; } = new List<ApplicationUser>();
     }
     
-    // public class ApplicationUserRole : IdentityUserRole<int> 
-    // {
-    //     public virtual ApplicationUser? User { get; set; }
-    //     public virtual ApplicationRole? Role { get; set; }
-    // }
+    public class ApplicationUserRole : IdentityUserRole<int> 
+    {
+        public virtual ApplicationUser? User { get; set; }
+        public virtual ApplicationRole? Role { get; set; }
+    }
 
     //     public class ApplicationUserClaim : IdentityUserClaim<int>
     // {
