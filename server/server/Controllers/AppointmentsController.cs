@@ -13,7 +13,6 @@ using Server.DTO;
 
 namespace server.Controllers
 {
-    [Authorize]
     [Route("api/[Controller]")]
     [ApiController]
     public class AppointmentsController : Controller
@@ -31,6 +30,7 @@ namespace server.Controllers
             _appointmentService = appointmentService;
         }
         // GET: Appointments
+        [Authorize(Roles = "patient")]
         [HttpPost]
         public async Task<ActionResult> Appointment([FromBody] AppointmentForm appointmentForm)
         {
@@ -54,6 +54,7 @@ namespace server.Controllers
             return Ok( new { message = "Đặt lịch thành công!"} );
         }
 
+        [Authorize(Roles = "admin")]
         [HttpGet()]
         public async Task<ActionResult<List<AppointmentDTO.AppointmentDetail>>> GetAppointments()
         {
