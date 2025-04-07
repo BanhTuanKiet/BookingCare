@@ -171,6 +171,9 @@ const Navigation = () => {
                 <NavDropdown.Item onClick={() => navigate("/thông tin cá nhân")}>
                   Hồ sơ
                 </NavDropdown.Item>
+                <NavDropdown.Item onClick={() => navigate("/admin")}>
+                  Quản lý
+                </NavDropdown.Item>
                 <NavDropdown.Item onClick={handleLogout}>
                   Đăng xuất
                 </NavDropdown.Item>

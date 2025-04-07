@@ -1,4 +1,4 @@
-import React, { useContext } from "react"
+import React, { useContext, useEffect } from "react"
 import { Col, Row, Container } from "react-bootstrap"
 import images from '../Image/Others/Index'
 import "../Style/Home.css"
@@ -6,9 +6,24 @@ import { NavContext } from "../Context/NavContext"
 import ServiceCarousels from "../Component/ServiceCarousels"
 import DoctorCarousels from "../Component/DoctorCarousels"
 import SpecialtyCarousels from "../Component/SpecialtyCarousels"
+import axios from "../Util/AxiosConfig"
 
 const Home = () => {
   const { specialties, services, doctors } = useContext(NavContext);
+
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        const response = await axios.get("/appointments")
+
+        console.log(response.data)
+      } catch (error) {
+        console.error("Error fetching appointments:", error);
+      }
+    }
+
+    fetchAppointments()
+  }, [])
 
   return (
     <div>

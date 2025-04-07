@@ -15,6 +15,8 @@ public partial class Appointment
 
     public string? Status { get; set; }
 
+    public int? ServiceId { get; set; }
+
     public virtual Doctor? Doctor { get; set; }
 
     public virtual MedicalRecord? MedicalRecord { get; set; }
@@ -22,6 +24,8 @@ public partial class Appointment
     public virtual Patient? Patient { get; set; }
 
     public virtual Payment? Payment { get; set; }
+
+    public virtual Service? Service { get; set; }
 
     public virtual ICollection<ServiceRegistration> ServiceRegistrations { get; set; } = new List<ServiceRegistration>();
 }

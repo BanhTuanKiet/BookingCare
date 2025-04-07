@@ -78,12 +78,14 @@ namespace server.Controllers
 
             if (!result.Succeeded)
             {
-                Console.WriteLine("Lỗi khi tạo tài khoản:");
-                foreach (var error in result.Errors)
+                // Console.WriteLine("Lỗi khi tạo tài khoản:");
+                var firstError = result.Errors.FirstOrDefault();
+                if (firstError != null)
                 {
-                    Console.WriteLine($"Code: {error.Code}, Mô tả: {error.Description}");
+                    Console.WriteLine($"Code: {firstError.Code}, Mô tả: {firstError.Description}");
+                    throw new ErrorHandlingException(400, firstError.Description);
                 }
-                throw new ErrorHandlingException ("Đăng ký không thành công");
+                // throw new ErrorHandlingException ("Đăng ký không thành công");
             }
 
             await _signInManager.SignInAsync(newUser, isPersistent: false);
