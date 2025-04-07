@@ -1,7 +1,10 @@
-﻿namespace server.Services
+﻿using server.DTO;
+using server.Models;
+
+namespace server.Services
 {
     public interface IAppointment
     {
-        //Task <Act>
+        Task<List<AppointmentDTO.AppointmentDetail>> GetAppointments();
     }
 }

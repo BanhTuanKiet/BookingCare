@@ -14,12 +14,14 @@ import Login from '../Page/Login'
 import Signin from '../Page/Signin'
 import ServiceDetail from '../Page/ServiceDetail'
 import Profile from '../Page/Profile'
+import Admin from '../Page/Admin'
 
 function AppRoute() {
     return (
         <Routes>
             <Route path='/' element={<Index><Home /></Index>} />
             <Route path='/về chúng tôi' element={<Index><About /></Index>} />
+            <Route path='/admin' element={<Index><Admin /></Index>} />
             <Route path='/thông tin cá nhân' element={<Index><Profile /></Index>} />
             {/* Trang chi tiết bác sĩ */}
             <Route path='/bác sĩ' element={<Index><Doctor /></Index>} />

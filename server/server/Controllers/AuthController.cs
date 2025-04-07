@@ -78,12 +78,15 @@ namespace server.Controllers
             var result = await _signInManager.UserManager.CreateAsync(newUser, user.password);
             if (!result.Succeeded)
             {
-                Console.WriteLine("Lỗi khi tạo tài khoản:");
-                foreach (var error in result.Errors)
+                // Console.WriteLine("Lỗi khi tạo tài khoản:");
+                var firstError = result.Errors.FirstOrDefault();
+                if (firstError != null)
                 {
-                    Console.WriteLine($"Code: {error.Code}, Mô tả: {error.Description}");
+                    Console.WriteLine($"Code: {firstError.Code}, Mô tả: {firstError.Description}");
+                    throw new ErrorHandlingException(400, firstError.Description);
                 }
-                return BadRequest(new { message = "Đăng ký không thành công", errors = result.Errors });
+
+                // throw new ErrorHandlingException ("Đăng ký không thành công");
             }
 
             // Biết chắc roleId = 3 là "patient"

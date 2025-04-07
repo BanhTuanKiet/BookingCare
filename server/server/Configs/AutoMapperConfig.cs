@@ -33,6 +33,14 @@ namespace server.Configs
                 .ForMember(dest => dest.UserName, m => m.MapFrom(source => source.User.UserName))
                 .ForMember(dest => dest.Email, m => m.MapFrom(source => source.User.Email))
                 .ForMember(dest => dest.PhoneNumber, m => m.MapFrom(source => source.User.PhoneNumber));
+
+            CreateMap<Appointment, AppointmentDTO.AppointmentDetail>()
+                .ForMember(dest => dest.PatientName, m => m.MapFrom(source => source.Patient.User.UserName))
+                .ForMember(dest => dest.DoctorName, m => m.MapFrom(source => source.Doctor.User.UserName))
+                .ForMember(dest => dest.ServiceName, m => m.MapFrom(source => source.Service.ServiceName))
+                .ForMember(dest => dest.AppointmentDate, m => m.MapFrom(source => 
+                    source.AppointmentDate.HasValue ? source.AppointmentDate.Value.ToString("yyyy-MM-dd HH:mm:ss") : null))
+                .ForMember(dest => dest.Status, m => m.MapFrom(source => source.Status));
         }
     }
 }
