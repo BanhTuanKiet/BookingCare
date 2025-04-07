@@ -65,5 +65,28 @@ namespace server.Controllers
 
             return Ok(appointments);
         }
+
+        [HttpPut("{id}/status")]
+        public async Task<ActionResult> UpdateAppointmentStatus(int id, [FromBody] UpdateStatusDTO statusUpdate)
+        {
+            try
+            {
+                var appointment = await _context.Appointments.FindAsync(id);
+                
+                if (appointment == null)
+                {
+                    return NotFound(new { message = "Không tìm thấy lịch hẹn" });
+                }
+                
+                appointment.Status = statusUpdate.Status;
+                await _context.SaveChangesAsync();
+                
+                return Ok(new { message = "Cập nhật trạng thái thành công" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi khi cập nhật trạng thái: " + ex.Message });
+            }
+        }
     }
 }
