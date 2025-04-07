@@ -34,6 +34,7 @@ namespace server.Controllers
         [HttpPost]
         public async Task<ActionResult> Appointment([FromBody] AppointmentForm appointmentForm)
         {
+            Console.WriteLine(appointmentForm.Doctor);
             var doctor = await _doctorService.GetDoctorByName(appointmentForm.Doctor);
             var userId = HttpContext.Items["UserId"];
             int parsedUserId = Convert.ToInt32(userId.ToString());
@@ -48,6 +49,8 @@ namespace server.Controllers
                 Status = "Chờ xác nhận",
             };
 
+
+            Console.WriteLine(appointment.PatientId.ToString(), appointment.DoctorId, appointment.AppointmentDate, appointment.Status);
             await _context.Appointments.AddAsync(appointment);
             await _context.SaveChangesAsync();
             

@@ -25,7 +25,7 @@ namespace server.Services
 
         public async Task<DoctorDTO.DoctorDetail> GetDoctorByName(string doctorName)
         {
-            var doctor = await _context.Doctors.Include(d => d.User).FirstOrDefaultAsync(d => d.User.UserName == doctorName);
+            var doctor = await _context.Doctors.Include(d => d.User).FirstOrDefaultAsync(d => d.User.FullName == doctorName);
 
             var doctorDTO = _mapper.Map<DoctorDTO.DoctorDetail>(doctor);
 

@@ -6,6 +6,7 @@ const AuthContext = createContext();
 const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [UserName, setUserName] = useState("");
+    const [role, setRole] = useState()
     const location = useLocation()
     const navigate = useNavigate()
 
@@ -18,16 +19,18 @@ const AuthProvider = ({ children }) => {
         }
     }, []);
 
-    const login = (token, name) => {
+    const login = (token, name, role) => {
+        console.log(role)
         localStorage.setItem("token", token);
         localStorage.setItem("UserName", name);
         setIsAuthenticated(true);
         setUserName(name);
+        setRole(role)
 
         setTimeout(() => {
             const redirectPath = localStorage.getItem("prevPage") || "/";
             localStorage.removeItem("prevPage");
-            // navigate(redirectPath || "/");
+            navigate(redirectPath || "/");
         }, 200);
     };
 
@@ -43,7 +46,7 @@ const AuthProvider = ({ children }) => {
     }
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, UserName, login, logout, hanelePrevPage }}>
+        <AuthContext.Provider value={{ isAuthenticated, UserName, login, logout, hanelePrevPage, role }}>
             {children}
         </AuthContext.Provider>
     );
