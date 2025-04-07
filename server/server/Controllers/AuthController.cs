@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using server.DTO;
 using server.Middleware;
@@ -20,16 +21,18 @@ namespace server.Controllers
     public class AuthController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IConfiguration _configuration;
         private readonly ClinicManagementContext _context;
 
-        public AuthController(ClinicManagementContext context, IConfiguration configuration, SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager)
+        public AuthController(ClinicManagementContext context, IConfiguration configuration, SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager)
         {
             _context = context;
             _configuration = configuration;
             _signInManager = signInManager;
             _userManager = userManager;
+            _roleManager = roleManager;
         }
 
         [HttpPost("Signin")]
@@ -58,24 +61,21 @@ namespace server.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegistryForm user)
         {
-            // Kiểm tra email đã tồn tại chưa
             var existUser = await _signInManager.UserManager.FindByEmailAsync(user.email);
             if (existUser != null)
             {
-               throw new ErrorHandlingException("Email đã tồn tại!!" );
+                throw new ErrorHandlingException(400, "Email đã tồn tại!!");
             }
 
-            // Tạo tài khoản mới, dùng Email làm Username
             var newUser = new ApplicationUser
             {
-                UserName = user.fullname,
+                UserName = user.email, // hoặc bất kỳ định danh duy nhất nào bạn chọn
                 Email = user.email,
-                PhoneNumber = user.phone
+                PhoneNumber = user.phone,
+                FullName = user.fullname // map vào cột bạn vừa thêm
             };
 
-            // Thử tạo tài khoản
             var result = await _signInManager.UserManager.CreateAsync(newUser, user.password);
-
             if (!result.Succeeded)
             {
                 Console.WriteLine("Lỗi khi tạo tài khoản:");
@@ -83,12 +83,20 @@ namespace server.Controllers
                 {
                     Console.WriteLine($"Code: {error.Code}, Mô tả: {error.Description}");
                 }
-                throw new ErrorHandlingException ("Đăng ký không thành công");
+                return BadRequest(new { message = "Đăng ký không thành công", errors = result.Errors });
             }
+
+            // Biết chắc roleId = 3 là "patient"
+            _context.Add(new IdentityUserRole<int>
+            {
+                UserId = newUser.Id,
+                RoleId = 3
+            });
+            await _context.SaveChangesAsync();
 
             await _signInManager.SignInAsync(newUser, isPersistent: false);
 
-            return Ok(new { message = "Đăng ký thành công!", user = newUser.Email });
+            return Ok(new { message = "Đăng ký thành công" });
         }
 
         [HttpPost("login")]
