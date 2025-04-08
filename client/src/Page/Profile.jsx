@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from "react"
 import axios from "../Util/AxiosConfig"
 import { AuthContext } from "../Context/AuthContext";
-import { Container, Row, Col, Card, Table, Badge, Spinner } from "react-bootstrap"
+import { Container, Row, Col, Card, Table, Badge, Spinner, Button } from "react-bootstrap"
 
 const PatientProfile = () => {
   const [patientInfo, setPatientInfo] = useState(null)
@@ -41,6 +41,14 @@ const PatientProfile = () => {
 
       fetchPatientInfo()
   }, [UserName])
+
+  const handleCancelAppointment = async (appointmentId) => {
+    try {
+      await axios.put(`/appointments/cancel/${appointmentId}`)
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   // Calculate age from date of birth if available
   const calculateAge = (dateOfBirth) => {
@@ -146,6 +154,17 @@ const PatientProfile = () => {
                           }>
                             {appointment.status}
                           </Badge>
+                        </td>
+                        <td>
+                          {(appointment.status !== "Đã hủy" && appointment.status !== "Đã hoàn thành") && (
+                            <Badge
+                              bg={"danger"}
+                              style={{ cursor: "pointer" }}
+                              onClick={() => handleCancelAppointment(appointment.appointmentId)}
+                            >
+                              Hủy
+                            </Badge>
+                          )}
                         </td>
                       </tr>
                     ))}

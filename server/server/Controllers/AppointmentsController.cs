@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
 using server.DTO;
+using server.Middleware;
 using server.Models;
 using server.Services;
 using Server.DTO;
@@ -75,6 +76,7 @@ namespace server.Controllers
             return Ok(appointments);
         }
 
+        [Authorize(Roles = "admin")]
         [HttpPut("{id}/status")]
         public async Task<ActionResult> UpdateAppointmentStatus(int id, [FromBody] UpdateStatusDTO statusUpdate)
         {
@@ -96,6 +98,23 @@ namespace server.Controllers
             {
                 return StatusCode(500, new { message = "Lỗi khi cập nhật trạng thái: " + ex.Message });
             }
+        }
+
+        [Authorize(Roles = "patient")]
+        [HttpPut("cancel/{appointmentId}")]
+        public async Task<ActionResult> CancelAppointment( int appointmentId)
+        {
+            var appointment = await _context.Appointments.FindAsync(appointmentId);
+                
+            if (appointment == null)
+            {
+                throw new ErrorHandlingException("Không tìm thấy lịch hẹn" );
+            }
+                
+            appointment.Status = "Đã hủy";
+            await _context.SaveChangesAsync();
+            
+            return Ok(new { message = "Cập nhật trạng thái thành công" });
         }
 
         [Authorize(Roles = "patient")]
