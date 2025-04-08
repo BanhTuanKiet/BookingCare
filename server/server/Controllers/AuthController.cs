@@ -54,7 +54,7 @@ namespace server.Controllers
         
             CookieUtil.SetCookie(Response, "token", jwtToken, 1);
 
-            return Ok(new { message = "Đăng nhập thành công!" , UserName = user.UserName, role = roles[0] });
+            return Ok(new { message = "Đăng nhập thành công!" , UserName = user.FullName, role = roles[0] });
         }
 
         [HttpPost("register")]

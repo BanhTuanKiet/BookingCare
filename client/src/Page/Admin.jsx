@@ -136,7 +136,7 @@ const AppointmentAdmin = () => {
   }
 
   return (
-    <Container fluid className="mt-4">
+    <Container fluid className="mt-4 w-75 mx-auto">
       <h2 className="mb-4">Quản lý lịch hẹn</h2>
       
       <div className="mb-3 d-flex justify-content-between">

@@ -8,7 +8,7 @@ import { AuthContext } from "../Context/AuthContext";
 const Navigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isAuthenticated, UserName, logout, role } = useContext(AuthContext);
+  const { isAuthenticated, UserName, logout, role} = useContext(AuthContext);
   const { specialties, services, HandleNavigation } = useContext(NavContext);
   const indicatorRef = useRef(null);
   const navRefs = useRef([]);
