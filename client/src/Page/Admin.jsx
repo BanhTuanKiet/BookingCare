@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Container, Table, Button, Badge, Form, Modal, Spinner, Alert } from 'react-bootstrap';
 import axios from '../Util/AxiosConfig';
+import { AuthContext } from '../Context/AuthContext';
 
 const AppointmentAdmin = () => {
+  const { role } = useContext(AuthContext);
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,14 +30,17 @@ const AppointmentAdmin = () => {
   const fetchAppointments = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('/appointments', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      setAppointments(response.data);
-      setError(null);
+      if (role === 'admin') {
+        console.log("AAAAAAAAAAAAAAA")
+        const token = localStorage.getItem('token');
+        const response = await axios.get('/appointments', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        setAppointments(response.data);
+        setError(null);
+      }
     } catch (err) {
       console.error('Error fetching appointments:', err);
       setError('Không thể tải danh sách lịch hẹn. Vui lòng thử lại sau.');
@@ -45,7 +50,9 @@ const AppointmentAdmin = () => {
   };
 
   useEffect(() => {
-    fetchAppointments();
+    console.log("AAAAAAAAAAAAAAA")
+    if (role === 'admin')
+      fetchAppointments();
   }, []);
 
   const handleOpenModal = (appointment) => {

@@ -11,20 +11,6 @@ import axios from "../Util/AxiosConfig"
 const Home = () => {
   const { specialties, services, doctors } = useContext(NavContext);
 
-  useEffect(() => {
-    const fetchAppointments = async () => {
-      try {
-        const response = await axios.get("/appointments")
-
-        console.log(response.data)
-      } catch (error) {
-        console.error("Error fetching appointments:", error);
-      }
-    }
-
-    fetchAppointments()
-  }, [])
-
   return (
     <div>
       {/* <div className="py-5 text-center" style={{ backgroundColor: "#007bff", color: "white" }}>

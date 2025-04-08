@@ -19,8 +19,7 @@ const Signin = () => {
     setLoading(true)
     try {
       const response = await axios.post("/auth/Signin", loginData)
-
-      login(response.data.token, response.data.userName)
+      login(response.data.token, response.data.userName, response.data.role)
     } catch (error) {
       console.log(error)
     }

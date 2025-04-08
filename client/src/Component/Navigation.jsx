@@ -8,9 +8,9 @@ import { AuthContext } from "../Context/AuthContext";
 const Navigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isAuthenticated, UserName, logout } = useContext(AuthContext);
+  const { isAuthenticated, UserName, logout, role } = useContext(AuthContext);
   const { specialties, services, HandleNavigation } = useContext(NavContext);
-
+console.log(role)
   const indicatorRef = useRef(null);
   const navRefs = useRef([]);
   
@@ -171,9 +171,11 @@ const Navigation = () => {
                 <NavDropdown.Item onClick={() => navigate("/thông tin cá nhân")}>
                   Hồ sơ
                 </NavDropdown.Item>
-                <NavDropdown.Item onClick={() => navigate("/admin")}>
-                  Quản lý
-                </NavDropdown.Item>
+                {role === 'admin' && 
+                  <NavDropdown.Item onClick={() => navigate("/admin")}>
+                    Quản lý
+                  </NavDropdown.Item>
+                }
                 <NavDropdown.Item onClick={handleLogout}>
                   Đăng xuất
                 </NavDropdown.Item>

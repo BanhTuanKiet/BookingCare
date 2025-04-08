@@ -6,7 +6,9 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.TagHelpers.Cache;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.Extensions.Configuration.UserSecrets;
 using Microsoft.IdentityModel.Tokens;
 using server.DTO;
 using server.Middleware;
@@ -52,7 +54,7 @@ namespace server.Controllers
         
             CookieUtil.SetCookie(Response, "token", jwtToken, 1);
 
-            return Ok(new { message = "Đăng nhập thành công!" , UserName = user.UserName });
+            return Ok(new { message = "Đăng nhập thành công!" , UserName = user.UserName, role = roles[0] });
         }
 
         [HttpPost("register")]
@@ -68,9 +70,10 @@ namespace server.Controllers
             // Tạo tài khoản mới, dùng Email làm Username
             var newUser = new ApplicationUser
             {
-                UserName = user.fullname,
+                UserName = user.email,
                 Email = user.email,
-                PhoneNumber = user.phone
+                PhoneNumber = user.phone,
+                FullName = user.fullname
             };
 
             // Thử tạo tài khoản
@@ -88,8 +91,27 @@ namespace server.Controllers
                 // throw new ErrorHandlingException ("Đăng ký không thành công");
             }
 
-            await _signInManager.SignInAsync(newUser, isPersistent: false);
+            // _context.Add(new IdentityUserRole<int>
+            // {
+            //     UserId = newUser.Id,
+            //     RoleId = 3
+            // });
 
+            var userRole = new IdentityUserRole<int> {
+                UserId = newUser.Id,
+                RoleId = 3,
+            };
+
+            await _context.UserRoles.AddAsync(userRole);
+  
+            var patient = new Patient {
+                UserId = newUser.Id,
+            };
+           
+            await _context.Patients.AddAsync(patient);
+
+            await _signInManager.SignInAsync(newUser, isPersistent: false);
+          await _context.SaveChangesAsync();
             return Ok(new { message = "Đăng ký thành công!", user = newUser.Email });
         }
 

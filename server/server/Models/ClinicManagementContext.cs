@@ -234,6 +234,7 @@ public partial class ClinicManagementContext : IdentityDbContext<ApplicationUser
             entity.Property(e => e.NormalizedEmail).HasMaxLength(256);
             entity.Property(e => e.NormalizedUserName).HasMaxLength(256);
             entity.Property(e => e.UserName).HasMaxLength(256);
+            entity.Property(e => e.FullName).HasMaxLength(256);
         });
 
         modelBuilder.Entity<ApplicationRole>(entity =>
