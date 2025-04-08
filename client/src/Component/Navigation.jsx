@@ -10,7 +10,6 @@ const Navigation = () => {
   const navigate = useNavigate();
   const { isAuthenticated, UserName, logout, role } = useContext(AuthContext);
   const { specialties, services, HandleNavigation } = useContext(NavContext);
-console.log(role)
   const indicatorRef = useRef(null);
   const navRefs = useRef([]);
   

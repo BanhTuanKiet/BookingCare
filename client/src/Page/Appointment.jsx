@@ -8,6 +8,7 @@ function Appointment() {
   const { specialties } = useContext(NavContext)
   const [specialty, setSpecialty] = useState()
   const [doctors, setDoctors] = useState()
+  const [services, setServices] = useState()
 
   // useEffect(() => {
   //   if (specialties.length > 0) {
@@ -18,11 +19,26 @@ function Appointment() {
   useEffect(() => {
     const fetchDoctors =  async () => {
       const response = await axios.get(`/doctors/${specialty}`)
-      console.log(response.data)
+      // console.log(response.data)
       setDoctors(response.data)
     }
 
     fetchDoctors()
+  }, [specialty])
+
+  useEffect(() => {
+    const fetchServices =  async () => {
+      try {
+      const response = await axios.get(`/services/${specialty}/services`)
+      // console.log(specialties)
+      console.log(response.data)
+      setServices(response.data)
+    } catch (error) {
+      console.log(error)
+    }
+    }
+
+    fetchServices()
   }, [specialty])
   
   const handleChange = (event) => {
@@ -150,6 +166,17 @@ function Appointment() {
                   {doctors?.map((doctor, index) => (
                     <option key={index}>{doctor.userName}</option>
                   ))}
+                </Form.Select>
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Select name="service" onChange={handleChange}>
+                   <option>Chọn dịch vụ</option>
+                   {services?.map((service, index) => (
+                    <option key={index} value={service.serviceName}>
+                      {service.serviceName}
+                    </option>
+                   ))} 
                 </Form.Select>
               </Form.Group>
 

@@ -65,24 +65,24 @@ namespace server.Controllers
         }
 
         // GET: api/Patients/username/johndoe
-        //[HttpGet("username/{userName}")]
-        //public async Task<ActionResult<PatientDTO.PatientDetail>> GetPatientByUserName(string userName)
-        //{
-        //    Console.WriteLine(userName);
-        //    if (string.IsNullOrEmpty(userName))
-        //    {
-        //        throw new ErrorHandlingException(400, "UserName is required");
-        //    }
+        [HttpGet("appointment")]
+        public async Task<ActionResult<PatientDTO.PatientDetail>> GetPatientByUserName(string userName)
+        {
+           Console.WriteLine(userName);
+           if (string.IsNullOrEmpty(userName))
+           {
+               throw new ErrorHandlingException(400, "UserName is required");
+           }
 
-        //    var patient = await _patientService.GetPatientByUserName(userName);
+           var patient = await _patientService.GetPatientByUserName(userName);
 
-        //    if (patient == null)
-        //    {
-        //        return NotFound();
-        //    }
+           if (patient == null)
+           {
+               return NotFound();
+           }
 
-        //    return Ok(patient);
-        //}
+           return Ok(patient);
+        }
 
         // GET: api/Patients/search?keyword=abc
         //[HttpGet("search")]

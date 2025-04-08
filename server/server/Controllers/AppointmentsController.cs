@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
 using server.DTO;
 using server.Models;
@@ -21,13 +23,15 @@ namespace server.Controllers
         private readonly IDoctor _doctorService;
         private readonly IPatient _patientService;
         private readonly IAppointment _appointmentService;
+        private readonly IService _serviceServices;
 
-        public AppointmentsController(ClinicManagementContext context, IDoctor doctorService, IPatient patientService, IAppointment appointmentService)
+        public AppointmentsController(ClinicManagementContext context, IDoctor doctorService, IPatient patientService, IAppointment appointmentService, IService serviceServices)
         {
             _context = context;
             _doctorService = doctorService;
             _patientService = patientService;
             _appointmentService = appointmentService;
+            _serviceServices = serviceServices;
         }
         // GET: Appointments
         [Authorize(Roles = "patient")]
@@ -39,13 +43,14 @@ namespace server.Controllers
             var userId = HttpContext.Items["UserId"];
             int parsedUserId = Convert.ToInt32(userId.ToString());
             var patient = await _patientService.GetPatientById(parsedUserId);
+            var service = await _serviceServices.GetServiceByName(appointmentForm.Service);
 
             Appointment appointment = new Appointment
             {
                 PatientId = patient.PatientId,
                 DoctorId = doctor.DoctorId,
                 AppointmentDate = appointmentForm.AppointmentDate,
-                ServiceId = 1,
+                ServiceId = service.ServiceId,
                 Status = "Chờ xác nhận",
             };
 
@@ -92,5 +97,24 @@ namespace server.Controllers
                 return StatusCode(500, new { message = "Lỗi khi cập nhật trạng thái: " + ex.Message });
             }
         }
+
+        [Authorize(Roles = "patient")]
+        [HttpPost("by-patient")]
+        public async Task<ActionResult> GetAppointmentByPatientId()
+        {
+            var userId = HttpContext.Items["UserId"];
+            int parsedUserId = Convert.ToInt32(userId.ToString());
+
+            var patient = await _patientService.GetPatientById(parsedUserId);
+            if (patient == null)
+            {
+                return NotFound(new { message = "Không tìm thấy bệnh nhân" });
+            }
+
+            var appointments = await _appointmentService.GetAppointmentByPatientId(patient.PatientId);
+
+            return Ok(appointments);
+        }
+
     }
 }

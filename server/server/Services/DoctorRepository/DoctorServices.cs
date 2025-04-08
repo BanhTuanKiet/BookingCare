@@ -43,7 +43,7 @@ namespace server.Services
 
         public async Task<List<DoctorDTO.DoctorBasic>> SearchDoctors(string keyword)
         {
-            var doctors = await _context.Doctors.Include(d => d.User).Where(d => d.User.UserName.Contains(keyword)).ToListAsync();
+            var doctors = await _context.Doctors.Include(d => d.User).Where(d => d.User.FullName.Contains(keyword)).ToListAsync();
 
             var doctorDTOs = _mapper.Map<List<DoctorDTO.DoctorBasic>>(doctors);
 
