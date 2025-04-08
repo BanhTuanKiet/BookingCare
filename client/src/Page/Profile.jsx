@@ -139,7 +139,9 @@ const PatientProfile = () => {
                         <td>
                           <Badge bg={
                             appointment.status === "Chờ xác nhận" ? "warning"
-                            : appointment.status === "Đã xác nhận" ? "success"
+                            : appointment.status === "Đã xác nhận" ? "primary"
+                            : appointment.status === "Đã hủy" ? "danger"
+                            : appointment.status === "Đã hoàn thành" ? "success"
                             : "secondary"
                           }>
                             {appointment.status}
