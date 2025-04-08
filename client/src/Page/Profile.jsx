@@ -43,12 +43,19 @@ const PatientProfile = () => {
   }, [UserName])
 
   const handleCancelAppointment = async (appointmentId) => {
+    const isConfirmed = window.confirm("Bạn có chắc chắn muốn hủy lịch hẹn này không?");
+  
+    if (!isConfirmed) {
+      return
+    }
+  
     try {
       await axios.put(`/appointments/cancel/${appointmentId}`)
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
+  
 
   // Calculate age from date of birth if available
   const calculateAge = (dateOfBirth) => {
