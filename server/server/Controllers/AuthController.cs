@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.TagHelpers.Cache;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration.UserSecrets;
 using Microsoft.IdentityModel.Tokens;
 using server.DTO;
@@ -57,14 +58,28 @@ namespace server.Controllers
             return Ok(new { message = "Đăng nhập thành công!" , UserName = user.FullName, role = roles[0] });
         }
 
+
+        private async Task<ApplicationUser?> FindUserByPhoneNumberAsync(string phoneNumber)
+        {
+            return await _userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == phoneNumber);
+        }
+
+
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegistryForm user)
         {
             // Kiểm tra email đã tồn tại chưa
             var existUser = await _signInManager.UserManager.FindByEmailAsync(user.email);
+            var existPhoneNumberUser = await FindUserByPhoneNumberAsync(user.phone);
+
+            if (existPhoneNumberUser != null)
+            {
+                throw new ErrorHandlingException(400, "Số điện thoại đã được sử dụng!!");
+            }
+
             if (existUser != null)
             {
-               throw new ErrorHandlingException("Email đã tồn tại!!" );
+               throw new ErrorHandlingException(400, "Email đã tồn tại!!" );
             }
 
             // Tạo tài khoản mới, dùng Email làm Username
