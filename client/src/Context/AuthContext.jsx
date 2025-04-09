@@ -11,18 +11,19 @@ const AuthProvider = ({ children }) => {
     const navigate = useNavigate()
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
         const storedUserName = localStorage.getItem("UserName");
-        if (token) {
+        const user_role = localStorage.getItem("userRole")
+        if (storedUserName) {
             setIsAuthenticated(true);
             setUserName(storedUserName || "Người dùng");
+            setRole(user_role);
         }
     }, []);
 
-    const login = (token, name, role) => {
+    const login = (name, role) => {
         console.log(role)
-        localStorage.setItem("token", token);
         localStorage.setItem("UserName", name);
+        localStorage.setItem("userRole", role)
         setIsAuthenticated(true);
         setUserName(name);
         setRole(role)

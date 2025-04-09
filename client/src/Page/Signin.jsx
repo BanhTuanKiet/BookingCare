@@ -1,4 +1,4 @@
-import React, { useState, useContext  } from "react"
+import React, { useState, useContext, use  } from "react"
 import { Container, Col, Form, Button, InputGroup } from "react-bootstrap"
 import "bootstrap/dist/css/bootstrap.min.css"
 import "../Style/Signin.css"
@@ -19,7 +19,7 @@ const Signin = () => {
     setLoading(true)
     try {
       const response = await axios.post("/auth/Signin", loginData)
-      login(response.data.token, response.data.userName, response.data.role)
+      login(response.data.userName, response.data.role)
     } catch (error) {
       console.log(error)
     }

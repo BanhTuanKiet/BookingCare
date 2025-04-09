@@ -12,7 +12,7 @@ const Navigation = () => {
   const { specialties, services, HandleNavigation } = useContext(NavContext);
   const indicatorRef = useRef(null);
   const navRefs = useRef([]);
-  
+  console.log(role)
   const pages = [
     { name: "Trang chủ", link: "/" },
     { name: "Giới Thiệu", link: "/về chúng tôi" },
