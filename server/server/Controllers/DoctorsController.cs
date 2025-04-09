@@ -47,6 +47,23 @@ namespace server.Controllers
 
             return Ok(doctor);
         }
+        [Authorize(Roles = "doctor")]
+        [HttpGet("user")]
+        public async Task<ActionResult<DoctorDTO.DoctorDetail>> GetPatientByUserId()
+        {
+            var userId = HttpContext.Items["UserId"];
+            var parseUserId = Convert.ToInt32(userId.ToString());
+            Console.WriteLine("doctor: ", parseUserId);    
+            var patient = await _doctorService.GetPatientById(parseUserId);
+
+            if (patient == null)
+            {
+                throw new ErrorHandlingException(404, "Doctor not found");
+            }
+
+            return Ok(patient);
+        }
+
 
         // [HttpGet("{id}")]
         // public async Task<ActionResult<Doctor>> GetDoctor(int id)

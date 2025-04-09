@@ -26,6 +26,7 @@
             public string? WorkExperience { get; set; }
             public int? ExperienceYears { get; set; }
             public string? DoctorImage { get; set; }
+            public string? Email { get; set; }
         }
     }
 }

@@ -49,5 +49,14 @@ namespace server.Services
 
             return doctorDTOs;
         }
+
+        public async Task<DoctorDTO.DoctorDetail> GetPatientById(int doctorId)
+        {
+            var doctor = await _context.Doctors.Include(p => p.User).FirstOrDefaultAsync(d => d.UserId == doctorId);
+
+            var doctorDTO = _mapper.Map<DoctorDTO.DoctorDetail>(doctor);
+
+            return doctorDTO;
+        }
     }
 }

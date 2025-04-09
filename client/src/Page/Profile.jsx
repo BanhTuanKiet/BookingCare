@@ -8,10 +8,14 @@ const PatientProfile = () => {
   const [loading, setLoading] = useState(true)
   const { UserName } = useContext(AuthContext)
   const [appointmentInfo, setAppointmentInfo] = useState(null)
+  const { role } = useContext(AuthContext)
 
   useEffect(() => {
     const fetchAppointmentInfo = async () => {
       try {
+        if (role !== 'patient') {
+          return
+        }
         setLoading(true)
         const response = await axios.post(`/appointments/by-patient`)
         console.log("Appointment Info:", response.data)
@@ -27,9 +31,17 @@ const PatientProfile = () => {
     const fetchPatientInfo = async () => {
       try {
         setLoading(true)
-        const response = await axios.get(`/patients/user`)
-        console.log("Patient Info:", response.data)
-        setPatientInfo(response.data)
+        if (role === 'doctor') {
+          const response = await axios.get("/doctors/user")
+          console.log(response.data)
+          setPatientInfo(response.data)
+          
+        } 
+        if (role === 'patient') {
+          const response = await axios.get(`/patients/user`)
+          console.log("Patient Info:", response.data)
+          setPatientInfo(response.data)
+        }
       } catch (error) {
         console.error("Error fetching patient information:", error)
         // Still set patientInfo to null to show empty form

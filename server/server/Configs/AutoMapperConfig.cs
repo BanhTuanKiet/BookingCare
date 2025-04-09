@@ -18,6 +18,7 @@ namespace server.Configs
 
             CreateMap<Doctor, DoctorDTO.DoctorDetail>()
                 .ForMember(dest => dest.UserName, m => m.MapFrom(source => source.User.FullName))
+                .ForMember(dest => dest.Email, m => m.MapFrom(source => source.User.Email))
                 .ForMember(dest => dest.DoctorImage, m => m.MapFrom(source =>
                     source.DoctorImage != null
                         ? $"data:image/png;base64,{Convert.ToBase64String(source.DoctorImage)}"
