@@ -28,8 +28,9 @@ namespace server.Controllers
         private readonly IAppointment _appointmentService;
         private readonly IService _serviceServices;
         private readonly IConfiguration _configuration;
+        private readonly IEmailService _emailService;
 
-        public AppointmentsController(ClinicManagementContext context, IDoctor doctorService, IPatient patientService, IAppointment appointmentService, IService serviceServices, IConfiguration configuration)
+        public AppointmentsController(ClinicManagementContext context, IDoctor doctorService, IPatient patientService, IAppointment appointmentService, IService serviceServices, IConfiguration configuration, IEmailService emailService)
         {
             _context = context;
             _doctorService = doctorService;
@@ -37,6 +38,7 @@ namespace server.Controllers
             _appointmentService = appointmentService;
             _serviceServices = serviceServices;
             _configuration = configuration;
+            _emailService= emailService;
         }
         // GET: Appointments
         [Authorize(Roles = "patient")]
@@ -49,6 +51,19 @@ namespace server.Controllers
             int parsedUserId = Convert.ToInt32(userId.ToString());
             var patient = await _patientService.GetPatientById(parsedUserId);
             var service = await _serviceServices.GetServiceByName(appointmentForm.Service);
+
+            // ✅ Kiểm tra lịch đã tồn tại
+            var existingAppointment = await _context.Appointments.FirstOrDefaultAsync(a =>
+                a.DoctorId == doctor.DoctorId &&
+                a.AppointmentDate == appointmentForm.AppointmentDate &&
+                a.Status != "Đã hủy"
+            );
+
+            if (existingAppointment != null)
+            {
+                throw new ErrorHandlingException(400, "Lịch khám đã được đặt vào thời gian này. Vui lòng chọn thời gian khác!");
+                // return Conflict(new { message = "Lịch khám đã được đặt vào thời gian này. Vui lòng chọn thời gian khác!" });
+            }
 
             Appointment appointment = new Appointment
             {
@@ -203,6 +218,12 @@ namespace server.Controllers
                 
             appointment.Status = "Đã hủy";
             await _context.SaveChangesAsync();
+
+            var adminEmail = "datteo192004@gmail.com"; // Thay bằng email thật của admin hoặc lấy từ config
+            var subject = "Thông báo: Lịch hẹn đã bị hủy";
+            var message = $"Lịch hẹn ID {appointment.AppointmentId} đã bị bệnh nhân hủy vào {DateTime.Now:dd/MM/yyyy HH:mm}.";
+
+            await _emailService.SendEmailAsync(adminEmail, subject, message);
             
             return Ok(new { message = "Cập nhật trạng thái thành công" });
         }
