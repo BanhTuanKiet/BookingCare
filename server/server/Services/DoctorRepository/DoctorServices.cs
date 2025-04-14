@@ -50,7 +50,7 @@ namespace server.Services
             return doctorDTOs;
         }
 
-        public async Task<DoctorDTO.DoctorDetail> GetPatientById(int doctorId)
+        public async Task<DoctorDTO.DoctorDetail> GetDoctorById(int doctorId)
         {
             var doctor = await _context.Doctors.Include(p => p.User).FirstOrDefaultAsync(d => d.UserId == doctorId);
 

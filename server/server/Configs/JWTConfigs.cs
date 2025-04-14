@@ -57,13 +57,14 @@ namespace server.Configs
                                 if (jwtToken != null && jwtToken.Claims != null)
                                 {
                                     var nameIdClaim = jwtToken.Claims.FirstOrDefault(claim => claim.Type == "nameid");
-
-                                    if (nameIdClaim != null)
+                                    var roleClaim = jwtToken.Claims.FirstOrDefault(claim => claim.Type == "role");
+                                    if (nameIdClaim != null && roleClaim != null)
                                     {
                                         string userId = nameIdClaim.Value;
-                                        Console.WriteLine($"nameIdClaim from token: {nameIdClaim}");
+                                        string role = roleClaim.Value;
 
                                         context.HttpContext.Items["UserId"] = userId;
+                                        context.HttpContext.Items["role"] = role;
                                     }
                                 }
                             }

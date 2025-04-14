@@ -20,56 +20,21 @@ namespace server.Controllers
     [ApiController]
     public class AppointmentsController : Controller
     {
-        private readonly ClinicManagementContext _context;
-        private readonly IDoctor _doctorService;
+        private readonly IDoctor _doctor;
         private readonly IPatient _patientService;
         private readonly IAppointment _appointmentService;
-        private readonly IService _serviceServices;
 
-        public AppointmentsController(ClinicManagementContext context, IDoctor doctorService, IPatient patientService, IAppointment appointmentService, IService serviceServices)
+        public AppointmentsController(IDoctor doctor, IPatient patientService, IAppointment appointmentService)
         {
-            _context = context;
-            _doctorService = doctorService;
+            _doctor = doctor;
             _patientService = patientService;
             _appointmentService = appointmentService;
-            _serviceServices = serviceServices;
-        }
-        // GET: Appointments
-        [Authorize(Roles = "patient")]
-        [HttpPost]
-        public async Task<ActionResult> Appointment([FromBody] AppointmentForm appointmentForm)
-        {
-            Console.WriteLine(appointmentForm.Doctor);
-            var doctor = await _doctorService.GetDoctorByName(appointmentForm.Doctor);
-            var userId = HttpContext.Items["UserId"];
-            int parsedUserId = Convert.ToInt32(userId.ToString());
-            var patient = await _patientService.GetPatientById(parsedUserId);
-            var service = await _serviceServices.GetServiceByName(appointmentForm.Service);
-
-            Appointment appointment = new Appointment
-            {
-                PatientId = patient.PatientId,
-                DoctorId = doctor.DoctorId,
-                AppointmentDate = appointmentForm.AppointmentDate,
-                ServiceId = service.ServiceId,
-                Status = "Chờ xác nhận",
-            };
-
-
-            Console.WriteLine(appointment.PatientId.ToString(), appointment.DoctorId, appointment.AppointmentDate, appointment.Status);
-            await _context.Appointments.AddAsync(appointment);
-            await _context.SaveChangesAsync();
-            
-            return Ok( new { message = "Đặt lịch thành công!"} );
         }
 
         [Authorize(Roles = "admin")]
-        [HttpGet()]
+        [HttpGet]
         public async Task<ActionResult<List<AppointmentDTO.AppointmentDetail>>> GetAppointments()
         {
-            Console.WriteLine("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-            var userId = HttpContext.Items["UserId"];
-            int parsedUserId = Convert.ToInt32(userId.ToString());
 
             var appointments = await _appointmentService.GetAppointments();
 
@@ -77,43 +42,13 @@ namespace server.Controllers
         }
 
         [Authorize(Roles = "admin")]
-        [HttpPut("{id}/status")]
+        [HttpPut("status/{id}")]
         public async Task<ActionResult> UpdateAppointmentStatus(int id, [FromBody] UpdateStatusDTO statusUpdate)
         {
-            try
-            {
-                var appointment = await _context.Appointments.FindAsync(id);
-                
-                if (appointment == null)
-                {
-                    return NotFound(new { message = "Không tìm thấy lịch hẹn" });
-                }
-                
-                appointment.Status = statusUpdate.Status;
-                await _context.SaveChangesAsync();
-                
-                return Ok(new { message = "Cập nhật trạng thái thành công" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { message = "Lỗi khi cập nhật trạng thái: " + ex.Message });
-            }
-        }
+            var appointment = await _appointmentService.GetAppointmentById(id) ?? throw new ErrorHandlingException("Không tìm thấy lịch hẹn");
 
-        [Authorize(Roles = "patient")]
-        [HttpPut("cancel/{appointmentId}")]
-        public async Task<ActionResult> CancelAppointment( int appointmentId)
-        {
-            var appointment = await _context.Appointments.FindAsync(appointmentId);
+            await _appointmentService.UpdateStatus(appointment, statusUpdate.Status);
                 
-            if (appointment == null)
-            {
-                throw new ErrorHandlingException("Không tìm thấy lịch hẹn" );
-            }
-                
-            appointment.Status = "Đã hủy";
-            await _context.SaveChangesAsync();
-            
             return Ok(new { message = "Cập nhật trạng thái thành công" });
         }
 
@@ -124,16 +59,37 @@ namespace server.Controllers
             var userId = HttpContext.Items["UserId"];
             int parsedUserId = Convert.ToInt32(userId.ToString());
 
-            var patient = await _patientService.GetPatientById(parsedUserId);
-            if (patient == null)
-            {
-                return NotFound(new { message = "Không tìm thấy bệnh nhân" });
-            }
+            var patient = await _patientService.GetPatientById(parsedUserId) ?? throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");
 
             var appointments = await _appointmentService.GetAppointmentByPatientId(patient.PatientId);
 
             return Ok(appointments);
         }
 
+        // GET: Appointments
+        [Authorize(Roles = "patient")]
+        [HttpPut("cancel/{appointmentId}")]
+        public async Task<ActionResult> CancelAppointment( int appointmentId)
+        {
+            var appointment = await _appointmentService.GetAppointmentById(appointmentId) ?? throw new ErrorHandlingException("Không tìm thấy lịch hẹn" );
+    
+            _appointmentService.CancelAppointment(appointment);
+
+            return Ok(new { message = "Cập nhật trạng thái thành công" });
+        }
+
+        [Authorize(Roles = "doctor")]
+        [HttpGet("schedule")]
+        public async Task<ActionResult<List<AppointmentDTO.DoctorScheduleDTO>>> GetDoctorSchedule()
+        {
+            var userId = HttpContext.Items["UserId"];
+            int parsedUserId = Convert.ToInt32(userId.ToString());
+
+            var doctor = await _doctor.GetDoctorById(parsedUserId) ?? throw new ErrorHandlingException(404, "Không tìm thấy bác sĩ!");
+
+            var schedule = await _appointmentService.GetDoctorSchedule(doctor.DoctorId) ?? throw new ErrorHandlingException(404, "Không tìm thấy lịch làm việc!");
+
+            return schedule;
+        }
     }
 }

@@ -1,119 +1,77 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { Container, Table, Button, Badge, Form, Modal, Spinner, Alert } from 'react-bootstrap';
-import axios from '../Util/AxiosConfig';
-import { AuthContext } from '../Context/AuthContext';
+import React, { useState, useEffect } from 'react'
+import { Container, Table, Button, Badge, Form, Modal, Spinner } from 'react-bootstrap'
+import axios from '../Util/AxiosConfig'
 
 const AppointmentAdmin = () => {
-  const { role } = useContext(AuthContext);
-  const [appointments, setAppointments] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-  const [currentAppointment, setCurrentAppointment] = useState(null);
-  const [newStatus, setNewStatus] = useState('');
-  const [updateMessage, setUpdateMessage] = useState(null);
+  const [appointments, setAppointments] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [showModal, setShowModal] = useState(false)
+  const [currentAppointment, setCurrentAppointment] = useState(null)
+  const [newStatus, setNewStatus] = useState('')
 
   const statusOptions = [
     'Chờ xác nhận',
     'Đã xác nhận',
     'Đã hoàn thành',
     'Đã hủy'
-  ];
+  ]
 
   const statusColors = {
     'Chờ xác nhận': 'warning',
     'Đã xác nhận': 'info',
     'Đã hoàn thành': 'success',
     'Đã hủy': 'danger'
-  };
-
-  const fetchAppointments = async () => {
-    setLoading(true);
-    try {
-      if (role === 'admin') {
-        console.log("AAAAAAAAAAAAAAA")
-        const token = localStorage.getItem('token');
-        const response = await axios.get('/appointments', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        setAppointments(response.data);
-        setError(null);
-      }
-    } catch (err) {
-      console.error('Error fetching appointments:', err);
-      setError('Không thể tải danh sách lịch hẹn. Vui lòng thử lại sau.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  }
 
   useEffect(() => {
-    console.log("AAAAAAAAAAAAAAA")
-    if (role === 'admin')
-      fetchAppointments();
-  }, []);
+    fetchAppointments()
+  }, [])
 
+  const fetchAppointments = async () => {
+    setLoading(true)
+
+    try {
+      const response = await axios.get('/appointments')
+      setAppointments(response.data)
+    } catch (err) {
+      console.error('Error fetching appointments:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
   const handleOpenModal = (appointment) => {
-    setCurrentAppointment(appointment);
-    setNewStatus(appointment.status);
-    setShowModal(true);
-  };
+    setCurrentAppointment(appointment)
+    setNewStatus(appointment.status)
+    setShowModal(true)
+  }
 
   const handleCloseModal = () => {
-    setShowModal(false);
-    setCurrentAppointment(null);
-    setNewStatus('');
-    setUpdateMessage(null);
-  };
+    setShowModal(false)
+    setCurrentAppointment(null)
+    setNewStatus('')
+  }
 
   const handleUpdateStatus = async () => {
     if (!currentAppointment || newStatus === currentAppointment.status) {
-      return;
+      return
     }
-
+  
     try {
-      const token = localStorage.getItem('token');
-      await axios.put(`/appointments/${currentAppointment.appointmentId}/status`, 
-        { status: newStatus },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
+      await axios.put(`/status/${currentAppointment.appointmentId}`, { status: newStatus })
       
-      // Update the local state to reflect the change
-      setAppointments(appointments.map(app => 
-        app.appointmentId === currentAppointment.appointmentId 
-          ? { ...app, status: newStatus } 
-          : app
-      ));
+      // Sau khi cập nhật thành công thì reload danh sách
+      await fetchAppointments() 
       
-      setUpdateMessage({
-        type: 'success',
-        text: 'Cập nhật trạng thái thành công!'
-      });
-      
-      // Close modal after 1.5 seconds
-      setTimeout(() => {
-        handleCloseModal();
-      }, 1500);
-      
+      handleCloseModal() // đóng modal sau khi cập nhật
     } catch (err) {
-      console.error('Error updating appointment status:', err);
-      setUpdateMessage({
-        type: 'danger',
-        text: 'Không thể cập nhật trạng thái. Vui lòng thử lại sau.'
-      });
+      console.error('Error updating appointment status:', err)
     }
-  };
-
+  }
+  
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleString('vi-VN');
-  };
+    const date = new Date(dateString)
+    return date.toLocaleString('vi-VN')
+  }
 
   if (loading) {
     return (
@@ -122,28 +80,12 @@ const AppointmentAdmin = () => {
           <span className="visually-hidden">Đang tải...</span>
         </Spinner>
       </Container>
-    );
-  }
-
-  if (error) {
-    return (
-      <Container className="mt-4">
-        <Alert variant="danger">
-          {error}
-        </Alert>
-      </Container>
-    );
+    )
   }
 
   return (
     <Container fluid className="mt-4 w-75 mx-auto">
       <h2 className="mb-4">Quản lý lịch hẹn</h2>
-      
-      <div className="mb-3 d-flex justify-content-between">
-        <Button variant="primary" onClick={fetchAppointments}>
-          <i className="bi bi-arrow-clockwise"></i> Làm mới
-        </Button>
-      </div>
       
       <Table responsive striped bordered hover>
         <thead>
@@ -196,12 +138,6 @@ const AppointmentAdmin = () => {
           <Modal.Title>Cập nhật trạng thái lịch hẹn</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {updateMessage && (
-            <Alert variant={updateMessage.type}>
-              {updateMessage.text}
-            </Alert>
-          )}
-          
           {currentAppointment && (
             <Form>
               <Form.Group className="mb-3">
@@ -232,14 +168,14 @@ const AppointmentAdmin = () => {
           <Button 
             variant="primary" 
             onClick={handleUpdateStatus}
-            disabled={!currentAppointment || newStatus === currentAppointment.status || updateMessage}
+            disabled={!currentAppointment || newStatus === currentAppointment.status}
           >
             Cập nhật
           </Button>
         </Modal.Footer>
       </Modal>
     </Container>
-  );
-};
+  )
+}
 
-export default AppointmentAdmin;
+export default AppointmentAdmin
