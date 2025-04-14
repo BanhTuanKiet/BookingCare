@@ -17,6 +17,9 @@ using server.DTO;
 using server.Middleware;
 using server.Models;
 using server.Util;
+using System.Net;
+using System.Net.Mail;
+
 
 namespace server.Controllers
 {
@@ -28,6 +31,10 @@ namespace server.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IConfiguration _configuration;
         private readonly ClinicManagementContext _context;
+        private readonly IEmailService _emailService;
+
+
+        public AuthController(ClinicManagementContext context, IConfiguration configuration, SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IEmailService emailService)
 
         // Lưu trữ OTP tạm thời theo email
         private static readonly Dictionary<string, OtpInfo> _otpDictionary = new Dictionary<string, OtpInfo>();
@@ -37,11 +44,13 @@ namespace server.Controllers
             IConfiguration configuration,
             SignInManager<ApplicationUser> signInManager,
             UserManager<ApplicationUser> userManager)
+
         {
             _context = context;
             _configuration = configuration;
             _signInManager = signInManager;
             _userManager = userManager;
+            _emailService = emailService;
         }
 
         private class OtpInfo
@@ -256,9 +265,46 @@ namespace server.Controllers
             return Ok(new { Token = "HttpContext", message = "Xác thực thành công", user });
         }
     }
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
+        {
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null)
+                return BadRequest("Email không tồn tại");
+
+            var code = new Random().Next(100000, 999999).ToString();
+
+            // Lưu mã vào DB hoặc gửi ngay tới email
+            await _emailService.SendEmailAsync(user.Email, "Mã khôi phục mật khẩu", $"Mã xác nhận của bạn là: {code}");
+
+            // Có thể lưu mã + thời gian hết hạn vào DB để xác nhận sau
+
+            MemoryResetCodeStore.SetCode(user.Email, code, 5);
+
+            return Ok("Đã gửi mã xác thực đến email");
+        }
+
+        [HttpPost("verify-reset-code")]
+        public async Task<IActionResult> VerifyResetCode([FromBody] ResetPasswordRequest request)
+        {
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null) throw new ErrorHandlingException(400, "Email không tồn tại");
+
+            var (isValid, error) = MemoryResetCodeStore.VerifyCode(request.Email, request.Code);
+            if (!isValid) throw new ErrorHandlingException(400,error);
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await _userManager.ResetPasswordAsync(user, token, request.NewPassword);
+
+            if (!result.Succeeded) throw new ErrorHandlingException(500, "Lỗi khi đặt lại mật khẩu");
+
+            return Ok("Đặt lại mật khẩu thành công");
+        }
+
 
     public class SendOtpRequest
     {
         public string Email { get; set; }
+
     }
 }

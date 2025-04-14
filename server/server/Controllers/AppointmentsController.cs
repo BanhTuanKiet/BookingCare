@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mail;
 using System.Runtime.CompilerServices;
+using System.Net.Mail;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +16,7 @@ using server.Middleware;
 using server.Models;
 using server.Services;
 using Server.DTO;
+using Microsoft.Extensions.Configuration;
 
 namespace server.Controllers
 {
@@ -125,7 +127,6 @@ namespace server.Controllers
                         .ThenInclude(d => d.User)
                     .Include(a => a.Service)
                     .FirstOrDefaultAsync(a => a.AppointmentId == id);
-                
                 if (appointment == null)
                 {
                     return NotFound(new { message = "Không tìm thấy lịch hẹn" });
