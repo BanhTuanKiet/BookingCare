@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Net.Mail;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,7 @@ using server.Middleware;
 using server.Models;
 using server.Services;
 using Server.DTO;
+using Microsoft.Extensions.Configuration;
 
 namespace server.Controllers
 {
@@ -25,14 +27,16 @@ namespace server.Controllers
         private readonly IPatient _patientService;
         private readonly IAppointment _appointmentService;
         private readonly IService _serviceServices;
+        private readonly IConfiguration _configuration;
 
-        public AppointmentsController(ClinicManagementContext context, IDoctor doctorService, IPatient patientService, IAppointment appointmentService, IService serviceServices)
+        public AppointmentsController(ClinicManagementContext context, IDoctor doctorService, IPatient patientService, IAppointment appointmentService, IService serviceServices, IConfiguration configuration)
         {
             _context = context;
             _doctorService = doctorService;
             _patientService = patientService;
             _appointmentService = appointmentService;
             _serviceServices = serviceServices;
+            _configuration = configuration;
         }
         // GET: Appointments
         [Authorize(Roles = "patient")]
@@ -82,21 +86,108 @@ namespace server.Controllers
         {
             try
             {
-                var appointment = await _context.Appointments.FindAsync(id);
-                
+                //var appointment = await _context.Appointments.FindAsync(id);
+                // Sử dụng Include() để load các thực thể liên quan
+                var appointment = await _context.Appointments
+                    .Include(a => a.Patient)
+                        .ThenInclude(p => p.User)
+                    .Include(a => a.Doctor)
+                        .ThenInclude(d => d.User)
+                    .Include(a => a.Service)
+                    .FirstOrDefaultAsync(a => a.AppointmentId == id);
+
                 if (appointment == null)
                 {
                     return NotFound(new { message = "Không tìm thấy lịch hẹn" });
                 }
-                
+
+                string oldStatus = appointment.Status;
                 appointment.Status = statusUpdate.Status;
                 await _context.SaveChangesAsync();
-                
+
+                // Kiểm tra nếu patient và email tồn tại trước khi gửi email
+                if (appointment.Patient?.User?.Email != null)
+                {
+                    Console.WriteLine($"Tìm thấy email: {appointment.Patient.User.Email}");
+                    await SendStatusUpdateEmail(
+                        appointment.Patient.User.Email,
+                        appointment.Patient.User.FullName,
+                        appointment.Doctor?.User?.FullName,
+                        appointment.AppointmentDate.Value,
+                        appointment.Service?.ServiceName,
+                        oldStatus,
+                        statusUpdate.Status
+                    );
+                }
+                else
+                {
+                    Console.WriteLine("Email của bệnh nhân là null hoặc không tìm thấy");
+                }
+
                 return Ok(new { message = "Cập nhật trạng thái thành công" });
             }
             catch (Exception ex)
             {
+                Console.WriteLine($"Lỗi trong UpdateAppointmentStatus: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
                 return StatusCode(500, new { message = "Lỗi khi cập nhật trạng thái: " + ex.Message });
+            }
+        }
+
+        private async Task<bool> SendStatusUpdateEmail(string email, string patientName, string doctorName, DateTime appointmentDate, string serviceName, string oldStatus, string newStatus)
+        {
+            try
+            {
+                Console.WriteLine($"Đang cố gắng gửi email đến {email}");
+                var smtpClient = new SmtpClient
+                {
+                    Host = _configuration["EmailSettings:SmtpServer"],
+                    Port = int.Parse(_configuration["EmailSettings:Port"]),
+                    EnableSsl = bool.Parse(_configuration["EmailSettings:EnableSsl"]),
+                    Credentials = new System.Net.NetworkCredential(
+                        _configuration["EmailSettings:SenderEmail"],
+                        _configuration["EmailSettings:Password"]
+                    )
+                };
+
+                string formattedDate = appointmentDate.ToString("dd/MM/yyyy HH:mm");
+                Console.WriteLine($"Ngày đã định dạng: {formattedDate}");
+                var message = new MailMessage
+                {
+                    From = new MailAddress(_configuration["EmailSettings:SenderEmail"], _configuration["EmailSettings:SenderName"]),
+                    Subject = "Thông báo cập nhật trạng thái lịch hẹn",
+                    Body = $@"
+                         <html>
+                         <body>
+                             <h2>Cập nhật trạng thái lịch hẹn</h2>
+                             <p>Xin chào {patientName},</p>
+                             <p>Lịch hẹn khám bệnh của bạn đã được cập nhật trạng thái.</p>
+                             <p><strong>Thông tin lịch hẹn:</strong></p>
+                             <ul>
+                                 <li>Bác sĩ: {doctorName}</li>
+                                 <li>Dịch vụ: {serviceName}</li>
+                                 <li>Ngày hẹn: {formattedDate}</li>
+                                 <li>Trạng thái cũ: {oldStatus}</li>
+                                 <li>Trạng thái mới: <strong>{newStatus}</strong></li>
+                             </ul>
+                             <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>
+                             <p>Trân trọng,<br/>Hệ thống đặt lịch khám bệnh</p>
+                         </body>
+                         </html>",
+                    IsBodyHtml = true
+                };
+
+                message.To.Add(email);
+                Console.WriteLine("Email đã được cấu hình, đang gửi...");
+                await smtpClient.SendMailAsync(message);
+                Console.WriteLine("Email đã được gửi thành công");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi gửi email: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                return false;
             }
         }
 
