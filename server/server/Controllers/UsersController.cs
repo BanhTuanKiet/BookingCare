@@ -13,6 +13,7 @@ using server.Services;
 
 namespace server.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase
@@ -24,6 +25,18 @@ namespace server.Controllers
         {
             _context = context;
             _userService = userService;
+        }
+
+        [HttpGet("profile")]
+        public async Task<ActionResult> GetUserById()
+        {
+            var userId = HttpContext.Items["UserId"];
+            var role = HttpContext.Items["role"];
+            int parsedUserId = Convert.ToInt32(userId.ToString());
+
+            var user = await _userService.GetUserById(parsedUserId, role.ToString());
+
+            return Ok(user);
         }
     }
 }

@@ -13,7 +13,7 @@ import UploadDoctorImage from '../Page/UploadDoctorImage'
 import Login from '../Page/Login'
 import Signin from '../Page/Signin'
 import ServiceDetail from '../Page/ServiceDetail'
-import Profile from '../Page/Profile'
+import Dashboard from '../Page/Dashboard'
 import Admin from '../Page/Admin'
 
 function AppRoute() {
@@ -22,7 +22,7 @@ function AppRoute() {
             <Route path='/' element={<Index><Home /></Index>} />
             <Route path='/về chúng tôi' element={<Index><About /></Index>} />
             <Route path='/admin' element={<Index><Admin /></Index>} />
-            <Route path='/thông tin cá nhân' element={<Index><Profile /></Index>} />
+            <Route path='/thông tin cá nhân' element={<Index><Dashboard /></Index>} />
             {/* Trang chi tiết bác sĩ */}
             <Route path='/bác sĩ' element={<Index><Doctor /></Index>} />
             <Route path='/bac-si/:doctorName' element={<Index><DoctorDetail /></Index>} />

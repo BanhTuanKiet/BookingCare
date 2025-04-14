@@ -51,14 +51,16 @@ public partial class ClinicManagementContext : IdentityDbContext<ApplicationUser
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder.Entity<Appointment>(entity =>
+                modelBuilder.Entity<Appointment>(entity =>
         {
             entity.HasKey(e => e.AppointmentId).HasName("PK__Appointm__8ECDFCA2D8B95A6A");
 
             entity.Property(e => e.AppointmentId).HasColumnName("AppointmentID");
             entity.Property(e => e.AppointmentDate).HasColumnType("datetime");
+            entity.Property(e => e.AppointmentTime).HasMaxLength(50);
             entity.Property(e => e.DoctorId).HasColumnName("DoctorID");
             entity.Property(e => e.PatientId).HasColumnName("PatientID");
+            entity.Property(e => e.ServiceId).HasColumnName("ServiceID");
             entity.Property(e => e.Status).HasMaxLength(50);
 
             entity.HasOne(d => d.Doctor).WithMany(p => p.Appointments)
@@ -68,6 +70,10 @@ public partial class ClinicManagementContext : IdentityDbContext<ApplicationUser
             entity.HasOne(d => d.Patient).WithMany(p => p.Appointments)
                 .HasForeignKey(d => d.PatientId)
                 .HasConstraintName("FK__Appointme__Patie__4D5F7D71");
+
+            entity.HasOne(d => d.Service).WithMany(p => p.Appointments)
+                .HasForeignKey(d => d.ServiceId)
+                .HasConstraintName("FK_Appointments_Services");
         });
 
         modelBuilder.Entity<Doctor>(entity =>

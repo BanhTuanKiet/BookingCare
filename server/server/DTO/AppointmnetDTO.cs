@@ -2,16 +2,13 @@ namespace server.DTO
 {
     public class AppointmentDTO
     {
-        // public class DoctorBasic
-        // {
-        //     public int? DoctorId { get; set; }
-        //     public int? SpecialtyId { get; set; }
-        //     public string? UserName { get; set; }
-        //     public string? Position { get; set; }
-        //     public int? ExperienceYears { get; set; }
-        //     public string? DoctorImage { get; set; }
-        //     public string? Degree { get; set; }
-        // }
+        public class DoctorScheduleDTO
+        {
+            public DateTime Date { get; set; }
+            public string AppointmentTime { get; set; }
+            public int PatientCount { get; set; } // <- dòng này phải tồn tại!
+
+        }
 
         public class AppointmentDetail
         {

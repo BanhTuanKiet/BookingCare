@@ -33,6 +33,7 @@ builder.Services.AddCorsPolicy();
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddScoped<ISpecialty, SpecialtyServices>();
 builder.Services.AddScoped<IService, ServiceServices>();
+builder.Services.AddScoped<IUser, UserServices>();
 builder.Services.AddScoped<IDoctor, DoctorServices>();
 builder.Services.AddScoped<IPatient, PatientServices>();
 builder.Services.AddScoped<IAppointment, AppointmentServices>();
