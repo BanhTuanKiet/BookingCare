@@ -7,5 +7,10 @@ namespace server.Services
     {
         Task<List<AppointmentDTO.AppointmentDetail>> GetAppointments();
         Task<List<AppointmentDTO.AppointmentDetail>> GetAppointmentByPatientId(int? patientId);
+        Task<Appointment> GetAppointmentById(int appointmentId);
+        Task UpdateStatus(Appointment appointment, string newStatus);
+        void CancelAppointment(Appointment appointment);
+        Task<List<AppointmentDTO.DoctorScheduleDTO>> GetDoctorSchedule(int? doctorId);
+
     }
 }

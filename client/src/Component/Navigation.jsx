@@ -1,18 +1,17 @@
-import React, { useContext, useState, useRef, useEffect } from "react";
-import { Container, Nav, Navbar, NavDropdown } from "react-bootstrap";
-import { useLocation, useNavigate } from "react-router-dom";
-import "../Style/Nav.css";
-import { NavContext } from "../Context/NavContext";
-import { AuthContext } from "../Context/AuthContext";
+import React, { useContext, useState, useRef, useEffect } from "react"
+import { Container, Nav, Navbar, NavDropdown } from "react-bootstrap"
+import { useLocation, useNavigate } from "react-router-dom"
+import "../Style/Nav.css"
+import { NavContext } from "../Context/NavContext"
+import { AuthContext } from "../Context/AuthContext"
 
 const Navigation = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const { isAuthenticated, UserName, logout, role} = useContext(AuthContext);
-  const { specialties, services, HandleNavigation } = useContext(NavContext);
-  const indicatorRef = useRef(null);
-  const navRefs = useRef([]);
-  console.log(role)
+  const location = useLocation()
+  const navigate = useNavigate()
+  const { isAuthenticated, UserName, logout, role} = useContext(AuthContext)
+  const { specialties, services, HandleNavigation } = useContext(NavContext)
+  const indicatorRef = useRef(null)
+  const navRefs = useRef([])
   const pages = [
     { name: "Trang chủ", link: "/" },
     { name: "Giới Thiệu", link: "/về chúng tôi" },
@@ -22,68 +21,68 @@ const Navigation = () => {
     { name: "Tin tức", link: "/tin tức" },
     { name: "Đặt lịch khám", link: "/đặt lịch khám" },
     { name: "Liên hệ", link: "/liên hệ" },
-  ];
+  ]
 
-  const [openDropdown, setOpenDropdown] = useState(null);
-  const [activeIndex, setActiveIndex] = useState(null);
-  const savedIndexRef = useRef(null);
+  const [openDropdown, setOpenDropdown] = useState(null)
+  const [activeIndex, setActiveIndex] = useState(null)
+  const savedIndexRef = useRef(null)
 
   // CHỈ THAY ĐỔI HÀM NÀY:
   const normalizePath = (path) => {
     // decode để chuyển /v%E1%BB%81%20ch%C3%BAng%20t%C3%B4i -> /về chúng tôi
     // xóa dấu "/" ở cuối nếu có
-    return decodeURIComponent(path).replace(/\/$/, "");
-  };
+    return decodeURIComponent(path).replace(/\/$/, "")
+  }
 
   const isPageActive = (pageLink) => {
-    const currentPath = normalizePath(location.pathname);
-    const targetPath = normalizePath(pageLink);
-    return currentPath === targetPath ;
-  };
+    const currentPath = normalizePath(location.pathname)
+    const targetPath = normalizePath(pageLink)
+    return currentPath === targetPath 
+  }
 
   const moveIndicatorTo = (index) => {
     if (indicatorRef.current && navRefs.current[index]) {
-      const navItem = navRefs.current[index];
-      const indicator = indicatorRef.current;
-      indicator.style.width = `${navItem.offsetWidth}px`;
-      indicator.style.left = `${navItem.offsetLeft}px`;
-      indicator.style.opacity = "1";
+      const navItem = navRefs.current[index]
+      const indicator = indicatorRef.current
+      indicator.style.width = `${navItem.offsetWidth}px`
+      indicator.style.left = `${navItem.offsetLeft}px`
+      indicator.style.opacity = "1"
     }
-  };
+  }
 
   const handleMouseEnter = (index) => {
-    setOpenDropdown(index);
-    moveIndicatorTo(index);
-  };
+    setOpenDropdown(index)
+    moveIndicatorTo(index)
+  }
 
   const handleMouseLeave = () => {
-    setOpenDropdown(null);
+    setOpenDropdown(null)
     if (savedIndexRef.current !== null) {
-      moveIndicatorTo(savedIndexRef.current);
+      moveIndicatorTo(savedIndexRef.current)
     }
-  };
+  }
 
   const handleClick = (index, link) => {
-    savedIndexRef.current = index;
-    setActiveIndex(index);
-    navigate(link);
-  };
+    savedIndexRef.current = index
+    setActiveIndex(index)
+    navigate(link)
+  }
 
   useEffect(() => {
-    const currentIndex = pages.findIndex((page) => isPageActive(page.link));
+    const currentIndex = pages.findIndex((page) => isPageActive(page.link))
     if (currentIndex !== -1) {
-      savedIndexRef.current = currentIndex;
-      setActiveIndex(currentIndex);
+      savedIndexRef.current = currentIndex
+      setActiveIndex(currentIndex)
       setTimeout(() => {
-        moveIndicatorTo(currentIndex);
+        moveIndicatorTo(currentIndex)
       }, 300);
     }
-  }, [location.pathname]);
+  }, [location.pathname])
 
   const handleLogout = () => {
-    logout();
-    navigate("/");
-  };
+    logout()
+    navigate("/")
+  }
 
   const RenderNav = () => {
     return pages.map((page, index) => {
@@ -103,7 +102,7 @@ const Navigation = () => {
           >
             {index === 3 ? RenderSpecialties() : RenderServices()}
           </NavDropdown>
-        );
+        )
       }
 
       return (

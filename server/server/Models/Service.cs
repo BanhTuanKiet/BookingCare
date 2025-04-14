@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 
 namespace server.Models;
 
@@ -15,7 +14,6 @@ public partial class Service
     public decimal? Price { get; set; }
 
     public DateTime? CreatedAt { get; set; }
-    // [JsonIgnore]
 
     public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
 

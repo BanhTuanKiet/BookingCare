@@ -53,8 +53,8 @@ namespace server.Controllers
         {
             var userId = HttpContext.Items["UserId"];
             var parseUserId = Convert.ToInt32(userId.ToString());
-            Console.WriteLine("doctor: ", parseUserId);    
-            var patient = await _doctorService.GetPatientById(parseUserId);
+
+            var patient = await _doctorService.GetDoctorById(parseUserId);
 
             if (patient == null)
             {

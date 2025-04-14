@@ -15,16 +15,5 @@ namespace server.Services
             _context = context;
             _mapper = mapper;
         }
-
-        // public async Task<List<Appointment>> GetAppointments()
-        // {
-        //     // var appointments = await _context.Appointments
-        //     //     .Include(a => a.Patient)
-        //     //     .Include(a => a.Doctor)
-        //     //     .Include(a => a.Service)
-        //     //     .ToListAsync();
-
-        //     // return appointments;
-        // }
     }
 }

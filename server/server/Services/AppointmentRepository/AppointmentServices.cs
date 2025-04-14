@@ -36,7 +36,12 @@ namespace server.Services
 
             return appointmentDTOs;
         }
-
+        public async Task UpdateStatus(Appointment appointment, string newStatus)
+        {
+            appointment.Status = newStatus;
+            _context.Appointments.Update(appointment);
+            await _context.SaveChangesAsync();
+        }
         public async Task<List<AppointmentDTO.AppointmentDetail>> GetAppointmentByPatientId(int? patientId)
         {
             var appointments = await _context.Appointments
@@ -52,5 +57,43 @@ namespace server.Services
 
             return appointmentDTOs;
         }
+
+        public async Task<Appointment> GetAppointmentById(int appointmentId)
+        {
+            return await _context.Appointments.FindAsync(appointmentId);
+        }
+
+        public void CancelAppointment(Appointment appointment)
+        {
+            appointment.Status = "Đã hủy";
+            _context.SaveChangesAsync();
+        }
+
+        public async Task<List<AppointmentDTO.DoctorScheduleDTO>> GetDoctorSchedule(int? doctorId)
+        {
+            var schedule = await _context.Appointments
+                .Where(a => a.DoctorId == doctorId)
+                .ToListAsync();
+
+            var groupedSchedule = schedule
+                .GroupBy(a => new
+                {
+                    Date = a.AppointmentDate.Value.Date,
+                    AppointmentTime = a.AppointmentTime
+                })
+                .Select(g => new AppointmentDTO.DoctorScheduleDTO
+                {
+                    Date = g.Key.Date,
+                    AppointmentTime = g.Key.AppointmentTime,
+                    PatientCount = g.Count()
+                })
+                .OrderBy(g => g.Date)
+                .ThenBy(g => g.AppointmentTime)
+                .ToList();
+
+            return groupedSchedule;
+        }
+
+
     }
 }

@@ -9,6 +9,6 @@ namespace server.Services
         Task<DoctorDTO.DoctorDetail> GetDoctorByName(string doctorName);
         Task<List<DoctorDTO.DoctorBasic>> GetDoctorsBySpecialty(string specialtyName);
         Task<List<DoctorDTO.DoctorBasic>> SearchDoctors(string keyword);
-        Task<DoctorDTO.DoctorDetail> GetPatientById(int doctorId);
+        Task<DoctorDTO.DoctorDetail> GetDoctorById(int doctorId);
     }
 }
