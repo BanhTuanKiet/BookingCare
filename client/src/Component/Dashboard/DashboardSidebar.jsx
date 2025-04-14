@@ -38,7 +38,7 @@ const DashboardSidebar = ({ role, setTabActive }) => {
     return (
         <div style={{ height: '100vh', borderLeft: '1px solid #dee2e6', padding: '1rem' }} className='m-0 bg-light'>
           <h5 className="mb-4 px-3">Dashboard</h5>
-          {sidebar["doctor"]}
+          {sidebar[role]}
         </div>
     )  
 }

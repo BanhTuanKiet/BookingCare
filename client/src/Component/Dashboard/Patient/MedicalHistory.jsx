@@ -2,7 +2,7 @@ import React from 'react'
 import { Badge, Card, Container, Table } from 'react-bootstrap'
 import axios from '../../../Util/AxiosConfig'
 
-function AppointmentHistory({ appointmentInfo }) {
+function AppointmentHistory({ infor }) {
   const handleCancelAppointment = async (appointmentId) => {
     const isConfirmed = window.confirm("Bạn có chắc chắn muốn hủy lịch hẹn này không?")
     if (!isConfirmed) return
@@ -22,7 +22,8 @@ function AppointmentHistory({ appointmentInfo }) {
         </Card.Header>
 
         <Card.Body className="p-4">
-          {appointmentInfo && appointmentInfo.length > 0 ? (
+          {infor && infor.length > 0 ? (
+            
             <div className="table-responsive">
               <Table bordered hover>
                 <thead className="table-light">
@@ -35,7 +36,7 @@ function AppointmentHistory({ appointmentInfo }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {appointmentInfo.map((appointment) => (
+                  {infor.map((appointment) => (
                     <tr key={appointment.appointmentId} className="align-middle text-center">
                       <td>{new Date(appointment.appointmentDate).toLocaleDateString()}</td>
                       <td>{appointment.doctorName}</td>
