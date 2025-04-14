@@ -22,10 +22,10 @@ namespace server.Controllers
     [ApiController]
     public class AppointmentsController : Controller
     {
+        private readonly ClinicManagementContext _context;
         private readonly IDoctor _doctorService;
         private readonly IPatient _patientService;
         private readonly IAppointment _appointmentService;
-
         private readonly IService _serviceServices;
         private readonly IConfiguration _configuration;
 
@@ -66,8 +66,36 @@ namespace server.Controllers
             await _context.SaveChangesAsync();
             
             return Ok( new { message = "Đặt lịch thành công!"} );
-
         }
+
+       // GET: Appointments
+         [Authorize(Roles = "patient")]
+         [HttpPost]
+         public async Task<ActionResult> Appointment([FromBody] AppointmentForm appointmentForm)
+         {
+             Console.WriteLine(appointmentForm.Doctor);
+             var doctor = await _doctorService.GetDoctorByName(appointmentForm.Doctor);
+             var userId = HttpContext.Items["UserId"];
+             int parsedUserId = Convert.ToInt32(userId.ToString());
+             var patient = await _patientService.GetPatientById(parsedUserId);
+             var service = await _serviceServices.GetServiceByName(appointmentForm.Service);
+ 
+             Appointment appointment = new Appointment
+             {
+                 PatientId = patient.PatientId,
+                 DoctorId = doctor.DoctorId,
+                 AppointmentDate = appointmentForm.AppointmentDate,
+                 ServiceId = service.ServiceId,
+                 Status = "Chờ xác nhận",
+             };
+ 
+ 
+             Console.WriteLine(appointment.PatientId.ToString(), appointment.DoctorId, appointment.AppointmentDate, appointment.Status);
+             await _context.Appointments.AddAsync(appointment);
+             await _context.SaveChangesAsync();
+             
+             return Ok( new { message = "Đặt lịch thành công!"} );
+         }
 
         [Authorize(Roles = "admin")]
         [HttpGet]
