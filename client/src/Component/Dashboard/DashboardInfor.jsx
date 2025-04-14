@@ -59,7 +59,8 @@ function DashboardInfor({ role, tabActive }) {
         if (role === 'patient') {
             const fetchAppointmentInfo = async () => {
                 try {
-                    const response = await axios.post(`/appointments/by-patient`)
+                    const response = await axios.post(`appointments/by-patient`)
+                    console.log(response.data)
                     setInfor(response.data)
                 } catch (error) {
                     console.log(error)
@@ -69,6 +70,7 @@ function DashboardInfor({ role, tabActive }) {
             fetchAppointmentInfo()
         }
     }, [role])
+    console.log(role)
 
     useEffect(() => {
         const fetchDoctorSchedule = async () => {

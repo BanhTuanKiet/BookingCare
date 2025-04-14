@@ -57,7 +57,7 @@ const AppointmentAdmin = () => {
     }
   
     try {
-      await axios.put(`/status/${currentAppointment.appointmentId}`, { status: newStatus })
+      await axios.put(`/appointments/status/${currentAppointment.appointmentId}`, { status: newStatus })
       
       // Sau khi cập nhật thành công thì reload danh sách
       await fetchAppointments() 
