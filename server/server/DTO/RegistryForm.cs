@@ -27,5 +27,8 @@ namespace server.DTO
         [Required(ErrorMessage = "Số điện thoại không được để trống!")]
         [Phone(ErrorMessage = "Số điện thoại chỉ bao gồm chữ số!")]
         public string? phone { get; set; }
+
+         [Required(ErrorMessage = "Mã OTP không được để trống!")]
+        public string? otp { get; set; }
     }
 }

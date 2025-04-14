@@ -1,6 +1,6 @@
 .auth-container {
     width: 800px;
-    height: 600px;
+    height: 750px;
     margin: 50px auto;
     position: relative;
     border-radius: 15px;
@@ -164,3 +164,37 @@
     display: inline-block;
     vertical-align: middle;
 }*/
+
+/* Add this to your Signin.css file */
+/* Update the otp-group styling */
+.otp-group {
+  display: flex;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.otp-group .form-control {
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  flex: 1;
+  width: calc(100% - 70px); /* Adjust for button width */
+}
+
+.otp-group .btn {
+  position: absolute;
+  right: 0;
+  width: 65px;
+  height: 50px;
+  min-width: 50px;
+  border-radius: 5px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  font-size: 0.9rem;
+  line-height: 1.2;
+  text-align: center;
+}
