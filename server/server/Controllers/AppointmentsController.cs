@@ -80,7 +80,7 @@ namespace server.Controllers
             return Ok(appointments);
         }
 
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin, doctor")]
         [HttpPut("status/{id}")]
         public async Task<ActionResult> UpdateAppointmentStatus(int id, [FromBody] UpdateStatusDTO statusUpdate)
         {
