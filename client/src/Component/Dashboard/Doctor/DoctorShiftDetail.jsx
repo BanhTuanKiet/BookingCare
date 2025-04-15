@@ -16,17 +16,13 @@ function DoctorShiftDetail({ tabActive }) {
     const [prescription, setPrescription] = useState('')
 
     const statusOptions = [
-        'Chờ xác nhận',
         'Đã xác nhận',
-        'Đã hoàn thành',
-        'Đã hủy'
+        'Đã khám'
     ]
 
     const statusColors = {
-        'Chờ xác nhận': 'warning',
         'Đã xác nhận': 'info',
-        'Đã hoàn thành': 'success',
-        'Đã hủy': 'danger'
+        'Đã khám': 'primary'
     }
 
     const [dateTime, setDateTime] = useState(() => {
