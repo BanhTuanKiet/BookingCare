@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Container, Table, Button, Badge, Form, Modal, Spinner } from 'react-bootstrap'
 import axios from "../../../Util/AxiosConfig"
+import { formatDateToLocale, parseDateString, extractDateOnly } from "../../../Util/DateUtils"
 
 function DoctorShiftDetail({ tabActive }) {
     const time = tabActive.slice(9)
@@ -31,8 +32,8 @@ function DoctorShiftDetail({ tabActive }) {
     const [dateTime, setDateTime] = useState(() => {
         const rawDate = params[0].trim();
         const rawTime = params[1].trim();
-        const [day, month, year] = rawDate.split("/");
-        const formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+        const { day, month, year } = parseDateString(rawDate);
+        const formattedDate = `${year}-${month}-${day}`;
         
         return {
             date: formattedDate,
@@ -120,11 +121,6 @@ function DoctorShiftDetail({ tabActive }) {
         }
     }
 
-    const formatDate = (dateString) => {
-        const date = new Date(dateString)
-        return date.toLocaleString('vi-VN')
-    }
-
     if (loading) {
         return (
             <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '300px' }}>
@@ -144,7 +140,6 @@ function DoctorShiftDetail({ tabActive }) {
                     <tr>
                         <th>ID</th>
                         <th>Bệnh nhân</th>
-                        <th>Bác sĩ</th>
                         <th>Dịch vụ</th>
                         <th>Ngày hẹn</th>
                         <th>Trạng thái</th>
@@ -161,9 +156,8 @@ function DoctorShiftDetail({ tabActive }) {
                             <tr key={appointment.appointmentId}>
                                 <td>{appointment.appointmentId}</td>
                                 <td>{appointment.patientName}</td>
-                                <td>{appointment.doctorName}</td>
                                 <td>{appointment.serviceName}</td>
-                                <td>{formatDate(appointment.appointmentDate)}</td>
+                                <td>{extractDateOnly(appointment.appointmentDate)}</td>
                                 <td>
                                     <Badge bg={statusColors[appointment.status] || 'secondary'}>
                                         {appointment.status}
@@ -204,7 +198,7 @@ function DoctorShiftDetail({ tabActive }) {
                                 <Form.Label>Thông tin lịch hẹn:</Form.Label>
                                 <p><strong>Bệnh nhân:</strong> {currentAppointment.patientName}</p>
                                 <p><strong>Bác sĩ:</strong> {currentAppointment.doctorName}</p>
-                                <p><strong>Ngày hẹn:</strong> {formatDate(currentAppointment.appointmentDate)}</p>
+                                <p><strong>Ngày hẹn:</strong> {extractDateOnly(currentAppointment.appointmentDate)}</p>
                             </Form.Group>
                             
                             <Form.Group className="mb-3">
@@ -248,7 +242,7 @@ function DoctorShiftDetail({ tabActive }) {
                                 <p><strong>Bệnh nhân:</strong> {currentAppointment.patientName}</p>
                                 <p><strong>Bác sĩ:</strong> {currentAppointment.doctorName}</p>
                                 <p><strong>Dịch vụ:</strong> {currentAppointment.serviceName}</p>
-                                <p><strong>Ngày hẹn:</strong> {formatDate(currentAppointment.appointmentDate)}</p>
+                                <p><strong>Ngày hẹn:</strong> {extractDateOnly(currentAppointment.appointmentDate)}</p>
                             </Form.Group>
                             
                             <Form.Group className="mb-3">

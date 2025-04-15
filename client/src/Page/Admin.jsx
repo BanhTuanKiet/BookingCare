@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Container, Table, Button, Badge, Form, Modal, Spinner } from 'react-bootstrap'
 import axios from '../Util/AxiosConfig'
+import { extractDateOnly } from '../Util/DateUtils'
 
 const AppointmentAdmin = () => {
   const [appointments, setAppointments] = useState([])
@@ -39,6 +40,7 @@ const AppointmentAdmin = () => {
       setLoading(false)
     }
   }
+  
   const handleOpenModal = (appointment) => {
     setCurrentAppointment(appointment)
     setNewStatus(appointment.status)
@@ -66,11 +68,6 @@ const AppointmentAdmin = () => {
     } catch (err) {
       console.error('Error updating appointment status:', err)
     }
-  }
-  
-  const formatDate = (dateString) => {
-    const date = new Date(dateString)
-    return date.toLocaleString('vi-VN')
   }
 
   if (loading) {
@@ -111,7 +108,7 @@ const AppointmentAdmin = () => {
                 <td>{appointment.patientName}</td>
                 <td>{appointment.doctorName}</td>
                 <td>{appointment.serviceName}</td>
-                <td>{formatDate(appointment.appointmentDate)}</td>
+                <td>{extractDateOnly(appointment.appointmentDate)}</td>
                 <td>
                   <Badge bg={statusColors[appointment.status] || 'secondary'}>
                     {appointment.status}
@@ -144,7 +141,7 @@ const AppointmentAdmin = () => {
                 <Form.Label>Thông tin lịch hẹn:</Form.Label>
                 <p><strong>Bệnh nhân:</strong> {currentAppointment.patientName}</p>
                 <p><strong>Bác sĩ:</strong> {currentAppointment.doctorName}</p>
-                <p><strong>Ngày hẹn:</strong> {formatDate(currentAppointment.appointmentDate)}</p>
+                <p><strong>Ngày hẹn:</strong> {extractDateOnly(currentAppointment.appointmentDate)}</p>
               </Form.Group>
               
               <Form.Group className="mb-3">
