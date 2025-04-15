@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Common;
 using server.DTO;
 using server.Models;
 
@@ -94,6 +95,22 @@ namespace server.Services
             return groupedSchedule;
         }
 
+        public async Task<List<AppointmentDTO.AppointmentDetail>> GetDoctorScheduleDetail(int? doctorId, string date, string time)
+        {
+            var appointments = await _context.Appointments
+                .Include(a => a.Patient)
+                .Include(a => a.Patient.User)
+                .Include(a => a.Doctor)
+                .Include(a => a.Doctor.User)
+                .Include(a => a.Service)
+                .Where(a => a.DoctorId == doctorId && a.AppointmentTime.ToLower() == time.ToLower() && a.AppointmentDate == DateTime.Parse(date))
+
+                .ToListAsync();
+
+            var appointmentDTOs = _mapper.Map<List<AppointmentDTO.AppointmentDetail>>(appointments);
+
+            return appointmentDTOs;
+        }
 
     }
 }

@@ -231,11 +231,26 @@ namespace server.Controllers
             var userId = HttpContext.Items["UserId"];
             int parsedUserId = Convert.ToInt32(userId.ToString());
 
-            var doctor = await _doctorService.GetDoctorById(parsedUserId) ?? throw new ErrorHandlingException(404, "Không tìm thấy bác sĩ!");
+            var doctor = await _doctorService.GetDoctorById(parsedUserId) ?? throw new ErrorHandlingException("Không tìm thấy bác sĩ!");
 
-            var schedule = await _appointmentService.GetDoctorSchedule(doctor.DoctorId) ?? throw new ErrorHandlingException(404, "Không tìm thấy lịch làm việc!");
+            var schedule = await _appointmentService.GetDoctorSchedule(doctor.DoctorId) ?? throw new ErrorHandlingException("Không tìm thấy lịch làm việc!");
 
             return schedule;
         }
+
+        [Authorize(Roles = "doctor")]
+        [HttpGet("schedule_detail")]
+        public async Task<ActionResult> GetDoctorScheduleByDateTime([FromQuery] string date, [FromQuery] string time)
+        {
+            var userId = HttpContext.Items["UserId"];
+            int parsedUserId = Convert.ToInt32(userId.ToString());
+
+            var doctor = await _doctorService.GetDoctorById(parsedUserId) ?? throw new ErrorHandlingException("Không tìm thấy bác sĩ!");
+
+            var schedules = await _appointmentService.GetDoctorScheduleDetail(doctor.DoctorId, date, time);
+
+            return Ok(new { schedules = schedules});
+        }
+
     }
 }

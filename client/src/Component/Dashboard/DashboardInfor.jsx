@@ -3,12 +3,13 @@ import PersonalInfo from './General/PersonalInfor'
 import DoctorSchedule from './Doctor/DoctorSchedule'
 import ReviewDoctor from './Doctor/ReviewDoctor'
 import AppointmentHistory from './Patient/MedicalHistory'
+import DoctorShiftDetail from './Doctor/DoctorShiftDetail' // 📌 Import thêm file chi tiết
 import axios from "../../Util/AxiosConfig"
 
-function DashboardInfor({ role, tabActive }) {
+function DashboardInfor({ role, tabActive, setTabActive }) {
     const [user, setUser] = useState(null)
     const [infor, setInfor] = useState()
-    
+
     const Tabs = [
         {
           path: "hồ sơ",
@@ -40,6 +41,11 @@ function DashboardInfor({ role, tabActive }) {
           component: <PersonalInfo />,
           roles: ["patient"],
         },
+        {
+          path: "chi tiết",
+          component: <DoctorShiftDetail />,
+          roles: ["doctor"],
+        }
     ]
 
     useEffect(() => {
@@ -51,10 +57,9 @@ function DashboardInfor({ role, tabActive }) {
                 console.error("Error fetching patient information:", error)
             }
         }
-    
         fetchPatientInfo()
     }, [])
-    
+
     useEffect(() => {
         if (role === 'patient') {
             const fetchAppointmentInfo = async () => {
@@ -66,17 +71,15 @@ function DashboardInfor({ role, tabActive }) {
                     console.log(error)
                 }
             }
-    
             fetchAppointmentInfo()
         }
     }, [role])
-    console.log(role)
 
     useEffect(() => {
         const fetchDoctorSchedule = async () => {
             try {
                 const response = await axios.get("/appointments/schedule")
-                console.log(response.data)
+
                 setInfor(response.data)
             } catch (error) {
                 console.log(error)
@@ -87,17 +90,18 @@ function DashboardInfor({ role, tabActive }) {
             fetchDoctorSchedule()
         }
     }, [tabActive])
-    
-    const matchedTab = Tabs.find(tab => tab.path === tabActive && tab.roles.includes(role))
-    
+
+    // 📌 Update tìm tab
+    const matchedTab = Tabs.find(tab => (tab.path === tabActive || tabActive.includes(tab.path)) && tab.roles.includes(role))
+
     if (!matchedTab) {
         return <div>Tab not found</div>
     }
-    
+
     return (
-        <div>
-            {React.cloneElement(matchedTab.component, { user, infor })}
-        </div>
+        <>
+            {React.cloneElement(matchedTab.component, { user, infor, setTabActive, tabActive })}
+        </>
     )
 }
 
