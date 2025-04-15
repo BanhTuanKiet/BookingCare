@@ -103,7 +103,7 @@ namespace server.Services
                 .Include(a => a.Doctor)
                 .Include(a => a.Doctor.User)
                 .Include(a => a.Service)
-                .Where(a => a.DoctorId == doctorId && a.AppointmentTime.ToLower() == time.ToLower() && a.AppointmentDate == DateTime.Parse(date))
+                .Where(a => a.DoctorId == doctorId && a.AppointmentTime == time && a.AppointmentDate == DateTime.Parse(date) && a.Status == "Đã xác nhận")
 
                 .ToListAsync();
 

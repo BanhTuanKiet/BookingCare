@@ -86,6 +86,12 @@ namespace server.Controllers
         {
             try
             {
+                var role = HttpContext.Items["role"].ToString();
+                
+                if (role == "doctor" && statusUpdate.Status != "Đã khám")
+                {
+                    throw new ErrorHandlingException(403, "Bạn không có quyền!");
+                }
                 // Sử dụng Include() để load các thực thể liên quan
                 var appointment = await _context.Appointments
                     .Include(a => a.Patient)
