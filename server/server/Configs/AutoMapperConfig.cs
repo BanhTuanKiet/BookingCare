@@ -52,6 +52,10 @@
                         .ForMember(dest => dest.PatientCount, opt => opt.MapFrom(src => src.Count()));
 
 
+                CreateMap<Medicine, MedicineDTO.MedicineBasic>();
+                // .ForMember(dest => dest.Medi, m => m.MapFrom(source => source.medicalName))
+                // .ForMember(dest => dest.MedicineId, m => m.MapFrom(source => source.medicineId))
+
 
             }
 
