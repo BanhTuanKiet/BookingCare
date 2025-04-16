@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Container, Table, Button, Badge, Form, Modal, Spinner } from 'react-bootstrap'
+import { Container, Table, Button, Badge, Form, Modal, Spinner, Row, Col, ListGroup, Card } from 'react-bootstrap'
 import axios from "../../../Util/AxiosConfig"
 import { parseDateString, extractDateOnly } from "../../../Util/DateUtils"
 
@@ -14,11 +14,24 @@ function DoctorShiftDetail({ tabActive }) {
     const [currentAppointment, setCurrentAppointment] = useState(null)
     const [newStatus, setNewStatus] = useState('')
     const [prescription, setPrescription] = useState('')
-    const [diagnosis, setDiagnosis] = useState()
-    const [treatment, setTreatment] = useState()
+    const [diagnosis, setDiagnosis] = useState('')
+    const [treatment, setTreatment] = useState('')
+    const [medicinesList, setMedicinesList] = useState([])
+    const [selectedMedicines, setSelectedMedicines] = useState([])
+    
+    // Current medicine being edited
+    const [currentMedicine, setCurrentMedicine] = useState({
+        medicineId: '',
+        dosage: 0,
+        frequencyPerDay: 0,
+        durationInDays: 0,
+        usage: ''
+    })
+    
     const statusOptions = [
         'Đã xác nhận',
         'Đã khám',
+        'Đã hoàn thành'
     ]
 
     const statusColors = {
@@ -41,6 +54,7 @@ function DoctorShiftDetail({ tabActive }) {
 
     useEffect(() => {
         fetchDoctorSchedule()
+        fetchMedicines()
     }, [dateTime])
 
     const fetchDoctorSchedule = async () => {
@@ -53,11 +67,19 @@ function DoctorShiftDetail({ tabActive }) {
                 }
             })
             setSchedules(response.data.schedules || [])
-            console.log(response.data)
         } catch (error) {
             console.log(error.response?.data || error.message)
         } finally {
             setLoading(false)
+        }
+    }
+
+    const fetchMedicines = async () => {
+        try {
+            const response = await axios.get('/medicines')
+            setMedicinesList(response.data || [])
+        } catch (error) {
+            console.log(error.response?.data || error.message)
         }
     }
 
@@ -73,9 +95,24 @@ function DoctorShiftDetail({ tabActive }) {
         setNewStatus('')
     }
 
-    const handleOpenPrescriptionModal = (appointment) => {
+    const handleOpenPrescriptionModal = async (appointment) => {
         setCurrentAppointment(appointment)
         setPrescription(appointment.prescription || '')
+        setDiagnosis(appointment.diagnosis || '')
+        setTreatment(appointment.treatment || '')
+        setSelectedMedicines([])
+        resetCurrentMedicine()
+        
+        // Fetch existing prescription if available
+        try {
+            const response = await axios.get(`/medical_records/${appointment.appointmentId}/medicines`)
+            if (response.data && response.data.medicines) {
+                setSelectedMedicines(response.data.medicines)
+            }
+        } catch (error) {
+            console.log(error.response?.data || error.message)
+        }
+        
         setShowPrescriptionModal(true)
     }
 
@@ -83,6 +120,20 @@ function DoctorShiftDetail({ tabActive }) {
         setShowPrescriptionModal(false)
         setCurrentAppointment(null)
         setPrescription('')
+        setDiagnosis('')
+        setTreatment('')
+        setSelectedMedicines([])
+        resetCurrentMedicine()
+    }
+
+    const resetCurrentMedicine = () => {
+        setCurrentMedicine({
+            medicineId: '',
+            dosage: 0,
+            frequencyPerDay: 0,
+            durationInDays: 0,
+            usage: ''
+        })
     }
 
     const handleUpdateStatus = async () => {
@@ -108,7 +159,19 @@ function DoctorShiftDetail({ tabActive }) {
         }
       
         try {
-            await axios.put(`/appointments/prescription/${currentAppointment.appointmentId}`, { prescription })
+            // Save prescription, diagnosis, and treatment
+            await axios.put(`/appointments/prescription/${currentAppointment.appointmentId}`, { 
+                prescription, 
+                diagnosis, 
+                treatment 
+            })
+            
+            // Save selected medicines
+            if (selectedMedicines.length > 0) {
+                await axios.post(`/medical_records/${currentAppointment.appointmentId}/medicines`, {
+                    medicines: selectedMedicines
+                })
+            }
             
             // Reload list after successful update
             await fetchDoctorSchedule()
@@ -117,6 +180,62 @@ function DoctorShiftDetail({ tabActive }) {
         } catch (err) {
             console.error('Error saving prescription:', err)
         }
+    }
+
+    const handleAddMedicine = () => {
+        if (!currentMedicine.medicineId || 
+            !currentMedicine.dosage || 
+            !currentMedicine.frequencyPerDay || 
+            !currentMedicine.durationInDays) {
+            return; // Validate required fields
+        }
+        
+        // Calculate quantity based on the formula
+        const quantity = 
+            parseInt(currentMedicine.dosage) * 
+            parseInt(currentMedicine.frequencyPerDay) * 
+            parseInt(currentMedicine.durationInDays);
+        
+        // Find medicine details from the list
+        const selectedMedicine = medicinesList.find(med => med.medicineId == currentMedicine.medicineId);
+        const medicineName = selectedMedicine ? selectedMedicine.medicalName : '';
+        const unit = selectedMedicine ? selectedMedicine.unit : '';
+        
+        // Add to selected medicines with calculated quantity
+        const newMedicine = {
+            ...currentMedicine,
+            quantity,
+            medicineName, // For display purposes
+            unit // For display purposes
+        };
+        
+        setSelectedMedicines([...selectedMedicines, newMedicine]);
+        
+        // Reset form for next medicine
+        resetCurrentMedicine();
+    }
+
+    const handleRemoveMedicine = (index) => {
+        const updated = [...selectedMedicines];
+        updated.splice(index, 1);
+        setSelectedMedicines(updated);
+    }
+
+    const handleCurrentMedicineChange = (field, value) => {
+        setCurrentMedicine({
+            ...currentMedicine,
+            [field]: value
+        });
+    }
+
+    const getMedicineName = (medicineId) => {
+        const medicine = medicinesList.find(med => med.medicineId == medicineId);
+        return medicine ? medicine.medicalName : 'Unknown Medicine';
+    }
+
+    const getMedicineUnit = (medicineId) => {
+        const medicine = medicinesList.find(med => med.medicineId == medicineId);
+        return medicine ? medicine.unit : '';
     }
 
     if (loading) {
@@ -242,35 +361,174 @@ function DoctorShiftDetail({ tabActive }) {
                                 <p><strong>Dịch vụ:</strong> {currentAppointment.serviceName}</p>
                                 <p><strong>Ngày hẹn:</strong> {extractDateOnly(currentAppointment.appointmentDate)}</p>
                             </Form.Group>
+                            
                             <Form.Group className="mb-3">
-                            <Form.Label>Chẩn đoán bệnh</Form.Label>
-                            <Form.Control
-                                as="textarea"
-                                rows={2}
-                                value={diagnosis}
-                                onChange={(e) => setDiagnosis(e.target.value)}
-                                placeholder="Nhập chẩn đoán"
-                            />
+                                <Form.Label>Chẩn đoán bệnh</Form.Label>
+                                <Form.Control
+                                    as="textarea"
+                                    rows={2}
+                                    value={diagnosis}
+                                    onChange={(e) => setDiagnosis(e.target.value)}
+                                    placeholder="Nhập chẩn đoán"
+                                />
                             </Form.Group>
 
                             <Form.Group className="mb-3">
-                            <Form.Label>Hướng điều trị</Form.Label>
-                            <Form.Control
-                                as="textarea"
-                                rows={2}
-                                value={treatment}
-                                onChange={(e) => setTreatment(e.target.value)}
-                                placeholder="Nhập hướng điều trị"
-                            />
+                                <Form.Label>Hướng điều trị</Form.Label>
+                                <Form.Control
+                                    as="textarea"
+                                    rows={2}
+                                    value={treatment}
+                                    onChange={(e) => setTreatment(e.target.value)}
+                                    placeholder="Nhập hướng điều trị"
+                                />
                             </Form.Group>
+                            
+                            <hr className="my-4" />
+                            
+                            <h5>Thêm thuốc</h5>
+                            <Card className="mb-4">
+                                <Card.Body>
+                                    <Row className="mb-3 align-items-end">
+                                        <Col md={6}>
+                                            <Form.Group>
+                                                <Form.Label>Tên thuốc</Form.Label>
+                                                <Form.Select
+                                                    value={currentMedicine.medicineId}
+                                                    onChange={(e) => handleCurrentMedicineChange('medicineId', e.target.value)}
+                                                    required
+                                                >
+                                                    <option value="">-- Chọn thuốc --</option>
+                                                    {medicinesList.map(med => (
+                                                        <option key={med.medicineId} value={med.medicineId}>
+                                                            {med.medicalName} ({med.unit})
+                                                        </option>
+                                                    ))}
+                                                </Form.Select>
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={3}>
+                                            <Form.Group>
+                                                <Form.Label>Liều dùng (mỗi lần)</Form.Label>
+                                                <Form.Control
+                                                    type="number"
+                                                    min="0"
+                                                    value={currentMedicine.dosage}
+                                                    onChange={(e) => handleCurrentMedicineChange('dosage', e.target.value)}
+                                                    placeholder="VD: 1"
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={3}>
+                                            <Form.Group>
+                                                <Form.Label>Đơn vị</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    value={getMedicineUnit(currentMedicine.medicineId)}
+                                                    disabled
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+                                    <Row className="mb-3">
+                                        <Col md={4}>
+                                            <Form.Group>
+                                                <Form.Label>Số lần/ngày</Form.Label>
+                                                <Form.Control
+                                                    type="number"
+                                                    min="0"
+                                                    value={currentMedicine.frequencyPerDay}
+                                                    onChange={(e) => handleCurrentMedicineChange('frequencyPerDay', e.target.value)}
+                                                    placeholder="VD: 3"
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={4}>
+                                            <Form.Group>
+                                                <Form.Label>Số ngày uống</Form.Label>
+                                                <Form.Control
+                                                    type="number"
+                                                    min="0"
+                                                    value={currentMedicine.durationInDays}
+                                                    onChange={(e) => handleCurrentMedicineChange('durationInDays', e.target.value)}
+                                                    placeholder="VD: 7"
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                        <Col md={4}>
+                                            <Form.Group>
+                                                <Form.Label>
+                                                    Tổng số lượng
+                                                    <span className="text-muted ms-2">
+                                                        (Tự động tính)
+                                                    </span>
+                                                </Form.Label>
+                                                <Form.Control
+                                                    type="number"
+                                                    value={currentMedicine.dosage * currentMedicine.frequencyPerDay * currentMedicine.durationInDays || 0}
+                                                    disabled
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+                                    <Row>
+                                        <Col>
+                                            <Form.Group>
+                                                <Form.Label>Cách dùng</Form.Label>
+                                                <Form.Control
+                                                    type="text"
+                                                    value={currentMedicine.usage}
+                                                    onChange={(e) => handleCurrentMedicineChange('usage', e.target.value)}
+                                                    placeholder="VD: Uống sau khi ăn"
+                                                />
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+                                    <div className="d-flex justify-content-end mt-3">
+                                        <Button 
+                                            variant="primary" 
+                                            onClick={handleAddMedicine}
+                                            disabled={!currentMedicine.medicineId || !currentMedicine.dosage || !currentMedicine.frequencyPerDay || !currentMedicine.durationInDays}
+                                        >
+                                            <i className="bi bi-plus-circle me-1"></i> Thêm thuốc vào đơn
+                                        </Button>
+                                    </div>
+                                </Card.Body>
+                            </Card>
+                            
+                            <h5>Danh sách thuốc đã kê</h5>
+                            {selectedMedicines.length === 0 ? (
+                                <p className="text-muted">Chưa có thuốc nào được thêm vào đơn</p>
+                            ) : (
+                                <ListGroup className="mb-4">
+                                    {selectedMedicines.map((medicine, idx) => (
+                                        <ListGroup.Item key={idx} className="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6>{medicine.medicineName || getMedicineName(medicine.medicineId)}</h6>
+                                                <div><strong>Liều dùng:</strong> {medicine.dosage} {medicine.unit || getMedicineUnit(medicine.medicineId)}/lần, {medicine.frequencyPerDay} lần/ngày, {medicine.durationInDays} ngày</div>
+                                                <div><strong>Cách dùng:</strong> {medicine.usage}</div>
+                                                <div><strong>Tổng số lượng:</strong> {medicine.quantity} {medicine.unit || getMedicineUnit(medicine.medicineId)}</div>
+                                            </div>
+                                            <Button 
+                                                variant="outline-danger" 
+                                                size="sm"
+                                                onClick={() => handleRemoveMedicine(idx)}
+                                            >
+                                                <i className="bi bi-trash"></i>
+                                            </Button>
+                                        </ListGroup.Item>
+                                    ))}
+                                </ListGroup>
+                            )}
+                            
                             <Form.Group className="mb-3">
-                                <Form.Label>Đơn thuốc:</Form.Label>
+                                <Form.Label>Lưu ý bổ sung:</Form.Label>
                                 <Form.Control 
                                     as="textarea" 
-                                    rows={5}
+                                    rows={3}
                                     value={prescription}
                                     onChange={(e) => setPrescription(e.target.value)}
-                                    placeholder="Nhập thông tin đơn thuốc..."
+                                    placeholder="Nhập các lưu ý bổ sung về đơn thuốc..."
                                 />
                             </Form.Group>
                         </Form>
