@@ -66,9 +66,9 @@ function DoctorExaminedPatientsList() {
                             <td colSpan="6" className="text-center">Không có bệnh nhân nào đã được khám</td>
                         </tr>
                     ) : (
-                        patients.map(patient => (
-                            <tr key={patient.appointmentId}>
-                                <td>{patient.appointmentId}</td>
+                        patients.map((patient, index) => (
+                            <tr key={index}>
+                                <td>{index + 1}</td>
                                 <td>{patient.patientName}</td>
                                 <td>{patient.serviceName}</td>
                                 <td>{extractDateOnly(patient.appointmentDate)}</td>

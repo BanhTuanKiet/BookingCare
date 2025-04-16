@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { Container, Table, Button, Badge, Form, Modal, Spinner } from 'react-bootstrap'
 import axios from "../../../Util/AxiosConfig"
-import { formatDateToLocale, parseDateString, extractDateOnly } from "../../../Util/DateUtils"
+import { parseDateString, extractDateOnly } from "../../../Util/DateUtils"
 
 function DoctorShiftDetail({ tabActive }) {
     const time = tabActive.slice(9)
     const params = time.split(" - ")
-    
+
     const [schedules, setSchedules] = useState([])
     const [loading, setLoading] = useState(true)
     const [showStatusModal, setShowStatusModal] = useState(false)
@@ -14,22 +14,24 @@ function DoctorShiftDetail({ tabActive }) {
     const [currentAppointment, setCurrentAppointment] = useState(null)
     const [newStatus, setNewStatus] = useState('')
     const [prescription, setPrescription] = useState('')
-
+    const [diagnosis, setDiagnosis] = useState()
+    const [treatment, setTreatment] = useState()
     const statusOptions = [
         'Đã xác nhận',
-        'Đã khám'
+        'Đã khám',
     ]
 
     const statusColors = {
         'Đã xác nhận': 'info',
-        'Đã khám': 'primary'
+        'Đã khám': 'primary',
+        'Đã hoàn thành': 'success'
     }
 
     const [dateTime, setDateTime] = useState(() => {
-        const rawDate = params[0].trim();
-        const rawTime = params[1].trim();
+        const rawDate = params[0].trim()
+        const rawTime = params[1].trim()
         const { day, month, year } = parseDateString(rawDate);
-        const formattedDate = `${year}-${month}-${day}`;
+        const formattedDate = `${year}-${month}-${day}`
         
         return {
             date: formattedDate,
@@ -148,9 +150,9 @@ function DoctorShiftDetail({ tabActive }) {
                             <td colSpan="7" className="text-center">Không có lịch hẹn nào</td>
                         </tr>
                     ) : (
-                        schedules.map(appointment => (
-                            <tr key={appointment.appointmentId}>
-                                <td>{appointment.appointmentId}</td>
+                        schedules.map((appointment, index) => (
+                            <tr key={index}>
+                                <td>{index + 1}</td>
                                 <td>{appointment.patientName}</td>
                                 <td>{appointment.serviceName}</td>
                                 <td>{extractDateOnly(appointment.appointmentDate)}</td>
@@ -240,7 +242,27 @@ function DoctorShiftDetail({ tabActive }) {
                                 <p><strong>Dịch vụ:</strong> {currentAppointment.serviceName}</p>
                                 <p><strong>Ngày hẹn:</strong> {extractDateOnly(currentAppointment.appointmentDate)}</p>
                             </Form.Group>
-                            
+                            <Form.Group className="mb-3">
+                            <Form.Label>Chẩn đoán bệnh</Form.Label>
+                            <Form.Control
+                                as="textarea"
+                                rows={2}
+                                value={diagnosis}
+                                onChange={(e) => setDiagnosis(e.target.value)}
+                                placeholder="Nhập chẩn đoán"
+                            />
+                            </Form.Group>
+
+                            <Form.Group className="mb-3">
+                            <Form.Label>Hướng điều trị</Form.Label>
+                            <Form.Control
+                                as="textarea"
+                                rows={2}
+                                value={treatment}
+                                onChange={(e) => setTreatment(e.target.value)}
+                                placeholder="Nhập hướng điều trị"
+                            />
+                            </Form.Group>
                             <Form.Group className="mb-3">
                                 <Form.Label>Đơn thuốc:</Form.Label>
                                 <Form.Control 

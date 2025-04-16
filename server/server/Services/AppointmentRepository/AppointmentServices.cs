@@ -73,7 +73,7 @@ namespace server.Services
         public async Task<List<AppointmentDTO.DoctorScheduleDTO>> GetDoctorSchedule(int? doctorId)
         {
             var schedule = await _context.Appointments
-                .Where(a => a.DoctorId == doctorId)
+                .Where(a => a.DoctorId == doctorId && (a.Status == "Đã xác nhận" || a.Status == "Đã khám" || a.Status == "Đã hoàn thành"))
                 .ToListAsync();
 
             var groupedSchedule = schedule
@@ -103,7 +103,7 @@ namespace server.Services
                 .Include(a => a.Doctor)
                 .Include(a => a.Doctor.User)
                 .Include(a => a.Service)
-                .Where(a => a.DoctorId == doctorId && a.AppointmentTime == time && a.AppointmentDate == DateTime.Parse(date) && a.Status == "Đã xác nhận")
+                .Where(a => a.DoctorId == doctorId && a.AppointmentTime == time && a.AppointmentDate == DateTime.Parse(date) && (a.Status == "Đã xác nhận" || a.Status == "Đã khám" || a.Status == "Đã hoàn thành"))
 
                 .ToListAsync();
 

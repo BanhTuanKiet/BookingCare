@@ -18,7 +18,7 @@ const DoctorSchedule = ({ infor, setTabActive }) => {
       infor.forEach((group, groupIndex) => {
         const date = new Date(group.date)
         const time = group.appointmentTime
-        console.log(group)
+
         const start = new Date(date)
         const end = new Date(date)
   

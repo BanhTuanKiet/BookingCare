@@ -51,7 +51,7 @@ const PersonalInfor = ({ user, setUser }) => {
       setLoading(false)
     }
   }
-  console.log("user", user)
+
   return (
     <Card>
       <Card.Header className="d-flex justify-content-between align-items-center">
