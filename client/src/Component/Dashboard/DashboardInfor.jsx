@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import PersonalInfo from './General/PersonalInfor'
+import PatientHistory from './Doctor/PatientHistory'
 import DoctorSchedule from './Doctor/DoctorSchedule'
 import ReviewDoctor from './Doctor/ReviewDoctor'
 import AppointmentHistory from './Patient/MedicalHistory'
 import DoctorShiftDetail from './Doctor/DoctorShiftDetail' // 📌 Import thêm file chi tiết
+import PatientsInfor from './Admin/PatientsInfor'
 import axios from "../../Util/AxiosConfig"
 
 function DashboardInfor({ role, tabActive, setTabActive }) {
@@ -12,40 +14,46 @@ function DashboardInfor({ role, tabActive, setTabActive }) {
 
     const Tabs = [
         {
-          path: "hồ sơ",
-          component: <PersonalInfo />,
-          roles: ["doctor", "patient", "admin"],
+            path: "hồ sơ",
+            component: <PersonalInfo />,
+            roles: ["doctor", "patient", "admin"],
         },
         {
-          path: "danh sách bệnh nhân",
-          component: <PersonalInfo />,
-          roles: ["doctor"],
+            path: "danh sách bệnh nhân",
+            component: <PatientHistory />,
+            roles: ["doctor"],
         },
         {
-          path: "lịch làm việc",
-          component: <DoctorSchedule />,
-          roles: ["doctor"],
+            path: "lịch làm việc",
+            component: <DoctorSchedule />,
+            roles: ["doctor"],
         },
         {
-          path: "đánh giá",
-          component: <ReviewDoctor />,
-          roles: ["doctor"],
+            path: "đánh giá",
+            component: <ReviewDoctor />,
+            roles: ["doctor"],
         },
         {
-          path: "lịch sử hẹn",
-          component: <AppointmentHistory />,
-          roles: ["patient"],
+            path: "lịch sử hẹn",
+            component: <AppointmentHistory />,
+            roles: ["patient"],
         },
         {
-          path: "lịch sử thanh toán",
-          component: <PersonalInfo />,
-          roles: ["patient"],
+            path: "lịch sử thanh toán",
+            component: <PersonalInfo />,
+            roles: ["patient"],
         },
         {
-          path: "chi tiết",
-          component: <DoctorShiftDetail />,
-          roles: ["doctor"],
-        }
+            path: "chi tiết",
+            component: <DoctorShiftDetail />,
+            roles: ["doctor"],
+        },
+        {
+            path: "quản lý người dùng",
+            component: <PatientsInfor />,
+            roles: ["admin"],
+            // roles: ["doctor", "patient", "admin"],
+        },
     ]
 
     useEffect(() => {
@@ -100,7 +108,7 @@ function DashboardInfor({ role, tabActive, setTabActive }) {
 
     return (
         <>
-            {React.cloneElement(matchedTab.component, { user, infor, setTabActive, tabActive })}
+            {React.cloneElement(matchedTab.component, { user, setUser, infor, setTabActive, tabActive })}
         </>
     )
 }

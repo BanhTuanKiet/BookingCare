@@ -112,5 +112,22 @@ namespace server.Services
             return appointmentDTOs;
         }
 
+        public async Task<List<AppointmentDTO.AppointmentDetail>> GetPatientScheduleDetail(int? doctorId)
+        {
+            var appointments = await _context.Appointments
+                .Include(a => a.Patient)
+                .Include(a => a.Patient.User)
+                .Include(a => a.Doctor)
+                .Include(a => a.Doctor.User)
+                .Include(a => a.Service)
+                .Where(a => a.DoctorId == doctorId && a.Status == "Đã khám")
+
+                .ToListAsync();
+
+            var appointmentDTOs = _mapper.Map<List<AppointmentDTO.AppointmentDetail>>(appointments);
+
+            return appointmentDTOs;
+        }
+
     }
 }

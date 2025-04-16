@@ -38,5 +38,44 @@ namespace server.Controllers
 
             return Ok(user);
         }
+
+        [Authorize(Roles = "patient")]
+        [HttpPut("update-info")]
+        public async Task<ActionResult> UpdatePatientInfo([FromBody] PatientDTO.PatientUpdateDTO updateInfo)        {
+            try
+            {
+                var userId = HttpContext.Items["UserId"];
+                int parsedUserId = Convert.ToInt32(userId.ToString());
+
+                // Tìm patient dựa theo userId
+                var patient = await _context.Patients
+                    .FirstOrDefaultAsync(p => p.UserId == parsedUserId);
+
+                if (patient == null)
+                {
+                    return NotFound(new { message = "Không tìm thấy thông tin bệnh nhân" });
+                }
+
+                // Cập nhật thông tin
+                if (!string.IsNullOrEmpty(updateInfo.Address))
+                {
+                    patient.Address = updateInfo.Address;
+                }
+
+                if (updateInfo.DateOfBirth.HasValue)
+                {
+                    patient.DateOfBirth = updateInfo.DateOfBirth.Value;
+                }
+
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Cập nhật thông tin thành công" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi khi cập nhật thông tin bệnh nhân: {ex.Message}");
+                return StatusCode(500, new { message = "Lỗi khi cập nhật thông tin: " + ex.Message });
+            }
+        }
     }
 }

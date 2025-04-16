@@ -258,5 +258,19 @@ namespace server.Controllers
             return Ok(new { schedules = schedules});
         }
 
+        [Authorize(Roles = "doctor")]
+        [HttpGet("examined_patients")]
+        public async Task<ActionResult> GetPatientByStatus()
+        {
+            var userId = HttpContext.Items["UserId"];
+            int parsedUserId = Convert.ToInt32(userId.ToString());
+
+            var doctor = await _doctorService.GetDoctorById(parsedUserId) ?? throw new ErrorHandlingException("Không tìm thấy bác sĩ!");
+
+            var schedules = await _appointmentService.GetPatientScheduleDetail(doctor.DoctorId);
+
+            return Ok(new { schedules = schedules});
+        }
+
     }
 }

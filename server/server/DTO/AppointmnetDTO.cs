@@ -19,5 +19,11 @@ namespace server.DTO
             public string? AppointmentDate { get; set; }
             public string? Status { get; set; }
         }
+
+        public class PatientUpdateDTO
+        {
+            public string? Address { get; set; }
+            public DateOnly? DateOfBirth { get; set; }
+        }
     }
 }
