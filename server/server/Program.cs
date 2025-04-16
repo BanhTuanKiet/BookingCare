@@ -37,6 +37,7 @@ builder.Services.AddScoped<IUser, UserServices>();
 builder.Services.AddScoped<IDoctor, DoctorServices>();
 builder.Services.AddScoped<IPatient, PatientServices>();
 builder.Services.AddScoped<IAppointment, AppointmentServices>();
+builder.Services.AddScoped<IMedicine, MedicineService>();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 

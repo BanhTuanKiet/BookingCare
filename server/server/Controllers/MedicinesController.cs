@@ -26,22 +26,19 @@ namespace Clinic_Management.Controllers
     public class MedicinesController : ControllerBase
     {
         private readonly ClinicManagementContext _context;
-        private readonly IMapper _mapper;
+        private readonly IMedicine _medicineService;
 
-        public MedicinesController(ClinicManagementContext context, IMapper mapper)
+        public MedicinesController(ClinicManagementContext context, IMedicine medicineService)
         {
             _context = context;
-            _mapper = mapper;
+            _medicineService = medicineService;
         }
 
         // GET: api/medicines
         [HttpGet]
-        public async Task<List<MedicineDTO.MedicineBasic>> GetMedicines()
+        public async Task<List<MedicineDTO.MedicineBasic>> GetAllMedicines()
         {
-            var medicines = await _context.Medicines
-                .ToListAsync();
-            var medicineDTOs = _mapper.Map<List<MedicineDTO.MedicineBasic>>(medicines);
-            return medicineDTOs;
+            return await _medicineService.GetAllMedicines();
         }
     }
 }

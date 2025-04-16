@@ -168,7 +168,7 @@ function DoctorShiftDetail({ tabActive }) {
             
             // Save selected medicines
             if (selectedMedicines.length > 0) {
-                await axios.post(`/medical_records/${currentAppointment.appointmentId}/medicines`, {
+                await axios.post(`/medical_records/medicines/${currentAppointment.appointmentId}`, {
                     medicines: selectedMedicines
                 })
             }
@@ -401,7 +401,7 @@ function DoctorShiftDetail({ tabActive }) {
                                                     <option value="">-- Chọn thuốc --</option>
                                                     {medicinesList.map(med => (
                                                         <option key={med.medicineId} value={med.medicineId}>
-                                                            {med.medicalName} ({med.unit})
+                                                            {med.medicalName} 
                                                         </option>
                                                     ))}
                                                 </Form.Select>
