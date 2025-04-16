@@ -247,5 +247,13 @@ namespace server.Controllers
             return Ok(new { schedules = schedules});
         }
 
+        [Authorize(Roles = "admin")]
+        [HttpGet("filter/status/{status}")]
+        public async Task<ActionResult> GetAppointmentsByStatus(string status)
+        {
+            var appointments = await _appointmentService.GetAppointmentsByStatus(status) ?? throw new ErrorHandlingException("Không tìm thấy lịch hẹn");
+
+            return Ok(appointments);
+        }
     }
 }

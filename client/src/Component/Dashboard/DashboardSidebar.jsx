@@ -15,7 +15,7 @@ const DashboardSidebar = ({ role, setTabActive }) => {
     const adminSidebar = () => (
         <Nav className="flex-column">
             <Nav.Link href="#dashboard" onClick={() => setTabActive("")}>🏥 Quản lý bệnh viện</Nav.Link>
-            <Nav.Link href="#quản lý người dùng" onClick={() => setTabActive("quản lý người dùng")}>👥 Quản lý người dùng</Nav.Link>
+            <Nav.Link href="#quản lý lịch hẹn" onClick={() => setTabActive("quản lý lịch hẹn")}>👥 Quản lý lịch hẹn</Nav.Link>
             <Nav.Link href="#settings" onClick={() => setTabActive("hồ sơ")}>⚙️ Cài đặt</Nav.Link>
             <Nav.Link onClick={handleLogout} href="#logout" className="text-danger mt-4">🚪 Đăng xuất</Nav.Link>
         </Nav>

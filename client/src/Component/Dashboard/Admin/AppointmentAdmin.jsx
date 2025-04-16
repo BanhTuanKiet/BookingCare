@@ -10,7 +10,7 @@ const AppointmentAdmin = () => {
   const [currentAppointment, setCurrentAppointment] = useState(null)
   const [newStatus, setNewStatus] = useState('')
   const [currentPage, setCurrentPage] = useState(0)
-
+  const [filterStatus, setFilterStatus] = useState('Tất cả')
   const itemsPerPage = 10
   const totalPages = Math.ceil(appointments.length / itemsPerPage)
 
@@ -30,7 +30,26 @@ const AppointmentAdmin = () => {
 
   useEffect(() => {
     fetchAppointments()
+    setFilterStatus("Tất cả")
   }, [])
+
+  useEffect(() => {
+    const filterAppointments = async () => {
+      try {
+        if (filterStatus === "Tất cả") {
+          return 
+        }
+
+        const response = await axios.get(`/appointments/filter/status/${filterStatus}`)
+
+        setAppointments(response.data)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    filterAppointments()
+  }, [filterStatus])
 
   const fetchAppointments = async () => {
     setLoading(true)
@@ -87,7 +106,24 @@ const AppointmentAdmin = () => {
 
   return (
     <Container fluid className="mt-4 w-75 mx-auto">
-      <h2 className="mb-4">Quản lý lịch hẹn</h2>
+      <Form className="mb-3 d-flex justify-content-end">
+        <Form.Group className="d-flex align-items-center gap-2">
+          <Form.Label className="mb-0">Lọc theo trạng thái:</Form.Label>
+          <Form.Select
+            style={{ width: '200px' }}
+            value={filterStatus}
+            onChange={(e) => {
+              setFilterStatus(e.target.value)
+              setCurrentPage(0)
+            }}
+          >
+            <option value="Tất cả">Tất cả</option>
+            {statusOptions.map(status => (
+              <option key={status} value={status}>{status}</option>
+            ))}
+          </Form.Select>
+        </Form.Group>
+      </Form>
 
       <Table responsive striped bordered hover>
         <thead>
