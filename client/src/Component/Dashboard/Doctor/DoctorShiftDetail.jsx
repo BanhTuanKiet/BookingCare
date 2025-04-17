@@ -13,19 +13,24 @@ function DoctorShiftDetail({ tabActive }) {
     const [showPrescriptionModal, setShowPrescriptionModal] = useState(false)
     const [currentAppointment, setCurrentAppointment] = useState(null)
     const [newStatus, setNewStatus] = useState('')
-    const [prescription, setPrescription] = useState('')
-    const [diagnosis, setDiagnosis] = useState('')
-    const [treatment, setTreatment] = useState('')
+    const [prescriptionInfo, setPrescriptionInfo] = useState({
+        notes: '',
+        diagnosis: '',
+        treatment: ''
+    })
+    
     const [medicinesList, setMedicinesList] = useState([])
     const [selectedMedicines, setSelectedMedicines] = useState([])
     
     // Current medicine being edited
     const [currentMedicine, setCurrentMedicine] = useState({
         medicineId: '',
+        medicineName: "",
         dosage: 0,
         frequencyPerDay: 0,
         durationInDays: 0,
-        usage: ''
+        usage: '',
+        unit: ""
     })
     
     const statusOptions = [
@@ -94,45 +99,34 @@ function DoctorShiftDetail({ tabActive }) {
         setCurrentAppointment(null)
         setNewStatus('')
     }
+    
+    const handlePrescriptionChange = (field, value) => {
+        setPrescriptionInfo(prev => ({
+            ...prev,
+            [field]: value
+        }))
+    }    
 
     const handleOpenPrescriptionModal = async (appointment) => {
         setCurrentAppointment(appointment)
-        setPrescription(appointment.prescription || '')
-        setDiagnosis(appointment.diagnosis || '')
-        setTreatment(appointment.treatment || '')
         setSelectedMedicines([])
-        resetCurrentMedicine()
-        
-        // Fetch existing prescription if available
-        try {
-            const response = await axios.get(`/medical_records/${appointment.appointmentId}/medicines`)
-            if (response.data && response.data.medicines) {
-                setSelectedMedicines(response.data.medicines)
-            }
-        } catch (error) {
-            console.log(error.response?.data || error.message)
-        }
-        
         setShowPrescriptionModal(true)
     }
 
     const handleClosePrescriptionModal = () => {
         setShowPrescriptionModal(false)
         setCurrentAppointment(null)
-        setPrescription('')
-        setDiagnosis('')
-        setTreatment('')
         setSelectedMedicines([])
         resetCurrentMedicine()
     }
 
     const resetCurrentMedicine = () => {
         setCurrentMedicine({
-            medicineId: '',
+            medicineId: "",
             dosage: 0,
             frequencyPerDay: 0,
             durationInDays: 0,
-            usage: ''
+            usage: ""
         })
     }
 
@@ -154,88 +148,83 @@ function DoctorShiftDetail({ tabActive }) {
     }
 
     const handleSavePrescription = async () => {
-        if (!currentAppointment) {
-            return
-        }
-      
+        // if (!currentAppointment || selectedMedicines.length <= 0 ) {
+        //     return
+        // }
+
         try {
-            // Save prescription, diagnosis, and treatment
-            await axios.put(`/appointments/prescription/${currentAppointment.appointmentId}`, { 
-                prescription, 
-                diagnosis, 
-                treatment 
-            })
-            
-            // Save selected medicines
-            if (selectedMedicines.length > 0) {
-                await axios.post(`/medical_records/medicines/${currentAppointment.appointmentId}`, {
-                    medicines: selectedMedicines
-                })
+            const payload = {
+                ...prescriptionInfo,
+                medicines: selectedMedicines
             }
+
+            const response = await axios.post(`/medicalRecords/${currentAppointment.appointmentId}`, payload)
+
+            console.log(response.data)
             
-            // Reload list after successful update
-            await fetchDoctorSchedule()
-            
-            handleClosePrescriptionModal()
+            // handleClosePrescriptionModal()
         } catch (err) {
             console.error('Error saving prescription:', err)
         }
     }
 
     const handleAddMedicine = () => {
-        if (!currentMedicine.medicineId || 
-            !currentMedicine.dosage || 
-            !currentMedicine.frequencyPerDay || 
-            !currentMedicine.durationInDays) {
-            return; // Validate required fields
-        }
-        
+        // if (!currentMedicine.medicineId || !currentMedicine.dosage || !currentMedicine.frequencyPerDay || !currentMedicine.durationInDays) {
+        //     return
+        // }
+        console.log(medicinesList)
         // Calculate quantity based on the formula
-        const quantity = 
-            parseInt(currentMedicine.dosage) * 
-            parseInt(currentMedicine.frequencyPerDay) * 
-            parseInt(currentMedicine.durationInDays);
-        
+        const quantity = parseInt(currentMedicine.dosage) * parseInt(currentMedicine.frequencyPerDay) * parseInt(currentMedicine.durationInDays)
+        console.log(currentMedicine)
         // Find medicine details from the list
-        const selectedMedicine = medicinesList.find(med => med.medicineId == currentMedicine.medicineId);
-        const medicineName = selectedMedicine ? selectedMedicine.medicalName : '';
-        const unit = selectedMedicine ? selectedMedicine.unit : '';
+        const selectedMedicine = medicinesList.find(med => med.medicineId == currentMedicine.medicineId)
+
+        const medicineName = selectedMedicine ? selectedMedicine.medicalName : ''
+        const unit = selectedMedicine ? selectedMedicine.unit : ''
         
         // Add to selected medicines with calculated quantity
-        const newMedicine = {
-            ...currentMedicine,
-            quantity,
-            medicineName, // For display purposes
-            unit // For display purposes
-        };
+        const newMedicine = { ...currentMedicine, quantity, medicineName, unit }
         
-        setSelectedMedicines([...selectedMedicines, newMedicine]);
+        setSelectedMedicines([...selectedMedicines, newMedicine])
         
         // Reset form for next medicine
-        resetCurrentMedicine();
+        resetCurrentMedicine()
     }
 
     const handleRemoveMedicine = (index) => {
-        const updated = [...selectedMedicines];
-        updated.splice(index, 1);
-        setSelectedMedicines(updated);
+        const updated = [...selectedMedicines]
+        updated.splice(index, 1)
+        setSelectedMedicines(updated)
     }
 
-    const handleCurrentMedicineChange = (field, value) => {
-        setCurrentMedicine({
-            ...currentMedicine,
+
+    const handleMedicineChange = (field, value) => {
+        if (field === "medicineId") {
+            const medicineName = getMedicineName(value)
+            const medicineUnit = getMedicineUnit(value)
+            setCurrentMedicine(prev => ({
+                ...prev,
+                ["medicineName"]: medicineName
+            }))
+
+            setCurrentMedicine(prev => ({
+                ...prev,
+                ["unit"]: medicineUnit
+            }))
+        }
+
+        setCurrentMedicine(prev => ({
+            ...prev,
             [field]: value
-        });
-    }
+        }))
+    }   
 
     const getMedicineName = (medicineId) => {
-        const medicine = medicinesList.find(med => med.medicineId == medicineId);
-        return medicine ? medicine.medicalName : 'Unknown Medicine';
+        return medicinesList[medicineId]?.medicalName ?? ""
     }
 
     const getMedicineUnit = (medicineId) => {
-        const medicine = medicinesList.find(med => med.medicineId == medicineId);
-        return medicine ? medicine.unit : '';
+        return medicinesList[medicineId]?.unit ?? ""
     }
 
     if (loading) {
@@ -367,8 +356,8 @@ function DoctorShiftDetail({ tabActive }) {
                                 <Form.Control
                                     as="textarea"
                                     rows={2}
-                                    value={diagnosis}
-                                    onChange={(e) => setDiagnosis(e.target.value)}
+                                    value={prescriptionInfo.diagnosis}
+                                    onChange={(e) => handlePrescriptionChange('diagnosis', e.target.value)}
                                     placeholder="Nhập chẩn đoán"
                                 />
                             </Form.Group>
@@ -378,8 +367,8 @@ function DoctorShiftDetail({ tabActive }) {
                                 <Form.Control
                                     as="textarea"
                                     rows={2}
-                                    value={treatment}
-                                    onChange={(e) => setTreatment(e.target.value)}
+                                    value={prescriptionInfo.treatment}
+                                    onChange={(e) => handlePrescriptionChange('treatment', e.target.value)}
                                     placeholder="Nhập hướng điều trị"
                                 />
                             </Form.Group>
@@ -395,7 +384,7 @@ function DoctorShiftDetail({ tabActive }) {
                                                 <Form.Label>Tên thuốc</Form.Label>
                                                 <Form.Select
                                                     value={currentMedicine.medicineId}
-                                                    onChange={(e) => handleCurrentMedicineChange('medicineId', e.target.value)}
+                                                    onChange={(e) => handleMedicineChange('medicineId', e.target.value)}
                                                     required
                                                 >
                                                     <option value="">-- Chọn thuốc --</option>
@@ -414,7 +403,7 @@ function DoctorShiftDetail({ tabActive }) {
                                                     type="number"
                                                     min="0"
                                                     value={currentMedicine.dosage}
-                                                    onChange={(e) => handleCurrentMedicineChange('dosage', e.target.value)}
+                                                    onChange={(e) => handleMedicineChange('dosage', e.target.value)}
                                                     placeholder="VD: 1"
                                                 />
                                             </Form.Group>
@@ -424,7 +413,7 @@ function DoctorShiftDetail({ tabActive }) {
                                                 <Form.Label>Đơn vị</Form.Label>
                                                 <Form.Control
                                                     type="text"
-                                                    value={getMedicineUnit(currentMedicine.medicineId)}
+                                                    value={currentMedicine.unit}
                                                     disabled
                                                 />
                                             </Form.Group>
@@ -438,7 +427,7 @@ function DoctorShiftDetail({ tabActive }) {
                                                     type="number"
                                                     min="0"
                                                     value={currentMedicine.frequencyPerDay}
-                                                    onChange={(e) => handleCurrentMedicineChange('frequencyPerDay', e.target.value)}
+                                                    onChange={(e) => handleMedicineChange('frequencyPerDay', e.target.value)}
                                                     placeholder="VD: 3"
                                                 />
                                             </Form.Group>
@@ -450,7 +439,7 @@ function DoctorShiftDetail({ tabActive }) {
                                                     type="number"
                                                     min="0"
                                                     value={currentMedicine.durationInDays}
-                                                    onChange={(e) => handleCurrentMedicineChange('durationInDays', e.target.value)}
+                                                    onChange={(e) => handleMedicineChange('durationInDays', e.target.value)}
                                                     placeholder="VD: 7"
                                                 />
                                             </Form.Group>
@@ -478,7 +467,7 @@ function DoctorShiftDetail({ tabActive }) {
                                                 <Form.Control
                                                     type="text"
                                                     value={currentMedicine.usage}
-                                                    onChange={(e) => handleCurrentMedicineChange('usage', e.target.value)}
+                                                    onChange={(e) => handleMedicineChange('usage', e.target.value)}
                                                     placeholder="VD: Uống sau khi ăn"
                                                 />
                                             </Form.Group>
@@ -504,10 +493,10 @@ function DoctorShiftDetail({ tabActive }) {
                                     {selectedMedicines.map((medicine, idx) => (
                                         <ListGroup.Item key={idx} className="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <h6>{medicine.medicineName || getMedicineName(medicine.medicineId)}</h6>
-                                                <div><strong>Liều dùng:</strong> {medicine.dosage} {medicine.unit || getMedicineUnit(medicine.medicineId)}/lần, {medicine.frequencyPerDay} lần/ngày, {medicine.durationInDays} ngày</div>
+                                                <h6>{medicine.medicineName}</h6>
+                                                <div><strong>Liều dùng:</strong> {medicine.dosage} {medicine.unit}/lần, {medicine.frequencyPerDay} lần/ngày, {medicine.durationInDays} ngày</div>
                                                 <div><strong>Cách dùng:</strong> {medicine.usage}</div>
-                                                <div><strong>Tổng số lượng:</strong> {medicine.quantity} {medicine.unit || getMedicineUnit(medicine.medicineId)}</div>
+                                                <div><strong>Tổng số lượng:</strong> {medicine.quantity} {medicine.unit}</div>
                                             </div>
                                             <Button 
                                                 variant="outline-danger" 
@@ -526,8 +515,8 @@ function DoctorShiftDetail({ tabActive }) {
                                 <Form.Control 
                                     as="textarea" 
                                     rows={3}
-                                    value={prescription}
-                                    onChange={(e) => setPrescription(e.target.value)}
+                                    value={prescriptionInfo.notes}
+                                    onChange={(e) => handlePrescriptionChange('notes', e.target.value)}
                                     placeholder="Nhập các lưu ý bổ sung về đơn thuốc..."
                                 />
                             </Form.Group>
