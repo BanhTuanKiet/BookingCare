@@ -40,7 +40,13 @@ namespace Clinic_Management.Controllers
         [HttpPost("{appointmentId}")]
         public async Task<ActionResult> AddMedicalRecord(int appointmentId, [FromBody] MedicalRecordDTO.PrescriptionRequest prescriptionRequest )
         {
-            return Ok( new { appointmentId = appointmentId, prescriptionRequest = prescriptionRequest });
+            var appointment = await _appointmentService.GetAppointmentById(appointmentId) ?? throw new ErrorHandlingException("Không tìm thấy lịch hẹn!");
+
+            var record = await _medicalRecordService.AddMedicalRecord(appointmentId, prescriptionRequest) ?? throw new ErrorHandlingException(400, "Lỗi khi tạo toa thuốc");
+
+            var recordDetail = await _medicalRecordService.AddMedicalRecordDetail(record.RecordId, prescriptionRequest.Medicines) ?? throw new ErrorHandlingException(400, "Lỗi khi tạo toa thuốc");
+
+            return Ok( new { message = "Tạo toa thuốc thành công!" });
         }
     }
 }

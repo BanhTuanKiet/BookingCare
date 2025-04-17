@@ -1,9 +1,12 @@
 using server.DTO;
+using server.Models;
 
 namespace server.Services
 {
     public interface IMedicalRecord
     {
-        Task<bool> AddMedicalRecordAsync(int appointmentId, MedicalRecordDTO.PrescriptionRequest prescriptionRequest);
+        Task<MedicalRecord> AddMedicalRecord(int appointmentId, MedicalRecordDTO.PrescriptionRequest prescriptionRequest);
+        Task<List<MedicalRecordDetail>> AddMedicalRecordDetail(int recordId, List<MedicalRecordDTO.MedicineDto> medicines);
+
     }
 }

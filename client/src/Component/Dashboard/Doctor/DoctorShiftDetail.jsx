@@ -148,16 +148,12 @@ function DoctorShiftDetail({ tabActive }) {
     }
 
     const handleSavePrescription = async () => {
-        // if (!currentAppointment || selectedMedicines.length <= 0 ) {
-        //     return
-        // }
-
         try {
             const payload = {
                 ...prescriptionInfo,
                 medicines: selectedMedicines
             }
-
+            console.log(currentAppointment.appointmentId)
             const response = await axios.post(`/medicalRecords/${currentAppointment.appointmentId}`, payload)
 
             console.log(response.data)

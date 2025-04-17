@@ -17,10 +17,39 @@ namespace server.Services
             _mapper = mapper;
         }
 
-        public async Task<bool> AddMedicalRecordAsync(int appointmentId, MedicalRecordDTO.PrescriptionRequest prescriptionRequest)
+        public async Task<MedicalRecord> AddMedicalRecord(int appointmentId, MedicalRecordDTO.PrescriptionRequest prescriptionRequest)
         {
-            return true;
+            var medicalRecord = new MedicalRecord
+            {
+                AppointmentId = appointmentId,
+                Diagnosis = prescriptionRequest.Diagnosis,
+                Treatment = prescriptionRequest.Treatment,
+                Notes = prescriptionRequest.Notes
+            };
+
+            await _context.MedicalRecords.AddAsync(medicalRecord);
+            await _context.SaveChangesAsync();
+
+            return medicalRecord;
         }
 
+        public async Task<List<MedicalRecordDetail>> AddMedicalRecordDetail(int recordId, List<MedicalRecordDTO.MedicineDto> medicines)
+        {
+            var medicalRecordDetail = medicines.Select(medicine => new MedicalRecordDetail
+            {
+                ReCordId = recordId,
+                MedicineId = medicine.MedicineId,
+                Quantity = medicine.Quantity,
+                Dosage = Int32.Parse(medicine.Dosage),
+                FrequencyPerDay = Int32.Parse(medicine.FrequencyPerDay),
+                DurationInDays = Int32.Parse(medicine.DurationInDays),
+                Usage = medicine.Usage
+            }).ToList();
+
+            await _context.MedicalRecordDetails.AddRangeAsync(medicalRecordDetail);
+            await _context.SaveChangesAsync();
+
+            return medicalRecordDetail;
+        }
     }
 }

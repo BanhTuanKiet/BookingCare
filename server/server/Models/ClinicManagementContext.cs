@@ -266,9 +266,9 @@ public partial class ClinicManagementContext : IdentityDbContext<ApplicationUser
 
         modelBuilder.Entity<MedicalRecordDetail>(entity =>
         {
-            entity
-                .HasNoKey()
-                .ToTable("MedicalRecordDetail");
+            entity.HasKey(e => new { e.ReCordId, e.MedicineId });
+
+            entity.ToTable("MedicalRecordDetail");
 
             entity.Property(e => e.MedicineId).HasColumnName("MedicineID");
             entity.Property(e => e.ReCordId).HasColumnName("ReCordID");
