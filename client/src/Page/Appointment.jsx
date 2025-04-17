@@ -62,6 +62,11 @@ function Appointment() {
       console.log(response)
     } catch (error) {
       console.log(error)
+      // if (error.response && error.response.status === 409) {
+      //   alert(error.response.data.message); // Lịch đã được đặt
+      // } else {
+      //   alert("Đã xảy ra lỗi khi đặt lịch");
+      // }
     }
   }
 

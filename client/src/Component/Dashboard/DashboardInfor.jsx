@@ -82,6 +82,7 @@ function DashboardInfor({ role, tabActive, setTabActive }) {
             fetchAppointmentInfo()
         }
     }, [role])
+    console.log(role)
 
     useEffect(() => {
         const fetchDoctorSchedule = async () => {

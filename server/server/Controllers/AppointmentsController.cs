@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mail;
 using System.Runtime.CompilerServices;
-using System.Net.Mail;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +15,6 @@ using server.Middleware;
 using server.Models;
 using server.Services;
 using Server.DTO;
-using Microsoft.Extensions.Configuration;
 
 namespace server.Controllers
 {
@@ -30,8 +28,9 @@ namespace server.Controllers
         private readonly IAppointment _appointmentService;
         private readonly IService _serviceServices;
         private readonly IConfiguration _configuration;
+        private readonly IEmailService _emailService;
 
-        public AppointmentsController(ClinicManagementContext context, IDoctor doctorService, IPatient patientService, IAppointment appointmentService, IService serviceServices, IConfiguration configuration)
+        public AppointmentsController(ClinicManagementContext context, IDoctor doctorService, IPatient patientService, IAppointment appointmentService, IService serviceServices, IConfiguration configuration, IEmailService emailService)
         {
             _context = context;
             _doctorService = doctorService;
@@ -39,6 +38,7 @@ namespace server.Controllers
             _appointmentService = appointmentService;
             _serviceServices = serviceServices;
             _configuration = configuration;
+            _emailService= emailService;
         }
         // GET: Appointments
         [Authorize(Roles = "patient")]
@@ -50,6 +50,19 @@ namespace server.Controllers
             int parsedUserId = Convert.ToInt32(userId.ToString());
             var patient = await _patientService.GetPatientById(parsedUserId);
             var service = await _serviceServices.GetServiceByName(appointmentForm.Service);
+
+            // ✅ Kiểm tra lịch đã tồn tại
+            var existingAppointment = await _context.Appointments.FirstOrDefaultAsync(a =>
+                a.DoctorId == doctor.DoctorId &&
+                a.AppointmentDate == appointmentForm.AppointmentDate &&
+                a.Status != "Đã hủy"
+            );
+
+            if (existingAppointment != null)
+            {
+                throw new ErrorHandlingException(400, "Lịch khám đã được đặt vào thời gian này. Vui lòng chọn thời gian khác!");
+                // return Conflict(new { message = "Lịch khám đã được đặt vào thời gian này. Vui lòng chọn thời gian khác!" });
+            }
 
             Appointment appointment = new Appointment
             {
@@ -97,6 +110,7 @@ namespace server.Controllers
                         .ThenInclude(d => d.User)
                     .Include(a => a.Service)
                     .FirstOrDefaultAsync(a => a.AppointmentId == id);
+                
                 if (appointment == null)
                 {
                     return NotFound(new { message = "Không tìm thấy lịch hẹn" });
@@ -185,10 +199,21 @@ namespace server.Controllers
         [HttpPut("cancel/{appointmentId}")]
         public async Task<ActionResult> CancelAppointment(int appointmentId)
         {
-            var appointment = await _context.Appointments.FindAsync(appointmentId) ?? throw new ErrorHandlingException("Không tìm thấy lịch hẹn");
+            var appointment = await _context.Appointments.FindAsync(appointmentId);
+                
+            if (appointment == null)
+            {
+                throw new ErrorHandlingException("Không tìm thấy lịch hẹn");
+            }
                 
             appointment.Status = "Đã hủy";
             await _context.SaveChangesAsync();
+
+            var adminEmail = "datteo192004@gmail.com"; // Thay bằng email thật của admin hoặc lấy từ config
+            var subject = "Thông báo: Lịch hẹn đã bị hủy";
+            var message = $"Lịch hẹn ID {appointment.AppointmentId} đã bị bệnh nhân hủy vào {DateTime.Now:dd/MM/yyyy HH:mm}.";
+
+            await _emailService.SendEmailAsync(adminEmail, subject, message);
             
             return Ok(new { message = "Cập nhật trạng thái thành công" });
         }
@@ -199,7 +224,7 @@ namespace server.Controllers
         {
             var userId = HttpContext.Items["UserId"];
             int parsedUserId = Convert.ToInt32(userId.ToString());
-
+            
             var patient = await _patientService.GetPatientById(parsedUserId) ?? throw new ErrorHandlingException("Không tim thấy bệnh nhân");
 
             var appointments = await _appointmentService.GetAppointmentByPatientId(patient.PatientId);
@@ -247,6 +272,5 @@ namespace server.Controllers
 
             return Ok(new { schedules = schedules});
         }
-
     }
 }

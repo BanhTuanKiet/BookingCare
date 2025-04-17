@@ -33,6 +33,8 @@ namespace server.Controllers
         private readonly ClinicManagementContext _context;
         private readonly IEmailService _emailService;
 
+        private static readonly Dictionary<string, OtpInfo> _otpDictionary = new Dictionary<string, OtpInfo>();
+
 
         public AuthController(ClinicManagementContext context, IConfiguration configuration, SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IEmailService emailService)
 
@@ -40,7 +42,9 @@ namespace server.Controllers
             ClinicManagementContext context,
             IConfiguration configuration,
             SignInManager<ApplicationUser> signInManager,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            IEmailService emailService
+        )
 
         {
             _context = context;
@@ -197,7 +201,7 @@ namespace server.Controllers
 
             return Ok(new { Token = "HttpContext", message = "Xác thực thành công", user });
         }
-    }
+
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
         {
@@ -234,7 +238,7 @@ namespace server.Controllers
             return Ok("Đặt lại mật khẩu thành công");
         }
 
-
+    }
     public class SendOtpRequest
     {
         public string Email { get; set; }
