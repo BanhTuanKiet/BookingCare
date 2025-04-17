@@ -32,6 +32,9 @@ public partial class ClinicManagementContext : IdentityDbContext<ApplicationUser
     public virtual DbSet<Doctor> Doctors { get; set; }
 
     public virtual DbSet<MedicalRecord> MedicalRecords { get; set; }
+    public virtual DbSet<MedicalRecordDetail> MedicalRecordDetails { get; set; }
+
+    public virtual DbSet<Medicine> Medicines { get; set; }
 
     public virtual DbSet<Patient> Patients { get; set; }
 
@@ -251,6 +254,32 @@ public partial class ClinicManagementContext : IdentityDbContext<ApplicationUser
             entity.Property(e => e.Id).HasColumnName("Id"); // Đặt đúng tên cột trong DB
             entity.Property(e => e.Name).HasMaxLength(256);
             entity.Property(e => e.NormalizedName).HasMaxLength(256);
+        });
+
+        modelBuilder.Entity<Medicine>(entity =>
+        {
+            entity.HasKey(e => e.MedicineId).HasName("PK__Medicine__4F2128F09B53519C");
+
+            entity.Property(e => e.MedicineId).HasColumnName("MedicineID");
+            entity.Property(e => e.ExpiredDate).HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<MedicalRecordDetail>(entity =>
+        {
+            entity.HasKey(e => new { e.ReCordId, e.MedicineId });
+
+            entity.ToTable("MedicalRecordDetail");
+
+            entity.Property(e => e.MedicineId).HasColumnName("MedicineID");
+            entity.Property(e => e.ReCordId).HasColumnName("ReCordID");
+
+            entity.HasOne(d => d.Medicine).WithMany()
+                .HasForeignKey(d => d.MedicineId)
+                .HasConstraintName("FK__MedicalRe__Medic__07220AB2");
+
+            entity.HasOne(d => d.ReCord).WithMany()
+                .HasForeignKey(d => d.ReCordId)
+                .HasConstraintName("FK__MedicalRe__ReCor__08162EEB");
         });
 
         OnModelCreatingPartial(modelBuilder);

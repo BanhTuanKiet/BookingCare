@@ -8,9 +8,9 @@ const PatientProfile = () => {
   const [tabActive, setTabActive] = useState("hồ sơ")
   const { role } = useContext(AuthContext)
 
-  useEffect(() => {
-    console.log(`${tabActive}`)
-  }, [tabActive])
+  // useEffect(() => {
+  //   console.log(`${tabActive}`)
+  // }, [tabActive])
 
   return (
     <Container fluid>
@@ -20,7 +20,7 @@ const PatientProfile = () => {
         </Col>
 
         <Col md={10} className="p-0">
-          <DashboardInfor role={role} tabActive={tabActive} />
+          <DashboardInfor role={role} tabActive={tabActive} setTabActive={setTabActive} />
         </Col>
       </Row>
     </Container>

@@ -6,23 +6,23 @@ import "react-big-calendar/lib/css/react-big-calendar.css"
 
 const localizer = momentLocalizer(moment)
 
-const DoctorSchedule = ({ infor }) => {
+const DoctorSchedule = ({ infor, setTabActive }) => {
   const [events, setEvents] = useState([])
 
   useEffect(() => {
     const formatSchedule = () => {
       if (!infor || infor.length === 0) return
-  
+
       const schedules = []
   
       infor.forEach((group, groupIndex) => {
         const date = new Date(group.date)
         const time = group.appointmentTime
-        console.log(group)
+
         const start = new Date(date)
         const end = new Date(date)
   
-        if (time === "sáng") {
+        if (time === "Sáng") {
           start.setHours(7, 0, 0)
           end.setHours(11, 0, 0)
         } else {
@@ -85,8 +85,15 @@ const DoctorSchedule = ({ infor }) => {
             style={{ height: "100%" }}
             views={["month", "week", "day"]}
             selectable
-            onSelectEvent={(event) => alert(`Sự kiện: ${event.title}`)}
-            onSelectSlot={(slotInfo) => console.log("Slot selected: ", slotInfo)}
+            onSelectEvent={(event) => {
+              const selectedDate = event.start
+              const selectedTime = event.time
+              
+              const formattedDate = selectedDate.toLocaleDateString("vi-VN")
+
+              setTabActive(`chi tiết ${formattedDate} - ${selectedTime}`)
+            }}
+            // onSelectSlot={(slotInfo) => console.log("Slot selected: ", slotInfo)}
             eventPropGetter={eventStyleGetter}
           />
         </div>
