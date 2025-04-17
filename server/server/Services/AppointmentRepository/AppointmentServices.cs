@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NuGet.Common;
 using server.DTO;
 using server.Models;
 
@@ -72,7 +73,7 @@ namespace server.Services
         public async Task<List<AppointmentDTO.DoctorScheduleDTO>> GetDoctorSchedule(int? doctorId)
         {
             var schedule = await _context.Appointments
-                .Where(a => a.DoctorId == doctorId)
+                .Where(a => a.DoctorId == doctorId && (a.Status == "Đã xác nhận" || a.Status == "Đã khám" || a.Status == "Đã hoàn thành"))
                 .ToListAsync();
 
             var groupedSchedule = schedule
@@ -94,6 +95,39 @@ namespace server.Services
             return groupedSchedule;
         }
 
+        public async Task<List<AppointmentDTO.AppointmentDetail>> GetDoctorScheduleDetail(int? doctorId, string date, string time)
+        {
+            var appointments = await _context.Appointments
+                .Include(a => a.Patient)
+                .Include(a => a.Patient.User)
+                .Include(a => a.Doctor)
+                .Include(a => a.Doctor.User)
+                .Include(a => a.Service)
+                .Where(a => a.DoctorId == doctorId && a.AppointmentTime == time && a.AppointmentDate == DateTime.Parse(date) && (a.Status == "Đã xác nhận" || a.Status == "Đã khám" || a.Status == "Đã hoàn thành"))
+
+                .ToListAsync();
+
+            var appointmentDTOs = _mapper.Map<List<AppointmentDTO.AppointmentDetail>>(appointments);
+
+            return appointmentDTOs;
+        }
+
+        public async Task<List<AppointmentDTO.AppointmentDetail>> GetPatientScheduleDetail(int? doctorId)
+        {
+            var appointments = await _context.Appointments
+                .Include(a => a.Patient)
+                .Include(a => a.Patient.User)
+                .Include(a => a.Doctor)
+                .Include(a => a.Doctor.User)
+                .Include(a => a.Service)
+                .Where(a => a.DoctorId == doctorId && a.Status == "Đã khám")
+
+                .ToListAsync();
+
+            var appointmentDTOs = _mapper.Map<List<AppointmentDTO.AppointmentDetail>>(appointments);
+
+            return appointmentDTOs;
+        }
 
     }
 }

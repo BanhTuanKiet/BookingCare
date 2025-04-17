@@ -11,6 +11,8 @@ namespace server.Services
         Task UpdateStatus(Appointment appointment, string newStatus);
         void CancelAppointment(Appointment appointment);
         Task<List<AppointmentDTO.DoctorScheduleDTO>> GetDoctorSchedule(int? doctorId);
+        Task<List<AppointmentDTO.AppointmentDetail>> GetDoctorScheduleDetail(int? doctorId, string date, string time);
+        Task<List<AppointmentDTO.AppointmentDetail>> GetPatientScheduleDetail(int? doctorId);
 
     }
 }

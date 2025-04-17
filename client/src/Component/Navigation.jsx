@@ -27,10 +27,7 @@ const Navigation = () => {
   const [activeIndex, setActiveIndex] = useState(null)
   const savedIndexRef = useRef(null)
 
-  // CHỈ THAY ĐỔI HÀM NÀY:
   const normalizePath = (path) => {
-    // decode để chuyển /v%E1%BB%81%20ch%C3%BAng%20t%C3%B4i -> /về chúng tôi
-    // xóa dấu "/" ở cuối nếu có
     return decodeURIComponent(path).replace(/\/$/, "")
   }
 
@@ -65,10 +62,14 @@ const Navigation = () => {
   const handleClick = (index, link) => {
     savedIndexRef.current = index
     setActiveIndex(index)
+    setOpenDropdown(null) // Đóng dropdown khi click vào một link
     navigate(link)
   }
 
+  // Đóng tất cả dropdown khi URL thay đổi
   useEffect(() => {
+    setOpenDropdown(null)
+    
     const currentIndex = pages.findIndex((page) => isPageActive(page.link))
     if (currentIndex !== -1) {
       savedIndexRef.current = currentIndex
@@ -125,6 +126,8 @@ const Navigation = () => {
       <NavDropdown.Item
         key={index}
         onClick={() => {
+          // Đóng dropdown trước khi điều hướng
+          setOpenDropdown(null);
           HandleNavigation("chuyên khoa", speciality.name);
           savedIndexRef.current = 3;
         }}
@@ -133,21 +136,39 @@ const Navigation = () => {
       </NavDropdown.Item>
     ));
   };
-
+  
   const RenderServices = () => {
-    return services.map((service, index) => (
-      <NavDropdown.Item
-        key={index}
-        onClick={() => {
-          HandleNavigation("dịch vụ", service.serviceName);
-          savedIndexRef.current = 4;
-        }}
-      >
-        {service.serviceName}
-      </NavDropdown.Item>
-    ));
+    const itemsPerColumn = 15;
+    const numColumns = Math.ceil(services.length / itemsPerColumn);
+  
+    // Chia đều services thành các mảng con để đổ vào từng cột
+    const chunked = Array.from({ length: numColumns }, (_, i) =>
+      services.slice(i * itemsPerColumn, (i + 1) * itemsPerColumn)
+    );
+  
+    return (
+      <div className="multi-column-dropdown">
+        {chunked.map((chunk, index) => (
+          <div className="dropdown-column" key={index}>
+            {chunk.map((service, i) => (
+              <NavDropdown.Item
+                key={i}
+                onClick={() => {
+                  // Đóng dropdown trước khi điều hướng
+                  setOpenDropdown(null);
+                  HandleNavigation("dịch vụ", service.serviceName);
+                  savedIndexRef.current = 4;
+                }}
+              >
+                {service.serviceName}
+              </NavDropdown.Item>
+            ))}
+          </div>
+        ))}
+      </div>
+    );
   };
-
+  
   return (
     <Navbar expand="lg" className="bg-info-subtle py-2">
       <Container className="w-75 mx-auto">
@@ -160,24 +181,12 @@ const Navigation = () => {
           </Nav>
           <Nav>
             {isAuthenticated ? (
-              <NavDropdown
+              <Nav.Link
+                onClick={() => navigate("/thông tin cá nhân")}
                 className="btn-login"
-                title={`Xin chào, ${UserName}`}
-                id="user-dropdown"
-                style={{ zIndex: 1,}}
               >
-                <NavDropdown.Item onClick={() => navigate("/thông tin cá nhân")}>
-                  Hồ sơ
-                </NavDropdown.Item>
-                {role === 'admin' && 
-                  <NavDropdown.Item onClick={() => navigate("/admin")}>
-                    Quản lý
-                  </NavDropdown.Item>
-                }
-                <NavDropdown.Item onClick={handleLogout}>
-                  Đăng xuất
-                </NavDropdown.Item>
-              </NavDropdown>
+                {`Xin chào, ${UserName}`}
+              </Nav.Link>
             ) : (
               <Nav.Link
                 onClick={() => navigate("/Đăng nhập")}

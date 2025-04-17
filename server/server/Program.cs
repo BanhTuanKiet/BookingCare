@@ -40,6 +40,8 @@ builder.Services.AddScoped<IDoctor, DoctorServices>();
 builder.Services.AddScoped<IPatient, PatientServices>();
 builder.Services.AddScoped<IAppointment, AppointmentServices>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IMedicine, MedicineService>();
+builder.Services.AddScoped<IMedicalRecord, MedicalRecordService>();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
