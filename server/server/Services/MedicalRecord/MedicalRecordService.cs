@@ -51,5 +51,16 @@ namespace server.Services
 
             return medicalRecordDetail;
         }
+
+        public async Task<List<MedicalRecordDetail>> GetMedicalRecordDetailById(int recordId)
+        {
+            var details = await _context.MedicalRecordDetails
+                .Where(d => d.ReCordId == recordId)
+                .Include(d => d.Medicine) // nếu bạn có liên kết với bảng Medicine
+                .ToListAsync();
+
+            return details;
+        }
+
     }
 }

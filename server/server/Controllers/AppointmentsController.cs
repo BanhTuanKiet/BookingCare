@@ -52,17 +52,16 @@ namespace server.Controllers
             var service = await _serviceServices.GetServiceByName(appointmentForm.Service);
 
             // ✅ Kiểm tra lịch đã tồn tại
-            var existingAppointment = await _context.Appointments.FirstOrDefaultAsync(a =>
-                a.DoctorId == doctor.DoctorId &&
-                a.AppointmentDate == appointmentForm.AppointmentDate &&
-                a.Status != "Đã hủy"
-            );
+            // var existingAppointment = await _context.Appointments.FirstOrDefaultAsync(a =>
+            //     a.DoctorId == doctor.DoctorId &&
+            //     a.AppointmentDate == appointmentForm.AppointmentDate &&
+            //     a.Status != "Đã hủy"
+            // );
 
-            if (existingAppointment != null)
-            {
-                throw new ErrorHandlingException(400, "Lịch khám đã được đặt vào thời gian này. Vui lòng chọn thời gian khác!");
-                // return Conflict(new { message = "Lịch khám đã được đặt vào thời gian này. Vui lòng chọn thời gian khác!" });
-            }
+            // if (existingAppointment != null)
+            // {
+            //     throw new ErrorHandlingException(400, "Lịch khám đã được đặt vào thời gian này. Vui lòng chọn thời gian khác!");
+            // }
 
             Appointment appointment = new Appointment
             {
@@ -71,6 +70,7 @@ namespace server.Controllers
                 AppointmentDate = appointmentForm.AppointmentDate,
                 ServiceId = service.ServiceId,
                 Status = "Chờ xác nhận",
+                AppointmentTime = appointmentForm.AppointmentTime
             };
 
             await _context.Appointments.AddAsync(appointment);
@@ -121,7 +121,7 @@ namespace server.Controllers
             await _context.SaveChangesAsync();
                 
                 // Kiểm tra nếu patient và email tồn tại trước khi gửi email
-            if (appointment.Patient?.User.Email != null)
+            if (appointment.Patient?.User.Email == null)
             {
                 throw new ErrorHandlingException("Không tìm thấy email bệnh nhân!");
             }

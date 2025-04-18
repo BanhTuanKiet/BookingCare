@@ -33,11 +33,6 @@ namespace server.Controllers
         private readonly ClinicManagementContext _context;
         private readonly IEmailService _emailService;
 
-        private static readonly Dictionary<string, OtpInfo> _otpDictionary = new Dictionary<string, OtpInfo>();
-
-
-        public AuthController(ClinicManagementContext context, IConfiguration configuration, SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, IEmailService emailService)
-
         public AuthController(
             ClinicManagementContext context,
             IConfiguration configuration,
