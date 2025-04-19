@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { Container, Table, Button, Badge, Form, Modal, Spinner } from 'react-bootstrap'
-import axios from '../Util/AxiosConfig'
-import { extractDateOnly } from '../Util/DateUtils'
+import { Container, Table, Button, Badge, Form, Modal, Spinner, Pagination } from 'react-bootstrap'
+import axios from '../../../Util/AxiosConfig'
+import { extractDateOnly } from '../../../Util/DateUtils'
 
 const AppointmentAdmin = () => {
   const [appointments, setAppointments] = useState([])
@@ -9,6 +9,10 @@ const AppointmentAdmin = () => {
   const [showModal, setShowModal] = useState(false)
   const [currentAppointment, setCurrentAppointment] = useState(null)
   const [newStatus, setNewStatus] = useState('')
+  const [currentPage, setCurrentPage] = useState(0)
+
+  const itemsPerPage = 10
+  const totalPages = Math.ceil(appointments.length / itemsPerPage)
 
   const statusOptions = [
     'Chờ xác nhận',
@@ -40,7 +44,7 @@ const AppointmentAdmin = () => {
       setLoading(false)
     }
   }
-  
+
   const handleOpenModal = (appointment) => {
     setCurrentAppointment(appointment)
     setNewStatus(appointment.status)
@@ -57,17 +61,19 @@ const AppointmentAdmin = () => {
     if (!currentAppointment || newStatus === currentAppointment.status) {
       return
     }
-  
+
     try {
       await axios.put(`/appointments/status/${currentAppointment.appointmentId}`, { status: newStatus })
-      
-      await fetchAppointments() 
-      
+      await fetchAppointments()
       handleCloseModal()
     } catch (err) {
       console.error('Error updating appointment status:', err)
     }
   }
+
+  const startIndex = currentPage * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const currentAppointments = appointments.slice(startIndex, endIndex)
 
   if (loading) {
     return (
@@ -82,7 +88,7 @@ const AppointmentAdmin = () => {
   return (
     <Container fluid className="mt-4 w-75 mx-auto">
       <h2 className="mb-4">Quản lý lịch hẹn</h2>
-      
+
       <Table responsive striped bordered hover>
         <thead>
           <tr>
@@ -96,12 +102,12 @@ const AppointmentAdmin = () => {
           </tr>
         </thead>
         <tbody>
-          {appointments.length === 0 ? (
+          {currentAppointments.length === 0 ? (
             <tr>
               <td colSpan="7" className="text-center">Không có lịch hẹn nào</td>
             </tr>
           ) : (
-            appointments.map(appointment => (
+            currentAppointments.map(appointment => (
               <tr key={appointment.appointmentId}>
                 <td>{appointment.appointmentId}</td>
                 <td>{appointment.patientName}</td>
@@ -114,8 +120,8 @@ const AppointmentAdmin = () => {
                   </Badge>
                 </td>
                 <td>
-                  <Button 
-                    variant="outline-primary" 
+                  <Button
+                    variant="outline-primary"
                     size="sm"
                     onClick={() => handleOpenModal(appointment)}
                   >
@@ -127,6 +133,23 @@ const AppointmentAdmin = () => {
           )}
         </tbody>
       </Table>
+
+      {/* Pagination */}
+      <Pagination className="justify-content-center">
+        <Pagination.First onClick={() => setCurrentPage(0)} disabled={currentPage === 0} />
+        <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 0))} disabled={currentPage === 0} />
+        {Array.from({ length: totalPages }).map((_, index) => (
+          <Pagination.Item
+            key={index}
+            active={index === currentPage}
+            onClick={() => setCurrentPage(index)}
+          >
+            {index + 1}
+          </Pagination.Item>
+        ))}
+        <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages - 1))} disabled={currentPage === totalPages - 1} />
+        <Pagination.Last onClick={() => setCurrentPage(totalPages - 1)} disabled={currentPage === totalPages - 1} />
+      </Pagination>
 
       {/* Status Update Modal */}
       <Modal show={showModal} onHide={handleCloseModal}>
@@ -142,10 +165,10 @@ const AppointmentAdmin = () => {
                 <p><strong>Bác sĩ:</strong> {currentAppointment.doctorName}</p>
                 <p><strong>Ngày hẹn:</strong> {extractDateOnly(currentAppointment.appointmentDate)}</p>
               </Form.Group>
-              
+
               <Form.Group className="mb-3">
                 <Form.Label>Trạng thái:</Form.Label>
-                <Form.Select 
+                <Form.Select
                   value={newStatus}
                   onChange={(e) => setNewStatus(e.target.value)}
                 >
@@ -161,8 +184,8 @@ const AppointmentAdmin = () => {
           <Button variant="secondary" onClick={handleCloseModal}>
             Đóng
           </Button>
-          <Button 
-            variant="primary" 
+          <Button
+            variant="primary"
             onClick={handleUpdateStatus}
             disabled={!currentAppointment || newStatus === currentAppointment.status}
           >

@@ -1,40 +1,38 @@
-import React, { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import axios from "../Util/AxiosConfig";
-import {Container,Row,Col,Card,Spinner,} from "react-bootstrap";
-import { BsCircleFill } from "react-icons/bs";
-import { BsJournalCheck } from "react-icons/bs";
-import { BsFillBuildingsFill } from "react-icons/bs";
+import React, { useEffect, useState } from "react"
+import { Link, useNavigate, useParams } from "react-router-dom"
+import axios from "../Util/AxiosConfig"
+import {Container,Row,Col,Card,Spinner,} from "react-bootstrap"
+import { BsCircleFill, BsJournalCheck, BsFillBuildingsFill } from "react-icons/bs"
 import serviceImage from "../Image/ServiceImage/Index"
 
 const ServiceDetail = () => {
-  const images = serviceImage;
-  const { serviceName } = useParams();
-  const [service, setService] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const images = serviceImage
+  const { serviceName } = useParams()
+  const [service, setService] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const navigate = useNavigate()
 
   const HandleAppointment = () => {
-    navigate("/đặt lịch khám");
-  };
+    navigate("/đặt lịch khám")
+  }
 
   useEffect(() => {
     const fetchServiceDetail = async () => {
       try {
         
-        const response = await axios.get(`/services/detail/${serviceName}`);
+        const response = await axios.get(`/services/detail/${serviceName}`)
         console.log("Data của response data là:", response.data)
-          setService(response.data);
+          setService(response.data)
 
       } catch (error) {
-        console.error("Lỗi khi lấy chi tiết dịch vụ:", error);
+        console.error("Lỗi khi lấy chi tiết dịch vụ:", error)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchServiceDetail();
-  }, [serviceName]);
+    fetchServiceDetail()
+  }, [serviceName])
 
   if (loading) {
     return (
@@ -42,7 +40,7 @@ const ServiceDetail = () => {
         <Spinner animation="border" variant="primary" />
         <p>Đang tải thông tin dịch vụ...</p>
       </Container>
-    );
+    )
   }
 
   return (
@@ -131,7 +129,7 @@ const ServiceDetail = () => {
         </Col>
       </Row>
     </Container>
-  );
-};
+  )
+}
 
-export default ServiceDetail;
+export default ServiceDetail

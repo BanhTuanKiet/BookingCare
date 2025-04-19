@@ -29,9 +29,6 @@ namespace server.Controllers
         private readonly IConfiguration _configuration;
         private readonly ClinicManagementContext _context;
 
-        // Lưu trữ OTP tạm thời theo email
-        private static readonly Dictionary<string, OtpInfo> _otpDictionary = new Dictionary<string, OtpInfo>();
-
         public AuthController(
             ClinicManagementContext context,
             IConfiguration configuration,
@@ -42,22 +39,6 @@ namespace server.Controllers
             _configuration = configuration;
             _signInManager = signInManager;
             _userManager = userManager;
-        }
-
-        private class OtpInfo
-        {
-            public string Code { get; set; }
-            public DateTime ExpiryTime { get; set; }
-            public int AttemptCount { get; set; }
-        }
-
-        private string GenerateOtp()
-        {
-            using var rng = RandomNumberGenerator.Create();
-            byte[] data = new byte[4];
-            rng.GetBytes(data);
-            int value = BitConverter.ToInt32(data, 0) & 0x7FFFFFFF;
-            return (value % 1000000).ToString("D6"); // 6 chữ số
         }
 
         [HttpPost("send-otp")]
@@ -80,66 +61,20 @@ namespace server.Controllers
                 throw new ErrorHandlingException(400, "Email đã tồn tại trong hệ thống!");
 
             // Kiểm tra và rate-limit OTP
-            if (_otpDictionary.TryGetValue(request.Email, out var existingOtp))
-            {
-                var timeSinceLastRequest = DateTime.Now - existingOtp.ExpiryTime.AddMinutes(-5);
-                if (timeSinceLastRequest.TotalMinutes < 1)
-                    return BadRequest(new { message = "Vui lòng đợi 1 phút trước khi yêu cầu OTP mới!" });
+            if (!OtpUtil.CanGenerateNewOtp(request.Email))
+                return BadRequest(new { message = "Vui lòng đợi 1 phút trước khi yêu cầu OTP mới!" });
 
-                if (DateTime.Now > existingOtp.ExpiryTime)
-                    _otpDictionary.Remove(request.Email);
-            }
+            // Tạo và lưu OTP mới
+            var otp = OtpUtil.GenerateOtp();
+            OtpUtil.StoreOtp(request.Email, otp);
 
-            // Gửi OTP
-            var otp = GenerateOtp();
-            _otpDictionary[request.Email] = new OtpInfo
-            {
-                Code = otp,
-                ExpiryTime = DateTime.Now.AddMinutes(5),
-                AttemptCount = 0
-            };
-
-            var smtpClient = new SmtpClient
-            {
-                Host = _configuration["EmailSettings:SmtpServer"],
-                Port = int.Parse(_configuration["EmailSettings:Port"]),
-                EnableSsl = bool.Parse(_configuration["EmailSettings:EnableSsl"]),
-                Credentials = new System.Net.NetworkCredential(
-                    _configuration["EmailSettings:SenderEmail"],
-                    _configuration["EmailSettings:Password"]
-                )
-            };
-
-            var message = new MailMessage
-            {
-                From = new MailAddress(_configuration["EmailSettings:SenderEmail"], _configuration["EmailSettings:SenderName"]),
-                Subject = "Mã xác thực đăng ký tài khoản",
-                Body = $@"
-                    <html>
-                    <body>
-                        <h2>Mã xác thực đăng ký tài khoản</h2>
-                        <p>Xin chào,</p>
-                        <p>Mã OTP của bạn là: <strong>{otp}</strong></p>
-                        <p>Mã này có hiệu lực trong vòng 5 phút.</p>
-                        <p>Nếu bạn không yêu cầu mã này, vui lòng bỏ qua email này.</p>
-                        <p>Trân trọng,<br/>Hệ thống đặt lịch khám bệnh</p>
-                    </body>
-                    </html>",
-                IsBodyHtml = true
-            };
-
-            message.To.Add(request.Email);
-
-            try
-            {
-                await smtpClient.SendMailAsync(message);
-                return Ok(new { message = "Mã OTP đã được gửi đến email của bạn!" });
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Lỗi gửi email: {ex.Message}");
+            // Gửi OTP qua email
+            bool emailSent = await OtpUtil.SendOtpEmail(request.Email, otp, _configuration);
+            
+            if (!emailSent)
                 return StatusCode(500, new { message = "Không thể gửi mã OTP. Vui lòng thử lại sau." });
-            }
+            
+            return Ok(new { message = "Mã OTP đã được gửi đến email của bạn!" });
         }
 
         [HttpPost("signin")]
@@ -170,17 +105,14 @@ namespace server.Controllers
             if (string.IsNullOrEmpty(user.otp))
                 return BadRequest(new { message = "Vui lòng nhập mã OTP!" });
 
-            if (!_otpDictionary.TryGetValue(user.email, out var otpInfo) ||
-                otpInfo.Code != user.otp || DateTime.Now > otpInfo.ExpiryTime)
+            // Xác thực OTP
+            if (!OtpUtil.ValidateOtp(user.email, user.otp))
             {
-                if (otpInfo != null)
+                // Kiểm tra số lần thử và xử lý
+                if (OtpUtil.MaxAttemptsReached(user.email))
                 {
-                    otpInfo.AttemptCount++;
-                    if (otpInfo.AttemptCount >= 3)
-                    {
-                        _otpDictionary.Remove(user.email);
-                        return BadRequest(new { message = "Bạn đã nhập sai OTP quá nhiều lần. Vui lòng yêu cầu mã mới!" });
-                    }
+                    OtpUtil.RemoveOtp(user.email);
+                    return BadRequest(new { message = "Bạn đã nhập sai OTP quá nhiều lần. Vui lòng yêu cầu mã mới!" });
                 }
                 return BadRequest(new { message = "Mã OTP không hợp lệ hoặc đã hết hạn!" });
             }
@@ -218,7 +150,8 @@ namespace server.Controllers
             await _context.Patients.AddAsync(new Patient { UserId = newUser.Id });
             await _context.SaveChangesAsync();
 
-            _otpDictionary.Remove(user.email);
+            // Xóa OTP sau khi đã sử dụng thành công
+            OtpUtil.RemoveOtp(user.email);
 
             return Ok(new { message = "Đăng ký thành công!", user = newUser.Email });
         }

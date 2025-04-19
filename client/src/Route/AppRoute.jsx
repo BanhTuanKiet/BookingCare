@@ -13,7 +13,7 @@ import UploadDoctorImage from '../Page/UploadDoctorImage'
 import Login from '../Page/Login'
 import Signin from '../Page/Signin'
 import ServiceDetail from '../Page/ServiceDetail'
-import Dashboard from '../Page/Dashboard'
+import Dashboard from '../Page/Dashboard/Dashboard'
 import Admin from '../Page/Admin'
 
 function AppRoute() {

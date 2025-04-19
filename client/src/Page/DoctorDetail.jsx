@@ -1,36 +1,34 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import axios from '../Util/AxiosConfig';
-import { Container, Row, Col, Card, Spinner, Accordion, Button, Nav } from 'react-bootstrap';
+import React, { useEffect, useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import axios from '../Util/AxiosConfig'
+import { Container, Row, Col, Card, Spinner, Accordion, Button, Nav } from 'react-bootstrap'
 
 const DoctorDetail = () => {
-    const { doctorName } = useParams();
-    const [doctor, setDoctor] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState('intro');
-    const navigate = useNavigate();
+    const { doctorName } = useParams()
+    const [doctor, setDoctor] = useState(null)
+    const [loading, setLoading] = useState(true)
+    const [activeTab, setActiveTab] = useState('intro')
+    const navigate = useNavigate()
 
     const HandleAppointment = () => {
-        navigate("/đặt lịch khám");
-    };
+        navigate("/đặt lịch khám")
+    }
 
     useEffect(() => {
         const fetchDoctorDetail = async () => {
             try {
-                const response = await axios.get(`/doctors/detail/${doctorName}`);
-                setDoctor(response.data);
+                const response = await axios.get(`/doctors/detail/${doctorName}`)
+                setDoctor(response.data)
             } catch (error) {
-                console.error("Lỗi khi lấy chi tiết bác sĩ:", error);
-                // Xử lý lỗi trực tiếp tại đây nếu cần thiết
-                // Ví dụ: có thể thiết lập doctor thành một đối tượng với thông tin mặc định
-                setDoctor(null);
+                console.error("Lỗi khi lấy chi tiết bác sĩ:", error)
+                setDoctor(null)
             } finally {
-                setLoading(false);
+                setLoading(false)
             }
-        };
+        }
 
-        fetchDoctorDetail();
-    }, [doctorName]);
+        fetchDoctorDetail()
+    }, [doctorName])
 
     if (loading) {
         return (
@@ -38,10 +36,9 @@ const DoctorDetail = () => {
                 <Spinner animation="border" variant="primary" />
                 <p>Đang tải thông tin bác sĩ...</p>
             </Container>
-        );
+        )
     }
 
-    // Kiểm tra tình trạng doctor trực tiếp thay vì sử dụng state error
     if (!doctor) {
         return (
             <Container className="mt-5 text-center">
@@ -50,20 +47,19 @@ const DoctorDetail = () => {
                     Quay lại
                 </Button>
             </Container>
-        );
+        )
     }
 
     const qualificationsList = doctor.qualifications
         ? doctor.qualifications.split('$').map(item => item.trim()).filter(Boolean)
-        : [];
+        : []
 
     const workExperienceList = doctor.workExperience
         ? doctor.workExperience.split('$').map(item => item.trim()).filter(Boolean)
-        : [];
+        : []
 
     return (
         <Container fluid>
-            {/* Top Card with Doctor Info */}
             <Row className="justify-content-center mb-4" style={{ marginTop: '60px' }}>
                 <Col md={10}>
                     <Card className="border-0">
@@ -133,7 +129,6 @@ const DoctorDetail = () => {
                     </Card>
                 </Col>
             </Row>
-
 
             {/* Navigation Tabs */}
             <Row className="justify-content-center">
@@ -263,7 +258,7 @@ const DoctorDetail = () => {
                 </Col>
             </Row>
         </Container>
-    );
-};
+    )
+}
 
-export default DoctorDetail;
+export default DoctorDetail

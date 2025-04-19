@@ -10,12 +10,6 @@ function Appointment() {
   const [doctors, setDoctors] = useState()
   const [services, setServices] = useState()
 
-  // useEffect(() => {
-  //   if (specialties.length > 0) {
-  //     setSpecialty(specialties[0].name)
-  //   }
-  // }, [specialties])
-
   useEffect(() => {
     const fetchDoctors =  async () => {
       const response = await axios.get(`/doctors/${specialty}`)
@@ -230,4 +224,3 @@ function Appointment() {
 }
 
 export default Appointment
-

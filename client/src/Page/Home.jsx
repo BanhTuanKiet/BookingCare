@@ -1,23 +1,15 @@
-import React, { useContext, useEffect } from "react"
-import { Col, Row, Container } from "react-bootstrap"
+import React, { useContext } from "react"
+import { Container } from "react-bootstrap"
 import images from '../Image/Others/Index'
 import "../Style/Home.css"
 import { NavContext } from "../Context/NavContext"
-import ServiceCarousels from "../Component/ServiceCarousels"
-import DoctorCarousels from "../Component/DoctorCarousels"
-import SpecialtyCarousels from "../Component/SpecialtyCarousels"
-import axios from "../Util/AxiosConfig"
+import { DoctorCarousels, ServiceCarousels, SpecialtyCarousels } from "../Component/Carousel/Index"
 
 const Home = () => {
   const { specialties, services, doctors } = useContext(NavContext);
 
   return (
-    <div>
-      {/* <div className="py-5 text-center" style={{ backgroundColor: "#007bff", color: "white" }}>
-        <h1 className="fw-bold">Chào mừng đến với Phòng Khám DBK</h1>
-        <p className="lead">Nơi chăm sóc sức khỏe tận tâm và chuyên nghiệp</p>
-      </div> */}
-
+    <>
       <div
         className="specialty-section py-5"
         style={{
@@ -62,8 +54,8 @@ const Home = () => {
           <DoctorCarousels doctors={doctors} />
         </Container>
       </div>
-    </div>
-  );
-};
+    </>
+  )
+}
 
-export default Home;
+export default Home

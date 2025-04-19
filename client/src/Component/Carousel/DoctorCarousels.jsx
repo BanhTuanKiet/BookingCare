@@ -1,7 +1,6 @@
 import { useState } from "react"
 import { Button, Col, Container, Row } from "react-bootstrap"
 import { useNavigate } from "react-router-dom"
-// import { ChevronLeft, ChevronRight } from "react-bootstrap-icon"
 
 function DoctorCarousels({ doctors }) {
   const [activeIndex, setActiveIndex] = useState(0)
@@ -13,7 +12,6 @@ function DoctorCarousels({ doctors }) {
 
   const totalDoctors = doctors.length
 
-  // Xử lý chỉ số theo cơ chế vòng lặp vô tận
   const getLoopedIndex = (index) => {
     if (index < 0) return index + totalDoctors
     if (index >= totalDoctors) return index - totalDoctors
@@ -28,12 +26,10 @@ function DoctorCarousels({ doctors }) {
     setActiveIndex((prev) => getLoopedIndex(prev + 1))
   }
 
-  // Khi click vào 1 bác sĩ trong danh sách nhỏ
   const handleSelectDoctor = (index) => {
     setActiveIndex(index)
   }
 
-  // Lấy danh sách 5 bác sĩ theo chỉ mục vòng lặp
   const visibleDoctors = Array.from({ length: Math.min(5, totalDoctors) }, (_, i) => {
     const index = getLoopedIndex(activeIndex + i)
     return doctors[index]

@@ -1,30 +1,29 @@
-import { useState } from "react";
-import { Button } from "react-bootstrap";
-import ServiceCard from "./ServiceCard";
+import { useState } from "react"
+import { Button } from "react-bootstrap"
+import { ServiceCard } from "../Card/Index"
 
 function ServiceCarousel({ services }) {
-    const [activeIndex, setActiveIndex] = useState(0);
+    const [activeIndex, setActiveIndex] = useState(0)
 
     if (!services || services.length === 0) {
-        return <p>Không có dịch vụ nào để hiển thị.</p>;
+        return <p>Không có dịch vụ nào để hiển thị.</p>
     }
 
-    const totalServices = services.length;
+    const totalServices = services.length
 
-    // Xử lý chỉ số theo cơ chế vòng lặp vô tận
     const getLoopedIndex = (index) => {
-        if (index < 0) return index + totalServices;
-        if (index >= totalServices) return index - totalServices;
-        return index;
-    };
+        if (index < 0) return index + totalServices
+        if (index >= totalServices) return index - totalServices
+        return index
+    }
 
     const handlePrev = () => {
-        setActiveIndex((prev) => getLoopedIndex(prev - 1));
-    };
+        setActiveIndex((prev) => getLoopedIndex(prev - 1))
+    }
 
     const handleNext = () => {
-        setActiveIndex((prev) => getLoopedIndex(prev + 1));
-    };
+        setActiveIndex((prev) => getLoopedIndex(prev + 1))
+    }
 
     // Lấy danh sách 4 dịch vụ theo chỉ mục vòng lặp
     const visibleServices = [
@@ -32,7 +31,7 @@ function ServiceCarousel({ services }) {
         services[getLoopedIndex(activeIndex + 1)],
         services[getLoopedIndex(activeIndex + 2)],
         services[getLoopedIndex(activeIndex + 3)],
-    ];
+    ]
 
     return (
         <div>
@@ -53,7 +52,7 @@ function ServiceCarousel({ services }) {
                 </Button>
             </div>
         </div>
-    );
+    )
 }
 
-export default ServiceCarousel;
+export default ServiceCarousel

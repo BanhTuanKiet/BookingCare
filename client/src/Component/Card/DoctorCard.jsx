@@ -1,10 +1,10 @@
 import React from "react";
 import { Card, Button } from "react-bootstrap"
 import { useNavigate } from 'react-router-dom'
-import "../Style/DoctorCard.css"
+import "../../Style/DoctorCard.css"
 
 const DoctorCard = ({ doctor }) => {
-  const navigate = useNavigate() // <-- thêm useNavigate ở đây
+  const navigate = useNavigate()
 
   return (
     <Card className="doctor-card text-center shadow-sm" >
@@ -34,7 +34,7 @@ const DoctorCard = ({ doctor }) => {
           </Button>
         </Card.Body>
     </Card>
-  );
-};
+  )
+}
 
-export default DoctorCard;
+export default DoctorCard

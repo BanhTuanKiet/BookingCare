@@ -1,19 +1,19 @@
-import React from 'react';
-import { Card, Button } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
-import images from '../Image/Service/Index';
-import imageService from '../Image/ServiceImage/Index';
-import '../Style/ServiceCard.css';
+import React from 'react'
+import { Card, Button } from 'react-bootstrap'
+import { useNavigate } from 'react-router-dom'
+import images from '../../Image/Service/Index'
+import imageService from '../../Image/ServiceImage/Index'
+import '../../Style/ServiceCard.css'
 
 const ServiceCard = ({ service }) => {
-  const navigate = useNavigate();
-  const serviceImage = images[service.serviceId] || '/default-service.png';
-  const imageOfEachService = imageService;
+  const navigate = useNavigate()
+  const serviceImage = images[service.serviceId] || '/default-service.png'
+  const imageOfEachService = imageService
 
   const truncateText = (text = "", wordLimit) => {
-    const words = text ? text.split(' ') : [];
-    return words.length > wordLimit ? words.slice(0, wordLimit).join(' ') + ' ...' : text;
-  };
+    const words = text ? text.split(' ') : []
+    return words.length > wordLimit ? words.slice(0, wordLimit).join(' ') + ' ...' : text
+  }
 
   return (
     <div className="custom-card-wrapper" onClick={() => navigate(`/dịch vụ/${service.serviceName}`)}>
@@ -54,7 +54,7 @@ const ServiceCard = ({ service }) => {
         </Card.Body>
       </Card>
     </div>
-  );
-};
+  )
+}
 
-export default ServiceCard;
+export default ServiceCard

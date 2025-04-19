@@ -3,7 +3,7 @@ import ExampleCarouselImage from './ExampleCarouselImage'
 
 function UncontrolledExample({ list, role }) {
   const items = []
-  console.log(list)
+
     for (let i = 0; i < list.length; i += 4) {
         items.push(
         <Carousel.Item key={i}>

@@ -18,5 +18,10 @@ namespace server.DTO
             public string? PhoneNumber { get; set; }
             public string? Email { get; set; }
         }
+        public class PatientUpdateDTO
+        {
+            public string? Address { get; set; }
+            public DateOnly? DateOfBirth { get; set; }
+        }
     }
 }

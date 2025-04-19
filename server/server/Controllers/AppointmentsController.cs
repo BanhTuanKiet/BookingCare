@@ -43,7 +43,6 @@ namespace server.Controllers
         [HttpPost]
         public async Task<ActionResult> Appointment([FromBody] AppointmentForm appointmentForm)
         {
-            Console.WriteLine(appointmentForm.Doctor);
             var doctor = await _doctorService.GetDoctorByName(appointmentForm.Doctor);
             var userId = HttpContext.Items["UserId"];
             int parsedUserId = Convert.ToInt32(userId.ToString());
@@ -59,8 +58,6 @@ namespace server.Controllers
                 Status = "Chờ xác nhận",
             };
 
-
-            Console.WriteLine(appointment.PatientId.ToString(), appointment.DoctorId, appointment.AppointmentDate, appointment.Status);
             await _context.Appointments.AddAsync(appointment);
             await _context.SaveChangesAsync();
             
@@ -80,64 +77,57 @@ namespace server.Controllers
             return Ok(appointments);
         }
 
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin, doctor")]
         [HttpPut("status/{id}")]
         public async Task<ActionResult> UpdateAppointmentStatus(int id, [FromBody] UpdateStatusDTO statusUpdate)
         {
-            try
+            var role = HttpContext.Items["role"].ToString();
+                
+            if (role == "doctor" && statusUpdate.Status != "Đã khám")
             {
+                throw new ErrorHandlingException(403, "Bạn không có quyền!");
+            }
                 // Sử dụng Include() để load các thực thể liên quan
-                var appointment = await _context.Appointments
-                    .Include(a => a.Patient)
-                        .ThenInclude(p => p.User)
-                    .Include(a => a.Doctor)
-                        .ThenInclude(d => d.User)
-                    .Include(a => a.Service)
-                    .FirstOrDefaultAsync(a => a.AppointmentId == id);
+            var appointment = await _context.Appointments
+                .Include(a => a.Patient)
+                    .ThenInclude(p => p.User)
+                .Include(a => a.Doctor)
+                    .ThenInclude(d => d.User)
+                .Include(a => a.Service)
+                .FirstOrDefaultAsync(a => a.AppointmentId == id);
                 
-                if (appointment == null)
-                {
-                    return NotFound(new { message = "Không tìm thấy lịch hẹn" });
-                }
+            if (appointment == null)
+            {
+                return NotFound(new { message = "Không tìm thấy lịch hẹn" });
+            }
                 
-                string oldStatus = appointment.Status;
-                appointment.Status = statusUpdate.Status;
-                await _context.SaveChangesAsync();
+            string oldStatus = appointment.Status;
+            appointment.Status = statusUpdate.Status;
+            await _context.SaveChangesAsync();
                 
                 // Kiểm tra nếu patient và email tồn tại trước khi gửi email
-                if (appointment.Patient?.User?.Email != null)
-                {
-                    Console.WriteLine($"Tìm thấy email: {appointment.Patient.User.Email}");
-                    await SendStatusUpdateEmail(
-                        appointment.Patient.User.Email,
-                        appointment.Patient.User.FullName,
-                        appointment.Doctor?.User?.FullName,
-                        appointment.AppointmentDate.Value,
-                        appointment.Service?.ServiceName,
-                        oldStatus,
-                        statusUpdate.Status
-                    );
-                }
-                else
-                {
-                    Console.WriteLine("Email của bệnh nhân là null hoặc không tìm thấy");
-                }
-
-                return Ok(new { message = "Cập nhật trạng thái thành công" });
-            }
-            catch (Exception ex)
+            if (appointment.Patient?.User.Email != null)
             {
-                Console.WriteLine($"Lỗi trong UpdateAppointmentStatus: {ex.Message}");
-                Console.WriteLine($"Stack trace: {ex.StackTrace}");
-                return StatusCode(500, new { message = "Lỗi khi cập nhật trạng thái: " + ex.Message });
+                throw new ErrorHandlingException("Không tìm thấy email bệnh nhân!");
             }
+            
+            await SendStatusUpdateEmail(
+                appointment.Patient.User.Email,
+                appointment.Patient.User.FullName,
+                appointment.Doctor?.User?.FullName,
+                appointment.AppointmentDate.Value,
+                appointment.Service?.ServiceName,
+                oldStatus,
+                statusUpdate.Status
+            );
+            
+            return Ok(new { message = "Cập nhật trạng thái thành công" });
         }
 
         private async Task<bool> SendStatusUpdateEmail(string email, string patientName, string doctorName, DateTime appointmentDate, string serviceName, string oldStatus, string newStatus)
         {
             try
             {
-                Console.WriteLine($"Đang cố gắng gửi email đến {email}");
                 var smtpClient = new SmtpClient
                 {
                     Host = _configuration["EmailSettings:SmtpServer"],
@@ -150,7 +140,7 @@ namespace server.Controllers
                 };
 
                 string formattedDate = appointmentDate.ToString("dd/MM/yyyy HH:mm");
-                Console.WriteLine($"Ngày đã định dạng: {formattedDate}");
+
                 var message = new MailMessage
                 {
                     From = new MailAddress(_configuration["EmailSettings:SenderEmail"], _configuration["EmailSettings:SenderName"]),
@@ -177,9 +167,9 @@ namespace server.Controllers
                 };
 
                 message.To.Add(email);
-                Console.WriteLine("Email đã được cấu hình, đang gửi...");
+
                 await smtpClient.SendMailAsync(message);
-                Console.WriteLine("Email đã được gửi thành công");
+
                 return true;
             }
             catch (Exception ex)
@@ -194,12 +184,7 @@ namespace server.Controllers
         [HttpPut("cancel/{appointmentId}")]
         public async Task<ActionResult> CancelAppointment(int appointmentId)
         {
-            var appointment = await _context.Appointments.FindAsync(appointmentId);
-                
-            if (appointment == null)
-            {
-                throw new ErrorHandlingException("Không tìm thấy lịch hẹn");
-            }
+            var appointment = await _context.Appointments.FindAsync(appointmentId) ?? throw new ErrorHandlingException("Không tìm thấy lịch hẹn");
                 
             appointment.Status = "Đã hủy";
             await _context.SaveChangesAsync();
@@ -214,11 +199,7 @@ namespace server.Controllers
             var userId = HttpContext.Items["UserId"];
             int parsedUserId = Convert.ToInt32(userId.ToString());
 
-            var patient = await _patientService.GetPatientById(parsedUserId);
-            if (patient == null)
-            {
-                return NotFound(new { message = "Không tìm thấy bệnh nhân" });
-            }
+            var patient = await _patientService.GetPatientById(parsedUserId) ?? throw new ErrorHandlingException("Không tim thấy bệnh nhân");
 
             var appointments = await _appointmentService.GetAppointmentByPatientId(patient.PatientId);
             return Ok(appointments);
@@ -231,11 +212,40 @@ namespace server.Controllers
             var userId = HttpContext.Items["UserId"];
             int parsedUserId = Convert.ToInt32(userId.ToString());
 
-            var doctor = await _doctorService.GetDoctorById(parsedUserId) ?? throw new ErrorHandlingException(404, "Không tìm thấy bác sĩ!");
+            var doctor = await _doctorService.GetDoctorById(parsedUserId) ?? throw new ErrorHandlingException("Không tìm thấy bác sĩ!");
 
-            var schedule = await _appointmentService.GetDoctorSchedule(doctor.DoctorId) ?? throw new ErrorHandlingException(404, "Không tìm thấy lịch làm việc!");
+            var schedule = await _appointmentService.GetDoctorSchedule(doctor.DoctorId) ?? throw new ErrorHandlingException("Không tìm thấy lịch làm việc!");
 
             return schedule;
         }
+
+        [Authorize(Roles = "doctor")]
+        [HttpGet("schedule_detail")]
+        public async Task<ActionResult> GetDoctorScheduleByDateTime([FromQuery] string date, [FromQuery] string time)
+        {
+            var userId = HttpContext.Items["UserId"];
+            int parsedUserId = Convert.ToInt32(userId.ToString());
+
+            var doctor = await _doctorService.GetDoctorById(parsedUserId) ?? throw new ErrorHandlingException("Không tìm thấy bác sĩ!");
+
+            var schedules = await _appointmentService.GetDoctorScheduleDetail(doctor.DoctorId, date, time);
+
+            return Ok(new { schedules = schedules, doctor = doctor });
+        }
+
+        [Authorize(Roles = "doctor")]
+        [HttpGet("examined_patients")]
+        public async Task<ActionResult> GetPatientByStatus()
+        {
+            var userId = HttpContext.Items["UserId"];
+            int parsedUserId = Convert.ToInt32(userId.ToString());
+
+            var doctor = await _doctorService.GetDoctorById(parsedUserId) ?? throw new ErrorHandlingException("Không tìm thấy bác sĩ!");
+
+            var schedules = await _appointmentService.GetPatientScheduleDetail(doctor.DoctorId);
+
+            return Ok(new { schedules = schedules});
+        }
+
     }
 }
