@@ -45,7 +45,7 @@ namespace Clinic_Management.Controllers
             var record = await _medicalRecordService.AddMedicalRecord(appointmentId, prescriptionRequest) ?? throw new ErrorHandlingException(400, "Lỗi khi tạo toa thuốc");
 
             var recordDetail = await _medicalRecordService.AddMedicalRecordDetail(record.RecordId, prescriptionRequest.Medicines) ?? throw new ErrorHandlingException(400, "Lỗi khi tạo toa thuốc");
-
+ 
             return Ok( new { message = "Tạo toa thuốc thành công!" });
         }
     }

@@ -23,6 +23,8 @@ string db_name = Environment.GetEnvironmentVariable("DATABASE_NAME");
 string user_id = Environment.GetEnvironmentVariable("USER_ID");
 string db_password = Environment.GetEnvironmentVariable("DATABASE_PASSWORD");
 
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration["ConnectionStrings:DefaultConnection"] = $"Server={db_server},{db_port};Database={db_name};User Id={user_id};Password={db_password};TrustServerCertificate=True;Connect Timeout=180;";
@@ -37,6 +39,7 @@ builder.Services.AddScoped<IUser, UserServices>();
 builder.Services.AddScoped<IDoctor, DoctorServices>();
 builder.Services.AddScoped<IPatient, PatientServices>();
 builder.Services.AddScoped<IAppointment, AppointmentServices>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IMedicine, MedicineService>();
 builder.Services.AddScoped<IMedicalRecord, MedicalRecordService>();
 
