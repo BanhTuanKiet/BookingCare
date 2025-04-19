@@ -7,6 +7,7 @@ import AppointmentHistory from '../../Page/Dashboard/Patient/MedicalHistory'
 import DoctorShiftDetail from '../../Page/Dashboard/Doctor/DoctorShiftDetail' // 📌 Import thêm file chi tiết
 import PatientsInfor from '../../Page/Dashboard/Admin/PatientsInfor'
 import axios from "../../Util/AxiosConfig"
+import PatientMedicalRecord from '../../Page/Dashboard/Patient/PatientMedicalRecord'
 
 function DashboardInfor({ role, tabActive, setTabActive }) {
     const [user, setUser] = useState(null)
@@ -35,7 +36,7 @@ function DashboardInfor({ role, tabActive, setTabActive }) {
         },
         {
             path: "lịch sử hẹn",
-            component: <AppointmentHistory />,
+            component: <PatientMedicalRecord />,
             roles: ["patient"],
         },
         {
