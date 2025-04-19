@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'
 
 const Loading = ({ text = "Đang tải..." }) => {
   return (
@@ -7,7 +7,7 @@ const Loading = ({ text = "Đang tải..." }) => {
         <span className="visually-hidden">{text}</span>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Loading;
+export default Loading

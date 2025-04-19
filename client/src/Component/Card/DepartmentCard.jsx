@@ -1,4 +1,4 @@
-import Card from 'react-bootstrap/Card';
+import Card from 'react-bootstrap/Card'
 
 function DepartmentCard({ image, title, description }) {
   return (
@@ -9,7 +9,7 @@ function DepartmentCard({ image, title, description }) {
         <Card.Text>{description}</Card.Text>
       </Card.Body>
     </Card>
-  );
+  )
 }
 
-export default DepartmentCard;
+export default DepartmentCard

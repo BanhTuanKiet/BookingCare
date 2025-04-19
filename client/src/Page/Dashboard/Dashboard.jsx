@@ -1,16 +1,11 @@
-import React, { useEffect, useState, useContext } from "react"
-import { AuthContext } from "../Context/AuthContext"
+import React, { useState, useContext } from "react"
+import { AuthContext } from "../../Context/AuthContext"
 import { Container, Row, Col } from "react-bootstrap"
-import DashboardSidebar from "../Component/Dashboard/DashboardSidebar"
-import DashboardInfor from "../Component/Dashboard/DashboardInfor"
+import { DashboardSidebar, DashboardInfor } from "../../Component/Dashboard/Index"
 
 const PatientProfile = () => {
   const [tabActive, setTabActive] = useState("hồ sơ")
   const { role } = useContext(AuthContext)
-
-  // useEffect(() => {
-  //   console.log(`${tabActive}`)
-  // }, [tabActive])
 
   return (
     <Container fluid>

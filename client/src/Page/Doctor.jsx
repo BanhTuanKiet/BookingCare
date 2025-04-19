@@ -1,87 +1,86 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { Container, Row, Col, Form, InputGroup, Button, Nav } from 'react-bootstrap';
-import { FaSearch } from 'react-icons/fa';
-import DoctorCard from '../Component/DoctorCard';
-import axios from '../Util/AxiosConfig';
-import Loading from '../Component/Loading';
-import '../Style/DoctorPage.css';
-import { NavContext } from '../Context/NavContext';
+import React, { useState, useEffect, useContext } from 'react'
+import { Container, Row, Col, Form, InputGroup, Button, Nav } from 'react-bootstrap'
+import { FaSearch } from 'react-icons/fa'
+import { DoctorCard } from '../Component/Card/Index'
+import axios from '../Util/AxiosConfig'
+import Loading from '../Component/Loading'
+import '../Style/DoctorPage.css'
+import { NavContext } from '../Context/NavContext'
 
 const Doctor = () => {
-  const { specialties } = useContext(NavContext);
-  const [doctors, setDoctors] = useState([]);
-  const [activeSpecialty, setActiveSpecialty] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(true);
-
+  const { specialties } = useContext(NavContext)
+  const [doctors, setDoctors] = useState([])
+  const [activeSpecialty, setActiveSpecialty] = useState('all')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [loading, setLoading] = useState(true)
   // Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 12;
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 12
 
-  const indexOfLastDoctor = currentPage * itemsPerPage;
-  const indexOfFirstDoctor = indexOfLastDoctor - itemsPerPage;
-  const currentDoctors = doctors.slice(indexOfFirstDoctor, indexOfLastDoctor);
-  const totalPages = Math.ceil(doctors.length / itemsPerPage);
+  const indexOfLastDoctor = currentPage * itemsPerPage
+  const indexOfFirstDoctor = indexOfLastDoctor - itemsPerPage
+  const currentDoctors = doctors.slice(indexOfFirstDoctor, indexOfLastDoctor)
+  const totalPages = Math.ceil(doctors.length / itemsPerPage)
 
   useEffect(() => {
-    fetchDoctors();
-  }, []);
+    fetchDoctors()
+  }, [])
 
   const fetchDoctors = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/doctors', { withCredentials: true });
-      const filteredDoctors = response.data.filter(doctor => doctor.doctorId);
-      setDoctors(filteredDoctors);
-      setCurrentPage(1);
+      const response = await axios.get('/doctors', { withCredentials: true })
+      const filteredDoctors = response.data.filter(doctor => doctor.doctorId)
+      setDoctors(filteredDoctors)
+      setCurrentPage(1)
     } catch (error) {
-      console.error('Lỗi khi lấy danh sách bác sĩ:', error);
+      console.error('Lỗi khi lấy danh sách bác sĩ:', error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleSpecialtyFilter = async (specialty) => {
-    setActiveSpecialty(specialty);
-    setLoading(true);
+    setActiveSpecialty(specialty)
+    setLoading(true)
     try {
       if (specialty === 'all') {
-        await fetchDoctors();
-        return;
+        await fetchDoctors()
+        return
       }
-      const response = await axios.get(`/doctors/${specialty}`);
-      setDoctors(response.data);
-      setCurrentPage(1);
+      const response = await axios.get(`/doctors/${specialty}`)
+      setDoctors(response.data)
+      setCurrentPage(1)
     } catch (error) {
-      console.error('Lỗi lọc theo chuyên khoa:', error);
+      console.error('Lỗi lọc theo chuyên khoa:', error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleSearch = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
     try {
-      setLoading(true);
+      setLoading(true)
       if (!searchTerm.trim()) {
-        handleSpecialtyFilter(activeSpecialty);
-        return;
+        handleSpecialtyFilter(activeSpecialty)
+        return
       }
 
-      const response = await axios.get(`/doctors/search?keyword=${searchTerm}`);
-      const filteredDoctors = response.data.filter(doctor => doctor.doctorId);
-      setDoctors(filteredDoctors);
-      setCurrentPage(1);
+      const response = await axios.get(`/doctors/search?keyword=${searchTerm}`)
+      const filteredDoctors = response.data.filter(doctor => doctor.doctorId)
+      setDoctors(filteredDoctors)
+      setCurrentPage(1)
     } catch (error) {
-      console.error('Lỗi tìm kiếm:', error);
+      console.error('Lỗi tìm kiếm:', error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
   };
 
   const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-    window.scrollTo(0, 0);
+    setCurrentPage(pageNumber)
+    window.scrollTo(0, 0)
   };
 
   return (
@@ -172,7 +171,7 @@ const Doctor = () => {
         </>
       )}
     </Container>
-  );
-};
+  )
+}
 
-export default Doctor;
+export default Doctor

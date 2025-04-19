@@ -61,10 +61,9 @@ const AppointmentAdmin = () => {
     try {
       await axios.put(`/appointments/status/${currentAppointment.appointmentId}`, { status: newStatus })
       
-      // Sau khi cập nhật thành công thì reload danh sách
       await fetchAppointments() 
       
-      handleCloseModal() // đóng modal sau khi cập nhật
+      handleCloseModal()
     } catch (err) {
       console.error('Error updating appointment status:', err)
     }

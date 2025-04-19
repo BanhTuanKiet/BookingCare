@@ -1,26 +1,25 @@
-import React from 'react';
-import { useNavigate } from "react-router-dom";
-import SpecialtyIntroduce from '../Image/SpecialtyIntroduce/Index';
+import React from 'react'
+import { useNavigate } from "react-router-dom"
+import SpecialtyIntroduce from '../../Image/SpecialtyIntroduce/Index'
 
 
 function SpecialtyCard({ specialty }) {
-    const navigate = useNavigate(); // ✅ Đặt bên trong component
+    const navigate = useNavigate()
     const images = SpecialtyIntroduce
-
-    // Hàm cắt mô tả và thêm dấu "..." nếu có nhiều hơn 30 từ
+ 
     const truncateDescription = (description, wordLimit = 30) => {
-        const words = description.split(' ');
+        const words = description.split(' ')
         if (words.length > wordLimit) {
-            return words.slice(0, wordLimit).join(' ') + '...';
+            return words.slice(0, wordLimit).join(' ') + '...'
         }
-        return description;
-    };
+        return description
+    }
 
     return (
         <div 
             style={{height: "400px", objectFit: "cover" }}
             className="specialty-card"
-            onClick={() => navigate(`/chuyên khoa/${specialty.name}`)} // ✅ Dùng backticks
+            onClick={() => navigate(`/chuyên khoa/${specialty.name}`)}
         >
             <img
                 src={images[specialty.name]}
@@ -32,7 +31,7 @@ function SpecialtyCard({ specialty }) {
                 <p>{truncateDescription(specialty.description)}</p>
             </div>
         </div>
-    );
+    )
 }
 
-export default SpecialtyCard;
+export default SpecialtyCard

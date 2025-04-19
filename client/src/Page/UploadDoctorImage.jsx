@@ -1,12 +1,12 @@
-import React, { useState } from "react";
-import axios from "../Util/AxiosConfig";
+import React, { useState } from "react"
+import axios from "../Util/AxiosConfig"
 
 const UploadDoctorImage = ({ doctorId }) => {
-  const [file, setFile] = useState(null);
+  const [file, setFile] = useState(null)
 
   const handleFileChange = (event) => {
-    setFile(event.target.files[0]);
-  };
+    setFile(event.target.files[0])
+  }
 
   const handleUpload = async () => {
     if (!file) {
@@ -23,8 +23,7 @@ const UploadDoctorImage = ({ doctorId }) => {
             headers: { 
                 "Content-Type": "multipart/form-data" 
             },
-        });
-
+        })
     } catch (error) {
       console.error("Upload failed:", error)
     }
@@ -35,7 +34,7 @@ const UploadDoctorImage = ({ doctorId }) => {
       <input type="file" onChange={handleFileChange} />
       <button onClick={handleUpload}>Upload Image</button>
     </div>
-  );
-};
+  )
+}
 
-export default UploadDoctorImage;
+export default UploadDoctorImage

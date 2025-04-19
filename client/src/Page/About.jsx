@@ -1,13 +1,13 @@
-import React from 'react';
-import { Container, Row, Col, Card, Button } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import React from 'react'
+import { Container, Card } from 'react-bootstrap'
+import { useNavigate } from 'react-router-dom'
 
 function About() {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
   
   const HandleAppointment = () => {
-    navigate("/đặt lịch khám");
-  };
+    navigate("/đặt lịch khám")
+  }
 
   return (
     <Container className="py-5">
@@ -106,7 +106,7 @@ function About() {
         </Card.Body>
       </Card>
     </Container>
-  );
+  )
 }
 
-export default About;
+export default About

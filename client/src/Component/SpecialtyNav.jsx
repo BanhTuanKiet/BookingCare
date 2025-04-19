@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import axios from '../Util/AxiosConfig'
 import { useParams } from 'react-router-dom'
-import DoctorCard from './DoctorCard'
-import ServiceCard from './ServiceCard'
-import SpecialtyIntroduce from '../Image/SpecialtyIntroduce/Index';
+import { DoctorCard, ServiceCard } from "../Component/Card/Index"
+import SpecialtyIntroduce from '../Image/SpecialtyIntroduce/Index'
 
 function SpecialtyNav() {
     const { specialty } = useParams() // destructure params cho gọn
@@ -23,19 +22,19 @@ function SpecialtyNav() {
 
                         setInfor(response.data ?? "")
                         break
-    
+        
                     case navItems[1]: // Bác sĩ
                         response = await axios.get(`/doctors/${specialty}`)
-console.log(response.data)
+
                         setInfor(Array.isArray(response.data) ? response.data : [])
                         break
-    
+        
                     case navItems[2]: // Dịch vụ
                         response = await axios.get(`/services/${specialty}/services`)
 
                         setInfor(Array.isArray(response.data) ? response.data : [])
                         break
-    
+        
                     default:
                         setInfor(null)
                         break
@@ -44,7 +43,7 @@ console.log(response.data)
                 console.error("Lỗi lấy dữ liệu:", error)
             }
         }
-    
+        
         fetchData()
     }, [activeNavItem, specialty])
 
@@ -76,7 +75,6 @@ console.log(response.data)
                         alt={`Hình ảnh của ${specialty}`} 
                         style={{ width: "98%", maxHeight: "400px", objectFit: "cover", marginBottom: "20px" }} 
                     />
-
                     <div><span className='text-warning fw-bold'>{specialty} </span>{infor}</div>
                 </div>
             )}
@@ -87,9 +85,9 @@ console.log(response.data)
                     <h5 className="mb-3">Danh sách {activeNavItem}</h5>
                     {Array.isArray(infor) && infor.length > 0 ? (
                         <div className="doctor-list" style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
-                        {infor.map(doctor => (
-                            <DoctorCard key={doctor.doctorId} doctor={doctor} />
-                        ))}
+                            {infor.map(doctor => (
+                                <DoctorCard key={doctor.doctorId} doctor={doctor} />
+                            ))}
                         </div>
                     ) : (
                         <p>Hiện chưa có bác sĩ nào được hiển thị.</p>

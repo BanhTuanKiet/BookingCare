@@ -1,30 +1,30 @@
-import { useState } from "react";
-import { Button } from "react-bootstrap";
-import SpecialtyCard from "./SpecialtyCard"; // Tạo một SpecialtyCard component để hiển thị chi tiết chuyên khoa
+import { useState } from "react"
+import { Button } from "react-bootstrap"
+import { SpecialtyCard } from "../Card/Index"
 
 function SpecialtyCarousel({ specialties }) {
-    const [activeIndex, setActiveIndex] = useState(0);
+    const [activeIndex, setActiveIndex] = useState(0)
 
     if (!specialties || specialties.length === 0) {
-        return <p>Không có chuyên khoa nào để hiển thị.</p>;
+        return <p>Không có chuyên khoa nào để hiển thị.</p>
     }
 
-    const totalSpecialties = specialties.length;
+    const totalSpecialties = specialties.length
 
     // Xử lý chỉ số theo cơ chế vòng lặp vô tận
     const getLoopedIndex = (index) => {
         if (index < 0) return index + totalSpecialties;
-        if (index >= totalSpecialties) return index - totalSpecialties;
-        return index;
-    };
+        if (index >= totalSpecialties) return index - totalSpecialties
+        return index
+    }
 
     const handlePrev = () => {
-        setActiveIndex((prev) => getLoopedIndex(prev - 1));
-    };
+        setActiveIndex((prev) => getLoopedIndex(prev - 1))
+    }
 
     const handleNext = () => {
-        setActiveIndex((prev) => getLoopedIndex(prev + 1));
-    };
+        setActiveIndex((prev) => getLoopedIndex(prev + 1))
+    }
 
     // Lấy danh sách 4 chuyên khoa theo chỉ mục vòng lặp
     const visibleSpecialties = [
@@ -32,7 +32,7 @@ function SpecialtyCarousel({ specialties }) {
         specialties[getLoopedIndex(activeIndex + 1)],
         specialties[getLoopedIndex(activeIndex + 2)],
         specialties[getLoopedIndex(activeIndex + 3)],
-    ];
+    ]
 
     return (
         <div>
@@ -53,7 +53,7 @@ function SpecialtyCarousel({ specialties }) {
                 </Button>
             </div>
         </div>
-    );
+    )
 }
 
-export default SpecialtyCarousel;
+export default SpecialtyCarousel

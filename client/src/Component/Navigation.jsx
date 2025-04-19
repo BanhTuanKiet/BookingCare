@@ -117,9 +117,9 @@ const Navigation = () => {
         >
           {page.name}
         </Nav.Link>
-      );
-    });
-  };
+      )
+    })
+  }
 
   const RenderSpecialties = () => {
     return specialties.map((speciality, index) => (
@@ -199,7 +199,7 @@ const Navigation = () => {
         </Navbar.Collapse>
       </Container>
     </Navbar>
-  );
-};
+  )
+}
 
-export default Navigation;
+export default Navigation

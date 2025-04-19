@@ -1,7 +1,7 @@
-import React from "react";
-import { Container, Row, Col } from "react-bootstrap";
-import { Link } from "react-router-dom";
-import { FaPhoneAlt, FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
+import React from "react"
+import { Container, Row, Col } from "react-bootstrap"
+import { Link } from "react-router-dom"
+import { FaPhoneAlt, FaEnvelope, FaMapMarkerAlt } from "react-icons/fa"
 
 const Footer = () => {
   return (
@@ -48,7 +48,7 @@ const Footer = () => {
         </div>
       </Container>
     </footer>
-  );
-};
+  )
+}
 
-export default Footer;
+export default Footer

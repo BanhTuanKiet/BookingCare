@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import PersonalInfo from './General/PersonalInfor'
-import PatientHistory from './Doctor/PatientHistory'
-import DoctorSchedule from './Doctor/DoctorSchedule'
-import ReviewDoctor from './Doctor/ReviewDoctor'
-import AppointmentHistory from './Patient/MedicalHistory'
-import DoctorShiftDetail from './Doctor/DoctorShiftDetail' // 📌 Import thêm file chi tiết
-import PatientsInfor from './Admin/PatientsInfor'
+import PersonalInfo from '../../Page/Dashboard/General/PersonalInfor'
+import PatientHistory from '../../Page/Dashboard/Doctor/PatientHistory'
+import DoctorSchedule from '../../Page/Dashboard/Doctor/DoctorSchedule'
+import ReviewDoctor from '../../Page/Dashboard/Doctor/ReviewDoctor'
+import AppointmentHistory from '../../Page/Dashboard/Patient/MedicalHistory'
+import DoctorShiftDetail from '../../Page/Dashboard/Doctor/DoctorShiftDetail' // 📌 Import thêm file chi tiết
+import PatientsInfor from '../../Page/Dashboard/Admin/PatientsInfor'
 import axios from "../../Util/AxiosConfig"
 
 function DashboardInfor({ role, tabActive, setTabActive }) {

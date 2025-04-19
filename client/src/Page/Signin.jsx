@@ -1,6 +1,5 @@
 import React, { useState, useContext } from "react"
 import { Container, Col, Form, Button, InputGroup, Alert } from "react-bootstrap"
-import "bootstrap/dist/css/bootstrap.min.css"
 import "../Style/Signin.css"
 import axios from '../Util/AxiosConfig'
 import { AuthContext } from "../Context/AuthContext"
