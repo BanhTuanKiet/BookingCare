@@ -106,9 +106,9 @@ namespace server.Controllers
             await _context.SaveChangesAsync();
                 
                 // Kiểm tra nếu patient và email tồn tại trước khi gửi email
-            if (appointment.Patient?.User.Email != null)
+            if (appointment.Patient?.User?.Email == null)
             {
-                throw new ErrorHandlingException("Không tìm thấy email bệnh nhân!");
+                throw new ErrorHandlingException(404, "Không tìm thấy email bệnh nhân!");
             }
             
             await SendStatusUpdateEmail(

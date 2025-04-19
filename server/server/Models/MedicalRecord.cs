@@ -16,6 +16,5 @@ public partial class MedicalRecord
     public string? Notes { get; set; }
 
     public virtual Appointment? Appointment { get; set; }
-
     public virtual ICollection<Prescription> Prescriptions { get; set; } = new List<Prescription>();
 }

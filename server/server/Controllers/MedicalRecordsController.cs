@@ -28,12 +28,14 @@ namespace Clinic_Management.Controllers
         private readonly ClinicManagementContext _context;
         private readonly IMedicalRecord _medicalRecordService;
         private readonly IAppointment _appointmentService;
+        private readonly IPatient _patientService;
 
-        public MedicalRecords(ClinicManagementContext context, IMedicalRecord medicalRecordService, IAppointment appointmentService)
+        public MedicalRecords(ClinicManagementContext context, IMedicalRecord medicalRecordService, IAppointment appointmentService, IPatient patientService)
         {
             _context = context;
             _medicalRecordService = medicalRecordService;
             _appointmentService = appointmentService;
+            _patientService = patientService;
         }
 
         [Authorize(Roles = "doctor")]
@@ -47,6 +49,22 @@ namespace Clinic_Management.Controllers
             var recordDetail = await _medicalRecordService.AddMedicalRecordDetail(record.RecordId, prescriptionRequest.Medicines) ?? throw new ErrorHandlingException(400, "Lỗi khi tạo toa thuốc");
 
             return Ok( new { message = "Tạo toa thuốc thành công!" });
+        }
+
+        [Authorize(Roles = "patient")]
+        [HttpGet("prescriptions")]
+        public async Task<ActionResult> GetPrescriptions()
+        {
+            var userId = HttpContext.Items["UserId"].ToString();
+            var parsedUserId = Convert.ToInt32(userId);
+
+            var patient = await _patientService.GetPatientById(parsedUserId) ?? throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");
+
+            var appointments = await _appointmentService.GetAppointmentsId(patient.PatientId);
+
+            var medicalRecords = await _medicalRecordService.GetMedicalRecords(appointments) ?? throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");;
+        
+            return Ok(medicalRecords);
         }
     }
 }

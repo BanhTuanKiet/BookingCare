@@ -16,7 +16,7 @@ function DashboardInfor({ role, tabActive, setTabActive }) {
     const Tabs = [
         {
             path: "hồ sơ",
-            component: <PersonalInfo />,
+            component: <AppointmentHistory />,
             roles: ["doctor", "patient", "admin"],
         },
         {
@@ -68,21 +68,6 @@ function DashboardInfor({ role, tabActive, setTabActive }) {
         }
         fetchPatientInfo()
     }, [])
-
-    useEffect(() => {
-        if (role === 'patient') {
-            const fetchAppointmentInfo = async () => {
-                try {
-                    const response = await axios.post(`appointments/by-patient`)
-                    console.log(response.data)
-                    setInfor(response.data)
-                } catch (error) {
-                    console.log(error)
-                }
-            }
-            fetchAppointmentInfo()
-        }
-    }, [role])
 
     useEffect(() => {
         const fetchDoctorSchedule = async () => {

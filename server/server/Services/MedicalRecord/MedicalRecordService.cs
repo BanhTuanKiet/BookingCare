@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using server.DTO;
+using server.Middleware;
 using server.Models;
 
 namespace server.Services
@@ -50,6 +51,15 @@ namespace server.Services
             await _context.SaveChangesAsync();
 
             return medicalRecordDetail;
+        }
+
+        public async Task<List<MedicalRecord>> GetMedicalRecords(List<int> appointmentIds)
+        {
+            var medicalRecords = await _context.MedicalRecords
+                .Where(mr => appointmentIds.Contains(mr.AppointmentId ?? 0))
+                .ToListAsync() ?? throw new ErrorHandlingException("Lỗi khi lấy danh sách toa thuốc!");
+
+            return medicalRecords;
         }
     }
 }

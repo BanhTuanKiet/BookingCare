@@ -13,6 +13,7 @@ namespace server.Services
         Task<List<AppointmentDTO.DoctorScheduleDTO>> GetDoctorSchedule(int? doctorId);
         Task<List<AppointmentDTO.AppointmentDetail>> GetDoctorScheduleDetail(int? doctorId, string date, string time);
         Task<List<AppointmentDTO.AppointmentDetail>> GetPatientScheduleDetail(int? doctorId);
+        Task<List<int>> GetAppointmentsId(int? patientId);
 
     }
 }

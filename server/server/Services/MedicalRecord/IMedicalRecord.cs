@@ -7,6 +7,6 @@ namespace server.Services
     {
         Task<MedicalRecord> AddMedicalRecord(int appointmentId, MedicalRecordDTO.PrescriptionRequest prescriptionRequest);
         Task<List<MedicalRecordDetail>> AddMedicalRecordDetail(int recordId, List<MedicalRecordDTO.MedicineDto> medicines);
-
+        Task<List<MedicalRecord>> GetMedicalRecords(List<int> appointmentIds);
     }
 }

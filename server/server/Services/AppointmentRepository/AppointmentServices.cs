@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NuGet.Common;
 using server.DTO;
+using server.Middleware;
 using server.Models;
 
 namespace server.Services
@@ -127,6 +128,16 @@ namespace server.Services
             var appointmentDTOs = _mapper.Map<List<AppointmentDTO.AppointmentDetail>>(appointments);
 
             return appointmentDTOs;
+        }
+
+        public async Task<List<int>> GetAppointmentsId(int? patientId)
+        {
+            var appointmentIds = await _context.Appointments
+                .Where(a => a.PatientId == patientId)
+                .Select(a => a.AppointmentId)
+                .ToListAsync() ?? throw new ErrorHandlingException("Lỗi khi lấy đanh sách lịch hẹn!");
+
+            return appointmentIds;
         }
 
     }
