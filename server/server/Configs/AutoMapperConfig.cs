@@ -31,7 +31,8 @@
                 CreateMap<Service, ServiceDTO.ServiceDetail>();
 
                 CreateMap<Patient, PatientDTO.PatientBasic>()
-                    .ForMember(dest => dest.UserName, m => m.MapFrom(source => source.User.FullName));
+                    .ForMember(dest => dest.UserName, m => m.MapFrom(source => source.User.FullName))
+                    .ForMember(dest => dest.Email, m => m.MapFrom(source => source.User.Email));
 
                 CreateMap<Patient, PatientDTO.PatientDetail>()
                     .ForMember(dest => dest.UserName, m => m.MapFrom(source => source.User.FullName))

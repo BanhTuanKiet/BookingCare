@@ -61,10 +61,13 @@ namespace Clinic_Management.Controllers
             var record = await _medicalRecordService.AddMedicalRecord(appointmentId, prescriptionRequest) ?? throw new ErrorHandlingException(400, "Lỗi khi tạo toa thuốc");
 
             var recordDetail = await _medicalRecordService.AddMedicalRecordDetail(record.RecordId, prescriptionRequest.Medicines) ?? throw new ErrorHandlingException(400, "Lỗi khi tạo toa thuốc");
+            
+            var patient = await _patientService.GetPatientById(appointment.PatientId.Value) ?? throw new ErrorHandlingException(400, "Không tìm thấy bệnh nhân!");
 
+            Console.WriteLine($"tên bệnh nhân {patient.UserName}, Email: {patient.Email}");
             try
             {
-                await SendEmailForPatient(appointment, prescriptionRequest, prescriptionRequest.Medicines);
+                await SendEmailForPatient(patient.Email, appointment, prescriptionRequest, prescriptionRequest.Medicines);
             }
             catch (Exception ex)
             {
@@ -75,11 +78,8 @@ namespace Clinic_Management.Controllers
             return Ok(new { message = "Tạo toa thuốc thành công!" });
         }
 
-        private async Task SendEmailForPatient(Appointment appointment, MedicalRecordDTO.PrescriptionRequest prescriptionRequest, List<MedicalRecordDTO.MedicineDto> medicalRecordDetails)
+        private async Task SendEmailForPatient(String Email, Appointment appointment, MedicalRecordDTO.PrescriptionRequest prescriptionRequest, List<MedicalRecordDTO.MedicineDto> medicalRecordDetails)
         {
-            Console.WriteLine($"Id Bác sĩ {appointment.DoctorId}, Id bệnh nhân: {appointment.PatientId}");
-            // var patient = await _patientService.GetPatientById(appointment.PatientId.Value) ?? throw new ErrorHandlingException(400, "Không tìm thấy bệnh nhân!");
-            // Console.WriteLine("Tên BỆNh nhân: ", patient.UserName);
             var doctor = await _doctorService.GetDoctorById(appointment.DoctorId.Value) ?? throw new ErrorHandlingException(400, "Không tìm thấy bác sĩ!");
 
             if (medicalRecordDetails == null || !medicalRecordDetails.Any())
@@ -124,7 +124,7 @@ namespace Clinic_Management.Controllers
                 <br><p><i>Lưu ý: Vui lòng sử dụng thuốc đúng theo hướng dẫn và quay lại tái khám nếu cần.</i></p>
                 <p>Chúc bạn mau hồi phục sức khỏe!</p>";
 
-            await _emailService.SendEmailAsync("datteo192004@gmail.com", subject, body);
+            await _emailService.SendEmailAsync(Email, subject, body);
         }
     }
 }
