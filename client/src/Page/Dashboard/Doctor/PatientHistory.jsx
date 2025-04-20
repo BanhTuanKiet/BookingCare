@@ -1,39 +1,39 @@
-import React, { useEffect, useState } from 'react';
-import { Container, Table, Spinner, Badge, Button, Modal } from 'react-bootstrap';
-import axios from "../../../Util/AxiosConfig";
-import { extractDateOnly } from "../../../Util/DateUtils";
+import React, { useEffect, useState } from 'react'
+import { Container, Table, Spinner, Badge, Button, Modal } from 'react-bootstrap'
+import { extractDateOnly } from "../../../Util/DateUtils"
+import axios from "../../../Util/AxiosConfig"
 
-function DoctorExaminedPatientsList() {
-    const [patients, setPatients] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [showDetailsModal, setShowDetailsModal] = useState(false);
-    const [selectedPatient, setSelectedPatient] = useState(null);
+function PatientHistory() {
+    const [patients, setPatients] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [showDetailsModal, setShowDetailsModal] = useState(false)
+    const [selectedPatient, setSelectedPatient] = useState(null)
 
     useEffect(() => {
-        fetchExaminedPatients();
-    }, []);
+        fetchExaminedPatients()
+    }, [])
 
     const fetchExaminedPatients = async () => {
-        setLoading(true);
+        setLoading(true)
         try {
-            const response = await axios.get('/appointments/examined_patients');
-            setPatients(response.data.schedules || []); // <- Sửa chỗ này
+            const response = await axios.get('/appointments/examined_patients')
+            setPatients(response.data.schedules || [])
         } catch (error) {
-            console.error('Error fetching examined patients:', error.response?.data || error.message);
+            console.error('Error fetching examined patients:', error.response?.data || error.message)
         } finally {
-            setLoading(false);
+            setLoading(false)
         }
-    };
+    }
 
     const handleViewDetails = (patient) => {
-        setSelectedPatient(patient);
-        setShowDetailsModal(true);
-    };
+        setSelectedPatient(patient)
+        setShowDetailsModal(true)
+    }
 
     const handleCloseDetailsModal = () => {
-        setShowDetailsModal(false);
-        setSelectedPatient(null);
-    };
+        setShowDetailsModal(false)
+        setSelectedPatient(null)
+    }
 
     if (loading) {
         return (
@@ -42,7 +42,7 @@ function DoctorExaminedPatientsList() {
                     <span className="visually-hidden">Đang tải...</span>
                 </Spinner>
             </Container>
-        );
+        )
     }
 
     return (
@@ -141,7 +141,7 @@ function DoctorExaminedPatientsList() {
                 </Modal.Footer>
             </Modal>
         </Container>
-    );
+    )
 }
 
-export default DoctorExaminedPatientsList;
+export default PatientHistory

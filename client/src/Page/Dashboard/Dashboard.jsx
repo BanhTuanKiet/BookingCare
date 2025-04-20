@@ -1,21 +1,24 @@
-import React, { useState, useContext } from "react"
+import React, { useContext } from "react"
 import { AuthContext } from "../../Context/AuthContext"
 import { Container, Row, Col } from "react-bootstrap"
-import { DashboardSidebar, DashboardInfor } from "../../Component/Dashboard/Index"
+import AdminDashboard from "./Admin/Index"
+import DoctorDashboard from "./Doctor/Index"
+import PatientDashboard from "./Patient/Index"
 
 const PatientProfile = () => {
-  const [tabActive, setTabActive] = useState("hồ sơ")
   const { role } = useContext(AuthContext)
+
+  const dashboards = {
+    "admin": <AdminDashboard />,
+    "doctor": <DoctorDashboard />,
+    "patient": <PatientDashboard />
+  }
 
   return (
     <Container fluid>
       <Row>
-        <Col md={2} className="p-0">
-          <DashboardSidebar role={role} setTabActive={setTabActive} />
-        </Col>
-
-        <Col md={10} className="p-0">
-          <DashboardInfor role={role} tabActive={tabActive} setTabActive={setTabActive} />
+        <Col md={9} className="p-0 mx-auto">
+          {dashboards[role]}
         </Col>
       </Row>
     </Container>

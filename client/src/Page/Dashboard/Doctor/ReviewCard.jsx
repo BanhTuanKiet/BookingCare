@@ -5,7 +5,7 @@ import { useState } from 'react'
 
 export default function ReviewCard({ patient }) {
   const [expanded, setExpanded] = useState(false)
-  console.log(patient)
+
   const shouldTruncate = patient.review.length > 100
   const truncatedText = expanded ? patient.review : patient.review.slice(0, 100) + (shouldTruncate ? '...' : '')
 
