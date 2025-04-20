@@ -24,67 +24,64 @@ const ForgotPassword = () => {
     setLoading(true);
     setError(null);
     setMessage(null);
-    
+
     try {
-      const response = await axios.post("/auth/forgot-password", { Email: email });
-      setMessage("Mã xác thực đã được gửi đến email của bạn");
+      const response = await axios.post("/auth/forgot-password", { Email: email.trim().toLowerCase() });
+      setMessage(response.data.message);
       setVerificationSent(true);
-    } catch (error) {
-      setError(error.response?.data || "Có lỗi xảy ra khi gửi mã xác thực");
+    } catch (err) {
+      setError(err.response?.data?.message || "Có lỗi xảy ra khi gửi mã xác thực");
     }
-    
+
     setLoading(false);
   };
 
+  // Gửi lại mã OTP
   const handleSendOTP = async () => {
     if (!email) {
       setError("Vui lòng nhập email trước khi lấy mã OTP");
       return;
     }
-  
+
     setOtpSending(true);
     setError(null);
     setMessage(null);
-  
+
     try {
-      await axios.post("/auth/forgot-password", { Email: email });
-      setMessage("Mã OTP đã được gửi lại đến email của bạn");
-    } catch (error) {
-      setError(error.response?.data || "Không thể gửi lại mã OTP");
+      const response = await axios.post("/auth/forgot-password", { Email: email.trim().toLowerCase() });
+      setMessage(response.data.message);
+    } catch (err) {
+      setError(err.response?.data?.message || "Không thể gửi lại mã OTP");
     }
-  
+
     setOtpSending(false);
   };
-  
 
   // Xác thực mã và đặt lại mật khẩu
   const handleResetPassword = async (e) => {
     e.preventDefault();
-    
+
     if (newPassword !== confirmPassword) {
       setError("Mật khẩu không khớp");
       return;
     }
-    
+
     setLoading(true);
     setError(null);
     setMessage(null);
-    
+
     try {
       const response = await axios.post("/auth/verify-reset-code", {
-        Email: email,
+        Email: email.trim().toLowerCase(),
         Code: code,
         NewPassword: newPassword
       });
-      
-      setMessage("Đặt lại mật khẩu thành công");
-      setTimeout(() => {
-        navigate("/");
-      }, 2000);
-    } catch (error) {
-      setError(error.response?.data || "Mã xác thực không hợp lệ hoặc đã hết hạn");
+      setMessage(response.data.message);
+      setTimeout(() => navigate("/Đăng nhập"), 2000);
+    } catch (err) {
+      setError(err.response?.data?.message || "Mã xác thực không hợp lệ hoặc đã hết hạn");
     }
-    
+
     setLoading(false);
   };
 
@@ -92,12 +89,11 @@ const ForgotPassword = () => {
     <Container className="auth-container">
       <Col md={6} className="auth-section show">
         {!verificationSent ? (
-          // Form gửi yêu cầu mã xác thực
           <>
             <h2>Quên Mật Khẩu</h2>
             {error && <Alert variant="danger">{error}</Alert>}
             {message && <Alert variant="success">{message}</Alert>}
-            
+
             <Form className="auth-form" onSubmit={handleForgotPassword}>
               <Form.Control
                 type="email"
@@ -107,20 +103,17 @@ const ForgotPassword = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
-              
-              <Button variant="primary" type="submit" block disabled={loading}>
+
+              <Button variant="primary" type="submit" disabled={loading} className="w-100">
                 {loading ? "Đang xử lý..." : "Gửi mã xác thực"}
               </Button>
             </Form>
-            
-            <p className="mt-3">
-              <Button variant="link" onClick={() => navigate("/")}>
-                Quay lại đăng nhập
-              </Button>
+
+            <p className="mt-3 text-center">
+              <Button variant="link" onClick={() => navigate("/Đăng nhập")}>Quay lại đăng nhập</Button>
             </p>
           </>
         ) : (
-          // Form xác thực mã và đặt lại mật khẩu
           <>
             <h2>Đặt Lại Mật Khẩu</h2>
             {error && <Alert variant="danger">{error}</Alert>}
@@ -132,24 +125,23 @@ const ForgotPassword = () => {
               </p>
               
               <div className="otp-group">
-              <Form.Control
-                type="text"
-                placeholder="Nhập mã OTP"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                required
-                className="mb-3"
-              />
-              <Button
-                variant="secondary"
-                onClick={handleSendOTP}
-                disabled={otpSending || !email}
-                className="mb-3"
-              >
-                {otpSending ? "Đang gửi..." : "Gửi lại mã OTP"}
-              </Button>
-            </div>
-
+                <Form.Control
+                  type="text"
+                  placeholder="Nhập mã OTP"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  required
+                  className="mb-3"
+                />
+                <Button
+                  variant="secondary"
+                  onClick={handleSendOTP}
+                  disabled={otpSending || !email}
+                  className="mb-3"
+                >
+                  {otpSending ? "Đang gửi..." : "Gửi lại mã OTP"}
+                </Button>
+              </div>
               
               <Form.Control
                 type={showPasswords ? "text" : "password"}
@@ -182,12 +174,12 @@ const ForgotPassword = () => {
                 </label>
               </div>
               
-              <Button variant="primary" type="submit" block disabled={loading}>
+              <Button variant="primary" type="submit" className="w-100" disabled={loading}>
                 {loading ? "Đang xử lý..." : "Đặt lại mật khẩu"}
               </Button>
             </Form>
             
-            <p className="mt-3">
+            <p className="mt-3 text-center">
               <Button variant="link" onClick={() => navigate("/")}>
                 Quay lại đăng nhập
               </Button>

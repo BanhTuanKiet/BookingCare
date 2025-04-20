@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Net.Mail;
 using Microsoft.Extensions.Configuration;
+using System.Net;
 
 namespace server.Util
 {
@@ -154,6 +155,49 @@ namespace server.Util
                 return otpInfo.AttemptCount >= maxAttempts;
             }
             return false;
+        }
+
+         // Hàm gửi email cho reset password, tách riêng để đổi Subject/Body
+        public static async Task<bool> SendResetPasswordEmail(string email, string otp, IConfiguration configuration)
+        {
+            try
+            {
+                var smtpClient = new SmtpClient
+                {
+                    Host = configuration["EmailSettings:SmtpServer"],
+                    Port = int.Parse(configuration["EmailSettings:Port"]),
+                    EnableSsl = bool.Parse(configuration["EmailSettings:EnableSsl"]),
+                    Credentials = new NetworkCredential(
+                        configuration["EmailSettings:SenderEmail"],
+                        configuration["EmailSettings:Password"]
+                    )
+                };
+
+                var message = new MailMessage
+                {
+                    From = new MailAddress(configuration["EmailSettings:SenderEmail"], configuration["EmailSettings:SenderName"]),
+                    Subject = "Mã xác thực đổi mật khẩu",
+                    Body = $@"
+                        <html>
+                        <body>
+                            <h2>Mã xác thực đổi mật khẩu</h2>
+                            <p>Mã OTP của bạn là: <strong>{otp}</strong></p>
+                            <p>Mã này có hiệu lực trong vòng 5 phút.</p>
+                            <p>Nếu bạn không yêu cầu, hãy bỏ qua email này.</p>
+                            <p>Trân trọng,<br/>Hệ thống</p>
+                        </body>
+                        </html>",
+                    IsBodyHtml = true
+                };
+
+                message.To.Add(email);
+                await smtpClient.SendMailAsync(message);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
     }
 }

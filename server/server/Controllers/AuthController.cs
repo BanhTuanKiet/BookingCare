@@ -19,6 +19,7 @@ using server.Models;
 using server.Util;
 using System.Net;
 using System.Net.Mail;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 
 namespace server.Controllers
@@ -164,28 +165,28 @@ namespace server.Controllers
             return Ok(new { message = "Đăng ký thành công!", user = newUser.Email });
         }
 
-        [HttpPost("login-demo")]
-        public IActionResult LoginDemo()
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes("L1vxy4pDz1S6Q5z5X2C3HnA8YbZxJ7pLfX5Kg4Z4pT8=");
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim(ClaimTypes.Name, "Nguyen Van A"),
-                    new Claim("email", "nguyenvana@gmail.com"),
-                    new Claim(ClaimTypes.Role, "admin")
-                }),
-                Expires = DateTime.UtcNow.AddHours(1),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
-                Issuer = "http://localhost",
-                Audience = "http://localhost:3000"
-            };
+        // [HttpPost("login-demo")]
+        // public IActionResult LoginDemo()
+        // {
+        //     var tokenHandler = new JwtSecurityTokenHandler();
+        //     var key = Encoding.ASCII.GetBytes("L1vxy4pDz1S6Q5z5X2C3HnA8YbZxJ7pLfX5Kg4Z4pT8=");
+        //     var tokenDescriptor = new SecurityTokenDescriptor
+        //     {
+        //         Subject = new ClaimsIdentity(new[]
+        //         {
+        //             new Claim(ClaimTypes.Name, "Nguyen Van A"),
+        //             new Claim("email", "nguyenvana@gmail.com"),
+        //             new Claim(ClaimTypes.Role, "admin")
+        //         }),
+        //         Expires = DateTime.UtcNow.AddHours(1),
+        //         SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
+        //         Issuer = "http://localhost",
+        //         Audience = "http://localhost:3000"
+        //     };
 
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return Ok(new { token = tokenHandler.WriteToken(token) });
-        }
+        //     var token = tokenHandler.CreateToken(tokenDescriptor);
+        //     return Ok(new { token = tokenHandler.WriteToken(token) });
+        // }
 
         [Authorize(Roles = "doctor")]
         [HttpPost("auth_user")]
@@ -197,36 +198,51 @@ namespace server.Controllers
             return Ok(new { Token = "HttpContext", message = "Xác thực thành công", user });
         }
 
+        // Gửi OTP để reset mật khẩu
         [HttpPost("forgot-password")]
-        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
+        public async Task<IActionResult> ForgotPassword([FromBody] SendOtpRequest request)
         {
+            if (string.IsNullOrEmpty(request.Email))
+                return BadRequest(new { message = "Vui lòng nhập email!" });
+
             var user = await _userManager.FindByEmailAsync(request.Email);
             if (user == null)
-                return BadRequest("Email không tồn tại");
+                return BadRequest(new { message = "Email không tồn tại trong hệ thống!" });
 
-            // Tạo và lưu OTP
+            // rate‐limit: chặn yêu cầu mới trong 1 phút
+            if (!OtpUtil.CanGenerateNewOtp(request.Email))
+                return BadRequest(new { message = "Vui lòng chờ ít nhất 1 phút trước khi yêu cầu mã mới!" });
+
+            // Tạo & lưu OTP
             var otp = OtpUtil.GenerateOtp();
             OtpUtil.StoreOtp(request.Email, otp);
 
-            // Gửi OTP qua email
-            bool emailSent = await OtpUtil.SendOtpEmail(request.Email, otp, _configuration);
-            
+            // Gửi email OTP với nội dung "reset password"
+            bool emailSent = await OtpUtil.SendResetPasswordEmail(request.Email, otp, _configuration);
             if (!emailSent)
                 return StatusCode(500, new { message = "Không thể gửi mã OTP. Vui lòng thử lại sau." });
 
-            return Ok("Đã gửi mã xác thực đến email");
+            return Ok(new { message = "Mã OTP đã được gửi đến email của bạn!" });
         }
 
+        // Xác thực OTP và đổi mật khẩu
         [HttpPost("verify-reset-code")]
-        public async Task<IActionResult> VerifyResetCode([FromBody] ResetPasswordRequest request)
+        public async Task<IActionResult> VerifyResetCode([FromBody] ResetPasswordForm request)
         {
+            if (string.IsNullOrEmpty(request.Email)
+                || string.IsNullOrEmpty(request.Code)
+                || string.IsNullOrEmpty(request.NewPassword))
+            {
+                return BadRequest(new { message = "Thiếu thông tin!" });
+            }
+
             var user = await _userManager.FindByEmailAsync(request.Email);
-            if (user == null) throw new ErrorHandlingException(400, "Email không tồn tại");
+            if (user == null)
+                throw new ErrorHandlingException(400, "Email không tồn tại trong hệ thống!" );
 
-
+            // Kiểm tra OTP
             if (!OtpUtil.ValidateOtp(request.Email, request.Code))
             {
-                // Kiểm tra số lần thử và xử lý
                 if (OtpUtil.MaxAttemptsReached(request.Email))
                 {
                     OtpUtil.RemoveOtp(request.Email);
@@ -235,15 +251,16 @@ namespace server.Controllers
                 return BadRequest(new { message = "Mã OTP không hợp lệ hoặc đã hết hạn!" });
             }
 
-            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-            var result = await _userManager.ResetPasswordAsync(user, token, request.NewPassword);
+            // Dùng Identity token để reset password
+            var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await _userManager.ResetPasswordAsync(user, resetToken, request.NewPassword);
+            if (!result.Succeeded)
+                return StatusCode(500, new { message = "Cập nhật mật khẩu thất bại!" });
 
+            // Xóa OTP sau khi thành công
             OtpUtil.RemoveOtp(request.Email);
 
-            if (!result.Succeeded) throw new ErrorHandlingException(500, "Lỗi khi đặt lại mật khẩu");
-
-            return Ok("Đặt lại mật khẩu thành công");
+            return Ok(new { message = "Đặt lại mật khẩu thành công!" });
         }
-
     }
 }
