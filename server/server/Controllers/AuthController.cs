@@ -204,14 +204,15 @@ namespace server.Controllers
             if (user == null)
                 return BadRequest("Email không tồn tại");
 
-            var code = new Random().Next(100000, 999999).ToString();
+            // Tạo và lưu OTP
+            var otp = OtpUtil.GenerateOtp();
+            OtpUtil.StoreOtp(request.Email, otp);
 
-            // Lưu mã vào DB hoặc gửi ngay tới email
-            await _emailService.SendEmailAsync(user.Email, "Mã khôi phục mật khẩu", $"Mã xác nhận của bạn là: {code}");
-
-            // Có thể lưu mã + thời gian hết hạn vào DB để xác nhận sau
-
-            MemoryResetCodeStore.SetCode(user.Email, code, 5);
+            // Gửi OTP qua email
+            bool emailSent = await OtpUtil.SendOtpEmail(request.Email, otp, _configuration);
+            
+            if (!emailSent)
+                return StatusCode(500, new { message = "Không thể gửi mã OTP. Vui lòng thử lại sau." });
 
             return Ok("Đã gửi mã xác thực đến email");
         }
@@ -222,11 +223,22 @@ namespace server.Controllers
             var user = await _userManager.FindByEmailAsync(request.Email);
             if (user == null) throw new ErrorHandlingException(400, "Email không tồn tại");
 
-            var (isValid, error) = MemoryResetCodeStore.VerifyCode(request.Email, request.Code);
-            if (!isValid) throw new ErrorHandlingException(400,error);
+
+            if (!OtpUtil.ValidateOtp(request.Email, request.Code))
+            {
+                // Kiểm tra số lần thử và xử lý
+                if (OtpUtil.MaxAttemptsReached(request.Email))
+                {
+                    OtpUtil.RemoveOtp(request.Email);
+                    return BadRequest(new { message = "Bạn đã nhập sai OTP quá nhiều lần. Vui lòng yêu cầu mã mới!" });
+                }
+                return BadRequest(new { message = "Mã OTP không hợp lệ hoặc đã hết hạn!" });
+            }
 
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var result = await _userManager.ResetPasswordAsync(user, token, request.NewPassword);
+
+            OtpUtil.RemoveOtp(request.Email);
 
             if (!result.Succeeded) throw new ErrorHandlingException(500, "Lỗi khi đặt lại mật khẩu");
 

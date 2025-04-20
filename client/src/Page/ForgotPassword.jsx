@@ -15,6 +15,7 @@ const ForgotPassword = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPasswords, setShowPasswords] = useState(false);
+  const [otpSending, setOtpSending] = useState(false);
   const navigate = useNavigate();
 
   // Gửi yêu cầu mã xác thực
@@ -34,6 +35,27 @@ const ForgotPassword = () => {
     
     setLoading(false);
   };
+
+  const handleSendOTP = async () => {
+    if (!email) {
+      setError("Vui lòng nhập email trước khi lấy mã OTP");
+      return;
+    }
+  
+    setOtpSending(true);
+    setError(null);
+    setMessage(null);
+  
+    try {
+      await axios.post("/auth/forgot-password", { Email: email });
+      setMessage("Mã OTP đã được gửi lại đến email của bạn");
+    } catch (error) {
+      setError(error.response?.data || "Không thể gửi lại mã OTP");
+    }
+  
+    setOtpSending(false);
+  };
+  
 
   // Xác thực mã và đặt lại mật khẩu
   const handleResetPassword = async (e) => {
@@ -109,14 +131,25 @@ const ForgotPassword = () => {
                 Mã xác thực đã được gửi tới: {email}
               </p>
               
+              <div className="otp-group">
               <Form.Control
                 type="text"
-                placeholder="Nhập mã xác thực"
-                className="mb-3"
+                placeholder="Nhập mã OTP"
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 required
+                className="mb-3"
               />
+              <Button
+                variant="secondary"
+                onClick={handleSendOTP}
+                disabled={otpSending || !email}
+                className="mb-3"
+              >
+                {otpSending ? "Đang gửi..." : "Gửi lại mã OTP"}
+              </Button>
+            </div>
+
               
               <Form.Control
                 type={showPasswords ? "text" : "password"}
