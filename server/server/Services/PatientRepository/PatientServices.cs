@@ -18,7 +18,7 @@ namespace server.Services
         }
         public async Task<PatientDTO.PatientBasic> GetPatientById(int patientId)
         {
-            var patient = await _context.Patients.Include(p => p.User).FirstOrDefaultAsync(d => d.UserId == patientId);
+            var patient = await _context.Patients.Include(p => p.User).FirstOrDefaultAsync(d => d.PatientId == patientId);
 
             var patientDTO = _mapper.Map<PatientDTO.PatientBasic>(patient);
 
