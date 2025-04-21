@@ -17,6 +17,7 @@ namespace server.DTO
             public string? DoctorName { get; set; }
             public string? ServiceName { get; set; }
             public string? AppointmentDate { get; set; }
+            public string? AppointmentTime { get; set; }
             public string? Status { get; set; }
         }
 

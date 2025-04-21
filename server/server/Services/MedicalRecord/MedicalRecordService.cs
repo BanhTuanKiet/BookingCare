@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using server.DTO;
+using server.Middleware;
 using server.Models;
 
 namespace server.Services
@@ -51,5 +52,48 @@ namespace server.Services
 
             return medicalRecordDetail;
         }
+
+        public async Task<List<MedicalRecordDTO.MedicalRecordBasic>> GetMedicalRecords(List<int> appointmentIds)
+        {
+            var medicalRecords = await _context.MedicalRecords
+                .Include(mr => mr.Appointment)
+                .Include(mr => mr.Appointment.Doctor.User)
+                .Include(mr => mr.Appointment.Doctor.Specialty)
+                .Where(mr => appointmentIds.Contains(mr.AppointmentId ?? 0))
+                .ToListAsync() ?? throw new ErrorHandlingException("Lỗi khi lấy danh sách toa thuốc!");
+
+            var medicalRecordDTOs = _mapper.Map<List<MedicalRecordDTO.MedicalRecordBasic>>(medicalRecords);
+
+            return medicalRecordDTOs;  
+        }
+
+        public async Task<List<MedicalRecordDTO.MedicalRecordBasic>> GetRecentMedicalRecords(List<int> appointmentIds)
+        {
+            var medicalRecords = await _context.MedicalRecords
+                .Include(mr => mr.Appointment)
+                .Include(mr => mr.Appointment.Doctor.User)
+                .Include(mr => mr.Appointment.Doctor.Specialty)
+                .OrderBy(mr => mr.Appointment.AppointmentDate)
+                .Take(3)
+                .Where(mr => appointmentIds.Contains(mr.AppointmentId ?? 0))
+                .ToListAsync() ?? throw new ErrorHandlingException("Lỗi khi lấy danh sách toa thuốc!");
+
+            var medicalRecordDTOs = _mapper.Map<List<MedicalRecordDTO.MedicalRecordBasic>>(medicalRecords);
+
+            return medicalRecordDTOs;  
+        }
+
+        public async Task<List<MedicalRecordDTO.MedicineDto>> GetRecordDetail(int recordId)
+        {
+            var medicines = await _context.MedicalRecordDetails
+                .Include(mr => mr.Medicine)
+                .Where(mr => mr.ReCordId == recordId)
+                .ToListAsync();
+
+            var medicineDTOs = _mapper.Map<List<MedicalRecordDTO.MedicineDto>>(medicines);
+
+            return medicineDTOs;
+        }
+
     }
 }

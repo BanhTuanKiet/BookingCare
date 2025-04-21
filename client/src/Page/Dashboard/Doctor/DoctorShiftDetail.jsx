@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { Container, Table, Button, Badge, Form, Modal, Spinner, Row, Col, ListGroup, Card } from 'react-bootstrap'
 import axios from "../../../Util/AxiosConfig"
-import { parseDateString, extractDateOnly } from "../../../Util/DateUtils"
+import { extractDateOnly } from "../../../Util/DateUtils"
 
-function DoctorShiftDetail({ tabActive }) {
-    const time = tabActive.slice(9)
-    const params = time.split(" - ")
-
+function DoctorShiftDetail({ dateTime, setShowShiftDetail }) {
+    const [date, SetDate] = useState(dateTime ?? null)
     const [schedules, setSchedules] = useState([])
     const [loading, setLoading] = useState(true)
     const [showStatusModal, setShowStatusModal] = useState(false)
@@ -45,32 +43,29 @@ function DoctorShiftDetail({ tabActive }) {
         'Đã hoàn thành': 'success'
     }
 
-    const [dateTime, setDateTime] = useState(() => {
-        const rawDate = params[0].trim()
-        const rawTime = params[1].trim()
-        const { day, month, year } = parseDateString(rawDate);
-        const formattedDate = `${year}-${month}-${day}`
-        
-        return {
-            date: formattedDate,
-            time: rawTime
-        };
-    })
-
     useEffect(() => {
         fetchDoctorSchedule()
         fetchMedicines()
     }, [dateTime])
 
+    const convertToDateObject = (dateString) => {
+        const [day, month, year] = dateString.split('/')
+        return new Date(Number(year), Number(month) - 1, Number(day) + 1)
+    }
+
     const fetchDoctorSchedule = async () => {
         setLoading(true)
         try {
+            const dateObject = convertToDateObject(date.date)
+            const formattedDate = dateObject.toISOString().split("T")[0]
+            console.log(formattedDate)
             const response = await axios.get('/appointments/schedule_detail', {
                 params: {
-                    date: dateTime.date,
+                    date: formattedDate,
                     time: dateTime.time
                 }
             })
+            console.log(response)
             setSchedules(response.data.schedules || [])
         } catch (error) {
             console.log(error.response?.data || error.message)
@@ -235,7 +230,10 @@ function DoctorShiftDetail({ tabActive }) {
 
     return (
         <Container fluid className="mt-4">
-            <h2 className="mb-4">Chi tiết ca làm việc: {params[0]} {params[1]}</h2>
+            <div className='d-flex'>
+                <h2 className="mb-4">Chi tiết ca làm việc: {dateTime.date} - {dateTime.time}</h2>
+                <Button variant='warning text-light' onClick={() => setShowShiftDetail(false)} >Trở về</Button>
+            </div>
             
             <Table responsive striped bordered hover>
                 <thead>

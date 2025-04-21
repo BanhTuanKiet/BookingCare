@@ -106,9 +106,9 @@ namespace server.Controllers
             await _context.SaveChangesAsync();
                 
                 // Kiểm tra nếu patient và email tồn tại trước khi gửi email
-            if (appointment.Patient?.User.Email != null)
+            if (appointment.Patient?.User?.Email == null)
             {
-                throw new ErrorHandlingException("Không tìm thấy email bệnh nhân!");
+                throw new ErrorHandlingException(404, "Không tìm thấy email bệnh nhân!");
             }
             
             await SendStatusUpdateEmail(
@@ -237,14 +237,28 @@ namespace server.Controllers
         [HttpGet("examined_patients")]
         public async Task<ActionResult> GetPatientByStatus()
         {
-            var userId = HttpContext.Items["UserId"];
-            int parsedUserId = Convert.ToInt32(userId.ToString());
+            var userId = HttpContext.Items["UserId"].ToString();
+            int parsedUserId = Convert.ToInt32(userId);
 
             var doctor = await _doctorService.GetDoctorById(parsedUserId) ?? throw new ErrorHandlingException("Không tìm thấy bác sĩ!");
 
             var schedules = await _appointmentService.GetPatientScheduleDetail(doctor.DoctorId);
 
             return Ok(new { schedules = schedules});
+        }
+
+        [Authorize(Roles = "patient")]
+        [HttpGet("recently")]
+        public async Task<ActionResult> GetRecentAppointment()
+        {
+            var userId = HttpContext.Items["UserId"].ToString();
+            int parsedUserId = Convert.ToInt32(userId);
+            
+            var patient = await _patientService.GetPatientById(parsedUserId) ?? throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");
+
+            var appointment = await _appointmentService.GetRecentAppointment(patient.PatientId);
+
+            return Ok(appointment);
         }
 
     }

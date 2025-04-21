@@ -24,7 +24,6 @@ function AppRoute() {
             <Route path='/về chúng tôi' element={<Index><About /></Index>} />
             <Route path='/admin' element={<Index><Admin /></Index>} />
             <Route path='/thông tin cá nhân' element={<Index><Dashboard /></Index>} />
-            {/* Trang chi tiết bác sĩ */}
             <Route path='/bác sĩ' element={<Index><Doctor /></Index>} />
             <Route path='/bac-si/:doctorName' element={<Index><DoctorDetail /></Index>} />
             <Route path='/bác sĩ/:doctorName' element={<Index></Index>} />

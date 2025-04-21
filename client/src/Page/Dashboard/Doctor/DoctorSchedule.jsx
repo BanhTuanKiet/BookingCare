@@ -3,19 +3,35 @@ import { Container, Card } from "react-bootstrap"
 import { Calendar, momentLocalizer } from "react-big-calendar"
 import moment from "moment"
 import "react-big-calendar/lib/css/react-big-calendar.css"
+import axios from "../../../Util/AxiosConfig"
 
 const localizer = momentLocalizer(moment)
 
-const DoctorSchedule = ({ infor, setTabActive }) => {
+const DoctorSchedule = ({ setShowShiftDetail, setDateTime }) => {
   const [events, setEvents] = useState([])
+  const [schedules, setSchedules] = useState()
+
+  useEffect(() => {
+    const fetchDoctorSchedule = async () => {
+        try {
+            const response = await axios.get("/appointments/schedule")
+
+            setSchedules(response.data)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    fetchDoctorSchedule()
+  }, [])
 
   useEffect(() => {
     const formatSchedule = () => {
-      if (!infor || infor.length === 0) return
+      if (!schedules || schedules.length === 0) return
 
-      const schedules = []
+      const schedulesTmp = []
   
-      infor.forEach((group, groupIndex) => {
+      schedules.forEach((group, groupIndex) => {
         const date = new Date(group.date)
         const time = group.appointmentTime
 
@@ -30,7 +46,7 @@ const DoctorSchedule = ({ infor, setTabActive }) => {
           end.setHours(17, 0, 0)
         }
   
-        schedules.push({
+        schedulesTmp.push({
           id: groupIndex,
           title: time === "Sáng" ? `Sáng ${group.patientCount} bệnh nhân` : `Chiều ${group.patientCount} bệnh nhân`,
           start,
@@ -39,11 +55,11 @@ const DoctorSchedule = ({ infor, setTabActive }) => {
         })
       })
   
-      setEvents(schedules)
+      setEvents(schedulesTmp)
     }
   
     formatSchedule()
-  }, [infor])
+  }, [schedules])
 
   const eventStyleGetter = (event) => {
     let backgroundColor = "#3174ad" 
@@ -73,8 +89,8 @@ const DoctorSchedule = ({ infor, setTabActive }) => {
   }
 
   return (
-    <Container className="py-4">
-      <Card className="border-0 shadow w-100 mx-auto p-4">
+    <Container className="p-0">
+      <Card className="border-0 w-100 mx-auto p-0">
         <h4 className="mb-4 fw-bold">Quản Lý Lịch Làm Việc</h4>
         <div style={{ height: "600px" }}>
           <Calendar
@@ -87,11 +103,13 @@ const DoctorSchedule = ({ infor, setTabActive }) => {
             selectable
             onSelectEvent={(event) => {
               const selectedDate = event.start
-              const selectedTime = event.time
-              
               const formattedDate = selectedDate.toLocaleDateString("vi-VN")
 
-              setTabActive(`chi tiết ${formattedDate} - ${selectedTime}`)
+              setShowShiftDetail(true)
+              setDateTime({
+                date: formattedDate,
+                time: event.time
+              })
             }}
             // onSelectSlot={(slotInfo) => console.log("Slot selected: ", slotInfo)}
             eventPropGetter={eventStyleGetter}
