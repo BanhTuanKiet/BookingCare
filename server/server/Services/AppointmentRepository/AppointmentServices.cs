@@ -140,5 +140,31 @@ namespace server.Services
             return appointmentIds;
         }
 
+        public async Task<List<int>> GetRecentAppointmentsId(int? patientId)
+        {
+            var appointmentIds = await _context.Appointments
+                .Where(a => a.PatientId == patientId)
+                .OrderByDescending(a => a.AppointmentDate)
+                .Take(3)
+                .Select(a => a.AppointmentId)
+                .ToListAsync() ?? throw new ErrorHandlingException("Lỗi khi lấy đanh sách lịch hẹn!");
+            
+            return appointmentIds;
+        }
+
+        public async Task<AppointmentDTO.AppointmentDetail> GetRecentAppointment(int? patientId)
+        {
+            var appointment = await _context.Appointments
+                .Where(a => a.PatientId == patientId && a.AppointmentDate >= DateTime.Now.Date)
+                .Include(a => a.Doctor.User)
+                .Include(a => a.Service)
+                .Where(a => a.PatientId == patientId)
+                .OrderBy(a => a.AppointmentDate)
+                .FirstOrDefaultAsync();
+
+            var appointmentDTO = _mapper.Map<AppointmentDTO.AppointmentDetail>(appointment);
+
+            return appointmentDTO;
+        }
     }
 }

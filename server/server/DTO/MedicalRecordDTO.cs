@@ -10,6 +10,18 @@ namespace server.DTO
             public List<MedicineDto> Medicines { get; set; }
         }
 
+        public class MedicalRecordBasic
+        {
+            public int RecordId { get; set; }
+            public string Diagnosis { get; set; }
+            public string Treatment { get; set; }
+            public string Notes { get; set; }
+            public DateTime AppointmentDate { get; set; }
+            public string AppointmentTime { get; set; }
+            public string DoctorName { get; set; }
+            public string SpecialtyName { get; set; }
+        }
+
         public class MedicineDto
         {
             public int MedicineId { get; set; }

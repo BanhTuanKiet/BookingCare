@@ -66,5 +66,35 @@ namespace Clinic_Management.Controllers
         
             return Ok(medicalRecords);
         }
+
+        [Authorize(Roles = "patient")]
+        [HttpGet("prescriptions/recently")]
+        public async Task<ActionResult> GetRecentPrescriptions()
+        {
+            var userId = HttpContext.Items["UserId"].ToString();
+            var parsedUserId = Convert.ToInt32(userId);
+
+            var patient = await _patientService.GetPatientById(parsedUserId) ?? throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");
+
+            var appointments = await _appointmentService.GetAppointmentsId(patient.PatientId);
+
+            var medicalRecords = await _medicalRecordService.GetRecentMedicalRecords(appointments) ?? throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");;
+
+            return Ok(medicalRecords);
+        }
+
+        [Authorize(Roles = "patient")]
+        [HttpGet("detail/{recordId}")]
+        public async Task<ActionResult> GetMedicalRecordDetail(int recordId)
+        {
+            // var userId = HttpContext.Items["UserId"].ToString();
+            // var parsedUserId = Convert.ToInt32(userId);
+
+            // var patient = await _patientService.GetPatientById(parsedUserId) ?? throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");
+
+            var recordDetail = await _medicalRecordService.GetRecordDetail(recordId) ?? throw new ErrorHandlingException("Không tìm thấy chi tiết toa thuốc!");
+
+            return Ok(recordDetail);
+        }
     }
 }

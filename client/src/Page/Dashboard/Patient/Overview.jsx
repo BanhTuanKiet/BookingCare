@@ -1,8 +1,43 @@
 import { Clock, FileText } from 'lucide-react'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Card, Col, Row } from 'react-bootstrap'
+import axios from '../../../Util/AxiosConfig'
+import PrescriptionCard from '../../../Component/Card/PrescriptionCard'
+import { formatDateToLocale } from "../../../Util/DateUtils"
 
-function Overview({ tabActivce }) {
+function Overview({ tabActive }) {
+    const [appointment, setAppointment] = useState()
+    const [medicalRecords, setMedicalRecords] = useState([])
+
+    useEffect(() => {
+        const fetchAppointment = async () => {
+            try {
+                const response = await axios.get("/appointments/recently")
+                setAppointment(response.data)
+            } catch (error) {
+                console.log(error)
+            }
+        }
+
+        fetchAppointment()
+    }, [])
+
+    useEffect(() => {
+        const fetchPrescriptions = async () => {
+            try {
+                const response = await axios.get("/medicalRecords/prescriptions/recently")
+
+                setMedicalRecords(response.data)
+            } catch (error) {
+                console.log(error)
+            }
+        }
+    
+        if (tabActive === "overview") {
+            fetchPrescriptions()
+        }
+    }, [tabActive])
+    
     return (
         <Card>
             <Card.Body>
@@ -21,22 +56,9 @@ function Overview({ tabActivce }) {
                                             <Clock size={24} className="text-success" />
                                         </div>
                                         <div>
-                                            <h6>Khoa Xét Nghiệm</h6>
-                                            <p className="mb-1">25/04/2025 - 14:30</p>
-                                            <p className="mb-0 text-muted">BS. Lê Thị D</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div className="border rounded p-3 mt-3">
-                                    <div className="d-flex">
-                                        <div className="bg-light rounded-circle p-2 me-3">
-                                            <Clock size={24} className="text-success" />
-                                        </div>
-                                        <div>
-                                            <h6>Khoa Tim Mạch</h6>
-                                            <p className="mb-1">05/05/2025 - 10:15</p>
-                                            <p className="mb-0 text-muted">BS. Trần Văn C</p>
+                                            <p className="mb-1">{formatDateToLocale(appointment?.appointmentDate)} - {appointment?.appointmentTime}</p>
+                                            <p className="mb-0 text-muted"><strong>Bác sĩ: </strong>{appointment?.doctorName}</p>
+                                            <p className="mb-0 text-muted"><strong>Dịch vụ: </strong>{appointment?.serviceName}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -47,33 +69,13 @@ function Overview({ tabActivce }) {
                     <Col md={6}>
                         <Card>
                             <Card.Body>
-                                <h5>Đơn Thuốc Gần Đây</h5>
+                                <h5 className='mb-3'>Đơn Thuốc Gần Đây</h5>
                                 
-                                <div className="border rounded p-3 mt-3">
-                                    <div className="d-flex">
-                                        <div className="bg-light rounded-circle p-2 me-3">
-                                            <FileText size={24} className="text-primary" />
-                                        </div>
-                                        <div>
-                                            <h6>Khoa Tim Mạch</h6>
-                                            <p className="mb-1">20/04/2025</p>
-                                            <p className="mb-0 text-muted">BS. Trần Văn C</p>
-                                        </div>
+                                {medicalRecords.map((record, index) => (
+                                    <div key={index}>
+                                        <PrescriptionCard record={record} tabActive={tabActive} />
                                     </div>
-                                </div>
-                                
-                                <div className="border rounded p-3 mt-3">
-                                    <div className="d-flex">
-                                        <div className="bg-light rounded-circle p-2 me-3">
-                                            <FileText size={24} className="text-primary" />
-                                        </div>
-                                        <div>
-                                            <h6>Khoa Nội Tổng Hợp</h6>
-                                            <p className="mb-1">10/04/2025</p>
-                                            <p className="mb-0 text-muted">BS. Phạm Thị E</p>
-                                        </div>
-                                    </div>
-                                </div>
+                                ))} 
                             </Card.Body>
                         </Card>
                     </Col>

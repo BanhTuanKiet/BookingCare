@@ -46,16 +46,25 @@
                         source.AppointmentDate.HasValue ? source.AppointmentDate.Value.ToString("yyyy-MM-dd HH:mm:ss") : null))
                     .ForMember(dest => dest.Status, m => m.MapFrom(source => source.Status));
                     
-                    CreateMap<IGrouping<AppointmentDTO.DoctorScheduleDTO, Appointment>, AppointmentDTO.DoctorScheduleDTO>()
-                        .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.Key.Date))
-                        .ForMember(dest => dest.AppointmentTime, opt => opt.MapFrom(src => src.Key.AppointmentTime))
-                        .ForMember(dest => dest.PatientCount, opt => opt.MapFrom(src => src.Count()));
+                CreateMap<IGrouping<AppointmentDTO.DoctorScheduleDTO, Appointment>, AppointmentDTO.DoctorScheduleDTO>()
+                    .ForMember(dest => dest.Date, opt => opt.MapFrom(src => src.Key.Date))
+                    .ForMember(dest => dest.AppointmentTime, opt => opt.MapFrom(src => src.Key.AppointmentTime))
+                    .ForMember(dest => dest.PatientCount, opt => opt.MapFrom(src => src.Count()));
 
 
                 CreateMap<Medicine, MedicineDTO.MedicineBasic>();
                 // .ForMember(dest => dest.Medi, m => m.MapFrom(source => source.medicalName))
                 // .ForMember(dest => dest.MedicineId, m => m.MapFrom(source => source.medicineId))
 
+                CreateMap<MedicalRecord, MedicalRecordDTO.MedicalRecordBasic>()
+                    .ForMember(dest => dest.AppointmentDate, m => m.MapFrom(source => source.Appointment.AppointmentDate))
+                    .ForMember(dest => dest.AppointmentTime, m => m.MapFrom(source => source.Appointment.AppointmentTime))
+                    .ForMember(dest => dest.DoctorName, m => m.MapFrom(source => source.Appointment.Doctor.User.FullName))
+                    .ForMember(dest => dest.SpecialtyName, m => m.MapFrom(source => source.Appointment.Doctor.Specialty.Name));
+
+                CreateMap<MedicalRecordDetail, MedicalRecordDTO.MedicineDto>()
+                    .ForMember(dest => dest.MedicineName, m => m.MapFrom(source => source.Medicine.MedicalName))
+                    .ForMember(dest => dest.Unit, m => m.MapFrom(source => source.Medicine.Unit));
 
             }
 
