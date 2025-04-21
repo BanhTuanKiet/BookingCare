@@ -15,6 +15,7 @@ import Signin from '../Page/Signin'
 import ServiceDetail from '../Page/ServiceDetail'
 import Dashboard from '../Page/Dashboard/Dashboard'
 import Admin from '../Page/Admin'
+import ForgotPassword from "../Page/ForgotPassword"
 
 function AppRoute() {
     return (
@@ -35,6 +36,7 @@ function AppRoute() {
             <Route path='/liên hệ' element={<Index><Contact /></Index>} />
             <Route path='/' element={<Index><Home /></Index>} />
             <Route path='/upload' element={<UploadDoctorImage></UploadDoctorImage>} />
+            <Route path="/auth/forgot-password" element={<ForgotPassword />} />
         </Routes>
     )
 }

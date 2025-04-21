@@ -1,8 +1,10 @@
 import React, { useState, useContext } from "react"
 import { Container, Col, Form, Button, InputGroup, Alert } from "react-bootstrap"
+import "bootstrap/dist/css/bootstrap.min.css"
 import "../Style/Signin.css"
 import axios from '../Util/AxiosConfig'
 import { AuthContext } from "../Context/AuthContext"
+import { useNavigate } from "react-router-dom"
 
 const Signin = () => {
   const [isLogin, setIsLogin] = useState(true)
@@ -21,6 +23,8 @@ const Signin = () => {
     otp: "" 
   })
   const { login } = useContext(AuthContext)
+  const navigate = useNavigate()
+
 
   // Gọi API đăng nhập
   const handleLogin = async (e) => {
@@ -103,7 +107,9 @@ const Signin = () => {
             {loading ? "Đang xử lý..." : "Đăng Nhập"}
           </Button>
         </Form>
-        <p>Quên mật khẩu?</p>
+        <p style={{ cursor: "pointer", color: "blue" }} onClick={() => navigate("/auth/forgot-password")}>
+          Quên mật khẩu?
+        </p>
         <p>
           Chưa có tài khoản? <Button variant="link" onClick={() => setIsLogin(false)}>Đăng ký</Button>
         </p>
