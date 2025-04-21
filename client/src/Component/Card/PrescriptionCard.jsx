@@ -1,9 +1,10 @@
 import { ChevronDown, ChevronUp, FileText, Printer } from 'lucide-react'
 import React, { useState } from 'react'
 import { Button, Card, Col, Collapse, Row } from 'react-bootstrap'
+import { formatDateToLocale } from "../../Util/DateUtils"
 import axios from '../../Util/AxiosConfig'
 
-function PrescriptionCard({ record, tabActive }) {
+function PrescriptionCard({ record, tabActive, setTabActive }) {
     const [openRecords, setOpenRecords] = useState({})
     const [medicines, setMedicines] = useState()
 
@@ -14,31 +15,24 @@ function PrescriptionCard({ record, tabActive }) {
             ...prev,
             [recordId]: !isOpen
         }))
-    
+
         if (isOpen) return
 
         try {
             const response = await axios.get(`/medicalRecords/detail/${recordId}`)
-
+            console.log(response.data)
             setMedicines(response.data)
         } catch (error) {
             console.log(error)
         }
     }
 
-    const formatDate = (dateString) => {
-        if (!dateString) return ''
-        try {
-            const date = new Date(dateString)
-
-            return date.toLocaleDateString('vi-VN')
-        } catch (error) {
-            return dateString
-        }
-    }
-
     return (
-        <Card key={record.recordId} className="mb-3 border">
+        <Card
+            key={record.recordId}
+            className={`mb-3 border`}
+            style={{ cursor: tabActive === "overview" ? "pointer" : "default" }}
+        >   
             <Card.Body>
                 <Row className="align-items-center">
                     <Col xs={2} sm={1}  className={`text-center ${tabActive === "overview" ? "me-4" : ""}`}>
@@ -51,9 +45,10 @@ function PrescriptionCard({ record, tabActive }) {
                             <Col>
                                 <div className="d-flex align-items-center justify-content-between flex-wrap">
                                     <div className="d-flex align-items-center">
-                                        <div className="mb-0 me-2"><strong>Mã toa thuốc:</strong> {record.recordId}
+                                        <div className="mb-0 me-2">
+                                            <strong>Mã toa thuốc:</strong> {record.recordId}
                                             <small className='ms-2'>
-                                                {record.appointmentDate ? formatDate(record.appointmentDate) : "Không có ngày"}
+                                                {record.appointmentDate ? formatDateToLocale(record.appointmentDate) : "Không có ngày"}
                                             </small>
                                         </div>
                                     </div>

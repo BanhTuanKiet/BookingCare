@@ -19,6 +19,34 @@ namespace server.Services
             _mapper = mapper;
         }
 
+        public async Task<Appointment> IsExistAppointment (int? patientId, DateTime appointmentDate, string appointmentTime)
+        {
+            var appointment = await _context.Appointments
+                .Where(a => a.PatientId == patientId && a.AppointmentDate == appointmentDate && a.AppointmentTime == appointmentTime && a.Status == "Chờ xác nhận")
+                .FirstOrDefaultAsync();
+
+            return appointment;
+        }
+
+        public async Task<Appointment> Appointment (int? patientId, int? doctorId, int? serviceId, DateTime appointmentDate, string appointmentTime, string status)
+        {
+            Appointment appointment = new Appointment
+            {
+                PatientId = patientId,
+                DoctorId = doctorId,
+                AppointmentDate = appointmentDate,
+                AppointmentTime = appointmentTime,
+                ServiceId = serviceId,
+                Status = status,
+            };
+
+            await _context.Appointments.AddAsync(appointment);
+            await _context.SaveChangesAsync();
+
+            return appointment;
+        }
+
+
         public async Task<List<AppointmentDTO.AppointmentDetail>> GetAppointments()
         {
             var appointments = await _context.Appointments
@@ -158,7 +186,6 @@ namespace server.Services
                 .Where(a => a.PatientId == patientId && a.AppointmentDate >= DateTime.Now.Date)
                 .Include(a => a.Doctor.User)
                 .Include(a => a.Service)
-                .Where(a => a.PatientId == patientId)
                 .OrderBy(a => a.AppointmentDate)
                 .FirstOrDefaultAsync();
 

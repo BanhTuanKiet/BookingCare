@@ -5,6 +5,8 @@ namespace server.Services
 {
     public interface IAppointment
     {
+        Task<Appointment> IsExistAppointment (int? patientId, DateTime appointmentDate, string appointmentTime);
+        Task<Appointment> Appointment (int? patientId, int? doctorId, int? serviceId, DateTime appointmentDate, string appointmentTime, string status);
         Task<List<AppointmentDTO.AppointmentDetail>> GetAppointments();
         Task<List<AppointmentDTO.AppointmentDetail>> GetAppointmentByPatientId(int? patientId);
         Task<Appointment> GetAppointmentById(int appointmentId);

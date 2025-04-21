@@ -8,6 +8,7 @@ import axios from '../../../Util/AxiosConfig'
 function Index() {
     const [tabActive, setTabActive] = useState("overview")
     const [patient, setPatient] = useState()
+    const [recordIsChoose, setRecordIschoose] = useState()
 
     useEffect(() => {
         const fetchPatient = async () => {
@@ -115,7 +116,7 @@ function Index() {
                         
                         <Tab.Content>
                             <Tab.Pane eventKey="overview">
-                                <Overview tabActive={tabActive} />
+                                <Overview tabActive={tabActive} setTabActive={setTabActive} recordIsChoose={recordIsChoose} setRecordIschoose={setRecordIschoose} />
                             </Tab.Pane>
                             
                             <Tab.Pane eventKey="appointments">
@@ -123,7 +124,7 @@ function Index() {
                             </Tab.Pane>
                             
                             <Tab.Pane eventKey="prescriptions"> 
-                                <Prescriptions tabActive={tabActive} />
+                                <Prescriptions tabActive={tabActive} setTabActive={setTabActive} recordIsChoose={recordIsChoose} setRecordIschoose={setRecordIschoose} />
                             </Tab.Pane>
                         </Tab.Content>
                     </Tab.Container>

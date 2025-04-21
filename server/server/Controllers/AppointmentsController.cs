@@ -48,18 +48,15 @@ namespace server.Controllers
             int parsedUserId = Convert.ToInt32(userId.ToString());
             var patient = await _patientService.GetPatientById(parsedUserId);
             var service = await _serviceServices.GetServiceByName(appointmentForm.Service);
+            
+            var isExistAppointment = await _appointmentService.IsExistAppointment(patient.PatientId, appointmentForm.AppointmentDate, appointmentForm.AppointmentTime);
 
-            Appointment appointment = new Appointment
+            if (isExistAppointment != null) 
             {
-                PatientId = patient.PatientId,
-                DoctorId = doctor.DoctorId,
-                AppointmentDate = appointmentForm.AppointmentDate,
-                ServiceId = service.ServiceId,
-                Status = "Chờ xác nhận",
-            };
+                throw new ErrorHandlingException(400, $"Lịch hẹn {appointmentForm.AppointmentDate} {appointmentForm.AppointmentTime} đang chờ xác nhận");
+            }
 
-            await _context.Appointments.AddAsync(appointment);
-            await _context.SaveChangesAsync();
+            var appointment = await _appointmentService.Appointment(patient.PatientId, doctor.DoctorId, service.ServiceId, appointmentForm.AppointmentDate, appointmentForm.AppointmentTime, "Chờ xác nhận");
             
             return Ok( new { message = "Đặt lịch thành công!"} );
         }
@@ -68,7 +65,6 @@ namespace server.Controllers
         [HttpGet()]
         public async Task<ActionResult<List<AppointmentDTO.AppointmentDetail>>> GetAppointments()
         {
-            Console.WriteLine("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
             var userId = HttpContext.Items["UserId"];
             int parsedUserId = Convert.ToInt32(userId.ToString());
 

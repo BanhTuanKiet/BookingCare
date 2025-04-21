@@ -1,11 +1,11 @@
-import { Clock, FileText } from 'lucide-react'
+import { Clock } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { Card, Col, Row } from 'react-bootstrap'
 import axios from '../../../Util/AxiosConfig'
 import PrescriptionCard from '../../../Component/Card/PrescriptionCard'
 import { formatDateToLocale } from "../../../Util/DateUtils"
 
-function Overview({ tabActive }) {
+function Overview({ tabActive, setTabActive }) {
     const [appointment, setAppointment] = useState()
     const [medicalRecords, setMedicalRecords] = useState([])
 
@@ -37,7 +37,7 @@ function Overview({ tabActive }) {
             fetchPrescriptions()
         }
     }, [tabActive])
-    
+
     return (
         <Card>
             <Card.Body>
@@ -50,7 +50,7 @@ function Overview({ tabActive }) {
                             <Card.Body>
                                 <h5>Lịch Hẹn Sắp Tới</h5>
                                 
-                                <div className="border rounded p-3 mt-3">
+                                <div className="border rounded p-3 mt-3" style={{ cursor: "pointer" }}>
                                     <div className="d-flex">
                                         <div className="bg-light rounded-circle p-2 me-3">
                                             <Clock size={24} className="text-success" />
@@ -72,8 +72,8 @@ function Overview({ tabActive }) {
                                 <h5 className='mb-3'>Đơn Thuốc Gần Đây</h5>
                                 
                                 {medicalRecords.map((record, index) => (
-                                    <div key={index}>
-                                        <PrescriptionCard record={record} tabActive={tabActive} />
+                                    <div key={index} >
+                                        <PrescriptionCard record={record} tabActive={tabActive}  />
                                     </div>
                                 ))} 
                             </Card.Body>
