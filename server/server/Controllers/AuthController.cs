@@ -17,6 +17,7 @@ using server.DTO;
 using server.Middleware;
 using server.Models;
 using server.Util;
+using servier.DTO;
 
 namespace server.Controllers
 {
@@ -47,14 +48,10 @@ namespace server.Controllers
             if (string.IsNullOrEmpty(request.Email))
                 throw new ErrorHandlingException(400, "Vui lòng nhập email!");
 
-            try
-            {
-                var mailAddress = new MailAddress(request.Email); // validate email
-            }
-            catch
-            {
+            // Validate email format without try-catch
+            bool isValidEmail = IsValidEmail(request.Email);
+            if (!isValidEmail)
                 throw new ErrorHandlingException(400, "Email không hợp lệ!");
-            }
 
             var existingUser = await _userManager.FindByEmailAsync(request.Email);
             if (existingUser != null)
@@ -62,7 +59,7 @@ namespace server.Controllers
 
             // Kiểm tra và rate-limit OTP
             if (!OtpUtil.CanGenerateNewOtp(request.Email))
-                return BadRequest(new { message = "Vui lòng đợi 1 phút trước khi yêu cầu OTP mới!" });
+                throw new ErrorHandlingException(400, "Vui lòng đợi 1 phút trước khi yêu cầu OTP mới!");
 
             // Tạo và lưu OTP mới
             var otp = OtpUtil.GenerateOtp();
@@ -72,7 +69,7 @@ namespace server.Controllers
             bool emailSent = await OtpUtil.SendOtpEmail(request.Email, otp, _configuration);
             
             if (!emailSent)
-                return StatusCode(500, new { message = "Không thể gửi mã OTP. Vui lòng thử lại sau." });
+                throw new ErrorHandlingException(500, "Không thể gửi mã OTP. Vui lòng thử lại sau.");
             
             return Ok(new { message = "Mã OTP đã được gửi đến email của bạn!" });
         }
@@ -80,8 +77,9 @@ namespace server.Controllers
         [HttpPost("signin")]
         public async Task<IActionResult> Signin([FromBody] SigninForm login)
         {
-            var user = await _userManager.FindByEmailAsync(login.Email)
-                        ?? throw new ErrorHandlingException(400, "Tài khoản không tồn tại!");
+            var user = await _userManager.FindByEmailAsync(login.Email);
+            if (user == null)
+                throw new ErrorHandlingException(400, "Tài khoản không tồn tại!");
 
             var isPasswordValid = await _userManager.CheckPasswordAsync(user, login.Password);
             if (!isPasswordValid)
@@ -98,12 +96,26 @@ namespace server.Controllers
         {
             return await _userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == phoneNumber);
         }
+        
+        // Helper method to validate email format without try-catch
+        private bool IsValidEmail(string email)
+        {
+            try
+            {
+                var mailAddress = new MailAddress(email);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegistryForm user)
         {
             if (string.IsNullOrEmpty(user.otp))
-                return BadRequest(new { message = "Vui lòng nhập mã OTP!" });
+                throw new ErrorHandlingException(400, "Vui lòng nhập mã OTP!");
 
             // Xác thực OTP
             if (!OtpUtil.ValidateOtp(user.email, user.otp))
@@ -112,9 +124,9 @@ namespace server.Controllers
                 if (OtpUtil.MaxAttemptsReached(user.email))
                 {
                     OtpUtil.RemoveOtp(user.email);
-                    return BadRequest(new { message = "Bạn đã nhập sai OTP quá nhiều lần. Vui lòng yêu cầu mã mới!" });
+                    throw new ErrorHandlingException(400, "Bạn đã nhập sai OTP quá nhiều lần. Vui lòng yêu cầu mã mới!");
                 }
-                return BadRequest(new { message = "Mã OTP không hợp lệ hoặc đã hết hạn!" });
+                throw new ErrorHandlingException(400, "Mã OTP không hợp lệ hoặc đã hết hạn!");
             }
 
             var existUser = await _userManager.FindByEmailAsync(user.email);
@@ -148,7 +160,15 @@ namespace server.Controllers
             });
 
             await _context.Patients.AddAsync(new Patient { UserId = newUser.Id });
-            await _context.SaveChangesAsync();
+            
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+                throw new ErrorHandlingException(500, "Lỗi khi lưu dữ liệu người dùng!");
+            }
 
             // Xóa OTP sau khi đã sử dụng thành công
             OtpUtil.RemoveOtp(user.email);
@@ -156,28 +176,28 @@ namespace server.Controllers
             return Ok(new { message = "Đăng ký thành công!", user = newUser.Email });
         }
 
-        [HttpPost("login-demo")]
-        public IActionResult LoginDemo()
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes("L1vxy4pDz1S6Q5z5X2C3HnA8YbZxJ7pLfX5Kg4Z4pT8=");
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim(ClaimTypes.Name, "Nguyen Van A"),
-                    new Claim("email", "nguyenvana@gmail.com"),
-                    new Claim(ClaimTypes.Role, "admin")
-                }),
-                Expires = DateTime.UtcNow.AddHours(1),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
-                Issuer = "http://localhost",
-                Audience = "http://localhost:3000"
-            };
+        // [HttpPost("login-demo")]
+        // public IActionResult LoginDemo()
+        // {
+        //     var tokenHandler = new JwtSecurityTokenHandler();
+        //     var key = Encoding.ASCII.GetBytes("L1vxy4pDz1S6Q5z5X2C3HnA8YbZxJ7pLfX5Kg4Z4pT8=");
+        //     var tokenDescriptor = new SecurityTokenDescriptor
+        //     {
+        //         Subject = new ClaimsIdentity(new[]
+        //         {
+        //             new Claim(ClaimTypes.Name, "Nguyen Van A"),
+        //             new Claim("email", "nguyenvana@gmail.com"),
+        //             new Claim(ClaimTypes.Role, "admin")
+        //         }),
+        //         Expires = DateTime.UtcNow.AddHours(1),
+        //         SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
+        //         Issuer = "http://localhost",
+        //         Audience = "http://localhost:3000"
+        //     };
 
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return Ok(new { token = tokenHandler.WriteToken(token) });
-        }
+        //     var token = tokenHandler.CreateToken(tokenDescriptor);
+        //     return Ok(new { token = tokenHandler.WriteToken(token) });
+        // }
 
         [Authorize(Roles = "doctor")]
         [HttpPost("auth_user")]
@@ -188,10 +208,70 @@ namespace server.Controllers
 
             return Ok(new { Token = "HttpContext", message = "Xác thực thành công", user });
         }
-    }
 
-    public class SendOtpRequest
-    {
-        public string Email { get; set; }
+        // Gửi OTP để reset mật khẩu
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] SendOtpRequest request)
+        {
+            if (string.IsNullOrEmpty(request.Email))
+                throw new ErrorHandlingException(400, "Vui lòng nhập email!");
+
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null)
+                throw new ErrorHandlingException(400, "Email không tồn tại trong hệ thống!");
+
+            // rate‐limit: chặn yêu cầu mới trong 1 phút
+            if (!OtpUtil.CanGenerateNewOtp(request.Email))
+                throw new ErrorHandlingException(400, "Vui lòng chờ ít nhất 1 phút trước khi yêu cầu mã mới!");
+
+            // Tạo & lưu OTP
+            var otp = OtpUtil.GenerateOtp();
+            OtpUtil.StoreOtp(request.Email, otp);
+
+            // Gửi email OTP với nội dung "reset password"
+            bool emailSent = await OtpUtil.SendResetPasswordEmail(request.Email, otp, _configuration);
+            if (!emailSent)
+                throw new ErrorHandlingException(500, "Không thể gửi mã OTP. Vui lòng thử lại sau.");
+
+            return Ok(new { message = "Mã OTP đã được gửi đến email của bạn!" });
+        }
+
+        // Xác thực OTP và đổi mật khẩu
+        [HttpPost("verify-reset-code")]
+        public async Task<IActionResult> VerifyResetCode([FromBody] ResetPasswordForm request)
+        {
+            if (string.IsNullOrEmpty(request.Email)
+                || string.IsNullOrEmpty(request.Code)
+                || string.IsNullOrEmpty(request.NewPassword))
+            {
+                throw new ErrorHandlingException(400, "Thiếu thông tin!");
+            }
+
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null)
+                throw new ErrorHandlingException(400, "Email không tồn tại trong hệ thống!");
+
+            // Kiểm tra OTP
+            if (!OtpUtil.ValidateOtp(request.Email, request.Code))
+            {
+                if (OtpUtil.MaxAttemptsReached(request.Email))
+                {
+                    OtpUtil.RemoveOtp(request.Email);
+                    throw new ErrorHandlingException(400, "Bạn đã nhập sai OTP quá nhiều lần. Vui lòng yêu cầu mã mới!");
+                }
+                throw new ErrorHandlingException(400, "Mã OTP không hợp lệ hoặc đã hết hạn!");
+            }
+
+            // Dùng Identity token để reset password
+            var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+            var result = await _userManager.ResetPasswordAsync(user, resetToken, request.NewPassword);
+            if (!result.Succeeded)
+                throw new ErrorHandlingException(500, "Cập nhật mật khẩu thất bại!");
+
+            // Xóa OTP sau khi thành công
+            OtpUtil.RemoveOtp(request.Email);
+
+            return Ok(new { message = "Đặt lại mật khẩu thành công!" });
+        }
     }
 }
