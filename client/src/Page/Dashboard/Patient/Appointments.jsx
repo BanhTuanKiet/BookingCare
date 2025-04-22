@@ -1,24 +1,26 @@
 import React, { useEffect, useState } from 'react'
-import { Badge, Card, Table } from 'react-bootstrap'
+import { Badge, Button, Card, Table } from 'react-bootstrap'
 import axios from '../../../Util/AxiosConfig'
 
 function Appointments({ tabActive }) {
     const [appointments, setAppointments] = useState()
+    const [quantity, setQuantity] = useState(10)
 
     useEffect(() => {
         const fetchAppointmentInfo = async () => {
             try {
-                const response = await axios.post(`appointments/by-patient`)
+                const response = await axios.post(`appointments/by-patient/${quantity}`)
+                console.log(response.data)
                 setAppointments(response.data)
             } catch (error) {
                 console.log(error)
             }
         }
 
-        if (tabActive === "overview") {
+        if (tabActive === "appointments") {
             fetchAppointmentInfo()
         }
-    }, [tabActive])
+    }, [tabActive, quantity])
 
     const handleCancelAppointment = async (appointmentId) => {
         const isConfirmed = window.confirm("Bạn có chắc chắn muốn hủy lịch hẹn này không?")
@@ -82,6 +84,19 @@ function Appointments({ tabActive }) {
                         </tbody>
                     </Table>
                 </div>
+                {appointments && appointments.length % 10 === 0 ?
+                    <div className="text-end mt-3">
+                        <Button onClick={() => setQuantity(quantity + 10)} variant="outline-primary">
+                            Xem thêm
+                        </Button>
+                    </div>
+                    :
+                    <div className="text-end mt-3">
+                        <Button onClick={() => setQuantity(10)} variant="outline-primary">
+                            Thu gọn
+                        </Button>
+                    </div>
+                }
             </Card.Body>
         </Card>
     )

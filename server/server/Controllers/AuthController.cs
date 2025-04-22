@@ -77,9 +77,7 @@ namespace server.Controllers
         [HttpPost("signin")]
         public async Task<IActionResult> Signin([FromBody] SigninForm login)
         {
-            var user = await _userManager.FindByEmailAsync(login.Email);
-            if (user == null)
-                throw new ErrorHandlingException(400, "Tài khoản không tồn tại!");
+            var user = await _userManager.FindByEmailAsync(login.Email) ?? throw new ErrorHandlingException(400, "Tài khoản không tồn tại!");
 
             var isPasswordValid = await _userManager.CheckPasswordAsync(user, login.Password);
             if (!isPasswordValid)

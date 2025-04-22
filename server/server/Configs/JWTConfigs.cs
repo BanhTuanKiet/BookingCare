@@ -83,14 +83,24 @@ namespace server.Configs
                         OnChallenge = async context =>
                         {
                             Console.WriteLine("⚠️ OnChallenge triggered");
-                            context.HandleResponse();
-                            context.Response.StatusCode = 401;
-                            context.Response.ContentType = "application/json";
 
-                            var token = context.Request.Cookies["token"];
-                            var ErrorMessage = string.IsNullOrEmpty(token) ? "Vui lòng đăng nhập để tiếp tục!" : "Phiên đăng nhập đã hết hạn! Vui lòng đăng nhập lại!";
-                            var response = new { ErrorMessage };
-                            await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+                                context.HandleResponse();
+                                context.Response.StatusCode = 401;
+                                context.Response.ContentType = "application/json";
+
+                                var token = context.Request.Cookies["token"];
+                                var ErrorMessage = string.IsNullOrEmpty(token) ? "Đang yêu cầu cấp lại token!" : "Phiên đăng nhập đã hết hạn! Vui lòng đăng nhập lại!";
+                                var response = new { ErrorMessage };
+                                await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+
+                            // context.HandleResponse();
+                            // context.Response.StatusCode = 401;
+                            // context.Response.ContentType = "application/json";
+
+                            // var token = context.Request.Cookies["token"];
+                            // var ErrorMessage = string.IsNullOrEmpty(token) ? "Vui lòng đăng nhập để tiếp tục!" : "Phiên đăng nhập đã hết hạn! Vui lòng đăng nhập lại!";
+                            // var response = new { ErrorMessage };
+                            // await context.Response.WriteAsync(JsonSerializer.Serialize(response));
                         },
                     };
                 });

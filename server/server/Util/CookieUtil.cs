@@ -10,7 +10,7 @@ namespace server.Util
                 Secure = true,
                 SameSite = SameSiteMode.None,
                 Path = "/",
-                Expires = DateTime.UtcNow.AddHours(expireTime),
+                Expires = DateTime.UtcNow.AddMinutes(expireTime),
             };
             response.Cookies.Append(key, value, option);
         }

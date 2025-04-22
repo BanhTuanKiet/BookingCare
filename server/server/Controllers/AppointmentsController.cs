@@ -189,15 +189,15 @@ namespace server.Controllers
         }
 
         [Authorize(Roles = "patient")]
-        [HttpPost("by-patient")]
-        public async Task<ActionResult> GetAppointmentByPatientId()
+        [HttpPost("by-patient/{quantity}")]
+        public async Task<ActionResult> GetAppointmentByPatientId(int quantity)
         {
             var userId = HttpContext.Items["UserId"];
             int parsedUserId = Convert.ToInt32(userId.ToString());
 
             var patient = await _patientService.GetPatientById(parsedUserId) ?? throw new ErrorHandlingException("Không tim thấy bệnh nhân");
 
-            var appointments = await _appointmentService.GetAppointmentByPatientId(patient.PatientId);
+            var appointments = await _appointmentService.GetAppointmentByPatientId(patient.PatientId, quantity);
             return Ok(appointments);
         }
 

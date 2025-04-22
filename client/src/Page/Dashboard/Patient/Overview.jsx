@@ -26,7 +26,7 @@ function Overview({ tabActive, setTabActive }) {
         const fetchPrescriptions = async () => {
             try {
                 const response = await axios.get("/medicalRecords/prescriptions/recently")
-
+                console.log(response)
                 setMedicalRecords(response.data)
             } catch (error) {
                 console.log(error)
