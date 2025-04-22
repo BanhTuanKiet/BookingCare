@@ -199,6 +199,8 @@ namespace server.Controllers
             var userId = HttpContext.Items["UserId"];
             int parsedUserId = Convert.ToInt32(userId.ToString());
 
+            Console.WriteLine("UserId: " + parsedUserId);
+
             var patient = await _patientService.GetPatientById(parsedUserId) ?? throw new ErrorHandlingException("Không tim thấy bệnh nhân");
 
             var appointments = await _appointmentService.GetAppointmentByPatientId(patient.PatientId);
