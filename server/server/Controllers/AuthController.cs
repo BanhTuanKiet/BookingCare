@@ -85,7 +85,10 @@ namespace server.Controllers
 
             var roles = await _userManager.GetRolesAsync(user);
             var token = JwtUtil.GenerateToken(user, roles, 1, _configuration);
+            var refreshToken = JwtUtil.GenerateToken(user, roles, 30, _configuration);
+            
             CookieUtil.SetCookie(Response, "token", token, 1);
+            CookieUtil.SetCookie(Response, "refreshToken", refreshToken, 1);
 
             return Ok(new { message = "Đăng nhập thành công!", userName = user.FullName, role = roles[0] });
         }
