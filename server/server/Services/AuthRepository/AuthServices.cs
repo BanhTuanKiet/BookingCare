@@ -1,6 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using server.Models;
 
@@ -17,9 +18,10 @@ namespace server.Services
             _mapper = mapper;
         }
 
-        public async Task<string> GetRefreshToken()
+        public async Task<string> GetRefreshToken(int userId)
         {
-            return "token";
+            ApplicationUser user = await _context.Users.FirstOrDefaultAsync(user => user.Id == userId);
+            return user?.RefreshToken;
         }
 
         public bool VerifyToken(string token)
@@ -55,5 +57,11 @@ namespace server.Services
             }                
         }
 
+        public async Task SaveRefreshToken(ApplicationUser user, string refreshToken)
+        {
+            user.RefreshToken = refreshToken;
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+        }
     }
 }

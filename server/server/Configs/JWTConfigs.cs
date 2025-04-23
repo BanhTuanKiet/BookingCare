@@ -91,7 +91,7 @@ namespace server.Configs
                             context.Response.ContentType = "application/json";
 
                             var token = context.Request.Cookies["token"];
-                            var refreshToken = context.Request.Cookies["refreshToken"];
+                            // var refreshToken = context.Request.Cookies["refreshToken"];
                             var errorMessage = string.IsNullOrEmpty(token) ? "Vui lòng đăng nhập để tiếp tục!" : "Phiên đăng nhập đã hết hạn! Vui lòng đăng nhập lại!";
 
                             if (!string.IsNullOrEmpty(token))
@@ -111,13 +111,27 @@ namespace server.Configs
                                     var userService = context.HttpContext.RequestServices.GetRequiredService<UserManager<ApplicationUser>>();
                                     var config = context.HttpContext.RequestServices.GetRequiredService<IConfiguration>();
 
-                                    if (string.IsNullOrEmpty(refreshToken))
+                                    var newRefreshToken = await authService.GetRefreshToken(Convert.ToInt32(userId));
+
+                                    // if (string.IsNullOrEmpty(refreshToken))
+                                    // {
+                                    //     await context.Response.WriteAsync(JsonSerializer.Serialize(new { ErrorMessage = "Không tìm thấy refresh token." }));
+                                    //     return;
+                                    // }
+
+                                    // if (!authService.VerifyToken(refreshToken))
+                                    // {
+                                    //     await context.Response.WriteAsync(JsonSerializer.Serialize(new { ErrorMessage = "Refresh token không hợp lệ hoặc đã hết hạn." }));
+                                    //     return;
+                                    // }
+
+                                    if (string.IsNullOrEmpty(newRefreshToken))
                                     {
                                         await context.Response.WriteAsync(JsonSerializer.Serialize(new { ErrorMessage = "Không tìm thấy refresh token." }));
                                         return;
                                     }
 
-                                    if (!authService.VerifyToken(refreshToken))
+                                    if (!authService.VerifyToken(newRefreshToken))
                                     {
                                         await context.Response.WriteAsync(JsonSerializer.Serialize(new { ErrorMessage = "Refresh token không hợp lệ hoặc đã hết hạn." }));
                                         return;
@@ -129,7 +143,7 @@ namespace server.Configs
 
                                     // await context.Response.WriteAsync(JsonSerializer.Serialize(new { newToken, userRole = role }));
                                     await context.Response.WriteAsync(JsonSerializer.Serialize(new {
-                                        RetryRequest = true // client dựa vào flag này để retry
+                                        RetryRequest = true, // client dựa vào flag này để retry
                                     }));                                
 
                                     return;

@@ -16,6 +16,7 @@ using Microsoft.IdentityModel.Tokens;
 using server.DTO;
 using server.Middleware;
 using server.Models;
+using server.Services;
 using server.Util;
 using servier.DTO;
 
@@ -29,14 +30,17 @@ namespace server.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IConfiguration _configuration;
         private readonly ClinicManagementContext _context;
+        private readonly IAuth _auth;
 
         public AuthController(
             ClinicManagementContext context,
+            IAuth auth,
             IConfiguration configuration,
             SignInManager<ApplicationUser> signInManager,
             UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _auth = auth;
             _configuration = configuration;
             _signInManager = signInManager;
             _userManager = userManager;
@@ -88,7 +92,8 @@ namespace server.Controllers
             var refreshToken = JwtUtil.GenerateToken(user, roles, 30, _configuration);
             
             CookieUtil.SetCookie(Response, "token", token, 1);
-            CookieUtil.SetCookie(Response, "refreshToken", refreshToken, 1);
+
+            await _auth.SaveRefreshToken(user, refreshToken);
 
             return Ok(new { message = "Đăng nhập thành công!", userName = user.FullName, role = roles[0] });
         }
