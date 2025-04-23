@@ -88,8 +88,8 @@ const AppointmentAdmin = () => {
   return (
     <Container fluid>
       <Row>
-        <Col>
-          <h2 className="my-4">Quản lý lịch hẹn</h2>
+        <Col className='p-0'>
+          {/* <h2 className="my-4">Quản lý lịch hẹn</h2> */}
           
           <div className="table-responsive">
             <Table bordered hover className="w-100">
@@ -101,7 +101,7 @@ const AppointmentAdmin = () => {
                   <th>Dịch vụ</th>
                   <th>Ngày hẹn</th>
                   <th>Trạng thái</th>
-                  <th>Thao tác</th>
+                  <th style={{ width: "90px" }}>Thao tác</th>
                 </tr>
               </thead>
               <tbody>
@@ -110,9 +110,9 @@ const AppointmentAdmin = () => {
                     <td colSpan="7" className="text-center">Không có lịch hẹn nào</td>
                   </tr>
                 ) : (
-                  currentAppointments.map(appointment => (
-                    <tr key={appointment.appointmentId}>
-                      <td>{appointment.appointmentId}</td>
+                  currentAppointments.map((appointment, index) => (
+                    <tr key={index}>
+                      <td>{index + 1}</td>
                       <td>{appointment.patientName}</td>
                       <td>{appointment.doctorName}</td>
                       <td>{appointment.serviceName}</td>

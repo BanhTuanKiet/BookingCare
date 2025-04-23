@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { Container, Row, Col, Card, Nav, Tab } from 'react-bootstrap'
 import AppointmentAdmin from './AppointmentAdmin'
-import axios from '../../../Util/AxiosConfig'
 import "../../../Style/Admin.css"
 
 function Index() {
@@ -28,19 +27,19 @@ function Index() {
                                     className={`sidebar-link mb-2 ${tabActive === "appointments" ? "active" : ""}`}
                                     onClick={() => setTabActive("appointments")}
                                 >
-                                    Quản Lý Lịch Hẹn
+                                    Lịch Hẹn
                                 </Nav.Link>
                                 <Nav.Link 
                                     className={`sidebar-link mb-2 ${tabActive === "prescriptions" ? "active" : ""}`}
                                     onClick={() => setTabActive("prescriptions")}
                                 >
-                                    Quản Lý Đơn Thuốc
+                                    Đơn Thuốc
                                 </Nav.Link>
                                 <Nav.Link 
                                     className={`sidebar-link mb-2 ${tabActive === "users" ? "active" : ""}`}
                                     onClick={() => setTabActive("users")}
                                 >
-                                    Quản Lý Người Dùng
+                                    Người Dùng
                                 </Nav.Link>
                             </Nav>
 
@@ -57,7 +56,7 @@ function Index() {
                 </Col>
                 
                 {/* Main content area - 75% width of the 75% content area */}
-                <Col md={9}>
+                <Col md={9} style={{ fontSize: "14px" }} className='p-0'>
                     <Tab.Content>
                         {tabActive === "dashboard" && (
                             <Card>
