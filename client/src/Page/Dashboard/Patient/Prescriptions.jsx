@@ -3,25 +3,36 @@ import { Card } from 'react-bootstrap'
 import axios from '../../../Util/AxiosConfig'
 import PrescriptionCard from '../../../Component/Card/PrescriptionCard'
 
-function Prescriptions({ tabActive, setTabActive }) {
+function Prescriptions({ key, record,tabActive, setTabActive, isSelected}) {
     const [medicalRecords, setMedicalRecords] = useState([])
+    const [selectedPrescriptionId, setSelectedPrescriptionId] = useState(null)
 
     useEffect(() => {
         const fetchPrescriptions = async () => {
             try {
-                const response = await axios.get("/medicalRecords/prescriptions")
-
-                setMedicalRecords(response.data)
+                const response = await axios.get("/medicalRecords/prescriptions");
+                setMedicalRecords(response.data);
+    
+                const storedPrescriptionId = sessionStorage.getItem('selectedPrescriptionId');
+                if (storedPrescriptionId) {
+                    setSelectedPrescriptionId(storedPrescriptionId);
+    
+                    // Delay xóa session để đảm bảo PrescriptionCard nhận props xong
+                    setTimeout(() => {
+                        sessionStorage.removeItem('selectedPrescriptionId');
+                    }, 1000);
+                }
             } catch (error) {
-                console.log(error)
+                console.log(error);
             }
         }
     
-        if (tabActive === "prescriptions") {
-            fetchPrescriptions()
+        if (tabActive === "prescriptions" || tabActive === "overview") {
+            fetchPrescriptions();
         }
-    }, [tabActive])
+    }, [tabActive]);
     
+
     return (
         <Card>
             <Card.Body>
@@ -30,7 +41,13 @@ function Prescriptions({ tabActive, setTabActive }) {
                 
                 {medicalRecords && medicalRecords.length > 0 ? (
                     medicalRecords.map((record) => (
-                        <PrescriptionCard record={record} tabActive={tabActive} setTabActive={setTabActive} />
+                        <PrescriptionCard
+                            key={record.recordId}
+                            record={record}
+                            tabActive={tabActive}
+                            setTabActive={setTabActive}
+                            isSelected={isSelected || selectedPrescriptionId === record.recordId}
+                        />
                     ))
                 ) : (
                     <div className="text-center p-4">

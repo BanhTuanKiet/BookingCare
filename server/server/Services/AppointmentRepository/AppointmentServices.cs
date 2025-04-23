@@ -55,6 +55,7 @@ namespace server.Services
                 .Include(a => a.Doctor)
                 .Include(a => a.Doctor.User)
                 .Include(a => a.Service)
+                .OrderByDescending(a => a.AppointmentDate)
                 .ToListAsync();
 
             // foreach (var a in appointments)

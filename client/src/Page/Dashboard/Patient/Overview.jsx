@@ -72,8 +72,15 @@ function Overview({ tabActive, setTabActive }) {
                                 <h5 className='mb-3'>Đơn Thuốc Gần Đây</h5>
                                 
                                 {medicalRecords.map((record, index) => (
-                                    <div key={index} >
-                                        <PrescriptionCard record={record} tabActive={tabActive}  />
+                                    <div key={index}>
+                                        <PrescriptionCard 
+                                            key={record.recordId} 
+                                            record={record} 
+                                            tabActive={tabActive} 
+                                            setTabActive={setTabActive}
+                                            isSelected={true} // không cần thiết chọn ở đây
+                                        />
+
                                     </div>
                                 ))} 
                             </Card.Body>
