@@ -14,4 +14,5 @@ public partial class Medicine
     public DateTime? ExpiredDate { get; set; }
 
     public string? Unit { get; set; }
+    public float? Price { get; set; }
 }
