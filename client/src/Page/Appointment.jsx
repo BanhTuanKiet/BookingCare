@@ -51,16 +51,14 @@ function Appointment() {
 
   const submit = async () => {
     try {
-      console.log(formData)
-      const response = await axios.post("/appointments", formData)
-      console.log(response)
+      await axios.post("/appointments", formData)
     } catch (error) {
       console.log(error)
     }
   }
 
   return (
-    <Container className="p-0 w-100 my-4">
+    <Container className="p-0 w-75 my-4">
       <div className="text-center mb-4">
         <h1 className="fw-bold" style={{ color: "#0056b3" }}>
           ĐĂNG KÝ KHÁM
