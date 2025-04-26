@@ -263,6 +263,7 @@ public partial class ClinicManagementContext : IdentityDbContext<ApplicationUser
 
             entity.Property(e => e.MedicineId).HasColumnName("MedicineID");
             entity.Property(e => e.ExpiredDate).HasColumnType("datetime");
+            entity.Property(e => e.Price).HasColumnType("float");
         });
 
         modelBuilder.Entity<MedicalRecordDetail>(entity =>
