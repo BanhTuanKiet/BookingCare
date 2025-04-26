@@ -65,8 +65,8 @@
 
                 CreateMap<MedicalRecordDetail, MedicalRecordDTO.MedicineDto>()
                     .ForMember(dest => dest.MedicineName, m => m.MapFrom(source => source.Medicine.MedicalName))
-                    .ForMember(dest => dest.Unit, m => m.MapFrom(source => source.Medicine.Unit));
-
+                    .ForMember(dest => dest.Unit, m => m.MapFrom(source => source.Medicine.Unit))
+                    .ForMember(dest => dest.Price, m => m.MapFrom(source => source.Medicine.Price));
             }
 
         }

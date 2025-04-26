@@ -95,6 +95,5 @@ namespace server.Services
 
             return medicineDTOs;
         }
-
     }
 }

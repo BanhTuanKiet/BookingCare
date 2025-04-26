@@ -25,14 +25,14 @@ namespace server.Services
             return patientDTO;
         }
 
-        // public async Task<PatientDTO.PatientDetail> GetPatientByUserId(int userId)
-        // {
-        //     var patient = await _context.Patients.Include(p => p.User).FirstOrDefaultAsync(p => p.UserId == userId);
+        public async Task<PatientDTO.PatientDetail> GetPatientByUserId(int userId)
+        {
+            var patient = await _context.Patients.Include(p => p.User).FirstOrDefaultAsync(p => p.UserId == userId);
 
-        //     var patientDTO = _mapper.Map<PatientDTO.PatientDetail>(patient);
+            var patientDTO = _mapper.Map<PatientDTO.PatientDetail>(patient);
 
-        //     return patientDTO;
-        // }
+            return patientDTO;
+        }
 
         // public Task<PatientDTO.PatientDetail> CreatePatient(PatientDTO.PatientDetail patientDTO)
         // {

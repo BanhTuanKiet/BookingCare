@@ -32,6 +32,7 @@ namespace server.DTO
             public string Usage { get; set; }
             public string Unit { get; set; }
             public int Quantity { get; set; }
+            public float Price { get; set; }
 
         }
     }

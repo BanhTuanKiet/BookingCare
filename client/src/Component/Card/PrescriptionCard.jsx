@@ -69,8 +69,7 @@ function PrescriptionCard({ record, tabActive, setTabActive, isSelected }) {
       // Show success message or update UI
       alert('Đánh giá của bạn đã được gửi thành công!');
     } catch (error) {
-      console.error('Error submitting rating:', error);
-      alert('Có lỗi xảy ra khi gửi đánh giá. Vui lòng thử lại sau.');
+      console.error('Error submitting rating:', error)
     }
   };
 
@@ -155,6 +154,9 @@ function PrescriptionCard({ record, tabActive, setTabActive, isSelected }) {
                         <th>Liều lượng</th>
                         <th>Tần suất</th>
                         <th>Thời gian</th>
+                        <th>Cách dùng</th>
+                        <th>Số lượng</th>
+                        <th>Đơn giá</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -165,10 +167,11 @@ function PrescriptionCard({ record, tabActive, setTabActive, isSelected }) {
                             <div className="small text-muted">{med.form}</div>
                           </td>
                           <td>{med.dosage} Lần / Ngày</td>
-                          <td>
-                            {med.frequencyPerDay} Lần / {med.unit}
-                          </td>
+                          <td>{med.frequencyPerDay} Lần / {med.unit}</td>
                           <td>{med.durationInDays} Ngày</td>
+                          <td>{med.usage}</td>
+                          <td>{med.price}</td>
+                          <td>{med.quantity}</td>
                         </tr>
                       ))}
                     </tbody>
