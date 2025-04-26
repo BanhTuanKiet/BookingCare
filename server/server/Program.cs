@@ -41,6 +41,17 @@ builder.Services.AddScoped<IMedicine, MedicineService>();
 builder.Services.AddScoped<IMedicalRecord, MedicalRecordService>();
 builder.Services.AddScoped<IAuth, AuthServices>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+//Connect Momo API Payment
+// Binding config cho MOMO
+builder.Services.AddOptions<MomoOptionModel>()
+    .Bind(builder.Configuration.GetSection("MomoAPI"))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
+
+// Đăng ký Service
+builder.Services.AddScoped<IMomoService, MomoService>();
+
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
@@ -85,10 +96,14 @@ builder.Services.AddControllers(options =>
     options.ModelMetadataDetailsProviders.Add(new SystemTextJsonValidationMetadataProvider());
 });
 
+
+
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddAutoMapper(typeof(AutoMapperConfig));
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddHttpClient();
+
 
 builder.Services.AddSwaggerGen();
 

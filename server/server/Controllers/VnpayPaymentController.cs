@@ -12,14 +12,14 @@ namespace server.Controllers
         [HttpPost("create")]
         public IActionResult CreatePayment([FromBody] PaymentRequest request)
         {
-            var vnp_TmnCode = "CIL4LZKF"; // <-- mã Terminal Code của bạn
-            var vnp_HashSecret = "5MSPQ8EFHKUFFI4SEE3LVMYKFL5WMCUG"; // <-- mã HashSecret của bạn
+            var vnp_TmnCode = "CIL4LZKF";
+            var vnp_HashSecret = "5MSPQ8EFHKUFFI4SEE3LVMYKFL5WMCUG";
             var vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-            var vnp_Returnurl = "https://yourfrontend.com/payment-success"; // <-- url frontend nhận kết quả
+            var vnp_Returnurl = "http://localhost:3000/th%C3%B4ng%20tin%20c%C3%A1%20nh%C3%A2n";
 
-            var amount = (request.Amount * 100).ToString(); // VNPay yêu cầu nhân 100
-            var vnp_TxnRef = DateTime.Now.Ticks.ToString(); // mã giao dịch unique
-            var vnp_OrderInfo = "Thanh toán đơn thuốc BookingCare";
+            var amount = (request.Amount * 100).ToString(); 
+            var vnp_TxnRef = request.OrderId;  // dùng orderId gửi từ frontend
+            var vnp_OrderInfo = request.OrderInfo; // dùng orderInfo gửi từ frontend
             var vnp_IpAddr = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1";
 
             var vnpay = new VnPayLibrary();
@@ -36,14 +36,18 @@ namespace server.Controllers
             vnpay.AddRequestData("vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss"));
 
             var paymentUrl = vnpay.CreateRequestUrl(vnp_Url, vnp_HashSecret);
-            return Ok(new { url = paymentUrl }); // <-- Frontend bạn đang expect key là 'url'
+            return Ok(new { url = paymentUrl });
         }
+
     }
 
     public class PaymentRequest
     {
+        public string OrderId { get; set; }
+        public string OrderInfo { get; set; }
         public int Amount { get; set; }
     }
+
 
     public class VnPayLibrary
     {
