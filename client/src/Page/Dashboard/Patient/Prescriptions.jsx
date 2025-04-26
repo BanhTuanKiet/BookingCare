@@ -42,7 +42,7 @@ function Prescriptions({ key, record, tabActive, setTabActive, isSelected }) {
 
     const handleSelectVnpay = async () => {
         try {
-            const response = await axios.post('vnpaypayment/create-payment', {
+            const response = await axios.post('vnpaypayment/create', {
                 orderId: new Date().getTime().toString(),   // tạo orderId ngẫu nhiên
                 orderInfo: "Thanh toán đơn thuốc",
                 amount: 100000 // số tiền (ví dụ: 100k)

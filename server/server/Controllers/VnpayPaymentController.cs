@@ -1,26 +1,26 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Web;
 using System.Text;
 using System.Security.Cryptography;
+using System.Web;
 
-namespace YourProjectName.Controllers
+namespace server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class VnpayPaymentController : ControllerBase
     {
-        [HttpPost("create-payment")]
+        [HttpPost("create")]
         public IActionResult CreatePayment([FromBody] PaymentRequest request)
         {
-            var vnp_TmnCode = "CIL4LZKF"; // <-- thay vào
-            var vnp_HashSecret = "5MSPQ8EFHKUFFI4SEE3LVMYKFL5WMCUG"; // <-- thay vào
+            var vnp_TmnCode = "CIL4LZKF"; // <-- mã Terminal Code của bạn
+            var vnp_HashSecret = "5MSPQ8EFHKUFFI4SEE3LVMYKFL5WMCUG"; // <-- mã HashSecret của bạn
             var vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-            var vnp_Returnurl = "https://yourfrontend.com/payment-success"; // trang trả về sau thanh toán
+            var vnp_Returnurl = "https://yourfrontend.com/payment-success"; // <-- url frontend nhận kết quả
 
             var amount = (request.Amount * 100).ToString(); // VNPay yêu cầu nhân 100
-            var vnp_TxnRef = DateTime.Now.Ticks.ToString(); // mã đơn hàng
-            var vnp_OrderInfo = "Thanh toán lịch khám BookingCare";
-            var vnp_IpAddr = HttpContext.Connection.RemoteIpAddress?.ToString();
+            var vnp_TxnRef = DateTime.Now.Ticks.ToString(); // mã giao dịch unique
+            var vnp_OrderInfo = "Thanh toán đơn thuốc BookingCare";
+            var vnp_IpAddr = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "127.0.0.1";
 
             var vnpay = new VnPayLibrary();
             vnpay.AddRequestData("vnp_Version", "2.1.0");
@@ -36,7 +36,7 @@ namespace YourProjectName.Controllers
             vnpay.AddRequestData("vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss"));
 
             var paymentUrl = vnpay.CreateRequestUrl(vnp_Url, vnp_HashSecret);
-            return Ok(new { payUrl = paymentUrl });
+            return Ok(new { url = paymentUrl }); // <-- Frontend bạn đang expect key là 'url'
         }
     }
 
@@ -51,16 +51,22 @@ namespace YourProjectName.Controllers
 
         public void AddRequestData(string key, string value)
         {
-            requestData.Add(key, value);
+            if (!string.IsNullOrEmpty(value))
+            {
+                requestData.Add(key, value);
+            }
         }
 
         public string CreateRequestUrl(string baseUrl, string secretKey)
         {
             var data = requestData.Select(x => $"{x.Key}={HttpUtility.UrlEncode(x.Value)}");
-            var signData = string.Join("&", data);
+            var queryString = string.Join("&", data);
+
+            var signData = string.Join("&", requestData.Select(x => $"{x.Key}={x.Value}"));
             var sign = HmacSHA512(secretKey, signData);
-            var url = $"{baseUrl}?{signData}&vnp_SecureHash={sign}";
-            return url;
+
+            var fullUrl = $"{baseUrl}?{queryString}&vnp_SecureHash={sign}";
+            return fullUrl;
         }
 
         private string HmacSHA512(string key, string inputData)
