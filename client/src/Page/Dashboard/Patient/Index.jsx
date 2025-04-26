@@ -4,6 +4,7 @@ import Overview from './Overview'
 import Appointments from './Appointments'
 import Prescriptions from './Prescriptions'
 import axios from '../../../Util/AxiosConfig'
+import UserProfileCard from '../../../Component/UserProfileCard'
 
 function Index() {
     const [tabActive, setTabActive] = useState("overview")
@@ -27,62 +28,7 @@ function Index() {
         <Container fluid className="p-4">
             <Row>
                 <Col md={3}>
-                    <Card className="mb-4">
-                        <Card.Body className="text-center">
-                            <h5 className="text-success mb-4">Thông Tin Bệnh Nhân</h5>
-                            
-                            <div className="mb-4">
-                                <div 
-                                    className="rounded-circle bg-light text-success mx-auto d-flex align-items-center justify-content-center"
-                                    style={{ width: '120px', height: '120px', fontSize: '48px' }}
-                                >
-                                    A
-                                </div>
-                            </div>
-                            
-                            <h4>{patient?.userName}</h4>
-                            <p className="text-muted">Mã BN: BN-12345</p>
-                            
-                            <div className="text-start mt-4">
-                                <Row className="mb-2">
-                                    <Col md={5} className="text-muted">Ngày sinh:</Col>
-                                    <Col md={7}>{patient?.dateOfBirth ?? "15/05/1985"}</Col>
-                                </Row>
-                                
-                                <Row className="mb-2">
-                                    <Col md={5} className="text-muted">Giới tính:</Col>
-                                    <Col md={7}>{patient?.sex ?? "Nam"}</Col>
-                                </Row>
-                                
-                                <Row className="mb-2">
-                                    <Col md={5} className="text-muted">Nhóm máu:</Col>
-                                    <Col md={7}>O+</Col>
-                                </Row>
-                                
-                                <Row className="mb-2">
-                                    <Col md={5} className="text-muted">Dị ứng:</Col>
-                                    <Col md={7}>Penicillin</Col>
-                                </Row>
-                                
-                                <Row className="mb-2">
-                                    <Col md={5} className="text-muted">Điện thoại:</Col>
-                                    <Col md={7}>{patient?.phoneNumber}</Col>
-                                </Row>
-                                
-                                <Row className="mb-2">
-                                    <Col md={5} className="text-muted">Địa chỉ:</Col>
-                                    <Col md={7}>
-                                        123 Đường Lê Lợi, Quận 1, TP.HCM
-                                    </Col>
-                                </Row>
-                                
-                                <Row className="mb-2">
-                                    <Col md={5} className="text-muted">Liên hệ khẩn cấp:</Col>
-                                    <Col md={7}>Nguyễn Thị B - 0909876543</Col>
-                                </Row>
-                            </div>
-                        </Card.Body>
-                    </Card>
+                    <UserProfileCard user={patient} setUser={setPatient} userType="patient" />
                 </Col>
                 
                 <Col md={9}>
