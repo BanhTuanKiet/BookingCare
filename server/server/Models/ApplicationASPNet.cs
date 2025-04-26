@@ -8,7 +8,8 @@ namespace server.Models
 
         public virtual Patient? Patient { get; set; } 
 
-        public string? FullName {get; set;}
+        public string? FullName { get; set; }
+        public string? RefreshToken { get; set; }
         // public virtual ICollection<ApplicationUserClaim> AspNetUserClaims { get; set; } = new List<ApplicationUserClaim>();
 
         // public virtual ICollection<ApplicationUserLogin> AspNetUserLogins { get; set; } = new List<ApplicationUserLogin>();

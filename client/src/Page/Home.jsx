@@ -42,7 +42,7 @@ const Home = () => {
       </div>
 
       {/* Đội ngũ bác sĩ Section */}
-      <div className="doctor-section py-4" style={{
+      <div className="doctor-section" style={{
           backgroundImage: `url(${images.banner2})`,
           backgroundSize: "cover",
           backgroundPosition: "center",

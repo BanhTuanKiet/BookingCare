@@ -19,6 +19,34 @@ namespace server.Services
             _mapper = mapper;
         }
 
+        public async Task<Appointment> IsExistAppointment (int? patientId, DateTime appointmentDate, string appointmentTime)
+        {
+            var appointment = await _context.Appointments
+                .Where(a => a.PatientId == patientId && a.AppointmentDate == appointmentDate && a.AppointmentTime == appointmentTime && a.Status == "Chờ xác nhận")
+                .FirstOrDefaultAsync();
+
+            return appointment;
+        }
+
+        public async Task<Appointment> Appointment (int? patientId, int? doctorId, int? serviceId, DateTime appointmentDate, string appointmentTime, string status)
+        {
+            Appointment appointment = new Appointment
+            {
+                PatientId = patientId,
+                DoctorId = doctorId,
+                AppointmentDate = appointmentDate,
+                AppointmentTime = appointmentTime,
+                ServiceId = serviceId,
+                Status = status,
+            };
+
+            await _context.Appointments.AddAsync(appointment);
+            await _context.SaveChangesAsync();
+
+            return appointment;
+        }
+
+
         public async Task<List<AppointmentDTO.AppointmentDetail>> GetAppointments()
         {
             var appointments = await _context.Appointments
@@ -27,6 +55,7 @@ namespace server.Services
                 .Include(a => a.Doctor)
                 .Include(a => a.Doctor.User)
                 .Include(a => a.Service)
+                .OrderByDescending(a => a.AppointmentDate)
                 .ToListAsync();
 
             // foreach (var a in appointments)
@@ -44,15 +73,17 @@ namespace server.Services
             _context.Appointments.Update(appointment);
             await _context.SaveChangesAsync();
         }
-        public async Task<List<AppointmentDTO.AppointmentDetail>> GetAppointmentByPatientId(int? patientId)
+        public async Task<List<AppointmentDTO.AppointmentDetail>> GetAppointmentByPatientId(int? patientId, int quantity)
         {
             var appointments = await _context.Appointments
                 .Where(a => a.PatientId == patientId)
+                .OrderByDescending(a => a.AppointmentDate)
                 .Include(a => a.Patient)
                 .Include(a => a.Patient.User)
                 .Include(a => a.Doctor)
                 .Include(a => a.Doctor.User)
                 .Include(a => a.Service)
+                .Take(quantity)
                 .ToListAsync();
 
             var appointmentDTOs = _mapper.Map<List<AppointmentDTO.AppointmentDetail>>(appointments);
@@ -158,7 +189,6 @@ namespace server.Services
                 .Where(a => a.PatientId == patientId && a.AppointmentDate >= DateTime.Now.Date)
                 .Include(a => a.Doctor.User)
                 .Include(a => a.Service)
-                .Where(a => a.PatientId == patientId)
                 .OrderBy(a => a.AppointmentDate)
                 .FirstOrDefaultAsync();
 

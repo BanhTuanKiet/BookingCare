@@ -52,9 +52,9 @@ console.log(error.response)
         localStorage.setItem("prevPage", currentPath);
         WarningNotify(errorMessage);
   
-        setTimeout(() => {
-          window.location.href = "/đăng nhập"
-        }, 1700);
+        // setTimeout(() => {
+        //   window.location.href = "/đăng nhập"
+        // }, 1700);
         break
       default:
         ErrorNotify(errorMessage)

@@ -1,11 +1,45 @@
 import { ChevronDown, ChevronUp, FileText, Printer } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Button, Card, Col, Collapse, Row } from 'react-bootstrap'
+import { formatDateToLocale } from "../../Util/DateUtils"
 import axios from '../../Util/AxiosConfig'
 
-function PrescriptionCard({ record, tabActive }) {
+function PrescriptionCard({ record, tabActive, setTabActive, isSelected }) {
     const [openRecords, setOpenRecords] = useState({})
     const [medicines, setMedicines] = useState()
+
+    // Handle card click to navigate from overview to prescriptions
+    const handleCardClick = () => {
+        if (tabActive === "overview" && setTabActive) {
+            // Store the selected prescription ID in sessionStorage
+            sessionStorage.setItem('selectedPrescriptionId', record.recordId);
+            // Change tab to prescriptions
+            setTabActive("prescriptions");
+        }
+    }
+
+    // Auto-expand effect - fetch and expand the record whenever isSelected is true
+    useEffect(() => {
+        const autoExpandSelectedRecord = async () => {
+            if (isSelected && tabActive === "prescriptions") {
+                // Auto-expand this record
+                setOpenRecords(prev => ({
+                    ...prev,
+                    [record.recordId]: true
+                }));
+                
+                // Fetch details automatically
+                try {
+                    const response = await axios.get(`/medicalRecords/detail/${record.recordId}`);
+                    setMedicines(response.data);
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+        };
+        
+        autoExpandSelectedRecord();
+    }, [isSelected, tabActive, record.recordId]);
 
     const toggleRecord = async (recordId) => {
         const isOpen = openRecords[recordId]
@@ -14,34 +48,28 @@ function PrescriptionCard({ record, tabActive }) {
             ...prev,
             [recordId]: !isOpen
         }))
-    
+
         if (isOpen) return
 
         try {
             const response = await axios.get(`/medicalRecords/detail/${recordId}`)
-
+            console.log(response.data)
             setMedicines(response.data)
         } catch (error) {
             console.log(error)
         }
     }
 
-    const formatDate = (dateString) => {
-        if (!dateString) return ''
-        try {
-            const date = new Date(dateString)
-
-            return date.toLocaleDateString('vi-VN')
-        } catch (error) {
-            return dateString
-        }
-    }
-
     return (
-        <Card key={record.recordId} className="mb-3 border">
+        <Card
+            key={record.recordId}
+            className={`mb-3 border ${isSelected ? 'border-primary' : ''}`}
+            style={{ cursor: tabActive === "overview" ? "pointer" : "default" }}
+            onClick={tabActive === "overview" ? handleCardClick : undefined}
+        >   
             <Card.Body>
                 <Row className="align-items-center">
-                    <Col xs={2} sm={1}  className={`text-center ${tabActive === "overview" ? "me-4" : ""}`}>
+                    <Col xs={2} sm={1} className={`text-center ${tabActive === "overview" ? "me-4" : ""}`}>
                         <div className="bg-light rounded-circle p-2 d-inline-flex">
                             <FileText size={24} className="text-primary" />
                         </div>
@@ -51,9 +79,10 @@ function PrescriptionCard({ record, tabActive }) {
                             <Col>
                                 <div className="d-flex align-items-center justify-content-between flex-wrap">
                                     <div className="d-flex align-items-center">
-                                        <div className="mb-0 me-2"><strong>Mã toa thuốc:</strong> {record.recordId}
+                                        <div className="mb-0 me-2">
+                                            <strong>Mã toa thuốc:</strong> {record.recordId}
                                             <small className='ms-2'>
-                                                {record.appointmentDate ? formatDate(record.appointmentDate) : "Không có ngày"}
+                                                {record.appointmentDate ? formatDateToLocale(record.appointmentDate) : "Không có ngày"}
                                             </small>
                                         </div>
                                     </div>
@@ -77,11 +106,14 @@ function PrescriptionCard({ record, tabActive }) {
                             }
                         </Row>
                     </Col>
-                    {tabActive === "prescriptions" &&
+                    {tabActive === "prescriptions" && !isSelected &&
                         <Col xs={2} className="text-end">
                             <Button
                                 variant="light" 
-                                onClick={() => toggleRecord(record.recordId)}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleRecord(record.recordId);
+                                }}
                                 aria-expanded={openRecords[record.recordId]}
                                 className="border"
                             >

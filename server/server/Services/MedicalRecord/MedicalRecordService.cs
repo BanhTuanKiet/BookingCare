@@ -60,6 +60,7 @@ namespace server.Services
                 .Include(mr => mr.Appointment.Doctor.User)
                 .Include(mr => mr.Appointment.Doctor.Specialty)
                 .Where(mr => appointmentIds.Contains(mr.AppointmentId ?? 0))
+                .OrderBy(mr => mr.Appointment.AppointmentDate)
                 .ToListAsync() ?? throw new ErrorHandlingException("Lỗi khi lấy danh sách toa thuốc!");
 
             var medicalRecordDTOs = _mapper.Map<List<MedicalRecordDTO.MedicalRecordBasic>>(medicalRecords);
@@ -73,10 +74,10 @@ namespace server.Services
                 .Include(mr => mr.Appointment)
                 .Include(mr => mr.Appointment.Doctor.User)
                 .Include(mr => mr.Appointment.Doctor.Specialty)
+                .Where(mr => appointmentIds.Contains(mr.AppointmentId ?? 0))
                 .OrderBy(mr => mr.Appointment.AppointmentDate)
                 .Take(3)
-                .Where(mr => appointmentIds.Contains(mr.AppointmentId ?? 0))
-                .ToListAsync() ?? throw new ErrorHandlingException("Lỗi khi lấy danh sách toa thuốc!");
+                .ToListAsync();
 
             var medicalRecordDTOs = _mapper.Map<List<MedicalRecordDTO.MedicalRecordBasic>>(medicalRecords);
 
