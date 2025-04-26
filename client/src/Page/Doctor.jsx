@@ -84,10 +84,10 @@ const Doctor = () => {
   };
 
   return (
-    <Container className="doctor-page py-5">
+    <Container className="py-5">
+      <div className=' mx-auto'>
       <h1 className="text-center text-primary mb-5">Đội ngũ bác sĩ</h1>
 
-      {/* Khung tìm kiếm */}
       <Row className="justify-content-center mb-4">
         <Col md={6}>
           <Form onSubmit={handleSearch}>
@@ -105,7 +105,6 @@ const Doctor = () => {
         </Col>
       </Row>
 
-      {/* Lọc theo chuyên khoa */}
       <Nav className="justify-content-center mb-4 specialty-nav">
         <Nav.Item>
           <Nav.Link
@@ -128,12 +127,11 @@ const Doctor = () => {
         ))}
       </Nav>
 
-      {/* Hiển thị danh sách bác sĩ */}
       {loading ? (
         <Loading text="Đang tải danh sách bác sĩ..." />
       ) : (
         <>
-          <Row className="d-flex  g-1">
+          <Row className="d-flex g-1">
             {currentDoctors.length > 0 ? (
               currentDoctors.map(doctor => (
                 <Col
@@ -152,7 +150,6 @@ const Doctor = () => {
             )}
           </Row>
 
-          {/* Pagination */}
           {doctors.length > itemsPerPage && (
             <div className="d-flex justify-content-center mt-4">
               <nav>
@@ -170,6 +167,7 @@ const Doctor = () => {
           )}
         </>
       )}
+      </div>
     </Container>
   )
 }

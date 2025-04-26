@@ -1,8 +1,330 @@
-import React from 'react'
+import { useState } from "react"
+import { Container, Row, Col, Card, Form, Button, Alert } from "react-bootstrap"
+import { MapPin, Phone, Mail, Clock, Send, MessageCircle, ChevronDown, ChevronUp } from "lucide-react"
 
-function Contact() {
+const Contact = () => {
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    subject: "",
+    message: "",
+  })
+  const [formErrors, setFormErrors] = useState({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState(null)
+  const [expandedFaq, setExpandedFaq] = useState(null)
+
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }))
+  }
+
+  const validateForm = () => {
+    const errors = {}
+    if (!formData.fullName.trim()) errors.fullName = "Vui lòng nhập họ tên"
+    if (!formData.email.trim()) {
+      errors.email = "Vui lòng nhập email"
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      errors.email = "Email không hợp lệ"
+    }
+    if (!formData.phone.trim()) {
+      errors.phone = "Vui lòng nhập số điện thoại"
+    } else if (!/^[0-9]{10,11}$/.test(formData.phone.replace(/\s/g, ""))) {
+      errors.phone = "Số điện thoại không hợp lệ"
+    }
+    if (!formData.message.trim()) errors.message = "Vui lòng nhập nội dung"
+
+    setFormErrors(errors)
+    return Object.keys(errors).length === 0
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!validateForm()) return
+
+    setIsSubmitting(true)
+    setSubmitStatus(null)
+
+    try {
+      // Giả lập gửi form
+      await new Promise((resolve) => setTimeout(resolve, 1500))
+
+      // Thành công
+      setSubmitStatus({
+        type: "success",
+        message: "Tin nhắn của bạn đã được gửi thành công. Chúng tôi sẽ liên hệ lại trong thời gian sớm nhất!",
+      })
+
+      // Reset form
+      setFormData({
+        fullName: "",
+        email: "",
+        phone: "",
+        subject: "",
+        message: "",
+      })
+    } catch (error) {
+      setSubmitStatus({
+        type: "danger",
+        message: "Có lỗi xảy ra khi gửi tin nhắn. Vui lòng thử lại sau!",
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const toggleFaq = (index) => {
+    setExpandedFaq(expandedFaq === index ? null : index)
+  }
+
+  const faqs = [
+    {
+      question: "Làm thế nào để đặt lịch khám?",
+      answer:
+        "Bạn có thể đặt lịch khám qua website, gọi điện thoại đến số hotline 1900 1234, hoặc trực tiếp đến phòng khám để đăng ký.",
+    },
+    {
+      question: "Thời gian nhận kết quả xét nghiệm là bao lâu?",
+      answer:
+        "Thời gian nhận kết quả xét nghiệm thông thường từ 1-3 ngày làm việc tùy vào loại xét nghiệm. Đối với các xét nghiệm cơ bản, kết quả có thể có trong ngày.",
+    },
+    {
+      question: "Phòng khám có làm việc vào cuối tuần không?",
+      answer:
+        "Phòng khám làm việc từ thứ 2 đến thứ 7. Chúng tôi làm việc từ 8:00 - 17:00 các ngày trong tuần và từ 8:00 - 12:00 vào thứ 7. Chúng tôi nghỉ vào Chủ nhật và các ngày lễ.",
+    },
+    {
+      question: "Có cần đặt lịch trước khi đến khám không?",
+      answer:
+        "Chúng tôi khuyến khích bệnh nhân đặt lịch trước để giảm thời gian chờ đợi và được phục vụ tốt nhất. Tuy nhiên, phòng khám vẫn tiếp nhận bệnh nhân đến trực tiếp mà không cần đặt lịch.",
+    },
+    {
+      question: "Phòng khám có chấp nhận thanh toán bằng thẻ không?",
+      answer:
+        "Có, phòng khám chấp nhận nhiều hình thức thanh toán bao gồm tiền mặt, thẻ ATM, thẻ tín dụng, và các ví điện tử như MoMo, ZaloPay, VNPay.",
+    },
+  ]
+
   return (
-    <div>Contact</div>
+    <Container fluid className="py-5 bg-light">
+      <Container className="w-75">
+        <Row className="g-4">
+          <Col lg={4}>
+            <Card className="border-0 shadow-sm h-100">
+              <Card.Header className="bg-primary text-white p-4">
+                <h4 className="mb-0 fw-bold">Thông Tin Liên Hệ</h4>
+              </Card.Header>
+              <Card.Body className="p-4">
+                <div className="d-flex align-items-start gap-3 mb-4">
+                  <div className="bg-light p-3 rounded border border-primary">
+                    <MapPin className="text-primary" size={24} />
+                  </div>
+                  <div>
+                    <h5 className="fw-bold mb-2">Địa Chỉ</h5>
+                    <p className="text-muted mb-0">475A Đ. Điện Biên Phủ, Phường 25, Bình Thạnh, Hồ Chí Minh</p>
+                  </div>
+                </div>
+
+                <div className="d-flex align-items-start gap-3 mb-4">
+                  <div className="bg-light p-3 rounded border border-primary">
+                    <Phone className="text-primary" size={24} />
+                  </div>
+                  <div>
+                    <h5 className="fw-bold mb-2">Điện Thoại</h5>
+                    <p className="text-muted mb-1">Hotline: 1900 1234</p>
+                    <p className="text-muted mb-0">Hỗ trợ: 028 1234 5678</p>
+                  </div>
+                </div>
+
+                <div className="d-flex align-items-start gap-3 mb-4">
+                  <div className="bg-light p-3 rounded border border-primary">
+                    <Mail className="text-primary" size={24} />
+                  </div>
+                  <div>
+                    <h5 className="fw-bold mb-2">Email</h5>
+                    <p className="text-muted mb-1">info@phongkham.com</p>
+                    <p className="text-muted mb-0">support@phongkham.com</p>
+                  </div>
+                </div>
+
+                <div className="d-flex align-items-start gap-3">
+                  <div className="bg-light p-3 rounded border border-primary">
+                    <Clock className="text-primary" size={24} />
+                  </div>
+                  <div>
+                    <h5 className="fw-bold mb-2">Giờ Làm Việc</h5>
+                    <p className="text-muted mb-1">Thứ 2 - Thứ 6: 08:00 - 17:00</p>
+                    <p className="text-muted mb-1">Thứ 7: 08:00 - 12:00</p>
+                    <p className="text-muted mb-0">Chủ nhật: Nghỉ</p>
+                  </div>
+                </div>
+              </Card.Body>
+            </Card>
+          </Col>
+
+          <Col lg={8}>
+            <Card className="border-0 shadow-sm mb-4">
+              <Card.Header className="bg-white p-4 border-bottom">
+                <h4 className="mb-0 fw-bold text-primary">Gửi Tin Nhắn Cho Chúng Tôi</h4>
+              </Card.Header>
+              <Card.Body className="p-4">
+                {submitStatus && (
+                  <Alert variant={submitStatus.type} className="mb-4">
+                    {submitStatus.message}
+                  </Alert>
+                )}
+
+                <Form onSubmit={handleSubmit}>
+                  <Row>
+                    <Col md={6} className="mb-3">
+                      <Form.Group controlId="fullName">
+                        <Form.Label className="fw-medium">
+                          Họ và tên <span className="text-danger">*</span>
+                        </Form.Label>
+                        <Form.Control
+                          type="text"
+                          name="fullName"
+                          value={formData.fullName}
+                          onChange={handleChange}
+                          placeholder="Nhập họ và tên"
+                          isInvalid={!!formErrors.fullName}
+                          className="py-2"
+                        />
+                        <Form.Control.Feedback type="invalid">{formErrors.fullName}</Form.Control.Feedback>
+                      </Form.Group>
+                    </Col>
+                    <Col md={6} className="mb-3">
+                      <Form.Group controlId="email">
+                        <Form.Label className="fw-medium">
+                          Email <span className="text-danger">*</span>
+                        </Form.Label>
+                        <Form.Control
+                          type="email"
+                          name="email"
+                          value={formData.email}
+                          onChange={handleChange}
+                          placeholder="Nhập địa chỉ email"
+                          isInvalid={!!formErrors.email}
+                          className="py-2"
+                        />
+                        <Form.Control.Feedback type="invalid">{formErrors.email}</Form.Control.Feedback>
+                      </Form.Group>
+                    </Col>
+                  </Row>
+
+                  <Row>
+                    <Col md={6} className="mb-3">
+                      <Form.Group controlId="phone">
+                        <Form.Label className="fw-medium">
+                          Số điện thoại <span className="text-danger">*</span>
+                        </Form.Label>
+                        <Form.Control
+                          type="tel"
+                          name="phone"
+                          value={formData.phone}
+                          onChange={handleChange}
+                          placeholder="Nhập số điện thoại"
+                          isInvalid={!!formErrors.phone}
+                          className="py-2"
+                        />
+                        <Form.Control.Feedback type="invalid">{formErrors.phone}</Form.Control.Feedback>
+                      </Form.Group>
+                    </Col>
+                  </Row>
+
+                  <Form.Group controlId="message" className="mb-4">
+                    <Form.Label className="fw-medium">
+                      Nội dung <span className="text-danger">*</span>
+                    </Form.Label>
+                    <Form.Control
+                      as="textarea"
+                      name="message"
+                      value={formData.message}
+                      onChange={handleChange}
+                      placeholder="Nhập nội dung tin nhắn"
+                      rows={5}
+                      isInvalid={!!formErrors.message}
+                    />
+                    <Form.Control.Feedback type="invalid">{formErrors.message}</Form.Control.Feedback>
+                  </Form.Group>
+
+                  <Button
+                    variant="primary"
+                    type="submit"
+                    className="py-2 px-4 d-flex align-items-center gap-2"
+                    disabled={isSubmitting}
+                  >
+                    <Send size={18} />
+                    <span>Gửi tin nhắn</span>
+                  </Button>
+                </Form>
+              </Card.Body>
+            </Card>
+
+            <Card className="border-0 shadow-sm">
+              <Card.Header className="bg-white p-4 border-bottom">
+                <div className="d-flex align-items-center gap-2">
+                  <MessageCircle className="text-primary" size={24} />
+                  <h4 className="mb-0 fw-bold text-primary">Câu Hỏi Thường Gặp</h4>
+                </div>
+              </Card.Header>
+              <Card.Body className="p-4">
+                <div className="accordion">
+                  {faqs.map((faq, index) => (
+                    <div key={index} className="mb-3 border rounded overflow-hidden">
+                      <div
+                        className={`p-3 d-flex justify-content-between align-items-center ${ expandedFaq === index ? "bg-light" : "bg-white" }`}
+                        onClick={() => toggleFaq(index)} style={{ cursor: "pointer" }}
+                      >
+                        <h6 className="mb-0 fw-bold">{faq.question}</h6>
+                        {expandedFaq === index ? (
+                          <ChevronUp size={20} className="text-primary" />
+                        ) : (
+                          <ChevronDown size={20} className="text-primary" />
+                        )}
+                      </div>
+                      {expandedFaq === index && (
+                        <div className="p-3 border-top bg-white">
+                          <p className="mb-0">{faq.answer}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+
+        <Row className="mt-5">
+          <Col>
+            <Card className="border-0 shadow-sm overflow-hidden">
+              <Card.Header className="bg-white p-4 border-bottom">
+                <h4 className="mb-0 fw-bold text-primary">Địa chỉ phòng khám</h4>
+              </Card.Header>
+              <Card.Body className="p-0">
+                <div className="ratio ratio-21x9">
+                  <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.1258198718204!2d106.71306867486087!3d10.801843089347313!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752953ade9f9c9%3A0x6ad5d15cd48a4f4e!2sHUTECH!5e0!3m2!1svi!2s!4v1713275091291!5m2!1svi!2s"
+                    width="600"
+                    height="450"
+                    style={{ border: 0 }}
+                    allowFullScreen=""
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="location"
+                  ></iframe>
+                </div>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      </Container>
+    </Container>
   )
 }
 
