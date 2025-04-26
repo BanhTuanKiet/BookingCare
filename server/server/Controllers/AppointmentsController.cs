@@ -46,7 +46,7 @@ namespace server.Controllers
             var doctor = await _doctorService.GetDoctorByName(appointmentForm.Doctor);
             var userId = HttpContext.Items["UserId"];
             int parsedUserId = Convert.ToInt32(userId.ToString());
-            var patient = await _patientService.GetPatientById(parsedUserId);
+            var patient = await _patientService.GetPatientByUserId(parsedUserId);
             var service = await _serviceServices.GetServiceByName(appointmentForm.Service);
             
             var isExistAppointment = await _appointmentService.IsExistAppointment(patient.PatientId, appointmentForm.AppointmentDate, appointmentForm.AppointmentTime);
@@ -197,7 +197,7 @@ namespace server.Controllers
 
             Console.WriteLine("UserId: " + parsedUserId);
 
-            var patient = await _patientService.GetPatientById(parsedUserId) ?? throw new ErrorHandlingException("Không tim thấy bệnh nhân");
+            var patient = await _patientService.GetPatientByUserId(parsedUserId) ?? throw new ErrorHandlingException("Không tim thấy bệnh nhân");
 
             var appointments = await _appointmentService.GetAppointmentByPatientId(patient.PatientId, quantity);
             return Ok(appointments);
@@ -252,7 +252,7 @@ namespace server.Controllers
             var userId = HttpContext.Items["UserId"].ToString();
             int parsedUserId = Convert.ToInt32(userId);
             
-            var patient = await _patientService.GetPatientById(parsedUserId) ?? throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");
+            var patient = await _patientService.GetPatientByUserId(parsedUserId) ?? throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");
 
             var appointment = await _appointmentService.GetRecentAppointment(patient.PatientId);
 

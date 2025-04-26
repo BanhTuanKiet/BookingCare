@@ -125,7 +125,7 @@ namespace Clinic_Management.Controllers
             var userId = HttpContext.Items["UserId"].ToString();
             var parsedUserId = Convert.ToInt32(userId);
 
-            var patient = await _patientService.GetPatientById(parsedUserId) ?? throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");
+            var patient = await _patientService.GetPatientByUserId(parsedUserId) ?? throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");
 
             var appointments = await _appointmentService.GetAppointmentsId(patient.PatientId);
 
@@ -141,7 +141,7 @@ namespace Clinic_Management.Controllers
             var userId = HttpContext.Items["UserId"].ToString();
             var parsedUserId = Convert.ToInt32(userId);
 
-            var patient = await _patientService.GetPatientById(parsedUserId) ?? throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");
+            var patient = await _patientService.GetPatientByUserId(parsedUserId) ?? throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");
 
             var appointments = await _appointmentService.GetAppointmentsId(patient.PatientId);
     
@@ -157,7 +157,7 @@ namespace Clinic_Management.Controllers
             // var userId = HttpContext.Items["UserId"].ToString();
             // var parsedUserId = Convert.ToInt32(userId);
 
-            // var patient = await _patientService.GetPatientById(parsedUserId) ?? throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");
+            // var patient = await _patientService.GetPatientByUserId(parsedUserId) ?? throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");
 
             var recordDetail = await _medicalRecordService.GetRecordDetail(recordId) ?? throw new ErrorHandlingException("Không tìm thấy chi tiết toa thuốc!");
 
