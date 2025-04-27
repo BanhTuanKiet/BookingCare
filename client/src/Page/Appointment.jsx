@@ -2,18 +2,25 @@ import { useContext, useEffect, useState } from "react"
 import { Button, Col, Container, Form, Row } from "react-bootstrap"
 import { NavContext } from "../Context/NavContext"
 import axios from "../Util/AxiosConfig"
+import { ValideFormContext } from "../Context/ValideFormContext"
 
 function Appointment() {
-  const [formData, setFormData] = useState({})
+  const [formData, setFormData] = useState({
+    specialty: "",
+    doctor: "",
+    service: "",
+    appointmentDate: "",
+    appointmentTime: ""
+  })
   const { specialties } = useContext(NavContext)
   const [specialty, setSpecialty] = useState()
   const [doctors, setDoctors] = useState()
   const [services, setServices] = useState()
+  const { validateForm, formErrors } = useContext(ValideFormContext)
 
   useEffect(() => {
     const fetchDoctors =  async () => {
       const response = await axios.get(`/doctors/${specialty}`)
-      // console.log(response.data)
       setDoctors(response.data)
     }
 
@@ -24,8 +31,6 @@ function Appointment() {
     const fetchServices =  async () => {
       try {
       const response = await axios.get(`/services/${specialty}/services`)
-      // console.log(specialties)
-      console.log(response.data)
       setServices(response.data)
     } catch (error) {
       console.log(error)
@@ -49,8 +54,12 @@ function Appointment() {
     setFormData({ ...formData, [event.target.name]: value })
   }
 
-  const submit = async () => {
+  const submit = async (e) => {
     try {
+      e.preventDefault()
+      const errors = validateForm(formData)   
+      if (errors > 0) return
+
       await axios.post("/appointments", formData)
     } catch (error) {
       console.log(error)
@@ -90,7 +99,6 @@ function Appointment() {
             </div>
           </Col>
 
-          {/* Right side - Form */}
           <Col md={8} className="p-4 bg-white">
             <p className="text-muted mb-4">
               Vui lòng điền thông tin vào form bên dưới để đã đăng ký khám bệnh theo yêu cầu
@@ -142,7 +150,7 @@ function Appointment() {
               </Form.Group> */}
 
               <Form.Group className="mb-3">
-                <Form.Select name="department" onChange={handleChange}>
+                <Form.Select name="specialty" onChange={handleChange} isInvalid={!!formErrors.specialty} >
                   <option>Chọn chuyên khoa</option>
                   {specialties.map((specialty, index) => (
                     <option key={index} value={specialty.name}>
@@ -150,19 +158,21 @@ function Appointment() {
                     </option>
                   ))}
                 </Form.Select>
+                <Form.Control.Feedback type="invalid">{formErrors.specialty}</Form.Control.Feedback>
               </Form.Group>
 
               <Form.Group className="mb-3">
-                <Form.Select name="doctor" onChange={handleChange}>
+                <Form.Select name="doctor" onChange={handleChange} isInvalid={!!formErrors.doctor} >
                   <option>Chọn bác sĩ</option>
                   {doctors?.map((doctor, index) => (
                     <option key={index}>{doctor.userName}</option>
                   ))}
                 </Form.Select>
+                <Form.Control.Feedback type="invalid">{formErrors.doctor}</Form.Control.Feedback>
               </Form.Group>
 
               <Form.Group className="mb-3">
-                <Form.Select name="service" onChange={handleChange}>
+                <Form.Select name="service" onChange={handleChange} isInvalid={!!formErrors.service} >
                    <option>Chọn dịch vụ</option>
                    {services?.map((service, index) => (
                     <option key={index} value={service.serviceName}>
@@ -170,7 +180,9 @@ function Appointment() {
                     </option>
                    ))} 
                 </Form.Select>
+                <Form.Control.Feedback type="invalid">{formErrors.service}</Form.Control.Feedback>
               </Form.Group>
+
 
               <Row className="mb-3">
                 <Col md={6}>
@@ -181,16 +193,19 @@ function Appointment() {
                       name="appointmentDate"
                       onChange={handleChange}
                       className="position-relative"
+                      isInvalid={!!formErrors.appointmentDate}
                     />
+                    <Form.Control.Feedback type="invalid">{formErrors.appointmentDate}</Form.Control.Feedback>
                   </Form.Group>
                 </Col>
                 <Col md={6}>
                   <Form.Group className="mb-3">
-                    <Form.Select name="appointmentTime" onChange={handleChange}>
+                    <Form.Select name="appointmentTime" onChange={handleChange} isInvalid={!!formErrors.appointmentTime}>
                       <option>Buổi khám</option>
                       <option>Sáng</option>
                       <option>Chiều</option>
                     </Form.Select>
+                    <Form.Control.Feedback type="invalid">{formErrors.appointmentTime}</Form.Control.Feedback>
                   </Form.Group>
                 </Col>
               </Row>

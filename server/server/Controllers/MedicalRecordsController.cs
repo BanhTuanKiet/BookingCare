@@ -143,11 +143,16 @@ namespace Clinic_Management.Controllers
             var userId = HttpContext.Items["UserId"].ToString();
             var parsedUserId = Convert.ToInt32(userId);
 
-            var patient = await _patientService.GetPatientByUserId(parsedUserId) ?? throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");
+            var patient = await _patientService.GetPatientByUserId(parsedUserId) ?? throw new ErrorHandlingException(400, "Không tìm thấy bệnh nhân!");
+            
+            var appointments = await _appointmentService.GetAppointmentsId(patient.PatientId) ?? throw new ErrorHandlingException(400, "Không tìm thấy lịch hẹn!");
 
-            var appointments = await _appointmentService.GetAppointmentsId(patient.PatientId);
-    
-            var medicalRecords = await _medicalRecordService.GetRecentMedicalRecords(appointments) ?? throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");;
+            var medicalRecords = await _medicalRecordService.GetRecentMedicalRecords(appointments);
+
+            if (medicalRecords == null || medicalRecords.Count == 0)
+            {
+                throw new ErrorHandlingException(400, "Không tìm thấy hồ sơ bệnh án!");
+            }
 
             return Ok(medicalRecords);
         }

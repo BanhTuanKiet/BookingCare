@@ -1,97 +1,137 @@
-import React, { useState } from "react";
-import { Modal, Button, Form } from "react-bootstrap";
-import { Star } from "lucide-react";
+import { useState } from "react"
+import { Modal, Button, Form, Row, Col } from "react-bootstrap"
+import { Star } from "lucide-react"
+import axios from "../../Util/AxiosConfig"
 
-function RatingModal({ show, onHide, recordId, onRatingSubmit }) {
-  const [rating, setRating] = useState(0);
-  const [hoverRating, setHoverRating] = useState(0);
-  const [comment, setComment] = useState("");
-  const [doctorName, setDoctorName] = useState("");
-  const [clinicName, setClinicName] = useState("");
-  const [appointmentDate, setAppointmentDate] = useState("");
-  const [ratingType, setRatingType] = useState("doctor"); // "doctor" or "clinic"
-  const [submitting, setSubmitting] = useState(false);
-
-  // Additional ratings for the form
-  const [waitTimeRating, setWaitTimeRating] = useState(0);
-  const [staffRating, setStaffRating] = useState(0);
-  const [facilityRating, setFacilityRating] = useState(0);
-  const [communicationRating, setCommunicationRating] = useState(0);
+function RatingModal({ show, onHide, recordId }) {
+  const [ratingType, setRatingType] = useState("doctor")
+  const [comment, setComment] = useState("")
+  const [submitting, setSubmitting] = useState(false)
+  const [overallRating, setOverallRating] = useState(0)
+  const [hoverRating, setHoverRating] = useState(0)
+  const [detailRatings, setDetailRatings] = useState({
+    // Bác sĩ
+    knowledge: 0,
+    attitude: 0,
+    dedication: 0,
+    communicationSkill: 0,
+    // Dịch vụ
+    effectiveness: 0,
+    price: 0,
+    serviceSpeed: 0,
+    convenience: 0,
+  })
+  
+  const resetForm = () => {
+    setComment("")
+    setOverallRating(0)
+    setHoverRating(0)
+    setDetailRatings({
+      knowledge: 0,
+      attitude: 0,
+      dedication: 0,
+      communicationSkill: 0,
+      effectiveness: 0,
+      price: 0,
+      serviceSpeed: 0,
+      convenience: 0,
+    })
+  }
+  
+  const convertRatingForm = () => {
+    const ratingData = {
+      recordId,
+      type: ratingType,
+      overallRating,
+      comment,
+      detailRatings:
+        ratingType === "doctor"
+          ? {
+              knowledge: detailRatings.knowledge,
+              attitude: detailRatings.attitude,
+              dedication: detailRatings.dedication,
+              communicationSkill: detailRatings.communicationSkill,
+            }
+          : {
+              effectiveness: detailRatings.effectiveness,
+              price: detailRatings.price,
+              serviceSpeed: detailRatings.serviceSpeed,
+              convenience: detailRatings.convenience,
+            },
+    }
+    return ratingData
+  }  
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setSubmitting(true);
+    e.preventDefault()
+
+    setSubmitting(true)
 
     try {
-      // Create the rating object
-      const ratingData = {
-        recordId,
-        type: ratingType,
-        doctorName: ratingType === "doctor" ? doctorName : null,
-        clinicName: ratingType === "clinic" ? clinicName : null,
-        appointmentDate,
-        overallRating: rating,
-        waitTimeRating: ratingType === "clinic" ? waitTimeRating : null,
-        staffRating: ratingType === "clinic" ? staffRating : null,
-        facilityRating: ratingType === "clinic" ? facilityRating : null,
-        communicationRating: ratingType === "doctor" ? communicationRating : null,
-        comment
-      };
+      const ratingData = convertRatingForm()
+      console.log(ratingData)
+      // const response = await axios.post()
 
-      // Call the provided onRatingSubmit function
-      await onRatingSubmit(ratingData);
-      
-      // Reset form
-      resetForm();
-      // Close modal
-      onHide();
+      resetForm()
     } catch (error) {
-      console.error("Error submitting rating:", error);
+      console.error("Lỗi khi gửi đánh giá:", error)
     } finally {
-      setSubmitting(false);
+      setSubmitting(false)
     }
-  };
+  }
 
-  const resetForm = () => {
-    setRating(0);
-    setHoverRating(0);
-    setComment("");
-    setDoctorName("");
-    setClinicName("");
-    setAppointmentDate("");
-    setWaitTimeRating(0);
-    setStaffRating(0);
-    setFacilityRating(0);
-    setCommunicationRating(0);
-  };
+  const handleDetailRatingChange = (category, value) => {
+    console.log(category, value)
+    setDetailRatings((prev) => ({
+      ...prev,
+      [category]: value,
+    }))
+  }
 
-  const StarRating = ({ value, hoverValue, onChange, onHover }) => {
+  const StarRating = ({ value, onChange }) => {
+    const [localHover, setLocalHover] = useState(0)
+  
     return (
       <div className="d-flex">
         {[1, 2, 3, 4, 5].map((star) => (
           <Star
             key={star}
             size={24}
-            fill={star <= (hoverValue || value) ? "#FFD700" : "none"}
-            color={star <= (hoverValue || value) ? "#FFD700" : "#D3D3D3"}
+            fill={star <= (localHover || value) ? "#FFD700" : "none"}
+            color={star <= (localHover || value) ? "#FFD700" : "#D3D3D3"}
             style={{ cursor: "pointer", marginRight: "4px" }}
-            onMouseEnter={() => onHover(star)}
-            onMouseLeave={() => onHover(0)}
+            onMouseEnter={() => setLocalHover(star)}
+            onMouseLeave={() => setLocalHover(0)}
             onClick={() => onChange(star)}
           />
         ))}
       </div>
-    );
-  };
+    )
+  }  
+
+  const DetailRating = ({ category, label }) => {
+    return (
+      <div className="mb-3">
+        <Form.Label>{label}</Form.Label>
+        <div>
+          <StarRating
+            value={detailRatings[category]}
+            onChange={(value) => handleDetailRatingChange(category, value)}
+          />
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <Modal show={show} onHide={onHide} centered size="lg">
+    <Modal show={show} onHide={onHide} centered>
       <Modal.Header closeButton>
-        <Modal.Title>Đánh giá Bác sĩ & Phòng khám</Modal.Title>
+        <Modal.Title>Đánh giá {ratingType === "doctor" ? "Bác sĩ" : "Dịch vụ"}</Modal.Title>
       </Modal.Header>
+
       <Modal.Body>
-        <Form onSubmit={handleSubmit}>
-          <p className="text-muted">
+        <Form>
+          <p className="text-muted mb-3">
             Chia sẻ trải nghiệm của bạn sẽ giúp người khác tìm được dịch vụ y tế phù hợp
           </p>
 
@@ -108,108 +148,60 @@ function RatingModal({ show, onHide, recordId, onRatingSubmit }) {
               />
               <Form.Check
                 type="radio"
-                id="clinic-rating"
-                label="Đánh giá Phòng khám"
+                id="service-rating"
+                label="Đánh giá Dịch vụ"
                 name="ratingType"
-                checked={ratingType === "clinic"}
-                onChange={() => setRatingType("clinic")}
+                checked={ratingType === "service"}
+                onChange={() => setRatingType("service")}
               />
             </div>
           </div>
 
-          <div className="row">
-            <div className="col-md-6 mb-3">
-              <Form.Label>
-                {ratingType === "doctor" ? "Tên Bác sĩ" : "Tên Phòng khám"}
-              </Form.Label>
-              <Form.Control
-                type="text"
-                placeholder={
-                  ratingType === "doctor" ? "Nhập tên bác sĩ" : "Nhập tên phòng khám"
-                }
-                value={ratingType === "doctor" ? doctorName : clinicName}
-                onChange={(e) =>
-                  ratingType === "doctor"
-                    ? setDoctorName(e.target.value)
-                    : setClinicName(e.target.value)
-                }
-                required
-              />
-            </div>
-            <div className="col-md-6 mb-3">
-              <Form.Label>Ngày khám</Form.Label>
-              <Form.Control
-                type="date"
-                value={appointmentDate}
-                onChange={(e) => setAppointmentDate(e.target.value)}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="mb-3">
-            <Form.Label>Đánh giá tổng thể</Form.Label>
+          <div className="mb-4">
+            <Form.Label>
+              Đánh giá tổng thể <span className="text-danger">*</span>
+            </Form.Label>
             <div>
               <StarRating
-                value={rating}
-                hoverValue={hoverRating}
-                onChange={setRating}
-                onHover={setHoverRating}
+                value={overallRating}
+                onChange={setOverallRating}
               />
             </div>
           </div>
 
-          <div className="row">
-            {ratingType === "clinic" && (
-              <>
-                <div className="col-md-6 mb-3">
-                  <Form.Label>Thời gian chờ đợi</Form.Label>
-                  <div>
-                    <StarRating
-                      value={waitTimeRating}
-                      hoverValue={hoverRating}
-                      onChange={setWaitTimeRating}
-                      onHover={setHoverRating}
-                    />
-                  </div>
-                </div>
-                <div className="col-md-6 mb-3">
-                  <Form.Label>Thái độ nhân viên</Form.Label>
-                  <div>
-                    <StarRating
-                      value={staffRating}
-                      hoverValue={hoverRating}
-                      onChange={setStaffRating}
-                      onHover={setHoverRating}
-                    />
-                  </div>
-                </div>
-                <div className="col-md-6 mb-3">
-                  <Form.Label>Cơ sở vật chất</Form.Label>
-                  <div>
-                    <StarRating
-                      value={facilityRating}
-                      hoverValue={hoverRating}
-                      onChange={setFacilityRating}
-                      onHover={setHoverRating}
-                    />
-                  </div>
-                </div>
-              </>
-            )}
-            
-            {ratingType === "doctor" && (
-              <div className="col-md-6 mb-3">
-                <Form.Label>Kỹ năng giao tiếp</Form.Label>
-                <div>
-                  <StarRating
-                    value={communicationRating}
-                    hoverValue={hoverRating}
-                    onChange={setCommunicationRating}
-                    onHover={setHoverRating}
-                  />
-                </div>
-              </div>
+          <div className="mb-4">
+            <h6 className="mb-3">Đánh giá chi tiết</h6>
+
+            {ratingType === "doctor" ? (
+              <Row>
+                <Col md={6}>
+                  <DetailRating category="knowledge" label="Kiến thức chuyên môn" />
+                </Col>
+                <Col md={6}>
+                  <DetailRating category="attitude" label="Thái độ phục vụ" />
+                </Col>
+                <Col md={6}>
+                  <DetailRating category="dedication" label="Sự tận tâm" />
+                </Col>
+                <Col md={6}>
+                  <DetailRating category="communicationSkill" label="Kỹ năng giao tiếp" />
+                </Col>
+              </Row>
+            ) : (
+              <Row>
+                <Col md={6}>
+                  <DetailRating category="effectiveness" label="Hiệu quả dịch vụ" />
+                </Col>
+                <Col md={6}>
+                  <DetailRating category="price" label="Giá cả hợp lý" />
+                </Col>
+                <Col md={6}>
+                  <DetailRating category="serviceSpeed" label="Tốc độ phục vụ" />
+                </Col>
+                <Col md={6}>
+                  <DetailRating category="convenience" label="Sự thuận tiện" />
+                </Col>
+              </Row>
             )}
           </div>
 
@@ -217,7 +209,7 @@ function RatingModal({ show, onHide, recordId, onRatingSubmit }) {
             <Form.Label>Nhận xét chi tiết</Form.Label>
             <Form.Control
               as="textarea"
-              rows={4}
+              rows={3}
               placeholder="Chia sẻ trải nghiệm của bạn..."
               value={comment}
               onChange={(e) => setComment(e.target.value)}
@@ -225,6 +217,7 @@ function RatingModal({ show, onHide, recordId, onRatingSubmit }) {
           </div>
         </Form>
       </Modal.Body>
+
       <Modal.Footer>
         <Button variant="light" onClick={onHide} disabled={submitting}>
           Hủy
@@ -234,7 +227,7 @@ function RatingModal({ show, onHide, recordId, onRatingSubmit }) {
         </Button>
       </Modal.Footer>
     </Modal>
-  );
+  )
 }
 
-export default RatingModal;
+export default RatingModal

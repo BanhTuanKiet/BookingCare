@@ -109,6 +109,7 @@ public partial class ClinicManagementContext : IdentityDbContext<ApplicationUser
             entity.Property(e => e.AppointmentId).HasColumnName("AppointmentID");
             entity.Property(e => e.Diagnosis).HasMaxLength(255);
             entity.Property(e => e.Treatment).HasMaxLength(255);
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.Appointment).WithOne(p => p.MedicalRecord)
                 .HasForeignKey<MedicalRecord>(d => d.AppointmentId)

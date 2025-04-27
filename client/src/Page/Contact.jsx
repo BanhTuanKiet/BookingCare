@@ -1,6 +1,7 @@
-import { useState } from "react"
+import { useContext, useState } from "react"
 import { Container, Row, Col, Card, Form, Button, Alert } from "react-bootstrap"
 import { MapPin, Phone, Mail, Clock, Send, MessageCircle, ChevronDown, ChevronUp } from "lucide-react"
+import { ValideFormContext } from "../Context/ValideFormContext"
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -10,9 +11,7 @@ const Contact = () => {
     subject: "",
     message: "",
   })
-  const [formErrors, setFormErrors] = useState({})
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitStatus, setSubmitStatus] = useState(null)
+  const { validateForm, formErrors } = useContext(ValideFormContext)
   const [expandedFaq, setExpandedFaq] = useState(null)
 
   const handleChange = (e) => {
@@ -21,60 +20,6 @@ const Contact = () => {
       ...prev,
       [name]: value,
     }))
-  }
-
-  const validateForm = () => {
-    const errors = {}
-    if (!formData.fullName.trim()) errors.fullName = "Vui lòng nhập họ tên"
-    if (!formData.email.trim()) {
-      errors.email = "Vui lòng nhập email"
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      errors.email = "Email không hợp lệ"
-    }
-    if (!formData.phone.trim()) {
-      errors.phone = "Vui lòng nhập số điện thoại"
-    } else if (!/^[0-9]{10,11}$/.test(formData.phone.replace(/\s/g, ""))) {
-      errors.phone = "Số điện thoại không hợp lệ"
-    }
-    if (!formData.message.trim()) errors.message = "Vui lòng nhập nội dung"
-
-    setFormErrors(errors)
-    return Object.keys(errors).length === 0
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    if (!validateForm()) return
-
-    setIsSubmitting(true)
-    setSubmitStatus(null)
-
-    try {
-      // Giả lập gửi form
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      // Thành công
-      setSubmitStatus({
-        type: "success",
-        message: "Tin nhắn của bạn đã được gửi thành công. Chúng tôi sẽ liên hệ lại trong thời gian sớm nhất!",
-      })
-
-      // Reset form
-      setFormData({
-        fullName: "",
-        email: "",
-        phone: "",
-        subject: "",
-        message: "",
-      })
-    } catch (error) {
-      setSubmitStatus({
-        type: "danger",
-        message: "Có lỗi xảy ra khi gửi tin nhắn. Vui lòng thử lại sau!",
-      })
-    } finally {
-      setIsSubmitting(false)
-    }
   }
 
   const toggleFaq = (index) => {
@@ -108,6 +53,12 @@ const Contact = () => {
         "Có, phòng khám chấp nhận nhiều hình thức thanh toán bao gồm tiền mặt, thẻ ATM, thẻ tín dụng, và các ví điện tử như MoMo, ZaloPay, VNPay.",
     },
   ]
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    const errors = validateForm(formData)   
+    if (errors > 0) return
+  }
 
   return (
     <Container fluid className="py-5 bg-light">
@@ -172,12 +123,6 @@ const Contact = () => {
                 <h4 className="mb-0 fw-bold text-primary">Gửi Tin Nhắn Cho Chúng Tôi</h4>
               </Card.Header>
               <Card.Body className="p-4">
-                {submitStatus && (
-                  <Alert variant={submitStatus.type} className="mb-4">
-                    {submitStatus.message}
-                  </Alert>
-                )}
-
                 <Form onSubmit={handleSubmit}>
                   <Row>
                     <Col md={6} className="mb-3">
@@ -254,9 +199,8 @@ const Contact = () => {
 
                   <Button
                     variant="primary"
-                    type="submit"
                     className="py-2 px-4 d-flex align-items-center gap-2"
-                    disabled={isSubmitting}
+                    onClick={() => validateForm(formData)}
                   >
                     <Send size={18} />
                     <span>Gửi tin nhắn</span>

@@ -21,7 +21,7 @@ const Home = () => {
           zIndex: 0,
         }}
       >
-        
+      
           <Container fluid>
             <Container className="text-center">
               <h2 className="text-primary fw-bold mb-4">LĨNH VỰC ĐẦU NGÀNH</h2>
@@ -33,7 +33,6 @@ const Home = () => {
           </Container>
       </div>
 
-      {/* Dịch vụ Section */}
       <div className="service-section py-5">
         <Container>
           <h3 className="text-primary fw-bold text-center">DỊCH VỤ</h3>
@@ -41,7 +40,6 @@ const Home = () => {
         </Container>
       </div>
 
-      {/* Đội ngũ bác sĩ Section */}
       <div className="doctor-section" style={{
           backgroundImage: `url(${images.banner2})`,
           backgroundSize: "cover",

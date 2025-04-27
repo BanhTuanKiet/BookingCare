@@ -78,7 +78,7 @@ namespace server.Services
                 .OrderBy(mr => mr.Appointment.AppointmentDate)
                 .Take(3)
                 .ToListAsync();
-
+            
             var medicalRecordDTOs = _mapper.Map<List<MedicalRecordDTO.MedicalRecordBasic>>(medicalRecords);
 
             return medicalRecordDTOs;  
