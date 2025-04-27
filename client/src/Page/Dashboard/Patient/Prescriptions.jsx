@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react'
-import { Card, Button, Modal } from 'react-bootstrap'
-import axios from '../../../Util/AxiosConfig'
-import PrescriptionCard from '../../../Component/Card/PrescriptionCard'
+import React, { useEffect, useState } from 'react';
+import { Card, Button, Modal } from 'react-bootstrap';
+import axios from '../../../Util/AxiosConfig';
+import PrescriptionCard from '../../../Component/Card/PrescriptionCard';
+import { toast } from 'react-toastify'; // nếu bạn có cài react-toastify
 
 function Prescriptions({ key, record, tabActive, setTabActive, isSelected }) {
-    const [medicalRecords, setMedicalRecords] = useState([])
-    const [selectedPrescriptionId, setSelectedPrescriptionId] = useState(null)
-    const [showPaymentModal, setShowPaymentModal] = useState(false)
+    const [medicalRecords, setMedicalRecords] = useState([]);
+    const [selectedPrescriptionId, setSelectedPrescriptionId] = useState(null);
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
 
     useEffect(() => {
         const fetchPrescriptions = async () => {
@@ -17,15 +18,12 @@ function Prescriptions({ key, record, tabActive, setTabActive, isSelected }) {
                 const storedPrescriptionId = sessionStorage.getItem('selectedPrescriptionId');
                 if (storedPrescriptionId) {
                     setSelectedPrescriptionId(storedPrescriptionId);
-
-                    setTimeout(() => {
-                        sessionStorage.removeItem('selectedPrescriptionId');
-                    }, 1000);
+                    sessionStorage.removeItem('selectedPrescriptionId');
                 }
             } catch (error) {
-                console.log(error);
+                console.error(error);
             }
-        }
+        };
 
         if (tabActive === "prescriptions" || tabActive === "overview") {
             fetchPrescriptions();
@@ -33,29 +31,36 @@ function Prescriptions({ key, record, tabActive, setTabActive, isSelected }) {
     }, [tabActive]);
 
     const handlePaymentClick = () => {
-        setShowPaymentModal(true)
-    }
+        setShowPaymentModal(true);
+    };
 
     const handleCloseModal = () => {
-        setShowPaymentModal(false)
-    }
+        setShowPaymentModal(false);
+    };
 
     const handleSelectVnpay = async () => {
         try {
-            const response = await axios.post('vnpaypayment/create', {
-                orderId: new Date().getTime().toString(),   // tạo orderId ngẫu nhiên
-                orderInfo: "Thanh toán đơn thuốc",
-                amount: 100000 // số tiền (ví dụ: 100k)
+            const response = await axios.post('/vnpaypayment/create', {
+                orderType: "other",
+                amount: 10000, // TODO: lấy từ đơn thuốc thực tế
+                orderDescription: "Thanh toán đơn thuốc",
+                name: "Đơn thuốc của tôi"
             });
-            window.location.href = response.data.url;  // Redirect tới VNPay
+
+            if (response.status === 200 && response.data.paymentUrl) {
+                window.location.href = response.data.paymentUrl;
+            } else {
+                toast.error("Không lấy được URL thanh toán.");
+            }
         } catch (error) {
-            console.log(error)
+            console.error(error);
+            toast.error("Có lỗi khi tạo thanh toán.");
         }
-    }
+    };
 
     const handleSelectMomo = () => {
-        alert('Chức năng MoMo đang được phát triển'); // sau này sẽ gọi API MoMo
-    }
+        toast.info("Chức năng MoMo đang được phát triển."); 
+    };
 
     return (
         <Card>
@@ -63,7 +68,7 @@ function Prescriptions({ key, record, tabActive, setTabActive, isSelected }) {
                 <h4>Đơn Thuốc</h4>
                 <p>Lịch sử đơn thuốc đã kê</p>
 
-                {medicalRecords && medicalRecords.length > 0 ? (
+                {medicalRecords.length > 0 ? (
                     medicalRecords.map((record) => (
                         <PrescriptionCard
                             key={record.recordId}
@@ -102,7 +107,7 @@ function Prescriptions({ key, record, tabActive, setTabActive, isSelected }) {
                 </Modal>
             </Card.Body>
         </Card>
-    )
+    );
 }
 
-export default Prescriptions
+export default Prescriptions;

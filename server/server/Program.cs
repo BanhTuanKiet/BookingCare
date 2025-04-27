@@ -41,6 +41,7 @@ builder.Services.AddScoped<IMedicine, MedicineService>();
 builder.Services.AddScoped<IMedicalRecord, MedicalRecordService>();
 builder.Services.AddScoped<IAuth, AuthServices>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IVnPayService, VnPayService>();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
