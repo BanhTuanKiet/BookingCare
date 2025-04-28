@@ -41,6 +41,7 @@ builder.Services.AddScoped<IMedicine, MedicineService>();
 builder.Services.AddScoped<IMedicalRecord, MedicalRecordService>();
 builder.Services.AddScoped<IAuth, AuthServices>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+
 //Connect Momo API Payment
 // Binding config cho MOMO
 builder.Services.AddOptions<MomoOptionModel>()
@@ -51,6 +52,9 @@ builder.Services.AddOptions<MomoOptionModel>()
 
 // Đăng ký Service
 builder.Services.AddScoped<IMomoService, MomoService>();
+
+
+builder.Services.AddScoped<IVnPayService, VnPayService>();
 
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
