@@ -14,6 +14,7 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using server.Services.RatingRepository;
 
 Env.Load();
 
@@ -41,6 +42,7 @@ builder.Services.AddScoped<IMedicine, MedicineService>();
 builder.Services.AddScoped<IMedicalRecord, MedicalRecordService>();
 builder.Services.AddScoped<IAuth, AuthServices>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IReview, ReviewServices>();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 

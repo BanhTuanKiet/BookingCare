@@ -9,6 +9,7 @@ function PrescriptionCard({ record, tabActive, setTabActive, isSelected }) {
   const [openRecords, setOpenRecords] = useState({})
   const [medicines, setMedicines] = useState()
   const [showRatingModal, setShowRatingModal] = useState(false)
+  const [isExist, setIsExist] = useState(false)
 
   const handleCardClick = () => {
     if (tabActive === "overview" && setTabActive) {
@@ -36,6 +37,26 @@ function PrescriptionCard({ record, tabActive, setTabActive, isSelected }) {
 
     autoExpandSelectedRecord()
   }, [isSelected, tabActive, record.recordId])
+
+  useEffect(() => {
+    const checkExistReview= async () => {
+      try {
+        const response = await axios.get(`/reviews/exist/${record.recordId}`)
+    
+        console.log("review is exist - ", response.data)
+        if (typeof response.data === 'object') {
+          setIsExist(response.data)
+          return
+        }
+
+        setIsExist(false)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    checkExistReview()
+  }, [record.recordId])
 
   const toggleRecord = async (recordId) => {
     const isOpen = openRecords[recordId]
@@ -153,8 +174,8 @@ function PrescriptionCard({ record, tabActive, setTabActive, isSelected }) {
                           <td>{med.frequencyPerDay} Lần / {med.unit}</td>
                           <td>{med.durationInDays} Ngày</td>
                           <td>{med.usage}</td>
-                          <td>{med.price}</td>
                           <td>{med.quantity}</td>
+                          <td>{med.price}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -179,7 +200,15 @@ function PrescriptionCard({ record, tabActive, setTabActive, isSelected }) {
                         setShowRatingModal(true)
                       }}
                     >
-                      <MessageSquare size={16} className="me-1" /> Đánh giá
+                      {!isExist ? 
+                        <>
+                          <MessageSquare size={16} className="me-1" /> Đánh giá
+                        </>
+                        :
+                        <>
+                          <MessageSquare size={16} className="me-1" /> Đã đánh giá
+                        </>
+                      }
                     </Button>
                     <Button variant="outline-primary" size="sm" className="d-flex align-items-center">
                       <Printer size={16} className="me-1" /> In đơn thuốc
@@ -196,6 +225,7 @@ function PrescriptionCard({ record, tabActive, setTabActive, isSelected }) {
         show={showRatingModal}
         onHide={() => setShowRatingModal(false)}
         recordId={record.recordId}
+        isExist={isExist}
       />
     </>
   )

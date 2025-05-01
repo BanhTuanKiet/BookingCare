@@ -20,6 +20,7 @@ namespace server.DTO
             public string AppointmentTime { get; set; }
             public string DoctorName { get; set; }
             public string SpecialtyName { get; set; }
+            public string ServiceName { get; set; }
         }
 
         public class MedicineDto

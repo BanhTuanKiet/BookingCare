@@ -3,7 +3,7 @@ import { Card } from 'react-bootstrap'
 import axios from '../../../Util/AxiosConfig'
 import PrescriptionCard from '../../../Component/Card/PrescriptionCard'
 
-function Prescriptions({ key, record,tabActive, setTabActive, isSelected}) {
+function Prescriptions({ tabActive, setTabActive, isSelected}) {
     const [medicalRecords, setMedicalRecords] = useState([])
     const [selectedPrescriptionId, setSelectedPrescriptionId] = useState(null)
 
@@ -11,7 +11,8 @@ function Prescriptions({ key, record,tabActive, setTabActive, isSelected}) {
         const fetchPrescriptions = async () => {
             try {
                 const response = await axios.get("/medicalRecords/prescriptions");
-                setMedicalRecords(response.data);
+
+                setMedicalRecords(response.data)
     
                 const storedPrescriptionId = sessionStorage.getItem('selectedPrescriptionId');
                 if (storedPrescriptionId) {

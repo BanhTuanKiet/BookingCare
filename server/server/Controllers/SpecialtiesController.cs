@@ -40,5 +40,15 @@ namespace server.Controllers
 
             return Ok(description);
         }
+
+        [HttpGet("random")]
+        public async Task<ActionResult> GetRandomSpecialties()
+        {
+            var specialties = await _speciatyService.GetRandomSpecialties();
+
+            if (specialties.Count() == 0 || specialties == null) throw new ErrorHandlingException("Lỗi không lấy được chuyên khoa!");
+
+            return Ok(specialties);
+        }
     }
 }

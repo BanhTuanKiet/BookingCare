@@ -1,9 +1,9 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Modal, Button, Form, Row, Col } from "react-bootstrap"
 import { Star } from "lucide-react"
 import axios from "../../Util/AxiosConfig"
 
-function RatingModal({ show, onHide, recordId }) {
+function RatingModal({ show, onHide, recordId, isExist }) {
   const [ratingType, setRatingType] = useState("doctor")
   const [comment, setComment] = useState("")
   const [submitting, setSubmitting] = useState(false)
@@ -21,6 +21,23 @@ function RatingModal({ show, onHide, recordId }) {
     serviceSpeed: 0,
     convenience: 0,
   })
+
+  useEffect(() => {
+    if (typeof isExist === 'object') {
+      setComment(isExist.comment)
+      setOverallRating(isExist.overallRating)
+      setDetailRatings({
+        knowledge: isExist?.knowledge || 0,
+        attitude: isExist?.attitude || 0,
+        dedication: isExist?.dedication || 0,
+        communicationSkill: isExist?.communicationSkill || 0,
+        effectiveness: isExist?.effectiveness || 0,
+        price: isExist?.price || 0,
+        serviceSpeed: isExist?.serviceSpeed || 0,
+        convenience: isExist?.convenience || 0,
+      })
+    }
+  }, [isExist])
   
   const resetForm = () => {
     setComment("")
@@ -41,38 +58,35 @@ function RatingModal({ show, onHide, recordId }) {
   const convertRatingForm = () => {
     const ratingData = {
       recordId,
-      type: ratingType,
       overallRating,
       comment,
-      detailRatings:
-        ratingType === "doctor"
-          ? {
-              knowledge: detailRatings.knowledge,
-              attitude: detailRatings.attitude,
-              dedication: detailRatings.dedication,
-              communicationSkill: detailRatings.communicationSkill,
-            }
-          : {
-              effectiveness: detailRatings.effectiveness,
-              price: detailRatings.price,
-              serviceSpeed: detailRatings.serviceSpeed,
-              convenience: detailRatings.convenience,
-            },
+      doctorRatings: {
+        knowledge: detailRatings.knowledge,
+        attitude: detailRatings.attitude,
+        dedication: detailRatings.dedication,
+        communicationSkill: detailRatings.communicationSkill,
+      },
+      serviceRatings: {
+        effectiveness: detailRatings.effectiveness,
+        price: detailRatings.price,
+        serviceSpeed: detailRatings.serviceSpeed,
+        convenience: detailRatings.convenience,
+      }
     }
     return ratingData
   }  
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-
+    if (isExist !== false) return
     setSubmitting(true)
 
     try {
-      const ratingData = convertRatingForm()
-      console.log(ratingData)
-      // const response = await axios.post()
-
-      resetForm()
+      const reviewForm = convertRatingForm()
+      console.log("aaaaaaaaa", reviewForm)
+      const response = await axios.post(`/reviews`, reviewForm)
+      console.log(response.data)
+      // resetForm()
     } catch (error) {
       console.error("Lỗi khi gửi đánh giá:", error)
     } finally {
@@ -220,11 +234,13 @@ function RatingModal({ show, onHide, recordId }) {
 
       <Modal.Footer>
         <Button variant="light" onClick={onHide} disabled={submitting}>
-          Hủy
+          {!isExist ? "Hủy" : "Ẩn"}
         </Button>
-        <Button variant="primary" onClick={handleSubmit} disabled={submitting}>
-          {submitting ? "Đang gửi..." : "Gửi đánh giá"}
-        </Button>
+        {!isExist && 
+          <Button variant="primary" onClick={handleSubmit} disabled={submitting}>
+            {submitting ? "Đang gửi..." : "Gửi đánh giá"}
+          </Button>
+        }
       </Modal.Footer>
     </Modal>
   )

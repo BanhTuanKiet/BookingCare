@@ -16,6 +16,7 @@ import ServiceDetail from '../Page/ServiceDetail'
 import Dashboard from '../Page/Dashboard/Dashboard'
 import Admin from '../Page/Admin'
 import ForgotPassword from "../Page/ForgotPassword"
+import DepartmentDetail from '../Page/DepartmentDetail'
 
 function AppRoute() {
     return (
@@ -27,7 +28,7 @@ function AppRoute() {
             <Route path='/bác sĩ' element={<Index><Doctor /></Index>} />
             <Route path='/bac-si/:doctorName' element={<Index><DoctorDetail /></Index>} />
             <Route path='/bác sĩ/:doctorName' element={<Index></Index>} />
-            <Route path='/chuyên khoa/:specialty' element={<Index><Specialty /></Index>}></Route>
+            <Route path='/chuyên khoa/:specialty' element={<Index><DepartmentDetail /></Index>}></Route>
             <Route path='/dịch vụ/:serviceName' element={<Index><ServiceDetail/></Index>}></Route>
             <Route path='/tin tức' element={<Index><News /></Index>} />
             <Route path='/login' element={<Login /> } />
