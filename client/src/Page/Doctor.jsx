@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react'
-import { Container, Row, Col, Form, InputGroup, Button, Nav } from 'react-bootstrap'
+import { Container, Form, InputGroup, Button, Nav } from 'react-bootstrap'
 import { FaSearch } from 'react-icons/fa'
 import { DoctorCard } from '../Component/Card/Index'
 import axios from '../Util/AxiosConfig'
@@ -13,9 +13,8 @@ const Doctor = () => {
   const [activeSpecialty, setActiveSpecialty] = useState('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [loading, setLoading] = useState(true)
-  // Pagination
   const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 12
+  const itemsPerPage = 15
 
   const indexOfLastDoctor = currentPage * itemsPerPage
   const indexOfFirstDoctor = indexOfLastDoctor - itemsPerPage
@@ -28,7 +27,7 @@ const Doctor = () => {
 
   const fetchDoctors = async () => {
     try {
-      setLoading(true);
+      setLoading(true)
       const response = await axios.get('/doctors', { withCredentials: true })
       const filteredDoctors = response.data.filter(doctor => doctor.doctorId)
       setDoctors(filteredDoctors)
@@ -66,7 +65,6 @@ const Doctor = () => {
         handleSpecialtyFilter(activeSpecialty)
         return
       }
-
       const response = await axios.get(`/doctors/search?keyword=${searchTerm}`)
       const filteredDoctors = response.data.filter(doctor => doctor.doctorId)
       setDoctors(filteredDoctors)
@@ -76,36 +74,34 @@ const Doctor = () => {
     } finally {
       setLoading(false)
     }
-  };
+  }
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber)
     window.scrollTo(0, 0)
-  };
+  }
 
   return (
-    <Container className="py-5">
-      <div className='mx-auto'>
+    <Container className="py-5 doctor-section">
       <h1 className="text-center text-primary mb-5">Đội ngũ bác sĩ</h1>
 
-      <Row className="justify-content-center mb-4">
-        <Col md={6}>
-          <Form onSubmit={handleSearch}>
-            <InputGroup>
-              <Form.Control
-                placeholder="Tìm kiếm bác sĩ theo tên, chức vụ..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <Button type="submit" variant="primary">
-                <FaSearch />
-              </Button>
-            </InputGroup>
-          </Form>
-        </Col>
-      </Row>
+      <div className="search-container mb-4">
+        <Form onSubmit={handleSearch}>
+          <InputGroup className="shadow-sm rounded-pill overflow-hidden">
+            <InputGroup.Text className="bg-white border-end-0">
+              <FaSearch className="text-muted" />
+            </InputGroup.Text>
+            <Form.Control
+              placeholder="Tìm kiếm bác sĩ theo tên, chức vụ..."
+              className="border-start-0"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </InputGroup>
+        </Form>
+      </div>
 
-      <Nav className="justify-content-center mb-4 specialty-nav mx-auto" style={{ width: "85%" }}>
+      <Nav className="justify-content-center mb-4 specialty-nav">
         <Nav.Item>
           <Nav.Link
             className={activeSpecialty === 'all' ? 'active' : ''}
@@ -114,7 +110,6 @@ const Doctor = () => {
             Tất cả
           </Nav.Link>
         </Nav.Item>
-
         {specialties.map((specialty) => (
           <Nav.Item key={specialty.id}>
             <Nav.Link
@@ -131,24 +126,19 @@ const Doctor = () => {
         <Loading text="Đang tải danh sách bác sĩ..." />
       ) : (
         <>
-          <Row className="d-flex g-1 mx-auto" style={{ width: "80%" }}>
+          <div className="doctor-grid mx-auto" style={{ width: "85%" }}>
             {currentDoctors.length > 0 ? (
               currentDoctors.map(doctor => (
-                <Col
-                  key={doctor.doctorId}
-                  lg={3} md={4} sm={6}
-                  className="mb-4 d-flex justify-content-center"
-                  style={{ minHeight: '300px' }}
-                >
+                <div key={doctor.doctorId} className="doctor-grid-item">
                   <DoctorCard doctor={doctor} />
-                </Col>
+                </div>
               ))
             ) : (
               <div className="text-center my-5 w-100">
                 <h5>Không tìm thấy bác sĩ phù hợp!</h5>
               </div>
             )}
-          </Row>
+          </div>
 
           {doctors.length > itemsPerPage && (
             <div className="d-flex justify-content-center mt-4">
@@ -167,7 +157,6 @@ const Doctor = () => {
           )}
         </>
       )}
-      </div>
     </Container>
   )
 }
