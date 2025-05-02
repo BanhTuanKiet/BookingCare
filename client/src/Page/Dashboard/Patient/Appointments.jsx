@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Badge, Button, Card, Table, Modal } from 'react-bootstrap';
 import axios from '../../../Util/AxiosConfig';
+import { toast } from 'react-toastify'; // nếu bạn có cài react-toastify
 
 function Appointments({ tabActive }) {
     const [appointments, setAppointments] = useState([]);
@@ -47,14 +48,21 @@ function Appointments({ tabActive }) {
 
     const handleSelectVnpay = async () => {
         try {
-            const response = await axios.post('vnpaypayment/create', {
-                orderId: new Date().getTime().toString(),
-                orderInfo: "Thanh toán đơn thuốc",
-                amount: 100000
+            const response = await axios.post('/vnpaypayment/create', {
+                orderType: "other",
+                amount: 10000, // TODO: lấy từ đơn thuốc thực tế
+                orderDescription: "Thanh toán đơn thuốc",
+                name: "Đơn thuốc của tôi"
             });
-            window.location.href = response.data.url;
+
+            if (response.status === 200 && response.data.paymentUrl) {
+                window.location.href = response.data.paymentUrl;
+            } else {
+                toast.error("Không lấy được URL thanh toán.");
+            }
         } catch (error) {
             console.error(error);
+            toast.error("Có lỗi khi tạo thanh toán.");
         }
     };
 
