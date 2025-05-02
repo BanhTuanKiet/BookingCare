@@ -85,7 +85,7 @@ const Doctor = () => {
 
   return (
     <Container className="py-5">
-      <div className=' mx-auto'>
+      <div className='mx-auto'>
       <h1 className="text-center text-primary mb-5">Đội ngũ bác sĩ</h1>
 
       <Row className="justify-content-center mb-4">
@@ -105,7 +105,7 @@ const Doctor = () => {
         </Col>
       </Row>
 
-      <Nav className="justify-content-center mb-4 specialty-nav">
+      <Nav className="justify-content-center mb-4 specialty-nav mx-auto" style={{ width: "85%" }}>
         <Nav.Item>
           <Nav.Link
             className={activeSpecialty === 'all' ? 'active' : ''}
@@ -131,7 +131,7 @@ const Doctor = () => {
         <Loading text="Đang tải danh sách bác sĩ..." />
       ) : (
         <>
-          <Row className="d-flex g-1">
+          <Row className="d-flex g-1 mx-auto" style={{ width: "80%" }}>
             {currentDoctors.length > 0 ? (
               currentDoctors.map(doctor => (
                 <Col

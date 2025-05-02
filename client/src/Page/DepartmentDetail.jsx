@@ -120,23 +120,23 @@ console.log(activeTab)
                         </Card>
 
                         <Tab.Container id="dashboard-tabs" activeKey={activeTab} onSelect={(k) => setActiveTab(k)}>
-                            <Nav variant="tabs" className="pt-0">
+                            <Nav variant="tabs" className="py-0">
                                 <Nav.Item>
-                                    <Nav.Link eventKey="overview" className="d-flex align-items-center">
+                                    <Nav.Link eventKey="overview" className={`d-flex align-items-center ${activeTab === 'overview' ? 'text-primary' : 'text-dark'}`}>
                                         <span className="me-2">
                                         </span>
                                         Tổng Quan
                                     </Nav.Link>
                                 </Nav.Item>
                                 <Nav.Item>
-                                    <Nav.Link eventKey="services" className="d-flex align-items-center">
+                                    <Nav.Link eventKey="services" className={`d-flex align-items-center ${activeTab === 'services' ? 'text-primary' : 'text-dark'}`}>
                                         <span className="me-2">
                                         </span>
                                         Dịch vụ
                                     </Nav.Link>
                                 </Nav.Item>
                                 <Nav.Item>
-                                    <Nav.Link eventKey="doctors" className="d-flex align-items-center">
+                                    <Nav.Link eventKey="doctors" className={`d-flex align-items-center ${activeTab === 'doctors' ? 'text-primary' : 'text-dark'}`}>
                                         <span className="me-2">
                                         </span>
                                         Bác sĩ
@@ -262,15 +262,15 @@ console.log(activeTab)
                         </Card>
         
                         <Card className="border-0 shadow-sm mb-4">
-                            <Card.Header className="bg-white p-4 border-bottom">
-                            <h5 className="mb-0 fw-bold">Chuyên khoa khác</h5>
+                            <Card.Header className="bg-white p-3 border-bottom">
+                                <h5 className="mb-0 fw-bold">Chuyên khoa khác</h5>
                             </Card.Header>
-                            <Card.Body className="p-4">
-                            <div className="d-flex flex-column gap-3">
+                            <Card.Body className="p-0">
+                                <div className="d-flex flex-column">
                                 {recommendSpecialties?.map((recommend, index) => (
                                     <Recomend item={recommend} type={"specialty"} />
                                 ))}
-                            </div>
+                                </div>
                             </Card.Body>
                         </Card>
                     </Col>

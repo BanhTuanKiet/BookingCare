@@ -194,7 +194,6 @@ const ServiceDetail = () => {
               </Card.Header>
               <Card.Body className="p-3">
                 <div className="d-flex align-items-start gap-2 mb-3">
-                  <MapPin size={18} className="text-primary mt-1" />
                   <div>
                     <p className="mb-1 fw-medium">Địa chỉ phòng khám:</p>
                     <p className="text-muted mb-1">475A Đ. Điện Biên Phủ, Phường 25, Bình Thạnh, Hồ Chí Minh</p>
@@ -228,11 +227,11 @@ const ServiceDetail = () => {
             </Card>
 
             <Card className="border-0 shadow-sm mb-4">
-              <Card.Header className="bg-white p-4 border-bottom">
-                <h5 className="mb-0 fw-bold">Dịch vụ liên quan</h5>
+              <Card.Header className="bg-white p-3 border-bottom">
+                <h5 className="mb-0 fw-bold">Dịch vụ khác</h5>
               </Card.Header>
-              <Card.Body className="p-4">
-                <div className="d-flex flex-column gap-3">
+              <Card.Body className="p-0">
+                <div className="d-flex flex-column">
                   {recommendServices?.map((recommend, index) => (
                     <Recomend item={recommend} type={"service"} />
                   ))}
@@ -241,7 +240,7 @@ const ServiceDetail = () => {
             </Card>
 
             <Card className="border-0 shadow-sm">
-              <Card.Header className="bg-white p-4 border-bottom">
+              <Card.Header className="bg-white p-3 border-bottom">
                 <h5 className="mb-0 fw-bold">Reviews từ bệnh nhân</h5>
               </Card.Header>
               <Card.Body className="pb-1">
