@@ -17,7 +17,13 @@ namespace server.Services
             _mapper = mapper;
         
         }
-                
+        
+        public async Task<List<UserDTO.UserBasic>> GetAllUsers()
+        {
+            var users = await _context.Users.ToListAsync();
+            return _mapper.Map<List<UserDTO.UserBasic>>(users);
+        }
+
         public async Task<UserDTO.UserBasic> GetUserById(int id, string role)
         {
             ApplicationUser user;
@@ -43,6 +49,15 @@ namespace server.Services
             var userDTO = _mapper.Map<UserDTO.UserBasic>(user);
 
             return userDTO;
+        }
+        
+        public async Task<List<UserDTO.UserBasic>> SearchUsers(string keyword)
+        {
+            var users = await _context.Users
+                .Where(u => u.FullName.Contains(keyword) || u.Email.Contains(keyword))
+                .ToListAsync();
+
+            return _mapper.Map<List<UserDTO.UserBasic>>(users);
         }
     }
 }

@@ -26,6 +26,12 @@ namespace server.Controllers
             _context = context;
             _userService = userService;
         }
+        
+        [HttpGet]
+        public async Task<ActionResult<List<UserDTO.UserBasic>>> GetAll()
+        {
+            return await _userService.GetAllUsers();
+        }
 
         [HttpGet("profile")]
         public async Task<ActionResult> GetUserById()
@@ -37,6 +43,13 @@ namespace server.Controllers
             var user = await _userService.GetUserById(parsedUserId, role.ToString());
 
             return Ok(user);
+        }
+
+        [Authorize(Roles = "admin")]
+        [HttpGet("search")]
+        public async Task<ActionResult<List<UserDTO.UserBasic>>> Search(string keyword)
+        {
+            return await _userService.SearchUsers(keyword);
         }
 
         [Authorize(Roles = "patient")]

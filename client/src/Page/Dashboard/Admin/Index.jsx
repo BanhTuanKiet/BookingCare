@@ -1,6 +1,9 @@
 import React, { useState } from 'react'
 import { Container, Row, Col, Card, Nav, Tab } from 'react-bootstrap'
 import AppointmentAdmin from './AppointmentAdmin'
+import UserAdmin from './UserAdmin'
+import MedicalRecordAdmin from './MedicalRecordAdmin'
+
 import "../../../Style/Admin.css"
 
 function Index() {
@@ -88,7 +91,8 @@ function Index() {
                                     
                                     {/* Prescriptions content placeholder */}
                                     <div className="p-4 bg-light rounded text-center">
-                                        <p>Nội dung quản lý đơn thuốc sẽ hiển thị ở đây</p>
+                                        {/* <p>Nội dung quản lý đơn thuốc sẽ hiển thị ở đây</p> */}
+                                        <MedicalRecordAdmin/>
                                     </div>
                                 </Card.Body>
                             </Card>
@@ -102,7 +106,8 @@ function Index() {
                                     
                                     {/* Users content placeholder */}
                                     <div className="p-4 bg-light rounded text-center">
-                                        <p>Nội dung quản lý người dùng sẽ hiển thị ở đây</p>
+                                        {/* <p>Nội dung quản lý người dùng sẽ hiển thị ở đây</p> */}
+                                        <UserAdmin />
                                     </div>
                                 </Card.Body>
                             </Card>

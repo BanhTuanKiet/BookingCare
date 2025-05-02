@@ -157,7 +157,7 @@ namespace Clinic_Management.Controllers
             return Ok(medicalRecords);
         }
 
-        [Authorize(Roles = "patient")]
+        [Authorize(Roles = "patient, admin")]
         [HttpGet("detail/{recordId}")]
         public async Task<ActionResult> GetMedicalRecordDetail(int recordId)
         {
@@ -171,6 +171,47 @@ namespace Clinic_Management.Controllers
             return Ok(recordDetail);
         }
 
+        [HttpGet("all")]
+        public async Task<ActionResult> GetAllMedicalRecords()
+        {
+            try
+            {
+                var records = await _medicalRecordService.GetAllMedicalRecordsAsync();
+                return Ok(records);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi khi lấy danh sách đơn thuốc: " + ex.Message });
+            }
+        }
+
+        [HttpGet("search")]
+        public async Task<ActionResult> SearchMedicalRecords(string keyword)
+        {
+            try
+            {
+                var records = await _medicalRecordService.SearchMedicalRecordsAsync(keyword);
+                return Ok(records);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi khi tìm kiếm đơn thuốc: " + ex.Message });
+            }
+        }
+
+        [HttpGet("patient/{patientId}")]
+        public async Task<ActionResult> GetPatientMedicalRecords(int patientId)
+        {
+            try
+            {
+                var records = await _medicalRecordService.GetPatientMedicalRecordsAsync(patientId);
+                return Ok(records);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi khi lấy đơn thuốc của bệnh nhân: " + ex.Message });
+            }
+        }
 
     }
 }

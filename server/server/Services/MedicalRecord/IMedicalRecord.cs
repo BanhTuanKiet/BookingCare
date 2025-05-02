@@ -10,5 +10,8 @@ namespace server.Services
         Task<List<MedicalRecordDTO.MedicalRecordBasic>> GetMedicalRecords(List<int> appointmentIds);
         Task<List<MedicalRecordDTO.MedicalRecordBasic>> GetRecentMedicalRecords(List<int> appointmentIds);
         Task<List<MedicalRecordDTO.MedicineDto>> GetRecordDetail(int recordId);
+        Task<List<PatientDTO.PatientDetail>> GetAllMedicalRecordsAsync();
+        Task<List<MedicalRecordDTO.MedicalRecordBasic>> SearchMedicalRecordsAsync(string keyword);
+        Task<List<MedicalRecordDTO.MedicalRecordBasic>> GetPatientMedicalRecordsAsync(int patientId);
     }
 }

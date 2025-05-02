@@ -1,3 +1,5 @@
+using AutoMapper.Internal.Mappers;
+
 namespace server.DTO
 {
     public class MedicalRecordDTO
@@ -21,6 +23,7 @@ namespace server.DTO
             public string DoctorName { get; set; }
             public string SpecialtyName { get; set; }
             public string ServiceName { get; set; }
+            public string PatientName {get; set;}
         }
 
         public class MedicineDto
