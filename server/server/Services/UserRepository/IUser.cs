@@ -6,5 +6,6 @@
         public interface IUser
         {
             Task<UserDTO.UserBasic> GetUserById(int id, string role);
+            Task<List<UserDTO.UserBasic>> GetUsers();
         }
     }
