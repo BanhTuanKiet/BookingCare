@@ -139,18 +139,21 @@ namespace Clinic_Management.Controllers
         public async Task<ActionResult> GetPrescriptionsByPatient()
         {
             // Lấy danh sách appointments và group theo PatientId để loại trùng
-            var distinctAppointments = await _context.Appointments
+            var distinctAppointments = await _context.MedicalRecords
+                .Join(_context.Appointments,
+                    mr => mr.AppointmentId,
+                    ap => ap.AppointmentId,
+                    (mr, ap) => ap)
                 .GroupBy(a => a.PatientId)
-                .Select(g => new 
-                { 
-                    PatientId = g.Key, 
-                    AppointmentId = g.OrderBy(a => a.AppointmentDate).Select(a => a.AppointmentId).FirstOrDefault() 
+                .Select(g => new
+                {
+                    PatientId = g.Key,
+                    AppointmentId = g.OrderBy(a => a.AppointmentDate).Select(a => a.AppointmentId).FirstOrDefault()
                 })
                 .ToListAsync();
 
             // Lấy danh sách AppointmentId duy nhất
             var appointmentIds = distinctAppointments.Select(a => a.AppointmentId).ToList();
-
 
             // Gọi MedicalRecordService để lấy tất cả đơn thuốc theo danh sách AppointmentId
             var medicalRecords = await _medicalRecordService.GetMedicalRecords(appointmentIds)
