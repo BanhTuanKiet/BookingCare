@@ -13,7 +13,7 @@ using server.Services;
 
 namespace server.Controllers
 {
-    [Authorize(Roles = "patient")]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class PatientsController : ControllerBase
@@ -24,6 +24,19 @@ namespace server.Controllers
         {
             _patientService = patientService;
         }
+        
+        [Authorize(Roles = "admin")]
+        [HttpGet()]
+        public async Task<ActionResult<List<PatientDTO.PatientDetail>>> GetPatients()
+        {
+            var userId = HttpContext.Items["UserId"];
+            int parsedUserId = Convert.ToInt32(userId.ToString());
+
+            var patients = await _patientService.GetAllPatients();
+
+            return Ok(patients);
+        }
+
 
         // GET: api/Patients/user
         // [HttpGet("user")]

@@ -2,6 +2,10 @@ import React, { useState } from 'react'
 import { Container, Row, Col, Card, Nav, Tab } from 'react-bootstrap'
 import AppointmentAdmin from './AppointmentAdmin'
 import "../../../Style/Admin.css"
+import UserAdmin from './UserAdmin'
+import PatientAdmin from './PatientAdmin'
+import PrescriptionOverView from './PrescriptionOverView'
+
 
 function Index() {
     const [tabActive, setTabActive] = useState("dashboard")
@@ -83,13 +87,7 @@ function Index() {
                         {tabActive === "prescriptions" && (
                             <Card>
                                 <Card.Body>
-                                    <h4>Quản Lý Đơn Thuốc</h4>
-                                    <p className="text-muted">Xem và quản lý đơn thuốc trong hệ thống</p>
-                                    
-                                    {/* Prescriptions content placeholder */}
-                                    <div className="p-4 bg-light rounded text-center">
-                                        <p>Nội dung quản lý đơn thuốc sẽ hiển thị ở đây</p>
-                                    </div>
+                                    <PrescriptionOverView />
                                 </Card.Body>
                             </Card>
                         )}
@@ -97,13 +95,7 @@ function Index() {
                         {tabActive === "users" && (
                             <Card>
                                 <Card.Body>
-                                    <h4>Quản Lý Người Dùng</h4>
-                                    <p className="text-muted">Quản lý tài khoản bác sĩ, nhân viên và bệnh nhân</p>
-                                    
-                                    {/* Users content placeholder */}
-                                    <div className="p-4 bg-light rounded text-center">
-                                        <p>Nội dung quản lý người dùng sẽ hiển thị ở đây</p>
-                                    </div>
+                                    <UserAdmin />
                                 </Card.Body>
                             </Card>
                         )}
