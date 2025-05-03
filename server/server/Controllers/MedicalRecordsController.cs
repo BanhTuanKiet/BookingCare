@@ -238,7 +238,7 @@ namespace Clinic_Management.Controllers
             return Ok(medicalRecords);
         }
 
-        [Authorize(Roles = "patient")]
+        [Authorize(Roles = "patient, admin")]
         [HttpGet("detail/{recordId}")]
         public async Task<ActionResult> GetMedicalRecordDetail(int recordId)
         {

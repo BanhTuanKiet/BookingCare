@@ -4,7 +4,7 @@ import AppointmentAdmin from './AppointmentAdmin'
 import "../../../Style/Admin.css"
 import UserAdmin from './UserAdmin'
 import PatientAdmin from './PatientAdmin'
-import PrescriptionAdmin from './PrescriptionAdmin'
+import PrescriptionOverView from './PrescriptionOverView'
 
 
 function Index() {
@@ -87,7 +87,7 @@ function Index() {
                         {tabActive === "prescriptions" && (
                             <Card>
                                 <Card.Body>
-                                    <PrescriptionAdmin />
+                                    <PrescriptionOverView />
                                 </Card.Body>
                             </Card>
                         )}

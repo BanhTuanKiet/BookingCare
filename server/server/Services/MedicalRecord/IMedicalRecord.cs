@@ -11,5 +11,6 @@ namespace server.Services
         Task<List<MedicalRecordDTO.MedicalRecordBasic>> GetRecentMedicalRecords(List<int> appointmentIds);
         Task<MedicalRecordDTO.MedicalRecordBasic> GetMedicalRecordsByRecoredId(int recordId);
         Task<List<MedicalRecordDTO.MedicineDto>> GetRecordDetail(int recordId);
+        
     }
 }
