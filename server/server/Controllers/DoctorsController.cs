@@ -127,5 +127,40 @@ namespace server.Controllers
                 throw new ErrorHandlingException(500, ex.Message);
             }
         }
+
+        [Authorize(Roles = "admin")]
+        [HttpGet("salary/monthly")]
+        public async Task<IActionResult> GetDoctorSalaries([FromQuery] DateTime? month = null)
+        {
+            // Kiểm tra và xử lý tháng nếu null, gán giá trị hiện tại
+            month ??= DateTime.Now;
+
+            // Lấy chỉ năm và tháng từ ngày, loại bỏ phần giờ, phút, giây
+            var startDate = new DateTime(month.Value.Year, month.Value.Month, 1);
+            var endDate = startDate.AddMonths(1);
+
+            // In ra giá trị của month đã xử lý
+            Console.WriteLine($"Month is: {month.Value.ToString("yyyy-MM")}");  // In ra năm và tháng
+
+            var salaries = await _doctorService.GetDoctorSalariesAsync(month.Value);
+            return Ok(salaries);
+        }
+
+
+        [HttpGet("salary/details")]
+        public async Task<IActionResult> GetDoctorSalaryDetails(int doctorId, DateTime? month)
+        {
+            
+            // Kiểm tra và xử lý tháng nếu null, gán giá trị hiện tại
+            month ??= DateTime.Now;
+
+            // Lấy chỉ năm và tháng từ ngày, loại bỏ phần giờ, phút, giây
+            var startDate = new DateTime(month.Value.Year, month.Value.Month, 1);
+            var endDate = startDate.AddMonths(1);
+            Console.WriteLine("Doctor Id: "+ doctorId +$"Month is: {month.Value.ToString("yyyy-MM")}" );
+            var result = await _doctorService.GetDoctorSalaryDetailsAsync(doctorId, month.Value);
+            return Ok(result);
+        }
+
     }
 }

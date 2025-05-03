@@ -175,7 +175,7 @@ public partial class ClinicManagementContext : IdentityDbContext<ApplicationUser
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.Description).HasMaxLength(500);
-            entity.Property(e => e.Price).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.Price).HasColumnType("float");
             entity.Property(e => e.ServiceName).HasMaxLength(255);
         });
 
