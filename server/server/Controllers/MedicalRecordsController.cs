@@ -183,8 +183,7 @@ namespace Clinic_Management.Controllers
         public async Task<ActionResult> GetMedicalRecordDetailByRecordId(int recordId) {
             var recordDetail = await _medicalRecordService.GetRecordDetail(recordId) ?? throw new ErrorHandlingException("Không tìm thấy chi tiết toa thuốc!");
             var recorRecentDetail = await _medicalRecordService.GetMedicalRecordsByRecoredId(recordId) ?? throw new ErrorHandlingException("Không tìm thấy chi tiết toa thuốc!");
-            // return Ok(recordDetail);
-            Console.WriteLine($"Tên bác sĩ: {recorRecentDetail.DoctorName}");
+            
             string body = $@"
                  <p>Bạn đã được bác sĩ <b>{recorRecentDetail.DoctorName}</b> kê toa thuốc trong buổi khám ngày <b>{recorRecentDetail.AppointmentDate:dd/MM/yyyy}</b>.</p>
                  <p>Chẩn đoán bệnh: <b>{recorRecentDetail.Diagnosis}</b></p>

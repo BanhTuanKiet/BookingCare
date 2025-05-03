@@ -87,9 +87,17 @@ namespace server.Services
         }
 
         public async Task<MedicalRecordDTO.MedicalRecordBasic> GetMedicalRecordsByRecoredId(int recordId) {
-            var medicalRecord = _context.MedicalRecords.FirstOrDefault(m => m.RecordId == recordId);
-            var medicalRecordDTOs = _mapper.Map<MedicalRecordDTO.MedicalRecordBasic>(medicalRecord);
-            return medicalRecordDTOs;
+            var medicalRecord = await _context.MedicalRecords
+                .Include(mr => mr.Appointment)
+                .Include(mr => mr.Appointment.Doctor.User)
+                .Include(mr => mr.Appointment.Patient.User)
+                .Include(mr => mr.Appointment.Doctor.Specialty)
+                .Where(mr => mr.RecordId == recordId)
+                .OrderBy(mr => mr.Appointment.AppointmentDate)
+                .FirstOrDefaultAsync(); 
+
+            var medicalRecordDTO = _mapper.Map<MedicalRecordDTO.MedicalRecordBasic>(medicalRecord);
+            return medicalRecordDTO;
         }
 
         public async Task<List<MedicalRecordDTO.MedicineDto>> GetRecordDetail(int recordId)
