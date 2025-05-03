@@ -19,6 +19,8 @@ namespace server.DTO
             public DateTime AppointmentDate { get; set; }
             public string AppointmentTime { get; set; }
             public string DoctorName { get; set; }
+            public string PatientName { get; set; }
+            public int PatientId {get; set;}
             public string SpecialtyName { get; set; }
         }
 

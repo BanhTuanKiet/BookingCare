@@ -8,6 +8,7 @@ namespace server.Services
         // Task<List<PatientDTO.PatientBasic>> GetAllPatients();
         Task<PatientDTO.PatientBasic> GetPatientById(int patientId);
         //Task<PatientDTO.PatientDetail> GetPatientById(int patientId);
-        // Task<PatientDTO.PatientDetail> GetPatientByUserId(int userId);
+        Task<PatientDTO.PatientDetail> GetPatientByUserId(int userId);
+        Task<List<PatientDTO.PatientDetail>> GetAllPatients();
     }
 }

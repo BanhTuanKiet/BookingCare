@@ -27,6 +27,18 @@ namespace server.Controllers
             _userService = userService;
         }
 
+        [Authorize(Roles = "admin")]
+        [HttpGet()]
+        public async Task<ActionResult<List<AppointmentDTO.AppointmentDetail>>> GetUsers()
+        {
+            var userId = HttpContext.Items["UserId"];
+            int parsedUserId = Convert.ToInt32(userId.ToString());
+
+            var users = await _userService.GetUsers();
+
+            return Ok(users);
+        }
+
         [HttpGet("profile")]
         public async Task<ActionResult> GetUserById()
         {

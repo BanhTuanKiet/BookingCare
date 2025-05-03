@@ -23,7 +23,9 @@ function PrescriptionCard({ record, tabActive, setTabActive, isSelected }) {
   // Auto-expand effect - fetch and expand the record whenever isSelected is true
   useEffect(() => {
     const autoExpandSelectedRecord = async () => {
+      
       if (isSelected && tabActive === "prescriptions") {
+        console.log("Auto expanding record:", record.recordId);
         // Auto-expand this record
         setOpenRecords((prev) => ({
           ...prev,

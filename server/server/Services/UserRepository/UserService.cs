@@ -44,5 +44,11 @@ namespace server.Services
 
             return userDTO;
         }
+
+        public async Task<List<UserDTO.UserBasic>> GetUsers()
+        {
+            var users = await _context.Users.ToListAsync();
+            return _mapper.Map<List<UserDTO.UserBasic>>(users);
+        }
     }
 }
