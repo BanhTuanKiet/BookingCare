@@ -74,13 +74,27 @@ namespace server.Services.RatingRepository
             return serviceReviewDetail;
         }
 
-        public async Task<List<ServiceReview>> GetServiceReviews(string serviceName)
+        public async Task<List<ServiceReview>> GetServiceReviews(int serviceId)
         {
             var serviceReviews = await _context.Reviews
                 .Include(review => review.MedicalRecord.Appointment.Patient.User)
                 .Include(review => review.MedicalRecord.Appointment.Service)
-                .Take(1)
-                // .Where(r => r.MedicalRecord.Appointment.Service.ServiceName == serviceName)
+                .Where(r => r.MedicalRecord.Appointment.Service.ServiceId == serviceId)
+                .Take(3)
+                .ToListAsync();
+
+            var serviceReviewDTOs = _mapper.Map<List<ServiceReview>>(serviceReviews);
+
+            return serviceReviewDTOs;
+        }
+
+        public async Task<List<ServiceReview>> GetDoctorReviews(int doctorId)
+        {
+            var serviceReviews = await _context.Reviews
+                .Include(review => review.MedicalRecord.Appointment.Patient.User)
+                .Include(review => review.MedicalRecord.Appointment.Doctor)
+                .Where(r => r.MedicalRecord.Appointment.Doctor.DoctorId == doctorId)
+                .Take(3)
                 .ToListAsync();
 
             var serviceReviewDTOs = _mapper.Map<List<ServiceReview>>(serviceReviews);

@@ -6,10 +6,10 @@ import { useState } from 'react'
 export default function ReviewCard({ review }) {
   const [expanded, setExpanded] = useState(false)
 
-  const shouldTruncate = review.comment?.length > 100
+  const shouldTruncate = review?.comment?.length > 100
   const truncatedText = expanded
-    ? review.comment
-    : review.comment?.slice(0, 100) + (shouldTruncate ? '...' : '')
+    ? review?.comment
+    : review?.comment?.slice(0, 100) + (shouldTruncate ? '...' : '')
 
   const renderStars = (rating) => {
     const fullStars = Math.floor(rating)
@@ -30,8 +30,8 @@ export default function ReviewCard({ review }) {
     return stars
   }
 
-  const formattedDate = review.createdAt
-    ? new Date(review.createdAt).toLocaleDateString()
+  const formattedDate = review?.createdAt
+    ? new Date(review?.createdAt).toLocaleDateString()
     : 'N/A'
 
   return (
@@ -40,7 +40,7 @@ export default function ReviewCard({ review }) {
         <div className="d-flex justify-content-between align-items-start mb-2">
           <div>
             <Card.Title as="h5" className="mb-1 p-0">
-              {review.patientName || 'Anonymous'}
+              {review?.patientName || 'Anonymous'}
             </Card.Title>
             <Card.Subtitle className="text-muted small">{formattedDate}</Card.Subtitle>
           </div>
@@ -51,8 +51,8 @@ export default function ReviewCard({ review }) {
         </div>
 
         <div className="d-flex align-items-center mb-3">
-          <div className="d-flex">{renderStars(review.overallRating)}</div>
-          <div className="ms-2 fw-semibold">{review.overallRating.toFixed(1)}</div>
+          <div className="d-flex">{renderStars(review?.overallRating)}</div>
+          <div className="ms-2 fw-semibold">{review?.overallRating.toFixed(1)}</div>
         </div>
 
         <Card.Text className="text-muted small mb-4">

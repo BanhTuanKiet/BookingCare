@@ -54,14 +54,14 @@ namespace server.Controllers
             return Ok( new { message = "Đánh giá thành công!" });
         }
 
-        [HttpGet("{type}/{serviceName}")]
-        public async Task<ActionResult> GetServiceReviews(string type, string serviceName)
+        [HttpGet("{type}/{id}")]
+        public async Task<ActionResult> GetReviews(string type, int id)
         {
             object reviews;
             if (type == "service") {
-                reviews = await _reviewService.GetServiceReviews(serviceName);
+                reviews = await _reviewService.GetServiceReviews(id);
             } else {
-                reviews = await _reviewService.GetServiceReviews(serviceName);
+                reviews = await _reviewService.GetDoctorReviews(id);
             }
             
             return Ok(reviews);

@@ -56,7 +56,8 @@ namespace Clinic_Management.Controllers
             var recordDetail = await _medicalRecordService.AddMedicalRecordDetail(record.RecordId, prescriptionRequest.Medicines) ?? throw new ErrorHandlingException(400, "Lỗi khi tạo toa thuốc");
             var patient = await _patientService.GetPatientById(appointment.PatientId.Value) ?? throw new ErrorHandlingException(400, "Không tìm thấy bệnh nhân!");
             
-            Console.WriteLine("Tên BỆNh nhân: ", patient.UserName);
+            await _appointmentService.UpdateStatus(appointment, "Đã khám");
+            
             try
             {
                  await SendEmailForPatient(patient.Email, appointment, prescriptionRequest, record.RecordId);

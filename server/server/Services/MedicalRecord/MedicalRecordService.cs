@@ -25,7 +25,8 @@ namespace server.Services
                 AppointmentId = appointmentId,
                 Diagnosis = prescriptionRequest.Diagnosis,
                 Treatment = prescriptionRequest.Treatment,
-                Notes = prescriptionRequest.Notes
+                Notes = prescriptionRequest.Notes,
+                CreatedAt = DateTime.Now
             };
 
             await _context.MedicalRecords.AddAsync(medicalRecord);

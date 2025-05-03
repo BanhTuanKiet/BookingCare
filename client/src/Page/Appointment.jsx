@@ -6,7 +6,7 @@ import { ValideFormContext } from "../Context/ValideFormContext"
 
 function Appointment() {
   const [formData, setFormData] = useState({
-    specialty: "",
+    department: "",
     doctor: "",
     service: "",
     appointmentDate: "",
@@ -20,8 +20,14 @@ function Appointment() {
 
   useEffect(() => {
     const fetchDoctors =  async () => {
-      const response = await axios.get(`/doctors/${specialty}`)
-      setDoctors(response.data)
+      try {
+        console.log(specialty)
+        const response = await axios.get(`/doctors/${specialty}`)
+        console.log(response)
+        setDoctors(response.data)
+      } catch (error) {
+        console.log(error)
+      }
     }
 
     fetchDoctors()
@@ -150,7 +156,7 @@ function Appointment() {
               </Form.Group> */}
 
               <Form.Group className="mb-3">
-                <Form.Select name="specialty" onChange={handleChange} isInvalid={!!formErrors.specialty} >
+                <Form.Select name="department" onChange={handleChange} isInvalid={!!formErrors.specialty} >
                   <option>Chọn chuyên khoa</option>
                   {specialties.map((specialty, index) => (
                     <option key={index} value={specialty.name}>

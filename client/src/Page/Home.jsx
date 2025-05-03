@@ -40,7 +40,7 @@ const Home = () => {
         </Container>
       </div>
 
-      <div className="doctor-section" style={{
+      <div className="py-4" style={{
           backgroundImage: `url(${images.banner2})`,
           backgroundSize: "cover",
           backgroundPosition: "center",

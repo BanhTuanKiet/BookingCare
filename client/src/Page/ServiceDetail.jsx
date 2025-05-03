@@ -42,6 +42,7 @@ const ServiceDetail = () => {
       try {
         const type = "service"
         const response = await axios.get(`/reviews/${type}/${serviceName}`)
+        console.log(serviceName,  response.data)
         setReviews(response.data)
       } catch (error) {
         console.log(error)

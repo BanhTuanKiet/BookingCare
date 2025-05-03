@@ -5,7 +5,7 @@ import { FaPhoneAlt, FaEnvelope, FaMapMarkerAlt } from "react-icons/fa"
 
 const Footer = () => {
   return (
-    <footer className="bg-light text-dark py-4 text-start">
+    <footer className="bg-light text-dark py-4 text-start mx-3">
       <Container className="w-75">
         <Row>
           {/* Giới thiệu */}
