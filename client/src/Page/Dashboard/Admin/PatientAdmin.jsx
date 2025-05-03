@@ -22,7 +22,7 @@ const PatientAdmin = () => {
     setLoading(true)
     try {
       const response = await axios.get(`/patients`)
-      setPatients(response.data.data)
+      setPatients(response.data)
       setTotalPages(response.data.totalPages)
     } catch (err) {
       console.error('Lỗi khi lấy danh sách bệnh nhân:', err)

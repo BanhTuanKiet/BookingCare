@@ -4,6 +4,8 @@ import AppointmentAdmin from './AppointmentAdmin'
 import "../../../Style/Admin.css"
 import UserAdmin from './UserAdmin'
 import PatientAdmin from './PatientAdmin'
+import PrescriptionAdmin from './PrescriptionAdmin'
+
 
 function Index() {
     const [tabActive, setTabActive] = useState("dashboard")
@@ -85,7 +87,7 @@ function Index() {
                         {tabActive === "prescriptions" && (
                             <Card>
                                 <Card.Body>
-                                    <PatientAdmin />
+                                    <PrescriptionAdmin />
                                 </Card.Body>
                             </Card>
                         )}
@@ -93,7 +95,7 @@ function Index() {
                         {tabActive === "users" && (
                             <Card>
                                 <Card.Body>
-                                <UserAdmin />
+                                    <UserAdmin />
                                 </Card.Body>
                             </Card>
                         )}

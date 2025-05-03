@@ -134,6 +134,92 @@ namespace Clinic_Management.Controllers
             return Ok(medicalRecords);
         }
 
+        [Authorize(Roles = "admin")]
+        [HttpGet("prescriptions/patient")]
+        public async Task<ActionResult> GetPrescriptionsByPatient()
+        {
+            // Lấy danh sách appointments và group theo PatientId để loại trùng
+            var distinctAppointments = await _context.Appointments
+                .GroupBy(a => a.PatientId)
+                .Select(g => new 
+                { 
+                    PatientId = g.Key, 
+                    AppointmentId = g.OrderBy(a => a.AppointmentDate).Select(a => a.AppointmentId).FirstOrDefault() 
+                })
+                .ToListAsync();
+
+            // Lấy danh sách AppointmentId duy nhất
+            var appointmentIds = distinctAppointments.Select(a => a.AppointmentId).ToList();
+
+
+            // Gọi MedicalRecordService để lấy tất cả đơn thuốc theo danh sách AppointmentId
+            var medicalRecords = await _medicalRecordService.GetMedicalRecords(appointmentIds)
+                                ?? throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");
+
+            return Ok(medicalRecords);
+        }
+
+
+        [Authorize(Roles = "admin")]
+        [HttpGet("prescriptions/patient/{patientId}")]
+        public async Task<ActionResult<List<MedicalRecordDTO.MedicalRecordBasic>>> GetAllMedicalRecordByPatientId(int patientId)
+        {
+            // Lấy tất cả appointmentId có PatientId == patientId
+            var appointmentIds = await _context.Appointments
+                .Include(mr => mr.Patient)
+                .Where(a => a.PatientId == patientId)
+                .Select(a => a.AppointmentId)
+                .ToListAsync();
+
+            // Truy vấn đơn thuốc dựa trên danh sách appointmentId
+            var medicalRecords = await _medicalRecordService.GetMedicalRecords(appointmentIds) 
+                                ?? throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");
+
+            return Ok(medicalRecords);
+        }
+
+        [Authorize(Roles = "admin")]
+        [HttpGet("details/{recordId}")]
+        public async Task<ActionResult> GetMedicalRecordDetailByRecordId(int recordId) {
+            var recordDetail = await _medicalRecordService.GetRecordDetail(recordId) ?? throw new ErrorHandlingException("Không tìm thấy chi tiết toa thuốc!");
+            var recorRecentDetail = await _medicalRecordService.GetMedicalRecordsByRecoredId(recordId) ?? throw new ErrorHandlingException("Không tìm thấy chi tiết toa thuốc!");
+            // return Ok(recordDetail);
+            Console.WriteLine($"Tên bác sĩ: {recorRecentDetail.DoctorName}");
+            string body = $@"
+                 <p>Bạn đã được bác sĩ <b>{recorRecentDetail.DoctorName}</b> kê toa thuốc trong buổi khám ngày <b>{recorRecentDetail.AppointmentDate:dd/MM/yyyy}</b>.</p>
+                 <p>Chẩn đoán bệnh: <b>{recorRecentDetail.Diagnosis}</b></p>
+                 <p>Hướng điều trị: <b>{recorRecentDetail.Treatment}</b></p>
+                 <h3>Chi tiết toa thuốc:</h3>
+                 <table border='1' cellpadding='8' cellspacing='0' style='border-collapse:collapse;'>
+                     <tr>
+                         <th>Tên thuốc</th>
+                         <th>Liều dùng</th>
+                         <th>Số lần/ngày</th>
+                         <th>Số ngày</th>
+                         <th>Cách dùng</th>
+                         <th>Số lượng</th>
+                         <th>Đơn vị thuốc</th>
+                     </tr>";
+ 
+             foreach (var item in recordDetail)
+             {
+                 body += $@"
+                     <tr style='text-align: center;'>
+                         <td>{item.MedicineName}</td>
+                         <td>{item.Dosage}</td>
+                         <td>{item.FrequencyPerDay}</td>
+                         <td>{item.DurationInDays}</td>
+                         <td>{item.Usage}</td>
+                         <td>X {item.Quantity}</td>
+                         <td>{item.Unit}</td>
+                     </tr>";
+             }
+ 
+             body += $@"</table>
+                 <p>Lời dặn của bác sĩ: <b>{recorRecentDetail.Notes}</b></p>";
+            return Content(body, "text/html");
+        }
+
         [Authorize(Roles = "patient")]
         [HttpGet("prescriptions/recently")]
         public async Task<ActionResult> GetRecentPrescriptions()
