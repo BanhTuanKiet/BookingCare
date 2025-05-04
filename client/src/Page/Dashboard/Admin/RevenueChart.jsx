@@ -24,6 +24,7 @@ const RevenueChart = () => {
     setLoading(true);
     try {
       const response = await axios.get(`/payments/payment`);
+      console.log(response.data)
       setRevenueData(response.data);
     } catch (err) {
       console.error('Lỗi khi gọi API doanh thu:', err.response?.data || err.message);
@@ -32,14 +33,25 @@ const RevenueChart = () => {
     }
   };
 
+  const typeLabels = {
+    daily: 'ngày',
+    monthly: 'tháng',
+    quarterly: 'quý',
+    yearly: 'năm'
+  };
+  
   const renderChart = (type, data) => {
-    const labelField =
-      type === 'daily' ? 'Date' :
-      type === 'monthly' ? 'Month' :
-      type === 'quarterly' ? 'Quarter' : 'Year';
-
+    const labelFieldMap = {
+      daily: 'date',
+      monthly: 'month',
+      quarterly: 'quarter',
+      yearly: 'year'
+    };
+    const labelField = labelFieldMap[type];
+    
     const labels = data.map(d => d[labelField]);
-    const totals = data.map(d => d.Total);
+    const totals = data.map(d => d.total);
+    
 
     if (chartInstances.current[type]) {
       chartInstances.current[type].destroy();
@@ -51,7 +63,7 @@ const RevenueChart = () => {
       data: {
         labels,
         datasets: [{
-          label: `Doanh thu (${type})`,
+          label: `Doanh thu (${typeLabels[type]})`,
           data: totals,
           backgroundColor: 'rgba(75, 192, 192, 0.5)',
           borderColor: 'rgb(75, 192, 192)',
@@ -63,7 +75,7 @@ const RevenueChart = () => {
         plugins: {
           title: {
             display: true,
-            text: `Biểu đồ doanh thu theo ${type}`
+            text: `Biểu đồ doanh thu theo ${typeLabels[type]}`
           }
         },
         scales: {
@@ -111,7 +123,7 @@ const RevenueChart = () => {
             <Col key={type} md={6} className="mb-4">
               <Card>
                 <Card.Body>
-                  <Card.Title className="text-capitalize">Doanh thu theo {type}</Card.Title>
+                  <Card.Title className="text-capitalize">Doanh thu theo {typeLabels[type]}</Card.Title>
                   <canvas ref={chartRefs[type]} height="300" />
                 </Card.Body>
               </Card>

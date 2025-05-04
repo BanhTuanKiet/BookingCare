@@ -31,7 +31,6 @@ namespace server.Controllers
         public ActionResult GetAllRevenue()
         {
             var payments = _context.Payments.AsQueryable();
-            Console.WriteLine("aaaaaaa");
 
             // Doanh thu theo ngày
             var daily = payments
@@ -85,73 +84,5 @@ namespace server.Controllers
                 Yearly = yearly
             });
         }
-
-        // [HttpGet("daily")]
-        // public IActionResult GetDailyRevenue()
-        // {
-        //     var revenue = _context.Payments
-        //         // .Where(p => p.Status == "Completed")
-        //         .GroupBy(p => p.PaymentDate.Date)
-        //         .Select(g => new
-        //         {
-        //             Date = g.Key.ToString("yyyy-MM-dd"),
-        //             Total = g.Sum(p => p.Amount)
-        //         })
-        //         .ToList();
-
-        //     return Ok(revenue);
-        // }
-
-        // [HttpGet("monthly")]
-        // public IActionResult GetMonthlyRevenue()
-        // {
-        //     var revenue = _context.Payments
-        //         // .Where(p => p.Status == "Completed")
-        //         .GroupBy(p => new { p.PaymentDate.Year, p.PaymentDate.Month })
-        //         .Select(g => new
-        //         {
-        //             Month = $"{g.Key.Year}-{g.Key.Month:D2}",
-        //             Total = g.Sum(p => p.Amount)
-        //         })
-        //         .ToList();
-
-        //     return Ok(revenue);
-        // }
-
-        // [HttpGet("quarterly")]
-        // public IActionResult GetQuarterlyRevenue()
-        // {
-        //     var revenue = _context.Payments
-        //         // .Where(p => p.Status == "Completed")
-        //         .GroupBy(p => new
-        //         {
-        //             p.PaymentDate.Year,
-        //             Quarter = (p.PaymentDate.Month - 1) / 3 + 1
-        //         })
-        //         .Select(g => new
-        //         {
-        //             Quarter = $"Q{g.Key.Quarter}-{g.Key.Year}",
-        //             Total = g.Sum(p => p.Amount)
-        //         })
-        //         .ToList();
-
-        //     return Ok(revenue);
-        // }
-
-        // [HttpGet("yearly")]
-        // public IActionResult GetYearlyRevenue()
-        // {
-        //     var revenue = _context.Payments
-        //         // .Where(p => p.Status == "Completed")
-        //         .GroupBy(p => p.PaymentDate.Year)
-        //         .Select(g => new
-        //         {
-        //             Year = g.Key,
-        //             Total = g.Sum(p => p.Amount)
-        //         })
-        //         .ToList();
-
-        //     return Ok(revenue);
-        // }
     }
 }
