@@ -3,8 +3,8 @@ import { Container, Row, Col, Card, Nav, Tab } from 'react-bootstrap'
 import AppointmentAdmin from './AppointmentAdmin'
 import "../../../Style/Admin.css"
 import UserAdmin from './UserAdmin'
-import PatientAdmin from './PatientAdmin'
 import PrescriptionOverView from './PrescriptionOverView'
+import RevenueChart from './RevenueChart'
 
 
 function Index() {
@@ -44,6 +44,12 @@ function Index() {
                                     onClick={() => setTabActive("users")}
                                 >
                                     Người Dùng
+                                </Nav.Link>
+                                <Nav.Link 
+                                    className={`sidebar-link mb-2 ${tabActive === "revenue" ? "active" : ""}`}
+                                    onClick={() => setTabActive("revenue")}
+                                >
+                                    Doanh Thu
                                 </Nav.Link>
                             </Nav>
 
@@ -96,6 +102,14 @@ function Index() {
                             <Card>
                                 <Card.Body>
                                     <UserAdmin />
+                                </Card.Body>
+                            </Card>
+                        )}
+
+                        {tabActive === "revenue" && (
+                            <Card>
+                                <Card.Body>
+                                   <RevenueChart />
                                 </Card.Body>
                             </Card>
                         )}
