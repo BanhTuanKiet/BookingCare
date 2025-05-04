@@ -23,7 +23,7 @@ const RevenueChart = () => {
   const fetchRevenue = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('payments');
+      const response = await axios.get(`/payments/payment`);
       setRevenueData(response.data);
     } catch (err) {
       console.error('Lỗi khi gọi API doanh thu:', err.response?.data || err.message);
