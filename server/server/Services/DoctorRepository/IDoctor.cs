@@ -10,5 +10,9 @@ namespace server.Services
         Task<List<DoctorDTO.DoctorBasic>> GetDoctorsBySpecialty(string specialtyName);
         Task<List<DoctorDTO.DoctorBasic>> SearchDoctors(string keyword);
         Task<DoctorDTO.DoctorDetail> GetDoctorById(int doctorId);
+        Task<List<DoctorDTO.DoctorSalaryDTO>> GetDoctorSalariesAsync(DateTime month);
+        Task<DoctorDTO.DoctorSalaryDetailResultDTO> GetDoctorSalaryDetailsAsync(int doctorId, DateTime month);
+        Task<Dictionary<int, decimal>> CalculateTopDoctorBonusesAsync(DateTime month);
+
     }
 }

@@ -5,6 +5,7 @@ import "../../../Style/Admin.css"
 import UserAdmin from './UserAdmin'
 import PatientAdmin from './PatientAdmin'
 import PrescriptionOverView from './PrescriptionOverView'
+import DoctorSalaryTable from './DoctorSalaryTable';
 
 
 function Index() {
@@ -45,6 +46,13 @@ function Index() {
                                 >
                                     Người Dùng
                                 </Nav.Link>
+                                <Nav.Link 
+                                    className={`sidebar-link mb-2 ${tabActive === "salary" ? "active" : ""}`}
+                                    onClick={() => setTabActive("salary")}
+                                >
+                                    Bảng Lương
+                                </Nav.Link>
+
                             </Nav>
 
                             <div className="mt-5 pt-5">
@@ -99,6 +107,14 @@ function Index() {
                                 </Card.Body>
                             </Card>
                         )}
+                        {tabActive === "salary" && (
+                            <Card>
+                                <Card.Body>
+                                    <DoctorSalaryTable />
+                                </Card.Body>
+                            </Card>
+                        )}
+
                     </Tab.Content>
                 </Col>
             </Row>
