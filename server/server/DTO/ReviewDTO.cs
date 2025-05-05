@@ -25,4 +25,15 @@ namespace server.DTO
         public string? PatientName { get; set; }
         public string? ServiceName { get; set; }
     }
+
+    public class DepartmentRatingDTO
+    {
+        public int DepartmentId { get; set; }
+        public string DepartmentName { get; set; }
+        public double AvgKnowledge { get; set; }
+        public double AvgAttitude { get; set; }
+        public double AvgDedication { get; set; }
+        public double AvgCommunicationSkill { get; set; }
+        public double OverallAverage => Math.Round((AvgKnowledge + AvgAttitude + AvgDedication + AvgCommunicationSkill) / 4, 2);
+    }
 }

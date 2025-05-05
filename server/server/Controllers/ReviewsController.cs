@@ -66,5 +66,12 @@ namespace server.Controllers
             
             return Ok(reviews);
         }
+
+        [HttpGet("department-ratings")]
+        public async Task<ActionResult<List<DepartmentRatingDTO>>> GetDepartmentRatings()
+        {
+            var ratings = await _reviewService.GetDepartmentRatings();
+            return Ok(ratings);
+        }
     }
 }

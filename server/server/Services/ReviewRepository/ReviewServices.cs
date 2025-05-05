@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Razor.Language;
 using Microsoft.EntityFrameworkCore;
 using server.DTO;
 using server.Models;
@@ -101,5 +102,37 @@ namespace server.Services.RatingRepository
 
             return serviceReviewDTOs;
         }
+
+        public async Task<List<DepartmentRatingDTO>> GetDepartmentRatings()
+        {
+            var doctorReviewDetails = await _context.DoctorReviewDetails
+                .Include(d => d.Review.MedicalRecord.Appointment.Doctor.Specialty)
+                .Where(d => d.Review.MedicalRecord.Appointment.Doctor.Specialty != null)
+                .ToListAsync();
+
+            foreach (var item in doctorReviewDetails) 
+                Console.WriteLine ($"Tên khoa: { item.Review.MedicalRecord.Appointment.Doctor.Specialty.Name}");
+            var departmentGroups = doctorReviewDetails
+                .GroupBy(d => new
+                {
+                    SpecialtyId = d.Review.MedicalRecord.Appointment.Doctor.Specialty.SpecialtyId,
+                    SpecialtyName = d.Review.MedicalRecord.Appointment.Doctor.Specialty.Name
+                })
+                .Select(g => new DepartmentRatingDTO
+                {
+                    DepartmentId = g.Key.SpecialtyId,
+                    DepartmentName = g.Key.SpecialtyName,
+                    AvgKnowledge = Math.Round(g.Average(r => r.Knowledge), 2),
+                    AvgAttitude = Math.Round(g.Average(r => r.Attitude), 2),
+                    AvgDedication = Math.Round(g.Average(r => r.Dedication), 2),
+                    AvgCommunicationSkill = Math.Round(g.Average(r => r.CommunicationSkill), 2)
+                })
+                .OrderByDescending(d => d.OverallAverage)
+                .ToList();
+
+            return departmentGroups;
+        }
+
+
     }
 }

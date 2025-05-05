@@ -3,6 +3,7 @@ import { Container, Row, Col, Card, Nav, Tab } from 'react-bootstrap'
 import AppointmentAdmin from './AppointmentAdmin'
 import "../../../Style/Admin.css"
 import AppointmentStatistics from './AppointmentStatistics'
+import DepartmentRatings from './DepartmentRatings'
 
 function Index() {
     const [tabActive, setTabActive] = useState("dashboard")
@@ -46,6 +47,12 @@ function Index() {
                                     onClick={() => setTabActive("users")}
                                 >
                                     Người Dùng
+                                </Nav.Link>
+                                <Nav.Link 
+                                    className={`sidebar-link mb-2 ${tabActive === "specialtyRatings" ? "active" : ""}`}
+                                    onClick={() => setTabActive("specialtyRatings")}
+                                >
+                                   Đánh Giá Về Khoa 
                                 </Nav.Link>
                             </Nav>
 
@@ -109,6 +116,14 @@ function Index() {
                                     <div className="p-4 bg-light rounded text-center">
                                         <p>Nội dung quản lý người dùng sẽ hiển thị ở đây</p>
                                     </div>
+                                </Card.Body>
+                            </Card>
+                        )}
+
+                        {tabActive === "specialtyRatings" && (
+                            <Card>
+                                <Card.Body>
+                                    <DepartmentRatings />
                                 </Card.Body>
                             </Card>
                         )}
