@@ -9,30 +9,27 @@ function PrescriptionCard({ record, tabActive, setTabActive, isSelected }) {
   const [openRecords, setOpenRecords] = useState({})
   const [medicines, setMedicines] = useState()
   const [showRatingModal, setShowRatingModal] = useState(false)
+  const [isExist, setIsExist] = useState(false)
 
-  // Handle card click to navigate from overview to prescriptions
   const handleCardClick = () => {
     if (tabActive === "overview" && setTabActive) {
-      // Store the selected prescription ID in sessionStorage
       sessionStorage.setItem("selectedPrescriptionId", record.recordId)
-      // Change tab to prescriptions
       setTabActive("prescriptions")
     }
   }
 
-  // Auto-expand effect - fetch and expand the record whenever isSelected is true
   useEffect(() => {
     const autoExpandSelectedRecord = async () => {
       
       if (isSelected && tabActive === "prescriptions") {
         console.log("Auto expanding record:", record.recordId);
         // Auto-expand this record
+
         setOpenRecords((prev) => ({
           ...prev,
           [record.recordId]: true,
         }))
 
-        // Fetch details automatically
         try {
           const response = await axios.get(`/medicalRecords/detail/${record.recordId}`)
           setMedicines(response.data)
@@ -44,6 +41,26 @@ function PrescriptionCard({ record, tabActive, setTabActive, isSelected }) {
 
     autoExpandSelectedRecord()
   }, [isSelected, tabActive, record.recordId])
+
+  useEffect(() => {
+    const checkExistReview= async () => {
+      try {
+        const response = await axios.get(`/reviews/exist/${record.recordId}`)
+    
+        console.log("review is exist - ", response.data)
+        if (typeof response.data === 'object') {
+          setIsExist(response.data)
+          return
+        }
+
+        setIsExist(false)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    checkExistReview()
+  }, [record.recordId])
 
   const toggleRecord = async (recordId) => {
     const isOpen = openRecords[recordId]
@@ -57,24 +74,12 @@ function PrescriptionCard({ record, tabActive, setTabActive, isSelected }) {
 
     try {
       const response = await axios.get(`/medicalRecords/detail/${recordId}`)
-      console.log(response.data)
+
       setMedicines(response.data)
     } catch (error) {
       console.log(error)
     }
   }
-
-  const handleRatingSubmit = async (ratingData) => {
-    try {
-      // Send rating data to backend
-      await axios.post('/ratings/submit', ratingData);
-      // Show success message or update UI
-      alert('Đánh giá của bạn đã được gửi thành công!');
-    } catch (error) {
-      console.error('Error submitting rating:', error);
-      alert('Có lỗi xảy ra khi gửi đánh giá. Vui lòng thử lại sau.');
-    }
-  };
 
   return (
     <>
@@ -157,6 +162,9 @@ function PrescriptionCard({ record, tabActive, setTabActive, isSelected }) {
                         <th>Liều lượng</th>
                         <th>Tần suất</th>
                         <th>Thời gian</th>
+                        <th>Cách dùng</th>
+                        <th>Số lượng</th>
+                        <th>Đơn giá</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -167,10 +175,11 @@ function PrescriptionCard({ record, tabActive, setTabActive, isSelected }) {
                             <div className="small text-muted">{med.form}</div>
                           </td>
                           <td>{med.dosage} Lần / Ngày</td>
-                          <td>
-                            {med.frequencyPerDay} Lần / {med.unit}
-                          </td>
+                          <td>{med.frequencyPerDay} Lần / {med.unit}</td>
                           <td>{med.durationInDays} Ngày</td>
+                          <td>{med.usage}</td>
+                          <td>{med.quantity}</td>
+                          <td>{med.price}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -195,7 +204,15 @@ function PrescriptionCard({ record, tabActive, setTabActive, isSelected }) {
                         setShowRatingModal(true)
                       }}
                     >
-                      <MessageSquare size={16} className="me-1" /> Đánh giá
+                      {!isExist ? 
+                        <>
+                          <MessageSquare size={16} className="me-1" /> Đánh giá
+                        </>
+                        :
+                        <>
+                          <MessageSquare size={16} className="me-1" /> Đã đánh giá
+                        </>
+                      }
                     </Button>
                     <Button variant="outline-primary" size="sm" className="d-flex align-items-center">
                       <Printer size={16} className="me-1" /> In đơn thuốc
@@ -208,12 +225,11 @@ function PrescriptionCard({ record, tabActive, setTabActive, isSelected }) {
         </Card.Body>
       </Card>
       
-      {/* Rating Modal */}
       <RatingModal 
         show={showRatingModal}
         onHide={() => setShowRatingModal(false)}
         recordId={record.recordId}
-        onRatingSubmit={handleRatingSubmit}
+        isExist={isExist}
       />
     </>
   )

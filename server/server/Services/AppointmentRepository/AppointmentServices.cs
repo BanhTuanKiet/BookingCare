@@ -5,6 +5,7 @@ using NuGet.Common;
 using server.DTO;
 using server.Middleware;
 using server.Models;
+using server.Util;
 
 namespace server.Services
 {
@@ -195,6 +196,64 @@ namespace server.Services
             var appointmentDTO = _mapper.Map<AppointmentDTO.AppointmentDetail>(appointment);
 
             return appointmentDTO;
+        }
+
+        public async Task<int> GetExaminedPatientCount(int doctorId)
+        {
+            var appointments = await _context.Appointments
+                .Where(a => a.DoctorId == doctorId && (a.Status == "Đã khám" || a.Status == "Đã hoàn thành"))
+                .CountAsync();
+
+            return appointments;
+        }
+
+        public async Task<object> AppointmentStatistics(int month)
+        {
+            var grouped = await _context.Appointments
+                .Where(appointment => appointment.AppointmentDate.Value.Month == month)
+                .GroupBy(appointment => appointment.Status)
+                .Select(g => new
+                {
+                    Status = g.Key,
+                    Appointments = g.Count()
+                })
+                .ToListAsync();
+
+            var statusOrder = new List<string>
+            {
+                "Chờ xác nhận",
+                "Đã xác nhận",
+                "Đã khám",
+                // "Đã thanh toán",
+                "Đã hoàn thành",
+                "Đã hủy"
+            };
+
+            var ordered = statusOrder
+                .Select(status => grouped.FirstOrDefault(g => g.Status == status))
+                .ToList();
+
+            return ordered;
+        }
+
+        public async Task<object> AppointmentStatisticsPerWeek(int month)
+        {
+            var appointments = await _context.Appointments
+                .Where(appointment => appointment.AppointmentDate.HasValue &&
+                                    appointment.AppointmentDate.Value.Month == month)
+                .ToListAsync();
+
+            var groupedByWeek = appointments
+                .GroupBy(a => Others.GetWeekOfMonth(a.AppointmentDate.Value))
+                .OrderBy(g => g.Key)
+                .Select(g => new
+                {
+                    Week = $"Tuần {g.Key}",
+                    Count = g.Count()
+                })
+                .ToList();
+
+            return groupedByWeek;
         }
     }
 }

@@ -213,7 +213,7 @@ namespace server.Controllers
             var doctor = await _doctorService.GetDoctorById(parsedUserId) ?? throw new ErrorHandlingException("Không tìm thấy bác sĩ!");
 
             var schedule = await _appointmentService.GetDoctorSchedule(doctor.DoctorId) ?? throw new ErrorHandlingException("Không tìm thấy lịch làm việc!");
-
+            
             return schedule;
         }
 
@@ -259,5 +259,30 @@ namespace server.Controllers
             return Ok(appointment);
         }
 
+        [HttpGet("examined/{doctorId}")]
+        public async Task<ActionResult> GetExaminedPatientCount(int doctorId)
+        {
+            var examinedPatientCount = await _appointmentService.GetExaminedPatientCount(doctorId);
+
+            return Ok(examinedPatientCount);
+        }
+
+        [Authorize(Roles = "admin")]
+        [HttpGet("statistics/{month}")]
+        public async Task<ActionResult> AppointmentStatistics(int month)
+        {
+            var appointment = await _appointmentService.AppointmentStatistics(month);
+
+            return Ok(appointment);
+        }
+
+        [Authorize(Roles = "admin")]
+        [HttpGet("statistics/{month}/week")]
+        public async Task<ActionResult> AppointmentStatisticsPerWeek(int month)
+        {
+            var appointment = await _appointmentService.AppointmentStatisticsPerWeek(month);
+
+            return Ok(appointment);
+        }
     }
 }

@@ -25,7 +25,8 @@ namespace server.Services
                 AppointmentId = appointmentId,
                 Diagnosis = prescriptionRequest.Diagnosis,
                 Treatment = prescriptionRequest.Treatment,
-                Notes = prescriptionRequest.Notes
+                Notes = prescriptionRequest.Notes,
+                CreatedAt = DateTime.Now
             };
 
             await _context.MedicalRecords.AddAsync(medicalRecord);
@@ -60,6 +61,7 @@ namespace server.Services
                 .Include(mr => mr.Appointment.Doctor.User)
                 .Include(mr => mr.Appointment.Patient.User)
                 .Include(mr => mr.Appointment.Doctor.Specialty)
+                .Include(mr => mr.Appointment.Service)
                 .Where(mr => appointmentIds.Contains(mr.AppointmentId ?? 0))
                 .OrderBy(mr => mr.Appointment.AppointmentDate)
                 .ToListAsync() ?? throw new ErrorHandlingException("Lỗi khi lấy danh sách toa thuốc!");
@@ -76,11 +78,12 @@ namespace server.Services
                 .Include(mr => mr.Appointment.Doctor.User)
                 .Include(mr => mr.Appointment.Patient.User)
                 .Include(mr => mr.Appointment.Doctor.Specialty)
+                .Include(mr => mr.Appointment.Service)
                 .Where(mr => appointmentIds.Contains(mr.AppointmentId ?? 0))
                 .OrderBy(mr => mr.Appointment.AppointmentDate)
                 .Take(3)
                 .ToListAsync();
-
+            
             var medicalRecordDTOs = _mapper.Map<List<MedicalRecordDTO.MedicalRecordBasic>>(medicalRecords);
 
             return medicalRecordDTOs;  
@@ -111,6 +114,5 @@ namespace server.Services
 
             return medicineDTOs;
         }
-
     }
 }

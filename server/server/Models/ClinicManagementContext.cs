@@ -47,6 +47,9 @@ public partial class ClinicManagementContext : IdentityDbContext<ApplicationUser
     public virtual DbSet<ServiceRegistration> ServiceRegistrations { get; set; }
 
     public virtual DbSet<Specialty> Specialties { get; set; }
+    public virtual DbSet<Review> Reviews { get; set; }
+    public virtual DbSet<DoctorReviewDetail> DoctorReviewDetails { get; set; }
+    public virtual DbSet<ServiceReviewDetail> ServiceReviewDetails { get; set; }
 
     // public virtual DbSet<User> Users { get; set; }
 
@@ -109,6 +112,7 @@ public partial class ClinicManagementContext : IdentityDbContext<ApplicationUser
             entity.Property(e => e.AppointmentId).HasColumnName("AppointmentID");
             entity.Property(e => e.Diagnosis).HasMaxLength(255);
             entity.Property(e => e.Treatment).HasMaxLength(255);
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.Appointment).WithOne(p => p.MedicalRecord)
                 .HasForeignKey<MedicalRecord>(d => d.AppointmentId)
@@ -175,7 +179,7 @@ public partial class ClinicManagementContext : IdentityDbContext<ApplicationUser
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.Description).HasMaxLength(500);
-            entity.Property(e => e.Price).HasColumnType("decimal(10, 2)");
+            entity.Property(e => e.Price).HasColumnType("float");
             entity.Property(e => e.ServiceName).HasMaxLength(255);
         });
 
@@ -284,6 +288,21 @@ public partial class ClinicManagementContext : IdentityDbContext<ApplicationUser
                 .HasConstraintName("FK__MedicalRe__ReCor__08162EEB");
         });
 
+        modelBuilder.Entity<Review>()
+            .HasOne(r => r.DoctorReviewDetail)
+            .WithOne(d => d.Review)
+            .HasForeignKey<DoctorReviewDetail>(d => d.ReviewId);
+
+        modelBuilder.Entity<Review>()
+            .HasOne(r => r.ServiceReviewDetail)
+            .WithOne(s => s.Review)
+            .HasForeignKey<ServiceReviewDetail>(s => s.ReviewId);
+
+        modelBuilder.Entity<Review>()
+            .HasOne(r => r.MedicalRecord)
+            .WithOne(m => m.Review)
+            .HasForeignKey<Review>(r => r.PrescriptionId);
+            
         OnModelCreatingPartial(modelBuilder);
     }
 

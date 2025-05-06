@@ -18,5 +18,8 @@ namespace server.Services
         Task<List<int>> GetAppointmentsId(int? patientId);
         Task<List<int>> GetRecentAppointmentsId(int? patientId);
         Task<AppointmentDTO.AppointmentDetail> GetRecentAppointment(int? patientId);
+        Task<int> GetExaminedPatientCount(int doctorId);
+        Task<object> AppointmentStatistics(int month);
+        Task<object> AppointmentStatisticsPerWeek(int month);
     }
 }

@@ -4,12 +4,17 @@ import axios from "../Util/AxiosConfig"
 import { Container, Row, Col, Card, Spinner, Button, Badge } from "react-bootstrap"
 import { MapPin, Calendar, ChevronLeft, ExternalLink, Info, CheckCircle, DollarSign } from "lucide-react"
 import serviceImage from "../Image/ServiceImage/Index"
+import ReviewCard from "../Component/Card/ReviewCard"
+import Recomend from "../Component/Card/Recomend"
+import ServiceSteps from "../Component/Card/ServiceSteps"
 
 const ServiceDetail = () => {
   const images = serviceImage
   const { serviceName } = useParams()
   const [service, setService] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [reviews, setReviews] = useState()
+  const [recommendServices, setRecommendServices] = useState()
   const navigate = useNavigate()
 
   const handleAppointment = () => {
@@ -20,7 +25,7 @@ const ServiceDetail = () => {
     const fetchServiceDetail = async () => {
       try {
         const response = await axios.get(`/services/detail/${serviceName}`)
-        console.log("Data của response data là:", response.data)
+
         setService(response.data)
       } catch (error) {
         console.error("Lỗi khi lấy chi tiết dịch vụ:", error)
@@ -30,6 +35,34 @@ const ServiceDetail = () => {
     }
 
     fetchServiceDetail()
+  }, [serviceName])
+
+  useEffect(() => {
+    const fetchServiceReviews = async () => {
+      try {
+        const type = "service"
+        const response = await axios.get(`/reviews/${type}/${serviceName}`)
+        console.log(serviceName,  response.data)
+        setReviews(response.data)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    fetchServiceReviews()
+  }, [serviceName])
+
+  useEffect(() => {
+    const fetchRadomServices = async () => {
+      try {
+        const response = await axios.get(`/services/random`)
+        setRecommendServices(response.data)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    fetchRadomServices()
   }, [serviceName])
 
   if (loading) {
@@ -63,9 +96,8 @@ const ServiceDetail = () => {
   const formattedPrice = typeof service.price === "number" ? service.price.toLocaleString() + " VNĐ" : service.price
 
   return (
-    <Container fluid className="py-5 bg-light">
+    <Container fluid className="py-4 bg-light">
       <Container className="w-75">
-        {/* Breadcrumb */}
         <div className="d-flex align-items-center mb-4">
           <Button
             variant="link"
@@ -79,7 +111,6 @@ const ServiceDetail = () => {
 
         <Row>
           <Col lg={8} className="mb-4 mb-lg-0">
-            {/* Service Header */}
             <Card className="border-0 shadow-sm mb-4 overflow-hidden">
               <Card.Body className="p-4">
                 <h2 className="text-primary fw-bold mb-3">{service.serviceName}</h2>
@@ -125,91 +156,7 @@ const ServiceDetail = () => {
             </Card>
 
             <Card className="border-0 shadow-sm">
-              <Card.Header className="bg-white p-4 border-bottom">
-                <h4 className="text-primary mb-0 d-flex align-items-center gap-2">
-                  <CheckCircle size={20} />
-                  Quy trình thực hiện
-                </h4>
-              </Card.Header>
-              <Card.Body className="p-4">
-                <div className="bg-light p-4 rounded">
-                  <div className="position-relative">
-                    <div
-                      className="position-absolute h-100"
-                      style={{ width: "2px", backgroundColor: "#e9ecef", left: "10px", top: 0 }}
-                    ></div>
-
-                    <div className="d-flex mb-4 position-relative">
-                      <div
-                        className="bg-primary rounded-circle d-flex align-items-center justify-content-center"
-                        style={{ width: "22px", height: "22px", zIndex: 1 }}
-                      >
-                        <span className="text-white fw-bold" style={{ fontSize: "12px" }}>
-                          1
-                        </span>
-                      </div>
-                      <div className="ms-4">
-                        <h6 className="fw-bold mb-2">Đăng ký dịch vụ</h6>
-                        <p className="mb-0">
-                          Khách hàng đăng ký dịch vụ tại Phòng Khám Đa khoa XYZ bằng cách đến trực tiếp phòng khám, hoặc
-                          đặt lịch hẹn qua website http://bookingcare.vn, fanpage Phòng Khám Đa Khoa XYZ.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="d-flex mb-4 position-relative">
-                      <div
-                        className="bg-primary rounded-circle d-flex align-items-center justify-content-center"
-                        style={{ width: "22px", height: "22px", zIndex: 1 }}
-                      >
-                        <span className="text-white fw-bold" style={{ fontSize: "12px" }}>
-                          2
-                        </span>
-                      </div>
-                      <div className="ms-4">
-                        <h6 className="fw-bold mb-2">Tư vấn dịch vụ</h6>
-                        <p className="mb-0">
-                          Bác sĩ hàng đầu sẽ tư vấn và hướng dẫn dịch vụ phù hợp với quý khách hàng.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="d-flex mb-4 position-relative">
-                      <div
-                        className="bg-primary rounded-circle d-flex align-items-center justify-content-center"
-                        style={{ width: "22px", height: "22px", zIndex: 1 }}
-                      >
-                        <span className="text-white fw-bold" style={{ fontSize: "12px" }}>
-                          3
-                        </span>
-                      </div>
-                      <div className="ms-4">
-                        <h6 className="fw-bold mb-2">Thực hiện dịch vụ</h6>
-                        <p className="mb-0">
-                          Khách hàng thực hiện theo hướng dẫn của các chuyên gia hàng đầu tại Phòng Khám Đa Khoa XYZ.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="d-flex position-relative">
-                      <div
-                        className="bg-primary rounded-circle d-flex align-items-center justify-content-center"
-                        style={{ width: "22px", height: "22px", zIndex: 1 }}
-                      >
-                        <span className="text-white fw-bold" style={{ fontSize: "12px" }}>
-                          4
-                        </span>
-                      </div>
-                      <div className="ms-4">
-                        <h6 className="fw-bold mb-2">Nhận kết quả và tư vấn</h6>
-                        <p className="mb-0">
-                          Khách hàng nhận kết quả, gặp bác sĩ để được tư vấn và hướng dẫn bước tiếp theo (nếu có).
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Card.Body>
+              <ServiceSteps />
             </Card>
           </Col>
 
@@ -248,7 +195,6 @@ const ServiceDetail = () => {
               </Card.Header>
               <Card.Body className="p-3">
                 <div className="d-flex align-items-start gap-2 mb-3">
-                  <MapPin size={18} className="text-primary mt-1" />
                   <div>
                     <p className="mb-1 fw-medium">Địa chỉ phòng khám:</p>
                     <p className="text-muted mb-1">475A Đ. Điện Biên Phủ, Phường 25, Bình Thạnh, Hồ Chí Minh</p>
@@ -281,62 +227,28 @@ const ServiceDetail = () => {
               </Card.Body>
             </Card>
 
-            <Card className="border-0 shadow-sm">
-              <Card.Header className="bg-white p-4 border-bottom">
-                <h5 className="mb-0 fw-bold">Dịch vụ liên quan</h5>
+            <Card className="border-0 shadow-sm mb-4">
+              <Card.Header className="bg-white p-3 border-bottom">
+                <h5 className="mb-0 fw-bold">Dịch vụ khác</h5>
               </Card.Header>
-              <Card.Body className="p-4">
+              <Card.Body className="p-0">
+                <div className="d-flex flex-column">
+                  {recommendServices?.map((recommend, index) => (
+                    <Recomend item={recommend} type={"service"} />
+                  ))}
+                </div>
+              </Card.Body>
+            </Card>
+
+            <Card className="border-0 shadow-sm">
+              <Card.Header className="bg-white p-3 border-bottom">
+                <h5 className="mb-0 fw-bold">Reviews từ bệnh nhân</h5>
+              </Card.Header>
+              <Card.Body className="pb-1">
                 <div className="d-flex flex-column gap-3">
-                  <Link to="#" className="text-decoration-none">
-                    <div className="d-flex gap-3 p-2 rounded hover-bg-light">
-                      <div style={{ width: "80px", height: "60px", overflow: "hidden" }}>
-                        <img
-                          src="/placeholder.svg?height=60&width=80"
-                          alt="Dịch vụ liên quan"
-                          className="img-fluid rounded"
-                          style={{ objectFit: "cover", width: "100%", height: "100%" }}
-                        />
-                      </div>
-                      <div>
-                        <h6 className="mb-1 text-primary">Khám tổng quát</h6>
-                        <p className="small text-muted mb-0">500,000 VNĐ</p>
-                      </div>
-                    </div>
-                  </Link>
-
-                  <Link to="#" className="text-decoration-none">
-                    <div className="d-flex gap-3 p-2 rounded hover-bg-light">
-                      <div style={{ width: "80px", height: "60px", overflow: "hidden" }}>
-                        <img
-                          src="/placeholder.svg?height=60&width=80"
-                          alt="Dịch vụ liên quan"
-                          className="img-fluid rounded"
-                          style={{ objectFit: "cover", width: "100%", height: "100%" }}
-                        />
-                      </div>
-                      <div>
-                        <h6 className="mb-1 text-primary">Xét nghiệm máu</h6>
-                        <p className="small text-muted mb-0">300,000 VNĐ</p>
-                      </div>
-                    </div>
-                  </Link>
-
-                  <Link to="#" className="text-decoration-none">
-                    <div className="d-flex gap-3 p-2 rounded hover-bg-light">
-                      <div style={{ width: "80px", height: "60px", overflow: "hidden" }}>
-                        <img
-                          src="/placeholder.svg?height=60&width=80"
-                          alt="Dịch vụ liên quan"
-                          className="img-fluid rounded"
-                          style={{ objectFit: "cover", width: "100%", height: "100%" }}
-                        />
-                      </div>
-                      <div>
-                        <h6 className="mb-1 text-primary">Siêu âm</h6>
-                        <p className="small text-muted mb-0">400,000 VNĐ</p>
-                      </div>
-                    </div>
-                  </Link>
+                  {reviews?.map((review, index) => (
+                    <ReviewCard review={review} />
+                  ))}
                 </div>
               </Card.Body>
             </Card>

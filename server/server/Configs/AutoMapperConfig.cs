@@ -61,13 +61,30 @@
                     .ForMember(dest => dest.AppointmentDate, m => m.MapFrom(source => source.Appointment.AppointmentDate))
                     .ForMember(dest => dest.AppointmentTime, m => m.MapFrom(source => source.Appointment.AppointmentTime))
                     .ForMember(dest => dest.DoctorName, m => m.MapFrom(source => source.Appointment.Doctor.User.FullName))
+                    .ForMember(dest => dest.ServiceName, m => m.MapFrom(source => source.Appointment.Service.ServiceName))
                     .ForMember(dest => dest.PatientName, m => m.MapFrom(source => source.Appointment.Patient.User.FullName))
                     .ForMember(dest => dest.PatientId, m => m.MapFrom(source => source.Appointment.PatientId))
                     .ForMember(dest => dest.SpecialtyName, m => m.MapFrom(source => source.Appointment.Doctor.Specialty.Name));
 
                 CreateMap<MedicalRecordDetail, MedicalRecordDTO.MedicineDto>()
                     .ForMember(dest => dest.MedicineName, m => m.MapFrom(source => source.Medicine.MedicalName))
-                    .ForMember(dest => dest.Unit, m => m.MapFrom(source => source.Medicine.Unit));
+                    .ForMember(dest => dest.Unit, m => m.MapFrom(source => source.Medicine.Unit))
+                    .ForMember(dest => dest.Price, m => m.MapFrom(source => source.Medicine.Price));
+
+                CreateMap<Review, ReviewDTO>()
+                    .ForMember(dest => dest.Knowledge, m => m.MapFrom(source => source.DoctorReviewDetail.Knowledge))
+                    .ForMember(dest => dest.Attitude, m => m.MapFrom(source => source.DoctorReviewDetail.Attitude))
+                    .ForMember(dest => dest.Dedication, m => m.MapFrom(source => source.DoctorReviewDetail.Dedication))
+                    .ForMember(dest => dest.CommunicationSkill, m => m.MapFrom(source => source.DoctorReviewDetail.CommunicationSkill))
+                   
+                    .ForMember(dest => dest.Convenience, m => m.MapFrom(source => source.ServiceReviewDetail.Convenience))
+                    .ForMember(dest => dest.Effectiveness, m => m.MapFrom(source => source.ServiceReviewDetail.Effectiveness))
+                    .ForMember(dest => dest.Price, m => m.MapFrom(source => source.ServiceReviewDetail.Price))
+                    .ForMember(dest => dest.ServiceSpeed, m => m.MapFrom(source => source.ServiceReviewDetail.ServiceSpeed));
+
+                CreateMap<Review, ServiceReview>()
+                    .ForMember(dest => dest.PatientName, m => m.MapFrom(src => src.MedicalRecord.Appointment.Patient.User.FullName))
+                    .ForMember(dest => dest.ServiceName, m => m.MapFrom(src => src.MedicalRecord.Appointment.Service.ServiceName));
 
             }
 

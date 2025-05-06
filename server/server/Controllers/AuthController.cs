@@ -89,7 +89,7 @@ namespace server.Controllers
 
             var roles = await _userManager.GetRolesAsync(user);
             var token = JwtUtil.GenerateToken(user, roles, 1, _configuration);
-            var refreshToken = JwtUtil.GenerateToken(user, roles, 30, _configuration);
+            var refreshToken = JwtUtil.GenerateToken(user, roles, 8, _configuration);
             
             CookieUtil.SetCookie(Response, "token", token, 1);
 
@@ -182,29 +182,6 @@ namespace server.Controllers
             return Ok(new { message = "Đăng ký thành công!", user = newUser.Email });
         }
 
-        // [HttpPost("login-demo")]
-        // public IActionResult LoginDemo()
-        // {
-        //     var tokenHandler = new JwtSecurityTokenHandler();
-        //     var key = Encoding.ASCII.GetBytes("L1vxy4pDz1S6Q5z5X2C3HnA8YbZxJ7pLfX5Kg4Z4pT8=");
-        //     var tokenDescriptor = new SecurityTokenDescriptor
-        //     {
-        //         Subject = new ClaimsIdentity(new[]
-        //         {
-        //             new Claim(ClaimTypes.Name, "Nguyen Van A"),
-        //             new Claim("email", "nguyenvana@gmail.com"),
-        //             new Claim(ClaimTypes.Role, "admin")
-        //         }),
-        //         Expires = DateTime.UtcNow.AddHours(1),
-        //         SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
-        //         Issuer = "http://localhost",
-        //         Audience = "http://localhost:3000"
-        //     };
-
-        //     var token = tokenHandler.CreateToken(tokenDescriptor);
-        //     return Ok(new { token = tokenHandler.WriteToken(token) });
-        // }
-
         [Authorize(Roles = "doctor")]
         [HttpPost("auth_user")]
         public IActionResult AuthUser([FromBody] LoginForm user)
@@ -253,9 +230,7 @@ namespace server.Controllers
                 throw new ErrorHandlingException(400, "Thiếu thông tin!");
             }
 
-            var user = await _userManager.FindByEmailAsync(request.Email);
-            if (user == null)
-                throw new ErrorHandlingException(400, "Email không tồn tại trong hệ thống!");
+            var user = await _userManager.FindByEmailAsync(request.Email) ?? throw new ErrorHandlingException(400, "Email không tồn tại trong hệ thống!");
 
             // Kiểm tra OTP
             if (!OtpUtil.ValidateOtp(request.Email, request.Code))

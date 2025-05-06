@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react"
 import { Link, useNavigate, useParams } from "react-router-dom"
+import { Container, Row, Col, Card, Spinner, Button, Nav, Badge, Tab } from "react-bootstrap"
+import { User, Calendar, Award, Briefcase, Clock, ChevronLeft, ExternalLink } from "lucide-react"
+import ReviewCard from "../Component/Card/ReviewCard"
 import axios from "../Util/AxiosConfig"
-import { Container, Row, Col, Card, Spinner, Button, Nav, Badge } from "react-bootstrap"
-import { User, MapPin, Calendar, Award, Briefcase, Clock, FileText, ChevronLeft, ExternalLink } from "lucide-react"
 
 const DoctorDetail = () => {
   const { doctorName } = useParams()
   const [doctor, setDoctor] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState("intro")
+  const [activeTab, setActiveTab] = useState("overview")
+  const [reviews, setReviews] = useState()
+  const [examinedPatients, setExaminedPatients] = useState(0)
   const navigate = useNavigate()
 
   const handleAppointment = () => {
@@ -30,6 +33,37 @@ const DoctorDetail = () => {
 
     fetchDoctorDetail()
   }, [doctorName])
+
+  useEffect(() => {
+    const fetchDoctorReviews = async () => {
+      if (doctor === null) return
+
+      try {
+        const type = "doctor"
+        const response = await axios.get(`/reviews/${type}/${doctor?.doctorId}`)
+        setReviews(response.data)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    fetchDoctorReviews()
+  }, [doctor])
+
+  useEffect(() => {
+    const fetchExaminedPatient = async () => {
+      if (doctor === null) return 
+
+      try {
+        const response = await axios.get(`/appointments/examined/${doctor?.doctorId}`)
+        setExaminedPatients(response.data)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    fetchExaminedPatient()
+  }, [doctor])
 
   if (loading) {
     return (
@@ -126,7 +160,7 @@ const DoctorDetail = () => {
                       </Badge>
                       <Badge bg="light" text="dark" className="d-flex align-items-center gap-1 py-2 px-3">
                         <User size={14} />
-                        <span>Đã khám: 1,234 bệnh nhân</span>
+                        <span>Đã khám: {examinedPatients.toLocaleString('fi-FI')} bệnh nhân</span>
                       </Badge>
                     </div>
                   </div>
@@ -151,7 +185,6 @@ const DoctorDetail = () => {
                     <h5 className="text-primary mb-3">Thông tin liên hệ</h5>
                     <div className="mb-3">
                       <div className="d-flex align-items-start gap-2 mb-2">
-                        <MapPin size={18} className="text-primary mt-1" />
                         <div>
                           <p className="mb-1 fw-medium">Địa chỉ phòng khám:</p>
                           <p className="text-muted mb-1">475A Đ. Điện Biên Phủ, Phường 25, Bình Thạnh, Hồ Chí Minh</p>
@@ -189,119 +222,117 @@ const DoctorDetail = () => {
         </Card>
 
         <Card className="border-0 shadow-sm overflow-hidden">
-          <Card.Header className="bg-white p-0 border-bottom">
-            <Nav variant="tabs" className="nav-fill border-0">
+          <Tab.Container id="dashboard-tabs" activeKey={activeTab} onSelect={(k) => setActiveTab(k)}>
+            <Nav variant="tabs" className="py-0">
               <Nav.Item>
-              <Nav.Link
-                  active={activeTab === "intro"}
-                  onClick={() => setActiveTab("intro")}
-                  className={`border-0 rounded-0 py-3 px-4 ${activeTab === "intro" ? "text-primary" : "text-dark"}`}
-                >
-                  <div className="d-flex align-items-center gap-2">
-                    <FileText size={18} />
-                    <span className="fw-medium">Giới thiệu</span>
-                  </div>
+                <Nav.Link eventKey="overview" className={`d-flex align-items-center ${activeTab === 'overview' ? 'text-primary' : 'text-dark'}`}>
+                  <span className="me-2">
+                  </span>
+                    Tổng Quan
                 </Nav.Link>
               </Nav.Item>
+
               <Nav.Item>
-                <Nav.Link
-                  active={activeTab === "specialties"}
-                  onClick={() => setActiveTab("specialties")}
-                  className={`border-0 rounded-0 py-3 px-4 ${activeTab === "specialtiesx" ? "text-primary" : "text-dark"}`}
-                >
-                  <div className="d-flex align-items-center gap-2">
-                    <Award size={18} />
-                    <span className="fw-medium">Chuyên môn</span>
-                  </div>
+                <Nav.Link eventKey="specialties" className={`d-flex align-items-center ${activeTab === 'specialties' ? 'text-primary' : 'text-dark'}`}>
+                  <span className="me-2">
+                  </span>
+                    Chuyên môn
+                </Nav.Link>
+              </Nav.Item>
+              
+              <Nav.Item>
+                <Nav.Link eventKey="reviews" className={`d-flex align-items-center ${activeTab === 'reviews' ? 'text-primary' : 'text-dark'}`}>
+                  <span className="me-2">
+                  </span>
+                    Đánh giá
                 </Nav.Link>
               </Nav.Item>
             </Nav>
-          </Card.Header>
+                            
+            <Tab.Content>
+              <Tab.Pane eventKey="overview">
+                  <Card className="border-0 shadow-sm">
+                    <Card.Body className="p-4">
+                      <h4 className="text-primary mb-3 d-flex align-items-center gap-2">
+                        <User size={20} />
+                        Tiểu sử
+                      </h4>
+                      <div className="bg-light p-4 rounded">
+                        {doctor.biography ? (
+                          <div dangerouslySetInnerHTML={{ __html: doctor.biography.replace(/\n/g, "<br/>") }} />
+                        ) : (
+                          <p className="text-muted fst-italic">Thông tin tiểu sử đang được cập nhật...</p>
+                        )}
+                      </div>
+                    </Card.Body>
+                  </Card>
+              </Tab.Pane>
+                                
+              <Tab.Pane eventKey="specialties">
+                <Card className="border-0 shadow-sm">
+                  <Card.Body className="p-4">
+                    <div className="mb-5">
+                      <h4 className="text-primary mb-3 d-flex align-items-center gap-2">
+                        <Award size={20} />
+                        Bằng cấp & Chứng chỉ
+                      </h4>
+                      <div className="bg-light p-4 rounded">
+                        {qualificationsList.length > 0 ? (
+                          <ul className="list-group list-group-flush">
+                            {qualificationsList.map((qual, idx) => (
+                              <li key={idx} className="list-group-item bg-transparent px-0 py-2 border-bottom">
+                                <div className="d-flex">
+                                  <div>{qual}</div>
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="text-muted fst-italic">Thông tin bằng cấp đang được cập nhật...</p>
+                        )}
+                      </div>
+                    </div>
 
-          <Card.Body className="p-4">
-            {activeTab === "intro" && (
-              <div>
-                <h4 className="text-primary mb-3 d-flex align-items-center gap-2">
-                  <User size={20} />
-                  Tiểu sử
-                </h4>
-                <div className="bg-light p-4 rounded">
-                  {doctor.biography ? (
-                    <div dangerouslySetInnerHTML={{ __html: doctor.biography.replace(/\n/g, "<br/>") }} />
-                  ) : (
-                    <p className="text-muted fst-italic">Thông tin tiểu sử đang được cập nhật...</p>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {activeTab === "specialties" && (
-              <div>
-                <div className="mb-5">
-                  <h4 className="text-primary mb-3 d-flex align-items-center gap-2">
-                    <Award size={20} />
-                    Bằng cấp & Chứng chỉ
-                  </h4>
-                  <div className="bg-light p-4 rounded">
-                    {qualificationsList.length > 0 ? (
-                      <ul className="list-group list-group-flush">
-                        {qualificationsList.map((qual, idx) => (
-                          <li key={idx} className="list-group-item bg-transparent px-0 py-2 border-bottom">
-                            <div className="d-flex">
-                              <div>{qual}</div>
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="text-muted fst-italic">Thông tin bằng cấp đang được cập nhật...</p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="mb-5">
-                  <h4 className="text-primary mb-3 d-flex align-items-center gap-2">
-                    <Briefcase size={20} />
-                    Kinh nghiệm làm việc
-                  </h4>
-                  <div className="bg-light p-4 rounded">
-                    {workExperienceList.length > 0 ? (
-                      <ul className="list-group list-group-flush">
-                        {workExperienceList.map((exp, idx) => (
-                          <li key={idx} className="list-group-item bg-transparent px-0 py-2 border-bottom">
-                            <div className="d-flex">
-                              <div>{exp}</div>
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="text-muted fst-italic">Thông tin kinh nghiệm làm việc đang được cập nhật...</p>
-                    )}
-                  </div>
-                </div>
-
-                {/* <div>
-                  <h4 className="text-primary mb-3 d-flex align-items-center gap-2">
-                    <Clock size={20} />
-                    Thông tin chuyên môn
-                  </h4>
-                  <div className="bg-light p-4 rounded">
+                    <div className="mb-5">
+                      <h4 className="text-primary mb-3 d-flex align-items-center gap-2">
+                        <Briefcase size={20} />
+                        Kinh nghiệm làm việc
+                      </h4>
+                      <div className="bg-light p-4 rounded">
+                        {workExperienceList.length > 0 ? (
+                          <ul className="list-group list-group-flush">
+                            {workExperienceList.map((exp, idx) => (
+                              <li key={idx} className="list-group-item bg-transparent px-0 py-2 border-bottom">
+                                <div className="d-flex">
+                                  <div>{exp}</div>
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="text-muted fst-italic">Thông tin kinh nghiệm làm việc đang được cập nhật...</p>
+                        )}
+                      </div>
+                    </div>
+                  </Card.Body>
+                </Card>
+              </Tab.Pane>
+                                
+              <Tab.Pane eventKey="reviews"> 
+                <Card className="border-0 shadow-sm">
+                  <Card.Body className="p-4">
                     <Row>
-                      <Col md={6} className="mb-3 mb-md-0">
-                        <h6 className="mb-2">Chức vụ</h6>
-                        <p>{doctor.position || "Đang cập nhật"}</p>
-                      </Col>
-                      <Col md={6}>
-                        <h6 className="mb-2">Số năm kinh nghiệm</h6>
-                        <p>{doctor.experienceYears || "0"} năm</p>
-                      </Col>
+                      {reviews?.map((review, index) => (
+                        <Col lg={4} md={6} xs={12} key={index} className="border rounded p-3 shadow-sm h-100" >
+                          <ReviewCard review={review} />
+                        </Col>
+                      ))}
                     </Row>
-                  </div>
-                </div> */}
-              </div>
-            )}
-          </Card.Body>
+                  </Card.Body>
+                </Card>
+              </Tab.Pane>
+            </Tab.Content>
+          </Tab.Container>          
         </Card>
       </Container>
     </Container>

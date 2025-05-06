@@ -5,7 +5,8 @@ namespace server.Services
 {
     public interface ISpecialty
     {
-        Task<List<server.Models.Specialty>> GetSpecialties();
+        Task<List<Specialty>> GetSpecialties();
         Task<string?> GetDescription(string specialty);
+        Task<List<Specialty>> GetRandomSpecialties();
     }
 }

@@ -15,7 +15,7 @@ const DoctorSchedule = ({ setShowShiftDetail, setDateTime }) => {
     const fetchDoctorSchedule = async () => {
         try {
             const response = await axios.get("/appointments/schedule")
-
+            console.log(response.data)
             setSchedules(response.data)
         } catch (error) {
             console.log(error)
