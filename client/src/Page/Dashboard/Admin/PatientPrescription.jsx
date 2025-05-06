@@ -184,19 +184,32 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
             </Table>
           </div>
         ) : (
-          <Row xs={1} md={2} lg={3} className="g-4">
+        //   <Row xs={1} md={2} lg={3} className="g-4">
+        //     {patientPrescriptions.map(record => (
+        //       <Col key={record.recordId}>
+        //         <PrescriptionCard
+        //           record={record}
+        //           tabActive="prescriptions"
+        //           isSelected={record.recordId === selectedPrescriptionId}
+        //           onSelect={() => handleSelectPrescription(record.recordId)}
+        //           onPayment={() => handlePaymentClick(record)}
+        //         />
+        //       </Col>
+        //     ))}
+        //   </Row>
+        <Card.Body>
+            <h4>Đơn Thuốc</h4>
+            <p>Lịch sử đơn thuốc đã kê</p>
+            
             {patientPrescriptions.map(record => (
-              <Col key={record.recordId}>
-                <PrescriptionCard
-                  record={record}
-                  tabActive="prescriptions"
-                  isSelected={record.recordId === selectedPrescriptionId}
-                  onSelect={() => handleSelectPrescription(record.recordId)}
-                  onPayment={() => handlePaymentClick(record)}
-                />
-              </Col>
-            ))}
-          </Row>
+                    <PrescriptionCard
+                        record={record}
+                        tabActive="prescriptions"
+                        isSelected={record.recordId === selectedPrescriptionId}
+                    />
+                ))
+            }
+        </Card.Body>
         )
       ) : (
         <Card className="text-center p-4">
@@ -221,7 +234,7 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
               style={{ backgroundColor: '#ae2070', borderColor: '#ae2070' }}
             >
               <img 
-                src="/assets/momo-logo.png" 
+                src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Logo-MoMo-Square-1024x1024.png" 
                 alt="MoMo" 
                 style={{ height: '30px', marginRight: '10px' }} 
               />
@@ -236,7 +249,7 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
               style={{ backgroundColor: '#0072bc', borderColor: '#0072bc' }}
             >
               <img 
-                src="/assets/vnpay-logo.png" 
+                src="https://vinadesign.vn/uploads/images/2023/05/vnpay-logo-vinadesign-25-12-57-55.jpg" 
                 alt="VNPay" 
                 style={{ height: '30px', marginRight: '10px' }} 
               />
