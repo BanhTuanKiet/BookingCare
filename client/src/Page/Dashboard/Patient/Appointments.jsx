@@ -1,13 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Badge, Button, Card, Table, Modal } from 'react-bootstrap';
+import { Badge, Button, Card, Table } from 'react-bootstrap';
 import axios from '../../../Util/AxiosConfig';
-import { toast } from 'react-toastify'; // nếu bạn có cài react-toastify
 
 function Appointments({ tabActive }) {
     const [appointments, setAppointments] = useState([]);
     const [quantity, setQuantity] = useState(10);
-    const [showPaymentModal, setShowPaymentModal] = useState(false);
-    const [selectedAppointment, setSelectedAppointment] = useState(null);
 
     useEffect(() => {
         const fetchAppointments = async () => {
@@ -35,54 +32,6 @@ function Appointments({ tabActive }) {
             }
         }
     };
-
-    const handlePaymentClick = (appointment) => {
-        setSelectedAppointment(appointment);
-        setShowPaymentModal(true);
-    };
-
-    const handleCloseModal = () => {
-        setShowPaymentModal(false);
-        setSelectedAppointment(null);
-    };
-
-    const handleSelectVnpay = async () => {
-        try {
-            const response = await axios.post('/vnpaypayment/create', {
-                orderType: "other",
-                amount: 10000, // TODO: lấy từ đơn thuốc thực tế
-                orderDescription: "Thanh toán đơn thuốc",
-                name: "Đơn thuốc của tôi"
-            });
-
-            if (response.status === 200 && response.data.paymentUrl) {
-                window.location.href = response.data.paymentUrl;
-            } else {
-                toast.error("Không lấy được URL thanh toán.");
-            }
-        } catch (error) {
-            console.error(error);
-            toast.error("Có lỗi khi tạo thanh toán.");
-        }
-    };
-
-    const handleSelectMomo = async () => {
-        if (!selectedAppointment) return;
-        try {
-            const orderId = new Date().getTime().toString();
-            const response = await axios.post('momopayment/create-payment', { orderInfo: "Thanh toán lịch hẹn",});
-    
-            console.log('Momo payment response:', response.data);  // Log API response
-            if (response.data.payUrl) {
-                window.location.href = response.data.payUrl;   // Sửa ở đây
-            } else {
-                alert('Không nhận được URL thanh toán từ Momo.');
-            }
-        } catch (error) {
-            console.error(error, 'Có lỗi khi tạo yêu cầu thanh toán MoMo.');
-        }
-    };
-    
 
     return (
         <Card>
@@ -122,9 +71,6 @@ function Appointments({ tabActive }) {
                                                 <Button size="sm" variant="danger" onClick={() => handleCancelAppointment(appointment.appointmentId)}>
                                                     Hủy
                                                 </Button>
-                                                <Button size="sm" variant="primary" onClick={() => handlePaymentClick(appointment)}>
-                                                    Thanh toán
-                                                </Button>
                                             </div>
                                         )}
                                     </td>
@@ -140,21 +86,6 @@ function Appointments({ tabActive }) {
                         <Button onClick={() => setQuantity(10)} variant="outline-primary">Thu gọn</Button>
                     )}
                 </div>
-
-                {/* Modal chọn phương thức thanh toán */}
-                <Modal show={showPaymentModal} onHide={handleCloseModal} centered>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Chọn phương thức thanh toán</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body className="text-center">
-                        <Button variant="success" className="m-2" onClick={handleSelectVnpay}>
-                            Thanh toán VNPay
-                        </Button>
-                        <Button variant="warning" className="m-2" onClick={handleSelectMomo}>
-                            Thanh toán MoMo
-                        </Button>
-                    </Modal.Body>
-                </Modal>
             </Card.Body>
         </Card>
     );

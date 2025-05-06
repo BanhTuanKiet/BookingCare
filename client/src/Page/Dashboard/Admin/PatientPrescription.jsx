@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Table, Button, Spinner, Card, Row, Col } from 'react-bootstrap';
+import { Container, Table, Button, Spinner, Card, Row, Col, Modal } from 'react-bootstrap';
 import axios from '../../../Util/AxiosConfig';
 import { extractDateOnly } from '../../../Util/DateUtils';
 import PrescriptionCard from '../../../Component/Card/PrescriptionCard';
@@ -10,6 +10,8 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState('table');
   const [selectedPrescriptionId, setSelectedPrescriptionId] = useState(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState(null);
 
   useEffect(() => {
     if (patientId) {
@@ -46,6 +48,54 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
 
   const handleBackToList = () => {
     setSelectedPrescriptionId(null);
+  };
+
+  const handlePaymentClick = (record) => {
+    setSelectedRecord(record);
+    setShowPaymentModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowPaymentModal(false);
+    setSelectedRecord(null);
+  };
+
+  const handleMomoPayment = async () => {
+    try {
+      const response = await axios.post('/momopayment/create-payment', {
+        orderInfo: "Thanh toán đơn thuốc",
+        recordId: selectedRecord.recordId,
+      });
+  
+      if (response.data.payUrl) {
+        window.location.href = response.data.payUrl;
+      } else {
+        alert("Không nhận được URL thanh toán từ MoMo.");
+      }
+    } catch (error) {
+      console.error('Lỗi khi tạo yêu cầu thanh toán MoMo:', error);
+      alert("Có lỗi xảy ra khi tạo thanh toán.");
+    }
+  };
+
+  const handleVnpayPayment = async () => {
+    try {
+      const response = await axios.post('/vnpaypayment/create', {
+        orderType: "other",
+        amount: 10000, // TODO: lấy từ đơn thuốc thực tế
+        orderDescription: `Thanh toán đơn thuốc #${selectedRecord.recordId}`,
+        name: `Đơn thuốc #${selectedRecord.recordId}`
+      });
+
+      if (response.status === 200 && response.data.paymentUrl) {
+        window.location.href = response.data.paymentUrl;
+      } else {
+        alert("Không lấy được URL thanh toán.");
+      }
+    } catch (error) {
+      console.error('Lỗi khi tạo yêu cầu thanh toán VNPay:', error);
+      alert("Có lỗi xảy ra khi tạo thanh toán.");
+    }
   };
 
   return (
@@ -115,9 +165,17 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
                       <Button
                         variant="outline-primary"
                         size="sm"
+                        className="me-2"
                         onClick={() => handleSelectPrescription(p.recordId)}
                       >
                         Chi tiết
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="success"
+                        onClick={() => handlePaymentClick(p)}
+                      >
+                        Thanh toán
                       </Button>
                     </td>
                   </tr>
@@ -126,19 +184,19 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
             </Table>
           </div>
         ) : (
-            <Card.Body>
-                <h4>Đơn Thuốc</h4>
-                <p>Lịch sử đơn thuốc đã kê</p>
-                
-                {patientPrescriptions.map(record => (
-                        <PrescriptionCard
-                            record={record}
-                            tabActive="prescriptions"
-                            isSelected={record.recordId === selectedPrescriptionId}
-                        />
-                    ))
-                }
-            </Card.Body>
+          <Row xs={1} md={2} lg={3} className="g-4">
+            {patientPrescriptions.map(record => (
+              <Col key={record.recordId}>
+                <PrescriptionCard
+                  record={record}
+                  tabActive="prescriptions"
+                  isSelected={record.recordId === selectedPrescriptionId}
+                  onSelect={() => handleSelectPrescription(record.recordId)}
+                  onPayment={() => handlePaymentClick(record)}
+                />
+              </Col>
+            ))}
+          </Row>
         )
       ) : (
         <Card className="text-center p-4">
@@ -147,6 +205,51 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
           </Card.Body>
         </Card>
       )}
+
+      {/* Modal thanh toán */}
+      <Modal show={showPaymentModal} onHide={handleCloseModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Chọn phương thức thanh toán</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="d-grid gap-3">
+            <Button 
+              variant="warning" 
+              size="lg" 
+              onClick={handleMomoPayment}
+              className="d-flex align-items-center justify-content-center"
+              style={{ backgroundColor: '#ae2070', borderColor: '#ae2070' }}
+            >
+              <img 
+                src="/assets/momo-logo.png" 
+                alt="MoMo" 
+                style={{ height: '30px', marginRight: '10px' }} 
+              />
+              Thanh toán qua MoMo
+            </Button>
+            
+            <Button 
+              variant="primary" 
+              size="lg" 
+              onClick={handleVnpayPayment}
+              className="d-flex align-items-center justify-content-center"
+              style={{ backgroundColor: '#0072bc', borderColor: '#0072bc' }}
+            >
+              <img 
+                src="/assets/vnpay-logo.png" 
+                alt="VNPay" 
+                style={{ height: '30px', marginRight: '10px' }} 
+              />
+              Thanh toán qua VNPay
+            </Button>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseModal}>
+            Hủy
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 };

@@ -17,4 +17,6 @@ public partial class MedicalRecord
 
     public virtual Appointment? Appointment { get; set; }
     public virtual ICollection<Prescription> Prescriptions { get; set; } = new List<Prescription>();
+    public virtual ICollection<MedicalRecordDetail> MedicalRecordDetails { get; set; } = new List<MedicalRecordDetail>();
+
 }

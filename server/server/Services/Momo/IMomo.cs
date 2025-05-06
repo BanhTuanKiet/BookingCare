@@ -8,6 +8,7 @@ namespace server.Services
 {
     Task<MomoCreatePaymentResponseModel> CreatePaymentAsync(string orderId, string orderInfo, int amount);
     MomoExecuteResponseModel PaymentExecuteAsync(IQueryCollection collection);
+    Task<int> CalculateAmountFromRecordId(int recordId);
     
 }
 
