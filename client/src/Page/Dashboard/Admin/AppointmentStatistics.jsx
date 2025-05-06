@@ -17,32 +17,52 @@ ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarEle
 function AppointmentStatistics() {
   const [appointmentsPerMonth, setAppointmentsMonth] = useState([])
   const [appointmentsPerWeek, setAppointmentsPerWeek] = useState([])
-  const [month, setMonth] = useState(new Date().getMonth())
+  const [month, setMonth] = useState(new Date().getMonth() + 1)
+  const [year, setYear] = useState(new Date().getFullYear())
   const [total, setTotal] = useState(0)
-  const [previousTotal, setPreviousTotal] = useState(20)
+  const [prevTotal, setPrevTotal] = useState(20)
 
   useEffect(() => {
     const fetchAppointmentsPerMonth = async () => {
       try {
-        const res = await axios.get(`/appointments/statistics/${month}`)
-        // const prev = await axios.get(`/appointments/statistics/${month === 0 ? 11 : month - 1}`)
-        setAppointmentsMonth(res.data)
-        console.log(res.data)
-        setTotal(res.data.reduce((sum, item) => sum + item.appointments, 0))
-        // setPreviousTotal(prev.data.reduce((sum, item) => sum + item.appointments.length, 0))
+        const response = await axios.get(`/appointments/statistics/${month}/${year}`)
+        setAppointmentsMonth(response.data)
+        setTotal(response.data.reduce((sum, item) => sum + item?.appointments, 0))
       } catch (error) {
         console.log(error)
       }
     }
 
     fetchAppointmentsPerMonth()
-  }, [month])
+  }, [month, year])
+
+  useEffect(() => {
+    let prevMonth 
+    let preYear
+    if (month === 1) {
+      prevMonth = 12
+      preYear = year - 1 
+    } else {
+      prevMonth = month - 1
+      preYear = year
+    }
+
+    const fetchPrevAppointmentsPerMonth = async () => {
+      try {
+        const response = await axios.get(`/appointments/statistics/${prevMonth}/${preYear}`)
+        setPrevTotal(response.data.reduce((sum, item) => sum + item?.appointments, 0))
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    fetchPrevAppointmentsPerMonth()
+  }, [month, year])
 
   useEffect(() => {
         const fetchAppointmentsPerWeek = async () => {
             try {
                 const response = await axios.get(`/appointments/statistics/${month}/week`)
-                console.log(response.data)
                 setAppointmentsPerWeek(response.data)
             } catch (error) {
                 console.log(error)
@@ -83,10 +103,10 @@ function AppointmentStatistics() {
       {
         label: 'Lịch hẹn theo tuần',
         data: [
-            appointmentsPerWeek[0]?.count || 0,
-            appointmentsPerWeek[1]?.count || 0,
-            appointmentsPerWeek[2]?.count || 0,
-            appointmentsPerWeek[3]?.count || 0,
+            appointmentsPerWeek[0]?.appointments || 0,
+            appointmentsPerWeek[1]?.appointments || 0,
+            appointmentsPerWeek[2]?.appointments || 0,
+            appointmentsPerWeek[3]?.appointments || 0,
         ],
         backgroundColor: '#0d6efd',
       },
@@ -101,19 +121,30 @@ function AppointmentStatistics() {
     },
   }
 
-  const rateChange = previousTotal === 0 ? 0 : (((total - previousTotal) / previousTotal) * 100).toFixed(1)
+  const rateChange = prevTotal === 0 ? 0 : (((total - prevTotal) / prevTotal) * 100).toFixed(1)
 
   return (
     <div className='container py-4'>
       <Row className='mb-4'>
         <Col>
-          <h4>Thống kê lịch hẹn tháng {month + 1}</h4>
+          <h4>Thống kê lịch hẹn tháng {month}</h4>
           <select value={month} onChange={(e) => setMonth(Number(e.target.value))}>
             {[...Array(12)].map((_, idx) => (
-              <option key={idx} value={idx}>
+              <option key={idx} value={idx + 1}>
                 Tháng {idx + 1}
               </option>
             ))}
+          </select>
+
+          <select value={year} onChange={(e) => setYear(Number(e.target.value))}>
+            {[...Array(5)].map((_, idx) => {
+              const y = new Date().getFullYear() - idx
+              return (
+                <option key={y} value={y}>
+                  Năm {y}
+                </option>
+              )
+            })}
           </select>
         </Col>
       </Row>
@@ -128,23 +159,25 @@ function AppointmentStatistics() {
             </p>
           </Card>
 
-          <ul style={{ listStyle: 'none', padding: 0, marginTop: '1rem' }}>
-            {pieData.labels.map((label, idx) => (
-              <li key={idx} style={{ marginBottom: '6px', display: 'flex', alignItems: 'center' }}>
-                <span
-                  style={{
-                    display: 'inline-block',
-                    width: 12,
-                    height: 12,
-                    backgroundColor: pieData.datasets[0].backgroundColor[idx],
-                    marginRight: 8,
-                    borderRadius: '50%',
-                  }}
-                ></span>
-                {label}: {pieData.datasets[0].data[idx]}
-              </li>
-            ))}
-          </ul>
+          <Card className='px-3 my-3'>
+            <ul style={{ listStyle: 'none', padding: 0, marginTop: '1rem' }}>
+              {pieData.labels.map((label, idx) => (
+                <li key={idx} style={{ marginBottom: '6px', display: 'flex', alignItems: 'center' }}>
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      width: 12,
+                      height: 12,
+                      backgroundColor: pieData.datasets[0].backgroundColor[idx],
+                      marginRight: 8,
+                      borderRadius: '50%',
+                    }}
+                  ></span>
+                  {label}: {pieData.datasets[0].data[idx]}
+                </li>
+              ))}
+            </ul>
+          </Card>
         </Col>
 
         <Col md={4}>

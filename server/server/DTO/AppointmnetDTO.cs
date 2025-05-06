@@ -26,5 +26,11 @@ namespace server.DTO
             public string? Address { get; set; }
             public DateOnly? DateOfBirth { get; set; }
         }
+
+        public class AppointmentGroup
+        {
+            public string Status { get; set; }
+            public int Appointments { get; set; }
+        }
     }
 }

@@ -268,10 +268,10 @@ namespace server.Controllers
         }
 
         [Authorize(Roles = "admin")]
-        [HttpGet("statistics/{month}")]
-        public async Task<ActionResult> AppointmentStatistics(int month)
+        [HttpGet("statistics/{month}/{year}")]
+        public async Task<ActionResult> AppointmentStatistics(int month, int year)
         {
-            var appointment = await _appointmentService.AppointmentStatistics(month);
+            var appointment = await _appointmentService.AppointmentStatistics(month, year);
 
             return Ok(appointment);
         }

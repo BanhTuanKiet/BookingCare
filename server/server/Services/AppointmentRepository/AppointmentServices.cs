@@ -207,12 +207,12 @@ namespace server.Services
             return appointments;
         }
 
-        public async Task<object> AppointmentStatistics(int month)
+        public async Task<object> AppointmentStatistics(int month, int year)
         {
             var grouped = await _context.Appointments
-                .Where(appointment => appointment.AppointmentDate.Value.Month == month)
+                .Where(appointment => appointment.AppointmentDate.Value.Month == month && appointment.AppointmentDate.Value.Year == year)
                 .GroupBy(appointment => appointment.Status)
-                .Select(g => new
+                .Select(g => new AppointmentDTO.AppointmentGroup 
                 {
                     Status = g.Key,
                     Appointments = g.Count()
@@ -230,7 +230,8 @@ namespace server.Services
             };
 
             var ordered = statusOrder
-                .Select(status => grouped.FirstOrDefault(g => g.Status == status))
+                .Select(status => grouped.FirstOrDefault(g => g.Status == status) 
+                                ?? new AppointmentDTO.AppointmentGroup { Status = status, Appointments = 0 })
                 .ToList();
 
             return ordered;
@@ -249,7 +250,7 @@ namespace server.Services
                 .Select(g => new
                 {
                     Week = $"Tuần {g.Key}",
-                    Count = g.Count()
+                    Appointments = g.Count()
                 })
                 .ToList();
 
