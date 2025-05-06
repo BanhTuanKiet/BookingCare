@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Container, Card, Spinner, Row, Col } from 'react-bootstrap';
 import Chart from 'chart.js/auto';
 import axios from '../../../Util/AxiosConfig';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 const RevenueChart = () => {
   const chartRefs = {
@@ -12,7 +14,7 @@ const RevenueChart = () => {
   };
 
   const chartInstances = useRef({});
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [revenueData, setRevenueData] = useState({
     daily: [],
     monthly: [],
@@ -20,11 +22,24 @@ const RevenueChart = () => {
     yearly: []
   });
 
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+
+  const typeLabels = {
+    daily: 'ngày',
+    monthly: 'tháng',
+    quarterly: 'quý',
+    yearly: 'năm'
+  };
+
   const fetchRevenue = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`/payments/payment`);
-      console.log(response.data)
+      const params = {};
+      if (startDate) params.start = startDate.toISOString().split('T')[0];
+      if (endDate) params.end = endDate.toISOString().split('T')[0];
+
+      const response = await axios.get('/payments/payment', { params });
       setRevenueData(response.data);
     } catch (err) {
       console.error('Lỗi khi gọi API doanh thu:', err.response?.data || err.message);
@@ -33,13 +48,6 @@ const RevenueChart = () => {
     }
   };
 
-  const typeLabels = {
-    daily: 'ngày',
-    monthly: 'tháng',
-    quarterly: 'quý',
-    yearly: 'năm'
-  };
-  
   const renderChart = (type, data) => {
     const labelFieldMap = {
       daily: 'date',
@@ -48,10 +56,9 @@ const RevenueChart = () => {
       yearly: 'year'
     };
     const labelField = labelFieldMap[type];
-    
+
     const labels = data.map(d => d[labelField]);
     const totals = data.map(d => d.total);
-    
 
     if (chartInstances.current[type]) {
       chartInstances.current[type].destroy();
@@ -91,8 +98,10 @@ const RevenueChart = () => {
   };
 
   useEffect(() => {
-    fetchRevenue();
-  }, []);
+    if (startDate && endDate) {
+      fetchRevenue();
+    }
+  }, [startDate, endDate]);
 
   useEffect(() => {
     Object.entries(revenueData).forEach(([type, data]) => {
@@ -113,6 +122,31 @@ const RevenueChart = () => {
         <p>Thống kê doanh thu theo ngày, tháng, quý và năm</p>
       </div>
 
+      <div className="d-flex align-items-center mb-4 gap-3 flex-wrap">
+        <div>
+          <label className="me-2">Từ ngày:</label>
+          <DatePicker
+            selected={startDate}
+            onChange={date => setStartDate(date)}
+            dateFormat="yyyy-MM-dd"
+            className="form-control"
+            maxDate={new Date()}
+            placeholderText="Chọn ngày bắt đầu"
+          />
+        </div>
+        <div>
+          <label className="me-2">Đến ngày:</label>
+          <DatePicker
+            selected={endDate}
+            onChange={date => setEndDate(date)}
+            dateFormat="yyyy-MM-dd"
+            className="form-control"
+            maxDate={new Date()}
+            placeholderText="Chọn ngày kết thúc"
+          />
+        </div>
+      </div>
+
       {loading ? (
         <div className="text-center py-4">
           <Spinner animation="border" />
@@ -120,11 +154,11 @@ const RevenueChart = () => {
       ) : (
         <Row>
           {['daily', 'monthly', 'quarterly', 'yearly'].map(type => (
-            <Col key={type} md={6} className="mb-4">
+            <Col key={type} md={12} className="mb-4">
               <Card>
                 <Card.Body>
                   <Card.Title className="text-capitalize">Doanh thu theo {typeLabels[type]}</Card.Title>
-                  <canvas ref={chartRefs[type]} height="300" />
+                  <canvas ref={chartRefs[type]} height="200" />
                 </Card.Body>
               </Card>
             </Col>
