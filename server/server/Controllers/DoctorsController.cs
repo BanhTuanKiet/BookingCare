@@ -35,6 +35,20 @@ namespace server.Controllers
             return await _doctorService.GetAllDoctors();
         }
 
+        // Thêm vào DoctorController.cs
+        [HttpGet("paged")]
+        public async Task<IActionResult> GetDoctorsPaged([FromQuery] int pageNumber = 1, [FromQuery] string specialty = null, [FromQuery] string keyword = null)
+        {
+            try
+            {
+                var result = await _doctorService.GetDoctorsPaged(pageNumber, specialty, keyword);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Lỗi khi lấy danh sách bác sĩ: {ex.Message}");
+            }
+        }
         [HttpGet("detail/{doctorName}")]
         public async Task<ActionResult<DoctorDTO.DoctorDetail>> GetDoctorByName(string doctorName)
         {

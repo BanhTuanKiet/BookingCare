@@ -106,6 +106,39 @@ namespace server.Services
             return result;
         }
 
+        public async Task<PaginatedResult<DoctorDTO.DoctorBasic>> GetDoctorsPaged(int pageNumber, string specialty = null, string searchKeyword = null)
+        {
+            int pageSize = 12;
+            
+            // Bắt đầu với truy vấn cơ bản
+            var query = _context.Doctors.Include(doctor => doctor.User).Include(doctor => doctor.Specialty).AsQueryable();
+            
+            // Áp dụng bộ lọc nếu có
+            if (!string.IsNullOrEmpty(specialty) && specialty.ToLower() != "all")
+            {
+                query = query.Where(d => d.Specialty.Name == specialty);
+            }
+            
+            // Áp dụng tìm kiếm nếu có
+            if (!string.IsNullOrEmpty(searchKeyword))
+            {
+                query = query.Where(d => d.User.FullName.Contains(searchKeyword));
+            }
+            
+            // Đếm tổng số bác sĩ thỏa mãn điều kiện
+            var totalItems = await query.CountAsync();
+            
+            // Lấy dữ liệu theo trang
+            var doctors = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+            
+            var doctorDTOs = _mapper.Map<List<DoctorDTO.DoctorBasic>>(doctors);
+            
+            // Trả về kết quả phân trang
+            return new PaginatedResult<DoctorDTO.DoctorBasic>(doctorDTOs, totalItems, pageNumber, pageSize);
+        }
 
 
        public async Task<DoctorDTO.DoctorSalaryDetailResultDTO> GetDoctorSalaryDetailsAsync(int doctorId, DateTime month)

@@ -13,6 +13,8 @@ namespace server.Services
         Task<List<DoctorDTO.DoctorSalaryDTO>> GetDoctorSalariesAsync(DateTime month);
         Task<DoctorDTO.DoctorSalaryDetailResultDTO> GetDoctorSalaryDetailsAsync(int doctorId, DateTime month);
         Task<Dictionary<int, decimal>> CalculateTopDoctorBonusesAsync(DateTime month);
+        // Task<int> GetTotalDoctorsAsync();
+        Task<PaginatedResult<DoctorDTO.DoctorBasic>> GetDoctorsPaged(int pageNumber, string specialty = null, string searchKeyword = null);
 
     }
 }
