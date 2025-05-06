@@ -26,14 +26,39 @@ namespace server.Controllers
         {
             _context = context;
         }
-        
-        [HttpGet("payment")]
-        public ActionResult GetAllRevenue()
-        {
-            var payments = _context.Payments.AsQueryable();
 
-            // Doanh thu theo ngày
-            var daily = payments
+        // Lấy danh sách revenue tổng quát từ DB
+        // Cập nhật GetRevenueData
+        private List<RevenueDTO> GetRevenueData()
+        {
+            var appointments = _context.Appointments
+                .Include(a => a.Service)
+                .Where(a => a.Status == "Đã khám" && a.AppointmentDate != null)
+                .ToList();
+
+            var medicalRecords = _context.MedicalRecords.ToList();
+
+            return appointments.Select(a =>
+            {
+                var servicePrice = a.Service?.Price ?? 0;
+                var medRecordPrice = medicalRecords
+                    .Where(mr => mr.AppointmentId == a.AppointmentId)
+                    .Sum(mr => mr.Price ?? 0);
+
+                return new RevenueDTO
+                {
+                    PaymentDate = a.AppointmentDate.Value,
+                    Amount = servicePrice + medRecordPrice
+                };
+            }).ToList();
+        }
+
+
+        [HttpGet("daily")]
+        public ActionResult GetDailyRevenue()
+        {
+            var revenues = GetRevenueData();
+            var daily = revenues
                 .GroupBy(p => p.PaymentDate.Date)
                 .Select(g => new
                 {
@@ -42,8 +67,14 @@ namespace server.Controllers
                 })
                 .ToList();
 
-            // Doanh thu theo tháng
-            var monthly = payments
+            return Ok(daily);
+        }
+
+        [HttpGet("monthly")]
+        public ActionResult GetMonthlyRevenue()
+        {
+            var revenues = GetRevenueData();
+            var monthly = revenues
                 .GroupBy(p => new { p.PaymentDate.Year, p.PaymentDate.Month })
                 .Select(g => new
                 {
@@ -52,8 +83,14 @@ namespace server.Controllers
                 })
                 .ToList();
 
-            // Doanh thu theo quý
-            var quarterly = payments
+            return Ok(monthly);
+        }
+
+        [HttpGet("quarterly")]
+        public ActionResult GetQuarterlyRevenue()
+        {
+            var revenues = GetRevenueData();
+            var quarterly = revenues
                 .GroupBy(p => new
                 {
                     p.PaymentDate.Year,
@@ -66,8 +103,14 @@ namespace server.Controllers
                 })
                 .ToList();
 
-            // Doanh thu theo năm
-            var yearly = payments
+            return Ok(quarterly);
+        }
+
+        [HttpGet("yearly")]
+        public ActionResult GetYearlyRevenue()
+        {
+            var revenues = GetRevenueData();
+            var yearly = revenues
                 .GroupBy(p => p.PaymentDate.Year)
                 .Select(g => new
                 {
@@ -76,13 +119,7 @@ namespace server.Controllers
                 })
                 .ToList();
 
-            return Ok(new
-            {
-                Daily = daily,
-                Monthly = monthly,
-                Quarterly = quarterly,
-                Yearly = yearly
-            });
+            return Ok(yearly);
         }
     }
 }

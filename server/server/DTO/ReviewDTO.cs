@@ -26,14 +26,26 @@ namespace server.DTO
         public string? ServiceName { get; set; }
     }
 
-    public class DepartmentRatingDTO
+    public class DoctorReviewDetails
     {
-        public int DepartmentId { get; set; }
-        public string DepartmentName { get; set; }
+        public int? DoctorId { get; set; }
+        public int? SpecialtyId { get; set; }
+        public string? UserName { get; set; }
+        public string? Position { get; set; }
+        public int? ExperienceYears { get; set; }
+        public string? DoctorImage { get; set; }
+        public string? Degree { get; set; }
         public double AvgKnowledge { get; set; }
         public double AvgAttitude { get; set; }
         public double AvgDedication { get; set; }
         public double AvgCommunicationSkill { get; set; }
         public double OverallAverage => Math.Round((AvgKnowledge + AvgAttitude + AvgDedication + AvgCommunicationSkill) / 4, 2);
     }
+
+    public class DepartmentRatingsDTO
+    {
+        public string DepartmentName { get; set; } = string.Empty;
+        public List<DoctorReviewDetails> TopDoctors { get; set; } = new();
+    }
+
 }

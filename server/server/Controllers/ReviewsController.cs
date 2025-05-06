@@ -67,10 +67,10 @@ namespace server.Controllers
             return Ok(reviews);
         }
 
-        [HttpGet("department-ratings")]
-        public async Task<ActionResult<List<DepartmentRatingDTO>>> GetDepartmentRatings()
+        [HttpGet("doctors-rating")]
+        public async Task<ActionResult<List<DepartmentRatingsDTO>>> GetTopDoctorsByStar()
         {
-            var ratings = await _reviewService.GetDepartmentRatings();
+            var ratings = await _reviewService.GetTopDoctorsByDepartment();
             return Ok(ratings);
         }
     }

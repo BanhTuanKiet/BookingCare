@@ -103,36 +103,67 @@ namespace server.Services.RatingRepository
             return serviceReviewDTOs;
         }
 
-        public async Task<List<DepartmentRatingDTO>> GetDepartmentRatings()
+        public async Task<List<DepartmentRatingsDTO>> GetTopDoctorsByDepartment()
         {
             var doctorReviewDetails = await _context.DoctorReviewDetails
                 .Include(d => d.Review.MedicalRecord.Appointment.Doctor.Specialty)
+                .Include(d => d.Review.MedicalRecord.Appointment.Doctor.User)
+                .Include(d => d.Review.MedicalRecord.Appointment.Doctor)
                 .Where(d => d.Review.MedicalRecord.Appointment.Doctor.Specialty != null)
                 .ToListAsync();
 
-            foreach (var item in doctorReviewDetails) 
-                Console.WriteLine ($"Tên khoa: { item.Review.MedicalRecord.Appointment.Doctor.Specialty.Name}");
-            var departmentGroups = doctorReviewDetails
-                .GroupBy(d => new
+            // Tính điểm trung bình cho từng bác sĩ
+            var allDoctors = doctorReviewDetails
+                .GroupBy(d => d.Review.MedicalRecord.Appointment.Doctor.DoctorId)
+                .Select(doc =>
                 {
-                    SpecialtyId = d.Review.MedicalRecord.Appointment.Doctor.Specialty.SpecialtyId,
-                    SpecialtyName = d.Review.MedicalRecord.Appointment.Doctor.Specialty.Name
+                    var doctor = doc.First().Review.MedicalRecord.Appointment.Doctor;
+                    var user = doctor.User;
+                    var doctorImage = doctor.DoctorImage != null ? Convert.ToBase64String(doctor.DoctorImage) : null;
+
+                    return new DoctorReviewDetails
+                    {
+                        DoctorId = doc.Key,
+                        UserName = user?.FullName,
+                        Position = doctor.Position,
+                        SpecialtyId = doctor.SpecialtyId,
+                        ExperienceYears = doctor.ExperienceYears,
+                        DoctorImage = doctorImage,
+                        Degree = doctor.Degree,
+                        AvgKnowledge = doc.Average(r => r.Knowledge),
+                        AvgAttitude = doc.Average(r => r.Attitude),
+                        AvgDedication = doc.Average(r => r.Dedication),
+                        AvgCommunicationSkill = doc.Average(r => r.CommunicationSkill)
+                    };
                 })
-                .Select(g => new DepartmentRatingDTO
-                {
-                    DepartmentId = g.Key.SpecialtyId,
-                    DepartmentName = g.Key.SpecialtyName,
-                    AvgKnowledge = Math.Round(g.Average(r => r.Knowledge), 2),
-                    AvgAttitude = Math.Round(g.Average(r => r.Attitude), 2),
-                    AvgDedication = Math.Round(g.Average(r => r.Dedication), 2),
-                    AvgCommunicationSkill = Math.Round(g.Average(r => r.CommunicationSkill), 2)
-                })
-                .OrderByDescending(d => d.OverallAverage)
+                .Where(d => d.SpecialtyId != null)
                 .ToList();
 
-            return departmentGroups;
+            // Nhóm theo SpecialtyId và lấy bác sĩ có điểm cao nhất trong từng khoa
+            var departments = allDoctors
+                .GroupBy(d => d.SpecialtyId)
+                .Select(group =>
+                {
+                    double maxAvg = group.Max(d => d.OverallAverage);
+
+                    var topDoctors = group
+                        .Where(d => d.OverallAverage == maxAvg)
+                        .ToList();
+
+                    var departmentName = _context.Specialties
+                        .Where(s => s.SpecialtyId == group.Key)
+                        .Select(s => s.Name)
+                        .FirstOrDefault() ?? "Không rõ khoa";
+
+                    return new DepartmentRatingsDTO
+                    {
+                        DepartmentName = departmentName,
+                        TopDoctors = topDoctors
+                    };
+                })
+                .ToList();
+
+            return departments;
         }
-
-
     }
 }

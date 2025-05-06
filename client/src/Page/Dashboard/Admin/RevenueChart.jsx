@@ -1,29 +1,20 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Container, Card, Spinner, Row, Col } from 'react-bootstrap';
+import { Container, Card, Spinner, Row, Col, ButtonGroup, Button, Alert } from 'react-bootstrap';
 import Chart from 'chart.js/auto';
 import axios from '../../../Util/AxiosConfig';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
 const RevenueChart = () => {
-  const chartRefs = {
-    daily: useRef(null),
-    monthly: useRef(null),
-    quarterly: useRef(null),
-    yearly: useRef(null),
-  };
+  const chartRef = useRef(null);
+  const chartInstance = useRef(null);
 
-  const chartInstances = useRef({});
   const [loading, setLoading] = useState(false);
-  const [revenueData, setRevenueData] = useState({
-    daily: [],
-    monthly: [],
-    quarterly: [],
-    yearly: []
-  });
-
+  const [chartData, setChartData] = useState([]);
+  const [selectedType, setSelectedType] = useState('daily');
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
+  const [error, setError] = useState('');
 
   const typeLabels = {
     daily: 'ngày',
@@ -32,45 +23,90 @@ const RevenueChart = () => {
     yearly: 'năm'
   };
 
+  const labelFieldMap = {
+    daily: 'date',
+    monthly: 'month',
+    quarterly: 'quarter',
+    yearly: 'year'
+  };
+
   const fetchRevenue = async () => {
     setLoading(true);
+    setError('');
     try {
-      const params = {};
-      if (startDate) params.start = startDate.toISOString().split('T')[0];
-      if (endDate) params.end = endDate.toISOString().split('T')[0];
-
-      const response = await axios.get('/payments/payment', { params });
-      setRevenueData(response.data);
+      const response = await axios.get(`/payments/${selectedType}`);
+      console.log(response.data);
+      setChartData(response.data);
     } catch (err) {
       console.error('Lỗi khi gọi API doanh thu:', err.response?.data || err.message);
+      setError('Đã xảy ra lỗi khi tải dữ liệu.');
     } finally {
       setLoading(false);
     }
   };
 
-  const renderChart = (type, data) => {
-    const labelFieldMap = {
-      daily: 'date',
-      monthly: 'month',
-      quarterly: 'quarter',
-      yearly: 'year'
-    };
-    const labelField = labelFieldMap[type];
-
-    const labels = data.map(d => d[labelField]);
-    const totals = data.map(d => d.total);
-
-    if (chartInstances.current[type]) {
-      chartInstances.current[type].destroy();
+  const renderChart = () => {
+    setError('');
+  
+    if (!startDate || !endDate) {
+      setError('Vui lòng chọn cả ngày bắt đầu và ngày kết thúc để thống kê.');
+      return;
     }
-
-    const ctx = chartRefs[type].current.getContext('2d');
-    chartInstances.current[type] = new Chart(ctx, {
+  
+    if (endDate < startDate) {
+      setError('Ngày kết thúc không được nhỏ hơn ngày bắt đầu.');
+      return;
+    }
+  
+    const labelField = labelFieldMap[selectedType];
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+  
+    const filteredData = chartData.filter(item => {
+      const value = item[labelField];
+      if (!value) return false;
+    
+      if (selectedType === 'yearly') {
+        const year = parseInt(value);
+        const startYear = startDate.getFullYear();
+        const endYear = endDate.getFullYear();
+        return year >= startYear && year <= endYear;
+      }
+    
+      let parsedDate;
+      if (selectedType === 'daily') {
+        parsedDate = new Date(value);
+      } else if (selectedType === 'monthly') {
+        parsedDate = new Date(`${value}-01`);
+      } else if (selectedType === 'quarterly') {
+        const [q, year] = value.split('-');
+        const month = (parseInt(q.replace('Q', '')) - 1) * 3 + 1;
+        parsedDate = new Date(`${year}-${String(month).padStart(2, '0')}-01`);
+      }
+    
+      return parsedDate >= startDate && parsedDate <= endDate;
+    });
+    
+  
+    if (filteredData.length === 0) {
+      setError('Không có dữ liệu trong khoảng thời gian đã chọn.');
+      return;
+    }
+  
+    const labels = filteredData.map(d => d[labelField]);
+    const totals = filteredData.map(d => d.total);
+  
+    if (chartInstance.current) {
+      chartInstance.current.destroy();
+    }
+  
+    const ctx = chartRef.current.getContext('2d');
+    chartInstance.current = new Chart(ctx, {
       type: 'bar',
       data: {
         labels,
         datasets: [{
-          label: `Doanh thu (${typeLabels[type]})`,
+          label: `Doanh thu (${typeLabels[selectedType]})`,
           data: totals,
           backgroundColor: 'rgba(75, 192, 192, 0.5)',
           borderColor: 'rgb(75, 192, 192)',
@@ -82,7 +118,7 @@ const RevenueChart = () => {
         plugins: {
           title: {
             display: true,
-            text: `Biểu đồ doanh thu theo ${typeLabels[type]}`
+            text: `Biểu đồ doanh thu theo ${typeLabels[selectedType]}`
           }
         },
         scales: {
@@ -96,33 +132,31 @@ const RevenueChart = () => {
       }
     });
   };
+  
 
   useEffect(() => {
-    if (startDate && endDate) {
-      fetchRevenue();
+    fetchRevenue();
+  }, [selectedType]);
+
+  useEffect(() => {
+    if (chartData.length > 0 && chartRef.current) {
+      renderChart();
     }
-  }, [startDate, endDate]);
-
-  useEffect(() => {
-    Object.entries(revenueData).forEach(([type, data]) => {
-      if (chartRefs[type]?.current && data.length > 0) {
-        renderChart(type, data);
-      }
-    });
-
     return () => {
-      Object.values(chartInstances.current).forEach(chart => chart.destroy());
+      if (chartInstance.current) {
+        chartInstance.current.destroy();
+      }
     };
-  }, [revenueData]);
+  }, [chartData, startDate, endDate]);
 
   return (
     <Container fluid>
       <div className="mb-3">
         <h4>Biểu đồ Doanh thu</h4>
-        <p>Thống kê doanh thu theo ngày, tháng, quý và năm</p>
+        <p>Chọn loại thống kê và khoảng ngày để xem biểu đồ doanh thu</p>
       </div>
 
-      <div className="d-flex align-items-center mb-4 gap-3 flex-wrap">
+      <div className="d-flex align-items-center mb-3 gap-3 flex-wrap">
         <div>
           <label className="me-2">Từ ngày:</label>
           <DatePicker
@@ -145,25 +179,38 @@ const RevenueChart = () => {
             placeholderText="Chọn ngày kết thúc"
           />
         </div>
+        <div>
+          <label className="me-2">Loại thống kê:</label>
+          <ButtonGroup>
+            {['daily', 'monthly', 'quarterly', 'yearly'].map(type => (
+              <Button
+                key={type}
+                variant={selectedType === type ? 'primary' : 'outline-primary'}
+                onClick={() => setSelectedType(type)}
+              >
+                {typeLabels[type]}
+              </Button>
+            ))}
+          </ButtonGroup>
+        </div>
       </div>
+
+      {error && (
+        <Alert variant="danger" className="mb-3">
+          {error}
+        </Alert>
+      )}
 
       {loading ? (
         <div className="text-center py-4">
           <Spinner animation="border" />
         </div>
       ) : (
-        <Row>
-          {['daily', 'monthly', 'quarterly', 'yearly'].map(type => (
-            <Col key={type} md={12} className="mb-4">
-              <Card>
-                <Card.Body>
-                  <Card.Title className="text-capitalize">Doanh thu theo {typeLabels[type]}</Card.Title>
-                  <canvas ref={chartRefs[type]} height="200" />
-                </Card.Body>
-              </Card>
-            </Col>
-          ))}
-        </Row>
+        <Card>
+          <Card.Body>
+            <canvas ref={chartRef} height="200" />
+          </Card.Body>
+        </Card>
       )}
     </Container>
   );
