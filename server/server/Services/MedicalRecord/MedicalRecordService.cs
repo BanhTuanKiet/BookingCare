@@ -59,6 +59,7 @@ namespace server.Services
             var medicalRecords = await _context.MedicalRecords
                 .Include(mr => mr.Appointment)
                 .Include(mr => mr.Appointment.Doctor.User)
+                .Include(mr => mr.Appointment.Patient.User)
                 .Include(mr => mr.Appointment.Doctor.Specialty)
                 .Include(mr => mr.Appointment.Service)
                 .Where(mr => appointmentIds.Contains(mr.AppointmentId ?? 0))
@@ -75,6 +76,7 @@ namespace server.Services
             var medicalRecords = await _context.MedicalRecords
                 .Include(mr => mr.Appointment)
                 .Include(mr => mr.Appointment.Doctor.User)
+                .Include(mr => mr.Appointment.Patient.User)
                 .Include(mr => mr.Appointment.Doctor.Specialty)
                 .Include(mr => mr.Appointment.Service)
                 .Where(mr => appointmentIds.Contains(mr.AppointmentId ?? 0))
@@ -85,6 +87,20 @@ namespace server.Services
             var medicalRecordDTOs = _mapper.Map<List<MedicalRecordDTO.MedicalRecordBasic>>(medicalRecords);
 
             return medicalRecordDTOs;  
+        }
+
+        public async Task<MedicalRecordDTO.MedicalRecordBasic> GetMedicalRecordsByRecoredId(int recordId) {
+            var medicalRecord = await _context.MedicalRecords
+                .Include(mr => mr.Appointment)
+                .Include(mr => mr.Appointment.Doctor.User)
+                .Include(mr => mr.Appointment.Patient.User)
+                .Include(mr => mr.Appointment.Doctor.Specialty)
+                .Where(mr => mr.RecordId == recordId)
+                .OrderBy(mr => mr.Appointment.AppointmentDate)
+                .FirstOrDefaultAsync(); 
+
+            var medicalRecordDTO = _mapper.Map<MedicalRecordDTO.MedicalRecordBasic>(medicalRecord);
+            return medicalRecordDTO;
         }
 
         public async Task<List<MedicalRecordDTO.MedicineDto>> GetRecordDetail(int recordId)

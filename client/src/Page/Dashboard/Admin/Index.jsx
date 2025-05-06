@@ -2,8 +2,10 @@ import React, { useState } from 'react'
 import { Container, Row, Col, Card, Nav, Tab } from 'react-bootstrap'
 import AppointmentAdmin from './AppointmentAdmin'
 import "../../../Style/Admin.css"
-import AppointmentStatistics from './AppointmentStatistics'
-import DepartmentRatings from './DepartmentRatings'
+import UserAdmin from './UserAdmin'
+import PrescriptionOverView from './PrescriptionOverView'
+import RevenueChart from './RevenueChart'
+
 
 function Index() {
     const [tabActive, setTabActive] = useState("dashboard")
@@ -12,6 +14,7 @@ function Index() {
     return (
         <Container fluid className="p-4">
             <Row>
+                {/* Sidebar - 25% width of the 75% content area */}
                 <Col md={3}>
                     <Card className="mb-4 sidebar">
                         <Card.Body>
@@ -23,12 +26,6 @@ function Index() {
                                     onClick={() => setTabActive("dashboard")}
                                 >
                                     Tổng Quan
-                                </Nav.Link>
-                                <Nav.Link 
-                                    className={`sidebar-link mb-2 ${tabActive === "appointments" ? "active" : ""}`}
-                                    onClick={() => setTabActive("appointment_statistics")}
-                                >
-                                    Thống kê lịch hẹn
                                 </Nav.Link>
                                 <Nav.Link 
                                     className={`sidebar-link mb-2 ${tabActive === "appointments" ? "active" : ""}`}
@@ -49,10 +46,10 @@ function Index() {
                                     Người Dùng
                                 </Nav.Link>
                                 <Nav.Link 
-                                    className={`sidebar-link mb-2 ${tabActive === "specialtyRatings" ? "active" : ""}`}
-                                    onClick={() => setTabActive("specialtyRatings")}
+                                    className={`sidebar-link mb-2 ${tabActive === "revenue" ? "active" : ""}`}
+                                    onClick={() => setTabActive("revenue")}
                                 >
-                                   Đánh Giá Về Khoa 
+                                    Doanh Thu
                                 </Nav.Link>
                             </Nav>
 
@@ -68,6 +65,7 @@ function Index() {
                     </Card>
                 </Col>
                 
+                {/* Main content area - 75% width of the 75% content area */}
                 <Col md={9} style={{ fontSize: "14px" }} className='p-0'>
                     <Tab.Content>
                         {tabActive === "dashboard" && (
@@ -76,15 +74,13 @@ function Index() {
                                     <h4>Tổng Quan Hệ Thống</h4>
                                     <p className="text-muted">Thống kê và báo cáo tổng hợp</p>
                                     
+                                    {/* Dashboard content placeholder */}
                                     <div className="p-4 bg-light rounded text-center">
                                         <p>Nội dung tổng quan sẽ hiển thị ở đây</p>
                                     </div>
                                 </Card.Body>
                             </Card>
                         )}
-                        {tabActive === "appointment_statistics" &&
-                            <AppointmentStatistics />
-                        }
 
                         {tabActive === "appointments" && (
                             <Card>
@@ -97,12 +93,7 @@ function Index() {
                         {tabActive === "prescriptions" && (
                             <Card>
                                 <Card.Body>
-                                    <h4>Quản Lý Đơn Thuốc</h4>
-                                    <p className="text-muted">Xem và quản lý đơn thuốc trong hệ thống</p>
-                                    
-                                    <div className="p-4 bg-light rounded text-center">
-                                        <p>Nội dung quản lý đơn thuốc sẽ hiển thị ở đây</p>
-                                    </div>
+                                    <PrescriptionOverView />
                                 </Card.Body>
                             </Card>
                         )}
@@ -110,20 +101,15 @@ function Index() {
                         {tabActive === "users" && (
                             <Card>
                                 <Card.Body>
-                                    <h4>Quản Lý Người Dùng</h4>
-                                    <p className="text-muted">Quản lý tài khoản bác sĩ, nhân viên và bệnh nhân</p>
-                                    
-                                    <div className="p-4 bg-light rounded text-center">
-                                        <p>Nội dung quản lý người dùng sẽ hiển thị ở đây</p>
-                                    </div>
+                                    <UserAdmin />
                                 </Card.Body>
                             </Card>
                         )}
 
-                        {tabActive === "specialtyRatings" && (
+                        {tabActive === "revenue" && (
                             <Card>
                                 <Card.Body>
-                                    <DepartmentRatings />
+                                   <RevenueChart />
                                 </Card.Body>
                             </Card>
                         )}
