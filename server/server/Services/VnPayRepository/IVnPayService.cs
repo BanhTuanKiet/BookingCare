@@ -5,8 +5,7 @@ namespace server.Services
 {
     public interface IVnPayService
     {
-        string CreatePaymentUrl(PaymentDTO.PaymentInformationModel model, HttpContext context);
+        Task<string> CreatePaymentUrl(HttpContext context, int appointmentId);
         PaymentDTO.PaymentResponseModel PaymentExecute(IQueryCollection collections);
-
     }
 }

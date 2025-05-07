@@ -46,15 +46,10 @@ function Appointments({ tabActive }) {
         setSelectedAppointment(null);
     };
 
-    const handleSelectVnpay = async () => {
+    const handleSelectVnpay = async (appointmentId) => {
         try {
-            const response = await axios.post('/vnpaypayment/create', {
-                orderType: "other",
-                amount: 10000, // TODO: lấy từ đơn thuốc thực tế
-                orderDescription: "Thanh toán đơn thuốc",
-                name: "Đơn thuốc của tôi"
-            });
-
+            const response = await axios.post(`/vnpaypayment/create/${appointmentId}`);
+    
             if (response.status === 200 && response.data.paymentUrl) {
                 window.location.href = response.data.paymentUrl;
             } else {
@@ -65,6 +60,7 @@ function Appointments({ tabActive }) {
             toast.error("Có lỗi khi tạo thanh toán.");
         }
     };
+    
 
     const handleSelectMomo = async () => {
         if (!selectedAppointment) return;
@@ -147,9 +143,9 @@ function Appointments({ tabActive }) {
                         <Modal.Title>Chọn phương thức thanh toán</Modal.Title>
                     </Modal.Header>
                     <Modal.Body className="text-center">
-                        <Button variant="success" className="m-2" onClick={handleSelectVnpay}>
-                            Thanh toán VNPay
-                        </Button>
+                    <Button variant="success" className="m-2" onClick={() => handleSelectVnpay(selectedAppointment.appointmentId)}>
+                        Thanh toán VNPay
+                    </Button>
                         <Button variant="warning" className="m-2" onClick={handleSelectMomo}>
                             Thanh toán MoMo
                         </Button>
