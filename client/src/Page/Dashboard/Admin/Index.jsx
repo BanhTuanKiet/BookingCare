@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
-import { Container, Row, Col, Card, Nav, Tab } from 'react-bootstrap'
+import { Container, Row, Col, Card, Nav, Tab, NavLink } from 'react-bootstrap'
 import AppointmentAdmin from './AppointmentAdmin'
 import "../../../Style/Admin.css"
 import UserAdmin from './UserAdmin'
 import PatientAdmin from './PatientAdmin'
 import PrescriptionOverView from './PrescriptionOverView'
 import DoctorSalaryTable from './DoctorSalaryTable';
-
+import SpecialtyAdmin from './SpecialtyAdmin';
 
 function Index() {
     const [tabActive, setTabActive] = useState("dashboard")
@@ -51,6 +51,12 @@ function Index() {
                                     onClick={() => setTabActive("salary")}
                                 >
                                     Bảng Lương
+                                </Nav.Link>
+                                <Nav.Link
+                                    className={'sidebar-link mb-2 ${tabActive === "specialty" ? "active" : ""}'}
+                                    onClick={() => setTabActive("specialty")}
+                                >
+                                    Quản lý chuyên khoa
                                 </Nav.Link>
 
                             </Nav>
@@ -111,6 +117,13 @@ function Index() {
                             <Card>
                                 <Card.Body>
                                     <DoctorSalaryTable />
+                                </Card.Body>
+                            </Card>
+                        )}
+                        {tabActive === "specialty" &&(
+                            <Card>
+                                <Card.Body>
+                                    <SpecialtyAdmin/>
                                 </Card.Body>
                             </Card>
                         )}
