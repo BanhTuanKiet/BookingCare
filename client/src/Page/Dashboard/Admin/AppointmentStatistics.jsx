@@ -182,7 +182,7 @@ function AppointmentStatistics() {
 
         <Col md={4}>
           <Card className='p-3'>
-            <h5 className='text-center mb-3'>Biểu đồ tháng</h5>
+            <h5 className='text-center mb-3'>Biểu đồ theo tháng</h5>
             <Pie data={pieData} options={pieOptions} />
           </Card>
         </Col>

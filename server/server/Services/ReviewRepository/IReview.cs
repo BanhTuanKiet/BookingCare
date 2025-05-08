@@ -10,6 +10,8 @@ namespace server.Services.RatingRepository
         Task<ServiceReviewDetail> AddServiceReview(int reviewId, ServiceRatings serviceReview);
         Task<List<ServiceReview>> GetServiceReviews(int serviceId);
         Task<List<ServiceReview>> GetDoctorReviews(int doctorId);
+        Task<List<DoctorReviewDetailDTO>> GetDoctorReviewsDetail(string filter, int doctorId);
         Task<ReviewDTO> CheckExistReview(int recordId);
+        Task<List<ReviewRating>> GetRatingReviews(int doctorId);
     }
 }

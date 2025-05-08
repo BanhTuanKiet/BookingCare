@@ -25,4 +25,31 @@ namespace server.DTO
         public string? PatientName { get; set; }
         public string? ServiceName { get; set; }
     }
+
+    public class DoctorReviewBasic
+    {
+        public int DoctorId { get; set; }
+        public double AvgScore { get; set; }
+        public int ReviewCount { get; set; }
+    }
+
+    public class DoctorReviewDetailDTO
+    {
+        public int ReviewId { get; set; }
+        public int MedicalRecordId { get; set; }
+        public int OverallRating { get; set; }
+        public string? Comment { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public int Knowledge { get; set; }
+        public int Attitude { get; set; }
+        public int Dedication { get; set; }
+        public int CommunicationSkill { get; set; }
+        public string? PatientName { get; set; }
+    }
+
+    public class ReviewRating
+    {
+        public int Rating { get; set; }
+        public int ReviewCount { get; set; }
+    }
 }

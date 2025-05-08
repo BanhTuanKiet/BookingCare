@@ -84,6 +84,12 @@
                     .ForMember(dest => dest.PatientName, m => m.MapFrom(src => src.MedicalRecord.Appointment.Patient.User.FullName))
                     .ForMember(dest => dest.ServiceName, m => m.MapFrom(src => src.MedicalRecord.Appointment.Service.ServiceName));
 
+                CreateMap<Review, DoctorReviewDetailDTO>()
+                    .ForMember(dest => dest.Attitude, m => m.MapFrom(src => src.DoctorReviewDetail.Attitude))
+                    .ForMember(dest => dest.Knowledge, m => m.MapFrom(src => src.DoctorReviewDetail.Knowledge))
+                    .ForMember(dest => dest.CommunicationSkill, m => m.MapFrom(src => src.DoctorReviewDetail.CommunicationSkill))
+                    .ForMember(dest => dest.Dedication, m => m.MapFrom(src => src.DoctorReviewDetail.Dedication))
+                    .ForMember(dest => dest.PatientName, m => m.MapFrom(src => src.MedicalRecord.Appointment.Patient.User.FullName));
             }
 
         }
