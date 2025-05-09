@@ -20,4 +20,6 @@ public partial class MedicalRecord
     public virtual Review? Review { get; set; }  // 👈 THÊM DÒNG NÀY
 
     public virtual ICollection<Prescription> Prescriptions { get; set; } = new List<Prescription>();
+    public virtual ICollection<MedicalRecordDetail> MedicalRecordDetails { get; set; } = new List<MedicalRecordDetail>();
+
 }

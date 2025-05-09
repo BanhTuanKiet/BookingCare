@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using server.Middleware;
@@ -49,6 +50,42 @@ namespace server.Controllers
             if (specialties.Count() == 0 || specialties == null) throw new ErrorHandlingException("Lỗi không lấy được chuyên khoa!");
 
             return Ok(specialties);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetSpecialty(int id)
+        {
+            var specialty = await _speciatyService.GetById(id);
+            if (specialty == null)
+                return NotFound();
+            return Ok(specialty);
+        }
+        
+        [Authorize("admin")]
+        [HttpPost]
+        public async Task<IActionResult> CreateSpecialty(Specialty specialty)
+        {
+            var result = await _speciatyService.Create(specialty);
+            return CreatedAtAction(nameof(GetSpecialty), new { id = result.SpecialtyId }, result);
+        }
+
+        [Authorize("admin")]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateSpecialty(int id, Specialty specialty)
+        {
+            var success = await _speciatyService.Update(id, specialty);
+            if (!success)
+                return NotFound();
+            return NoContent();
+        }
+        [Authorize("admin")]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteSpecialty(int id)
+        {
+            var success = await _speciatyService.Delete(id);
+            if (!success)
+                return NotFound();
+            return NoContent();
         }
     }
 }

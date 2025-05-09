@@ -52,16 +52,15 @@
                     .ForMember(dest => dest.AppointmentTime, opt => opt.MapFrom(src => src.Key.AppointmentTime))
                     .ForMember(dest => dest.PatientCount, opt => opt.MapFrom(src => src.Count()));
 
-
                 CreateMap<Medicine, MedicineDTO.MedicineBasic>();
-                // .ForMember(dest => dest.Medi, m => m.MapFrom(source => source.medicalName))
-                // .ForMember(dest => dest.MedicineId, m => m.MapFrom(source => source.medicineId))
 
                 CreateMap<MedicalRecord, MedicalRecordDTO.MedicalRecordBasic>()
                     .ForMember(dest => dest.AppointmentDate, m => m.MapFrom(source => source.Appointment.AppointmentDate))
                     .ForMember(dest => dest.AppointmentTime, m => m.MapFrom(source => source.Appointment.AppointmentTime))
                     .ForMember(dest => dest.DoctorName, m => m.MapFrom(source => source.Appointment.Doctor.User.FullName))
                     .ForMember(dest => dest.ServiceName, m => m.MapFrom(source => source.Appointment.Service.ServiceName))
+                    .ForMember(dest => dest.PatientName, m => m.MapFrom(source => source.Appointment.Patient.User.FullName))
+                    .ForMember(dest => dest.PatientId, m => m.MapFrom(source => source.Appointment.PatientId))
                     .ForMember(dest => dest.SpecialtyName, m => m.MapFrom(source => source.Appointment.Doctor.Specialty.Name));
 
                 CreateMap<MedicalRecordDetail, MedicalRecordDTO.MedicineDto>()
@@ -91,6 +90,5 @@
                     .ForMember(dest => dest.Dedication, m => m.MapFrom(src => src.DoctorReviewDetail.Dedication))
                     .ForMember(dest => dest.PatientName, m => m.MapFrom(src => src.MedicalRecord.Appointment.Patient.User.FullName));
             }
-
         }
     }

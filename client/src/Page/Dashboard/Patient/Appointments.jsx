@@ -1,40 +1,37 @@
-import React, { useEffect, useState } from 'react'
-import { Badge, Button, Card, Table } from 'react-bootstrap'
-import axios from '../../../Util/AxiosConfig'
+import React, { useEffect, useState } from 'react';
+import { Badge, Button, Card, Table } from 'react-bootstrap';
+import axios from '../../../Util/AxiosConfig';
 
 function Appointments({ tabActive }) {
-    const [appointments, setAppointments] = useState()
-    const [quantity, setQuantity] = useState(10)
+    const [appointments, setAppointments] = useState([]);
+    const [quantity, setQuantity] = useState(10);
 
     useEffect(() => {
-        const fetchAppointmentInfo = async () => {
+        const fetchAppointments = async () => {
             try {
-                const response = await axios.post(`appointments/by-patient/${quantity}`)
-                console.log(response.data)
-                setAppointments(response.data)
+                const response = await axios.post(`appointments/by-patient/${quantity}`);
+                setAppointments(response.data);
             } catch (error) {
-                console.log(error)
+                console.error(error);
             }
-        }
+        };
 
         if (tabActive === "appointments") {
-            fetchAppointmentInfo()
+            fetchAppointments();
         }
-    }, [tabActive, quantity])
+    }, [tabActive, quantity]);
 
     const handleCancelAppointment = async (appointmentId) => {
-        const isConfirmed = window.confirm("Bạn có chắc chắn muốn hủy lịch hẹn này không?")
-        if (!isConfirmed) return
-    
-        try {
-            await axios.put(`/appointments/cancel/${appointmentId}`)
-            // Refresh appointments after cancellation
-            const response = await axios.post(`appointments/by-patient`)
-            setAppointments(response.data)
-        } catch (error) {
-            console.error(error)
+        if (window.confirm("Bạn có chắc chắn muốn hủy lịch hẹn này không?")) {
+            try {
+                await axios.put(`/appointments/cancel/${appointmentId}`);
+                const response = await axios.post(`appointments/by-patient`);
+                setAppointments(response.data);
+            } catch (error) {
+                console.error(error);
+            }
         }
-    }
+    };
 
     return (
         <Card>
@@ -43,8 +40,8 @@ function Appointments({ tabActive }) {
                 <p>Danh sách các lịch hẹn sắp tới</p>
                 <div className="table-responsive">
                     <Table bordered hover>
-                        <thead className="table-light">
-                            <tr className="text-center">
+                        <thead className="table-light text-center">
+                            <tr>
                                 <th>Ngày hẹn</th>
                                 <th>Bác sĩ</th>
                                 <th>Dịch vụ</th>
@@ -53,30 +50,28 @@ function Appointments({ tabActive }) {
                             </tr>
                         </thead>
                         <tbody>
-                            {appointments?.map((appointment) => (
+                            {appointments.map((appointment) => (
                                 <tr key={appointment.appointmentId} className="align-middle text-center">
                                     <td>{new Date(appointment.appointmentDate).toLocaleDateString()}</td>
                                     <td>{appointment.doctorName}</td>
                                     <td>{appointment.serviceName}</td>
                                     <td>
                                         <Badge bg={
-                                            appointment.status === "Chờ xác nhận" ? "warning"
-                                            : appointment.status === "Đã xác nhận" ? "primary"
-                                            : appointment.status === "Đã hủy" ? "danger"
-                                            : appointment.status === "Đã hoàn thành" ? "success"
-                                            : "secondary"
+                                            appointment.status === "Chờ xác nhận" ? "warning" :
+                                            appointment.status === "Đã xác nhận" ? "primary" :
+                                            appointment.status === "Đã hủy" ? "danger" :
+                                            appointment.status === "Đã hoàn thành" ? "success" : "secondary"
                                         }>
                                             {appointment.status}
                                         </Badge>
                                     </td>
                                     <td>
                                         {(appointment.status !== "Đã hủy" && appointment.status !== "Đã hoàn thành") && (
-                                            <button
-                                                className="btn btn-sm btn-danger"
-                                                onClick={() => handleCancelAppointment(appointment.appointmentId)}
-                                            >
-                                                Hủy
-                                            </button>
+                                            <div className="d-flex gap-2 justify-content-center">
+                                                <Button size="sm" variant="danger" onClick={() => handleCancelAppointment(appointment.appointmentId)}>
+                                                    Hủy
+                                                </Button>
+                                            </div>
                                         )}
                                     </td>
                                 </tr>
@@ -84,22 +79,16 @@ function Appointments({ tabActive }) {
                         </tbody>
                     </Table>
                 </div>
-                {appointments && appointments.length % 10 === 0 ?
-                    <div className="text-end mt-3">
-                        <Button onClick={() => setQuantity(quantity + 10)} variant="outline-primary">
-                            Xem thêm
-                        </Button>
-                    </div>
-                    :
-                    <div className="text-end mt-3">
-                        <Button onClick={() => setQuantity(10)} variant="outline-primary">
-                            Thu gọn
-                        </Button>
-                    </div>
-                }
+                <div className="text-end mt-3">
+                    {appointments.length % 10 === 0 ? (
+                        <Button onClick={() => setQuantity(quantity + 10)} variant="outline-primary">Xem thêm</Button>
+                    ) : (
+                        <Button onClick={() => setQuantity(10)} variant="outline-primary">Thu gọn</Button>
+                    )}
+                </div>
             </Card.Body>
         </Card>
-    )
+    );
 }
 
-export default Appointments
+export default Appointments;

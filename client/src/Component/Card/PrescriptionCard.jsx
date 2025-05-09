@@ -20,6 +20,7 @@ function PrescriptionCard({ record, tabActive, setTabActive, isSelected }) {
 
   useEffect(() => {
     const autoExpandSelectedRecord = async () => {
+      
       if (isSelected && tabActive === "prescriptions") {
         setOpenRecords((prev) => ({
           ...prev,

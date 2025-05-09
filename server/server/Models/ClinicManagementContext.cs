@@ -283,7 +283,7 @@ public partial class ClinicManagementContext : IdentityDbContext<ApplicationUser
                 .HasForeignKey(d => d.MedicineId)
                 .HasConstraintName("FK__MedicalRe__Medic__07220AB2");
 
-            entity.HasOne(d => d.ReCord).WithMany()
+            entity.HasOne(d => d.ReCord).WithMany(p => p.MedicalRecordDetails)
                 .HasForeignKey(d => d.ReCordId)
                 .HasConstraintName("FK__MedicalRe__ReCor__08162EEB");
         });
