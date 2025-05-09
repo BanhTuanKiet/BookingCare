@@ -41,8 +41,8 @@ const ServiceDetail = () => {
     const fetchServiceReviews = async () => {
       try {
         const type = "service"
+        console.log(serviceName,  type)
         const response = await axios.get(`/reviews/${type}/${serviceName}`)
-        console.log(serviceName,  response.data)
         setReviews(response.data)
       } catch (error) {
         console.log(error)
