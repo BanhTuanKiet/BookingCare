@@ -15,6 +15,8 @@ public partial class MedicalRecord
 
     public string? Notes { get; set; }
     public DateTime? CreatedAt { get; set; }
+    public float? Price {get; set;}
+
 
     public virtual Appointment? Appointment { get; set; }
     public virtual Review? Review { get; set; }  // 👈 THÊM DÒNG NÀY

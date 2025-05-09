@@ -49,7 +49,7 @@ const ServiceDetail = () => {
 
     fetchServiceReviews()
   }, [service])
-
+  
   useEffect(() => {
     const fetchRadomServices = async () => {
       try {

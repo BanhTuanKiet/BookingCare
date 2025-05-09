@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Razor.Language;
 using Microsoft.EntityFrameworkCore;
 using server.DTO;
 using server.Models;
@@ -101,6 +102,68 @@ namespace server.Services.RatingRepository
 
             return serviceReviewDTOs;
         }
+
+        public async Task<List<DepartmentRatingsDTO>> GetTopDoctorsByDepartment()
+        {
+            var doctorReviewDetails = await _context.DoctorReviewDetails
+                .Include(d => d.Review.MedicalRecord.Appointment.Doctor.Specialty)
+                .Include(d => d.Review.MedicalRecord.Appointment.Doctor.User)
+                .Include(d => d.Review.MedicalRecord.Appointment.Doctor)
+                .Where(d => d.Review.MedicalRecord.Appointment.Doctor.Specialty != null)
+                .ToListAsync();
+
+            // Tính điểm trung bình cho từng bác sĩ
+            var allDoctors = doctorReviewDetails
+                .GroupBy(d => d.Review.MedicalRecord.Appointment.Doctor.DoctorId)
+                .Select(doc =>
+                {
+                    var doctor = doc.First().Review.MedicalRecord.Appointment.Doctor;
+                    var user = doctor.User;
+                    var doctorImage = doctor.DoctorImage != null ? Convert.ToBase64String(doctor.DoctorImage) : null;
+
+                    return new DoctorReviewDetails
+                    {
+                        DoctorId = doc.Key,
+                        UserName = user?.FullName,
+                        Position = doctor.Position,
+                        SpecialtyId = doctor.SpecialtyId,
+                        ExperienceYears = doctor.ExperienceYears,
+                        DoctorImage = doctorImage,
+                        Degree = doctor.Degree,
+                        AvgKnowledge = doc.Average(r => r.Knowledge),
+                        AvgAttitude = doc.Average(r => r.Attitude),
+                        AvgDedication = doc.Average(r => r.Dedication),
+                        AvgCommunicationSkill = doc.Average(r => r.CommunicationSkill)
+                    };
+                })
+                .Where(d => d.SpecialtyId != null)
+                .ToList();
+
+            // Nhóm theo SpecialtyId và lấy bác sĩ có điểm cao nhất trong từng khoa
+            var departments = allDoctors
+                .GroupBy(d => d.SpecialtyId)
+                .Select(group =>
+                {
+                    double maxAvg = group.Max(d => d.OverallAverage);
+
+                    var topDoctors = group
+                        .Where(d => d.OverallAverage == maxAvg)
+                        .ToList();
+
+                    var departmentName = _context.Specialties
+                        .Where(s => s.SpecialtyId == group.Key)
+                        .Select(s => s.Name)
+                        .FirstOrDefault() ?? "Không rõ khoa";
+
+                    return new DepartmentRatingsDTO
+                    {
+                        DepartmentName = departmentName,
+                        TopDoctors = topDoctors
+                    };
+                })
+                .ToList();
+
+            return departments;
 
         public async Task<List<DoctorReviewDetailDTO>> GetDoctorReviewsDetail(string filter, int doctorId)
         {

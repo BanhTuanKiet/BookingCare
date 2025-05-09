@@ -2,13 +2,6 @@ namespace server.DTO
 {
     public class PaymentDTO
     {
-        public class PaymentInformationModel
-        {
-            public string OrderType { get; set; }
-            public double Amount { get; set; }
-            public string OrderDescription { get; set; }
-            public string Name { get; set; }
-        }
         public class PaymentResponseModel
         {
             public string OrderDescription { get; set; }

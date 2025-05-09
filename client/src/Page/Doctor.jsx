@@ -42,6 +42,7 @@ const Doctor = () => {
       setTotalPages(response.data.totalPages)
       setTotalItems(response.data.totalItems)
       setCurrentPage(response.data.pageNumber)
+
     } catch (error) {
       console.error('Lỗi khi lấy danh sách bác sĩ:', error)
     } finally {
@@ -121,14 +122,14 @@ const Doctor = () => {
                   style={{ minHeight: '300px' }}
                 >
                   <DoctorCard doctor={doctor} />
-                </Col>
+                </div>
               ))
             ) : (
               <div className="text-center my-5 w-100">
                 <h5>Không tìm thấy bác sĩ phù hợp!</h5>
               </div>
             )}
-          </Row>
+          </div>
 
           {totalItems > 0 && (
             <div className="d-flex justify-content-center mt-4">
@@ -147,7 +148,6 @@ const Doctor = () => {
           )}
         </>
       )}
-      </div>
     </Container>
   )
 }

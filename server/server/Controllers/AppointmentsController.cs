@@ -272,7 +272,6 @@ namespace server.Controllers
         public async Task<ActionResult> AppointmentStatistics(int month, int year)
         {
             var appointment = await _appointmentService.AppointmentStatistics(month, year);
-
             return Ok(appointment);
         }
 

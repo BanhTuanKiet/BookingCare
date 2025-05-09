@@ -33,6 +33,49 @@ function Appointments({ tabActive }) {
         }
     };
 
+    const handlePaymentClick = (appointment) => {
+        setSelectedAppointment(appointment);
+        setShowPaymentModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowPaymentModal(false);
+        setSelectedAppointment(null);
+    };
+
+    const handleSelectVnpay = async (appointmentId) => {
+        try {
+            const response = await axios.post(`/vnpaypayment/create/${appointmentId}`);
+    
+            if (response.status === 200 && response.data.paymentUrl) {
+                window.location.href = response.data.paymentUrl;
+            } else {
+                toast.error("Không lấy được URL thanh toán.");
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error("Có lỗi khi tạo thanh toán.");
+        }
+    };
+    
+
+    const handleSelectMomo = async () => {
+        if (!selectedAppointment) return;
+        try {
+            const orderId = new Date().getTime().toString();
+            const response = await axios.post('momopayment/create-payment', { orderInfo: "Thanh toán lịch hẹn",});
+    
+            console.log('Momo payment response:', response.data);  // Log API response
+            if (response.data.payUrl) {
+                window.location.href = response.data.payUrl;   // Sửa ở đây
+            } else {
+                alert('Không nhận được URL thanh toán từ Momo.');
+            }
+        } catch (error) {
+            console.error(error, 'Có lỗi khi tạo yêu cầu thanh toán MoMo.');
+        }
+    };
+
     return (
         <Card>
             <Card.Body>
@@ -86,6 +129,21 @@ function Appointments({ tabActive }) {
                         <Button onClick={() => setQuantity(10)} variant="outline-primary">Thu gọn</Button>
                     )}
                 </div>
+
+                {/* Modal chọn phương thức thanh toán */}
+                <Modal show={showPaymentModal} onHide={handleCloseModal} centered>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Chọn phương thức thanh toán</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="text-center">
+                    <Button variant="success" className="m-2" onClick={() => handleSelectVnpay(selectedAppointment.appointmentId)}>
+                        Thanh toán VNPay
+                    </Button>
+                        <Button variant="warning" className="m-2" onClick={handleSelectMomo}>
+                            Thanh toán MoMo
+                        </Button>
+                    </Modal.Body>
+                </Modal>
             </Card.Body>
         </Card>
     );

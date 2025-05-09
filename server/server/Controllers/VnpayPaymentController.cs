@@ -18,16 +18,19 @@ namespace server.Controllers
         /// <summary>
         /// Create payment URL for VnPay
         /// </summary>
-        [HttpPost("create")]
-        public IActionResult CreatePaymentUrlVnpay([FromBody] PaymentDTO.PaymentInformationModel model)
+        [HttpPost("create/{appointmentId}")]
+        public async Task<IActionResult> CreatePayment(int appointmentId)
         {
-            if (model == null)
+            try
             {
-                return BadRequest("Invalid payment request.");
+                var paymentUrl = await _vnPayService.CreatePaymentUrl(HttpContext, appointmentId);
+                return Ok(new { paymentUrl });
             }
-
-            var url = _vnPayService.CreatePaymentUrl(model, HttpContext);
-            return Ok(new { paymentUrl = url });
+            catch (Exception ex)
+            {
+                // _logger.LogError(ex, "Lỗi khi tạo VNPay URL");
+                return StatusCode(500, "Lỗi khi tạo VNPay URL");
+            }
         }
 
         /// <summary>
