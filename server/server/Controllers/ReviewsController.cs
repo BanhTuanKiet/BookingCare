@@ -79,7 +79,7 @@ namespace server.Controllers
             object reviews;
             if (type == "service")
             {
-                reviews = await _reviewService.GetDoctorReviewsDetail(filter, id);
+                reviews = await _reviewService.GetServiceReviewsDetail(filter, id);
             }
             else
             {
@@ -110,6 +110,13 @@ namespace server.Controllers
 
             return Ok(reviews);
         }
+        [HttpGet("services/{specialtyName}")]
+        public async Task<IActionResult> GetServicesReviewBySpecialty(string specialtyName)
+        {
+            var reviews = await _reviewService.GetServiceReviewsBySpecialty(specialtyName);
+            return Ok(reviews);
+        }
+
 
         [HttpGet("rating/{doctorId}")]
         public async Task<ActionResult> GetRatingReviews(int doctorId)

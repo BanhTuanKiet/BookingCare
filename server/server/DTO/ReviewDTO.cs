@@ -32,6 +32,13 @@ namespace server.DTO
         public double AvgScore { get; set; }
         public int ReviewCount { get; set; }
     }
+    public class ServiceReviewBasic
+    {
+        public int ServiceId { get; set; }
+        public double AvgScore { get; set; }
+        public int ReviewCount { get; set; }
+    }
+
 
     public class DoctorReviewDetailDTO
     {
@@ -46,6 +53,21 @@ namespace server.DTO
         public int CommunicationSkill { get; set; }
         public string? PatientName { get; set; }
     }
+
+    public class ServiceReviewDetailDTO
+    {
+        public int ReviewId { get; set; }
+        public int MedicalRecordId { get; set; }
+        public int OverallRating { get; set; }
+        public string? Comment { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public int Effectiveness { get; set; }
+        public int Price { get; set; }
+        public int ServiceSpeed { get; set; }
+        public int Convenience { get; set; }
+        public string? PatientName { get; set; }
+    }
+
 
     public class ReviewRating
     {
