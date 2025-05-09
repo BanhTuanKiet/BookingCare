@@ -4,18 +4,24 @@ import { Calendar, momentLocalizer } from "react-big-calendar"
 import moment from "moment"
 import "react-big-calendar/lib/css/react-big-calendar.css"
 import axios from "../../../Util/AxiosConfig"
+import DoctorShiftDetail from "./DoctorShiftDetail"
 
 const localizer = momentLocalizer(moment)
 
-const DoctorSchedule = ({ setShowShiftDetail, setDateTime }) => {
+const DoctorSchedule = () => {
   const [events, setEvents] = useState([])
   const [schedules, setSchedules] = useState()
+  const [showShiftDetail, setShowShiftDetail] = useState(false)
+  const [dateTime, setDateTime] = useState({
+      date: null,
+      time: null
+  })
 
   useEffect(() => {
     const fetchDoctorSchedule = async () => {
         try {
             const response = await axios.get("/appointments/schedule")
-
+            console.log(response.data)
             setSchedules(response.data)
         } catch (error) {
             console.log(error)
@@ -86,6 +92,12 @@ const DoctorSchedule = ({ setShowShiftDetail, setDateTime }) => {
     }
 
     return { style }
+  }
+
+  if (showShiftDetail) {
+    return (
+      <DoctorShiftDetail dateTime={dateTime} setShowShiftDetail={setShowShiftDetail} />
+    )
   }
 
   return (

@@ -1,137 +1,130 @@
 import React, { useState } from 'react'
-import { Container, Row, Col, Card, Nav, Tab, NavLink } from 'react-bootstrap'
+import { Container, Row, Col, Card, Nav, Tab } from 'react-bootstrap'
 import AppointmentAdmin from './AppointmentAdmin'
+import AppointmentStatistics from './AppointmentStatistics'
+import Reviews from './Reviews'
 import "../../../Style/Admin.css"
-import UserAdmin from './UserAdmin'
-import PatientAdmin from './PatientAdmin'
-import PrescriptionOverView from './PrescriptionOverView'
-import DoctorSalaryTable from './DoctorSalaryTable';
-import SpecialtyAdmin from './SpecialtyAdmin';
 
 function Index() {
     const [tabActive, setTabActive] = useState("dashboard")
-    const [loading, setLoading] = useState(false)
 
     return (
-        <Container fluid className="p-4">
-            <Row>
-                {/* Sidebar - 25% width of the 75% content area */}
-                <Col md={3}>
-                    <Card className="mb-4 sidebar">
-                        <Card.Body>
-                            <h5 className="text-primary mb-4 text-center">QUẢN TRỊ HỆ THỐNG</h5>
-                            
-                            <Nav className="flex-column">
-                                <Nav.Link 
-                                    className={`sidebar-link mb-2 ${tabActive === "dashboard" ? "active" : ""}`}
-                                    onClick={() => setTabActive("dashboard")}
-                                >
-                                    Tổng Quan
-                                </Nav.Link>
-                                <Nav.Link 
-                                    className={`sidebar-link mb-2 ${tabActive === "appointments" ? "active" : ""}`}
-                                    onClick={() => setTabActive("appointments")}
-                                >
-                                    Lịch Hẹn
-                                </Nav.Link>
-                                <Nav.Link 
-                                    className={`sidebar-link mb-2 ${tabActive === "prescriptions" ? "active" : ""}`}
-                                    onClick={() => setTabActive("prescriptions")}
-                                >
-                                    Đơn Thuốc
-                                </Nav.Link>
-                                <Nav.Link 
-                                    className={`sidebar-link mb-2 ${tabActive === "users" ? "active" : ""}`}
-                                    onClick={() => setTabActive("users")}
-                                >
-                                    Người Dùng
-                                </Nav.Link>
-                                <Nav.Link 
-                                    className={`sidebar-link mb-2 ${tabActive === "salary" ? "active" : ""}`}
-                                    onClick={() => setTabActive("salary")}
-                                >
-                                    Bảng Lương
-                                </Nav.Link>
-                                <Nav.Link
-                                    className={'sidebar-link mb-2 ${tabActive === "specialty" ? "active" : ""}'}
-                                    onClick={() => setTabActive("specialty")}
-                                >
-                                    Quản lý chuyên khoa
-                                </Nav.Link>
+        <Tab.Container activeKey={tabActive} onSelect={(k) => setTabActive(k)}>
+            <Container fluid className="p-4">
+                <Row>
+                    <Col md={3}>
+                        <Card className="mb-4 sidebar">
+                            <Card.Body>
+                                <h5 className="text-primary mb-4 text-center">QUẢN TRỊ HỆ THỐNG</h5>
+                                
+                                <Nav className="flex-column">
+                                    <Nav.Link 
+                                        eventKey="dashboard"
+                                        className={`sidebar-link mb-2 ${tabActive === "dashboard" ? "active" : ""}`}
+                                    >
+                                        Tổng Quan
+                                    </Nav.Link>
+                                    <Nav.Link 
+                                        eventKey="appointment_statistics"
+                                        className={`sidebar-link mb-2 ${tabActive === "appointment_statistics" ? "active" : ""}`}
+                                    >
+                                        Thống kê lịch hẹn
+                                    </Nav.Link>
+                                    <Nav.Link 
+                                        eventKey="reviews"
+                                        className={`sidebar-link mb-2 ${tabActive === "reviews" ? "active" : ""}`}
+                                    >
+                                        Thống kê đánh giá
+                                    </Nav.Link>
+                                    <Nav.Link 
+                                        eventKey="appointments"
+                                        className={`sidebar-link mb-2 ${tabActive === "appointments" ? "active" : ""}`}
+                                    >
+                                        Lịch Hẹn
+                                    </Nav.Link>
+                                    <Nav.Link 
+                                        eventKey="prescriptions"
+                                        className={`sidebar-link mb-2 ${tabActive === "prescriptions" ? "active" : ""}`}
+                                    >
+                                        Đơn Thuốc
+                                    </Nav.Link>
+                                    <Nav.Link 
+                                        eventKey="users"
+                                        className={`sidebar-link mb-2 ${tabActive === "users" ? "active" : ""}`}
+                                    >
+                                        Người Dùng
+                                    </Nav.Link>
+                                </Nav>
 
-                            </Nav>
-
-                            <div className="mt-5 pt-5">
-                                <div className="bg-light p-3 rounded">
-                                    <p className="small text-muted mb-0">Phiên đăng nhập hiện tại:</p>
-                                    <p className="mb-2"><strong>Admin</strong></p>
-                                    <p className="small text-muted mb-0">Đăng nhập lúc:</p>
-                                    <p className="mb-0"><small>{new Date().toLocaleString()}</small></p>
-                                </div>
-                            </div>
-                        </Card.Body>
-                    </Card>
-                </Col>
-                
-                {/* Main content area - 75% width of the 75% content area */}
-                <Col md={9} style={{ fontSize: "14px" }} className='p-0'>
-                    <Tab.Content>
-                        {tabActive === "dashboard" && (
-                            <Card>
-                                <Card.Body>
-                                    <h4>Tổng Quan Hệ Thống</h4>
-                                    <p className="text-muted">Thống kê và báo cáo tổng hợp</p>
-                                    
-                                    {/* Dashboard content placeholder */}
-                                    <div className="p-4 bg-light rounded text-center">
-                                        <p>Nội dung tổng quan sẽ hiển thị ở đây</p>
+                                <div className="mt-5 pt-5">
+                                    <div className="bg-light p-3 rounded">
+                                        <p className="small text-muted mb-0">Phiên đăng nhập hiện tại:</p>
+                                        <p className="mb-2"><strong>Admin</strong></p>
+                                        <p className="small text-muted mb-0">Đăng nhập lúc:</p>
+                                        <p className="mb-0"><small>{new Date().toLocaleString()}</small></p>
                                     </div>
-                                </Card.Body>
-                            </Card>
-                        )}
+                                </div>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                    
+                    <Col md={9} style={{ fontSize: "14px" }} className='p-0'>
+                        <Tab.Content>
+                            <Tab.Pane eventKey="dashboard">
+                                <Card>
+                                    <Card.Body>
+                                        <h4>Tổng Quan Hệ Thống</h4>
+                                        <p className="text-muted">Thống kê và báo cáo tổng hợp</p>
+                                        
+                                        <div className="p-4 bg-light rounded text-center">
+                                            <p>Nội dung tổng quan sẽ hiển thị ở đây</p>
+                                        </div>
+                                    </Card.Body>
+                                </Card>
+                            </Tab.Pane>
 
-                        {tabActive === "appointments" && (
-                            <Card>
-                                <Card.Body>
-                                    <AppointmentAdmin />
-                                </Card.Body>
-                            </Card>
-                        )}
+                            <Tab.Pane eventKey="appointment_statistics">
+                                <AppointmentStatistics />
+                            </Tab.Pane>
+                            
+                            <Tab.Pane eventKey="reviews">
+                                <Reviews />
+                            </Tab.Pane>
 
-                        {tabActive === "prescriptions" && (
-                            <Card>
-                                <Card.Body>
-                                    <PrescriptionOverView />
-                                </Card.Body>
-                            </Card>
-                        )}
-                        
-                        {tabActive === "users" && (
-                            <Card>
-                                <Card.Body>
-                                    <UserAdmin />
-                                </Card.Body>
-                            </Card>
-                        )}
-                        {tabActive === "salary" && (
-                            <Card>
-                                <Card.Body>
-                                    <DoctorSalaryTable />
-                                </Card.Body>
-                            </Card>
-                        )}
-                        {tabActive === "specialty" &&(
-                            <Card>
-                                <Card.Body>
-                                    <SpecialtyAdmin/>
-                                </Card.Body>
-                            </Card>
-                        )}
+                            <Tab.Pane eventKey="appointments" >
+                                <AppointmentAdmin />
+                            </Tab.Pane>
 
-                    </Tab.Content>
-                </Col>
-            </Row>
-        </Container>
+                            <Tab.Pane eventKey="prescriptions">
+                                <Card>
+                                    <Card.Body>
+                                        <h4>Quản Lý Đơn Thuốc</h4>
+                                        <p className="text-muted">Xem và quản lý đơn thuốc trong hệ thống</p>
+                                        
+                                        <div className="p-4 bg-light rounded text-center">
+                                            <p>Nội dung quản lý đơn thuốc sẽ hiển thị ở đây</p>
+                                        </div>
+                                    </Card.Body>
+                                </Card>
+                            </Tab.Pane>
+
+                            <Tab.Pane eventKey="users">
+                                <Card>
+                                    <Card.Body>
+                                        <h4>Quản Lý Người Dùng</h4>
+                                        <p className="text-muted">Quản lý tài khoản bác sĩ, nhân viên và bệnh nhân</p>
+                                        
+                                        <div className="p-4 bg-light rounded text-center">
+                                            <p>Nội dung quản lý người dùng sẽ hiển thị ở đây</p>
+                                        </div>
+                                    </Card.Body>
+                                </Card>
+                            </Tab.Pane>
+                        </Tab.Content>
+                    </Col>
+                </Row>
+            </Container>
+        </Tab.Container>
     )
 }
 

@@ -7,15 +7,14 @@ const DoctorCard = ({ doctor }) => {
   const navigate = useNavigate()
 
   return (
-    <Card className="doctor-card text-center shadow-sm" >
+    <Card className="doctor-card text-center shadow-sm" style={{ width: "210px", height: "400px" }} >
       <Card.Img variant="top" src={doctor.doctorImage} alt={doctor.userName} className="mx-auto mt-3 card-img"/>
-        {/* Đây là flexbox để canh chỉnh body */}
-        <Card.Body className="d-flex flex-column justify-content-between pb-3">
+        <Card.Body className="d-flex flex-column justify-content-between pb-3 px-1">
           <div>
-            <Card.Title className="fw-bold text-primary mb-3">
+            <Card.Title className="fw-bold text-primary mb-3 fs-6 pt-1">
               {doctor.degree} {doctor.userName}
             </Card.Title>
-            <Card.Subtitle className="text-muted fst-italic mb-3">
+            <Card.Subtitle className="text-muted fst-italic mb-3" style={{ fontSize: "14px" }}>
               {doctor.position}
             </Card.Subtitle>
             <Card.Text className="small text-dark mb-3">
@@ -23,7 +22,6 @@ const DoctorCard = ({ doctor }) => {
             </Card.Text>
           </div>
 
-          {/* Đặt button dưới cùng */}
           <Button
             variant="primary"
             size="sm"

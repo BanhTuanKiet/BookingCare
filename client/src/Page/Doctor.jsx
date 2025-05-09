@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react'
-import { Container, Row, Col, Form, InputGroup, Button, Nav } from 'react-bootstrap'
+import { Container, Form, InputGroup, Button, Nav } from 'react-bootstrap'
 import { FaSearch } from 'react-icons/fa'
 import { DoctorCard } from '../Component/Card/Index'
 import axios from '../Util/AxiosConfig'
@@ -26,7 +26,6 @@ const Doctor = () => {
   const fetchDoctors = async (page, specialty = 'all', keyword = '') => {
     try {
       setLoading(true)
-      
       let url = `/doctors/paged?pageNumber=${page}`
       if (specialty !== 'all') {
         url += `&specialty=${specialty}`
@@ -43,7 +42,6 @@ const Doctor = () => {
       setTotalPages(response.data.totalPages)
       setTotalItems(response.data.totalItems)
       setCurrentPage(response.data.pageNumber)
-      
     } catch (error) {
       console.error('Lỗi khi lấy danh sách bác sĩ:', error)
     } finally {
@@ -72,22 +70,21 @@ const Doctor = () => {
       <div className='mx-auto'>
       <h1 className="text-center text-primary mb-5">Đội ngũ bác sĩ</h1>
 
-      <Row className="justify-content-center mb-4">
-        <Col md={6}>
-          <Form onSubmit={handleSearch}>
-            <InputGroup>
-              <Form.Control
-                placeholder="Tìm kiếm bác sĩ theo tên, chức vụ..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <Button type="submit" variant="primary">
-                <FaSearch />
-              </Button>
-            </InputGroup>
-          </Form>
-        </Col>
-      </Row>
+      <div className="search-container mb-4">
+        <Form onSubmit={handleSearch}>
+          <InputGroup className="shadow-sm rounded-pill overflow-hidden">
+            <InputGroup.Text className="bg-white border-end-0">
+              <FaSearch className="text-muted" />
+            </InputGroup.Text>
+            <Form.Control
+              placeholder="Tìm kiếm bác sĩ theo tên, chức vụ..."
+              className="border-start-0"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </InputGroup>
+        </Form>
+      </div>
 
       <Nav className="justify-content-center mb-4 specialty-nav">
         <Nav.Item>
@@ -98,7 +95,6 @@ const Doctor = () => {
             Tất cả
           </Nav.Link>
         </Nav.Item>
-
         {specialties.map((specialty) => (
           <Nav.Item key={specialty.id}>
             <Nav.Link
@@ -125,14 +121,14 @@ const Doctor = () => {
                   style={{ minHeight: '300px' }}
                 >
                   <DoctorCard doctor={doctor} />
-                </Col>
+                </div>
               ))
             ) : (
               <div className="text-center my-5 w-100">
                 <h5>Không tìm thấy bác sĩ phù hợp!</h5>
               </div>
             )}
-          </Row>
+          </div>
 
           {totalItems > 0 && (
             <div className="d-flex justify-content-center mt-4">
@@ -151,7 +147,6 @@ const Doctor = () => {
           )}
         </>
       )}
-      </div>
     </Container>
   )
 }

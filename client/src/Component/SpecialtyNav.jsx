@@ -5,7 +5,7 @@ import { DoctorCard, ServiceCard } from "../Component/Card/Index"
 import SpecialtyIntroduce from '../Image/SpecialtyIntroduce/Index'
 
 function SpecialtyNav() {
-    const { specialty } = useParams() // destructure params cho gọn
+    const { specialty } = useParams()
     const navItems = ["Giới thiệu", "Bác sĩ", "Dịch vụ"]
     const [activeNavItem, setActiveNavItem] = useState(navItems[0])
     const [infor, setInfor] = useState(activeNavItem === "Giới thiệu" ? "" : [])

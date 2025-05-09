@@ -69,6 +69,16 @@ namespace server.Controllers
             return Ok(services);
         }
 
+        [HttpGet("random")]
+        public async Task<ActionResult> GetRandomServices()
+        {
+            var services = await _serviceService.GetRandomServices();
+
+            if (services.Count() == 0 || services == null) throw new ErrorHandlingException("Lỗi không lấy được dịch vụ!");
+
+            return Ok(services);
+        }
+
         // [HttpGet("{specialty}/services")]
         // public async Task<ActionResult<List<ServiceDTO.ServiceDetail>>> GetAllServices()
         // {

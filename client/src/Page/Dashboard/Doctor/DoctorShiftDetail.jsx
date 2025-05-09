@@ -58,7 +58,7 @@ function DoctorShiftDetail({ dateTime, setShowShiftDetail }) {
         try {
             const dateObject = convertToDateObject(date.date)
             const formattedDate = dateObject.toISOString().split("T")[0]
-            console.log(formattedDate)
+
             const response = await axios.get('/appointments/schedule_detail', {
                 params: {
                     date: formattedDate,

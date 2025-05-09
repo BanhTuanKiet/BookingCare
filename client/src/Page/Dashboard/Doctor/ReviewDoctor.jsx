@@ -1,6 +1,6 @@
 import React from 'react'
 import { Col, Row } from 'react-bootstrap'
-import ReviewCard from './ReviewCard'
+import ReviewCard from '../../../Component/Card/ReviewCard'
 
 function ReviewDoctor() {
     const patients = [

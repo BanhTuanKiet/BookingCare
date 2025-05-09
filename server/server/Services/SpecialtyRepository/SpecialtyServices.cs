@@ -22,7 +22,13 @@ namespace server.Services
 
             return description;
         }
+        
+        public async Task<List<Specialty>> GetRandomSpecialties()
+        {
+            return await _context.Specialties.OrderBy(specialty => Guid.NewGuid()).Take(3).ToListAsync();
 
+        }
+        
         public async Task<Specialty?> GetById(int id)
         {
             return await _context.Specialties.FindAsync(id);

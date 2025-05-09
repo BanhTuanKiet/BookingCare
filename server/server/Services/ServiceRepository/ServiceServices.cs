@@ -49,5 +49,10 @@ namespace server.Services
             await _context.SaveChangesAsync();
             return service;
         }
+
+        public async Task<List<Service>> GetRandomServices()
+        {
+            return await _context.Services.OrderBy(service => Guid.NewGuid()).Take(3).ToListAsync();
+        }
     }
 }

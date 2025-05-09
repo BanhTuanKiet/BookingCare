@@ -15,9 +15,9 @@ const PatientProfile = () => {
   }
 
   return (
-    <Container fluid>
+    <Container fluid className="">
       <Row>
-        <Col md={9} className="p-0 mx-auto">
+        <Col md={10} className="p-0 mx-auto">
           {dashboards[role]}
         </Col>
       </Row>

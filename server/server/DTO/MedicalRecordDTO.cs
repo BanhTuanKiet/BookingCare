@@ -22,6 +22,7 @@ namespace server.DTO
             public string PatientName { get; set; }
             public int PatientId {get; set;}
             public string SpecialtyName { get; set; }
+            public string ServiceName { get; set; }
         }
 
         public class MedicineDto
@@ -34,6 +35,7 @@ namespace server.DTO
             public string Usage { get; set; }
             public string Unit { get; set; }
             public int Quantity { get; set; }
+            public float Price { get; set; }
 
         }
     }

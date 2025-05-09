@@ -37,7 +37,6 @@ function Index() {
                             <Nav.Item>
                                 <Nav.Link eventKey="overview" className="d-flex align-items-center">
                                     <span className="me-2">
-                                        {/* icon can be added here */}
                                     </span>
                                     Tổng Quan
                                 </Nav.Link>
@@ -45,7 +44,6 @@ function Index() {
                             <Nav.Item>
                                 <Nav.Link eventKey="appointments" className="d-flex align-items-center">
                                     <span className="me-2">
-                                        {/* icon can be added here */}
                                     </span>
                                     Lịch Hẹn
                                 </Nav.Link>
@@ -53,7 +51,6 @@ function Index() {
                             <Nav.Item>
                                 <Nav.Link eventKey="prescriptions" className="d-flex align-items-center">
                                     <span className="me-2">
-                                        {/* icon can be added here */}
                                     </span>
                                     Đơn Thuốc
                                 </Nav.Link>
