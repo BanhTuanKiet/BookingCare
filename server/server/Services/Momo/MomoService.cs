@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using server.Models;
@@ -11,11 +12,13 @@ public class MomoService : IMomoService
 {
     private readonly MomoOptionModel _options;
     private readonly HttpClient _httpClient;
+    private readonly ClinicManagementContext _context;
 
-    public MomoService(IOptions<MomoOptionModel> options)
+    public MomoService(IOptions<MomoOptionModel> options, ClinicManagementContext context)
     {
         _options = options.Value;
         _httpClient = new HttpClient();
+        _context = context;
     }
 
     public async Task<MomoCreatePaymentResponseModel> CreatePaymentAsync(string orderId, string orderInfo, int amount)
@@ -67,6 +70,38 @@ public class MomoService : IMomoService
         var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(message));
         return BitConverter.ToString(hash).Replace("-", "").ToLower();
     }
+
+   public async Task<int> CalculateAmountFromRecordId(int recordId)
+{
+    Console.WriteLine("Mã toa thuốc service : " + recordId);
+    var record = await _context.MedicalRecords
+        .Include(r => r.Appointment)
+            .ThenInclude(a => a.Service)
+        .Include(r => r.MedicalRecordDetails)
+            .ThenInclude(d => d.Medicine)
+        .FirstOrDefaultAsync(r => r.RecordId == recordId);
+
+    if (record == null) return 0;
+
+    float total = 0;
+    Console.WriteLine("Tên dịch vụ : " + record.Appointment?.Service.ServiceName + "Giá dịch vụ: "+ record.Appointment?.Service?.Price);
+    // 1. Giá dịch vụ khám
+    if (record.Appointment?.Service?.Price != null)
+    {
+        total += record.Appointment.Service.Price.Value;
+    }
+
+    // 2. Tính tổng giá thuốc theo từng chi tiết
+    foreach (var detail in record.MedicalRecordDetails)
+    {
+        if (detail.Medicine != null && detail.Medicine.Price != null && detail.Quantity != null)
+        {
+            total += detail.Medicine.Price.Value * detail.Quantity.Value;
+        }
+    }
+
+    return (int)total;
+}
 
     // public async Task<MomoPaymentStatusResponseModel> CheckPaymentStatusAsync(string orderId)
     // {

@@ -25,7 +25,6 @@ const ServiceDetail = () => {
     const fetchServiceDetail = async () => {
       try {
         const response = await axios.get(`/services/detail/${serviceName}`)
-
         setService(response.data)
       } catch (error) {
         console.error("Lỗi khi lấy chi tiết dịch vụ:", error)
@@ -41,8 +40,7 @@ const ServiceDetail = () => {
     const fetchServiceReviews = async () => {
       try {
         const type = "service"
-        const response = await axios.get(`/reviews/${type}/${serviceName}`)
-        console.log(serviceName,  response.data)
+        const response = await axios.get(`/reviews/${type}/${service?.serviceId}`)
         setReviews(response.data)
       } catch (error) {
         console.log(error)
@@ -50,8 +48,8 @@ const ServiceDetail = () => {
     }
 
     fetchServiceReviews()
-  }, [serviceName])
-
+  }, [service])
+  
   useEffect(() => {
     const fetchRadomServices = async () => {
       try {

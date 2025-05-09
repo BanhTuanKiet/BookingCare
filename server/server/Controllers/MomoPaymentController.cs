@@ -21,6 +21,7 @@ namespace server.Controllers
         [HttpPost("create-payment")]
         public async Task<IActionResult> CreatePayment([FromBody] CreatePaymentRequest request)
         {
+            Console.WriteLine("Mã toa thuốc : "+request.RecordId.ToString());
             if (request == null || string.IsNullOrWhiteSpace(request.OrderInfo))
             {
                 return BadRequest("Invalid request");
@@ -28,7 +29,7 @@ namespace server.Controllers
 
             // Generate OrderId and Amount on the backend
             var orderId = Guid.NewGuid().ToString();
-            var amount = 1000; // Example: Set a fixed amount or calculate dynamically
+            int amount = await _momoService.CalculateAmountFromRecordId(request.RecordId);
 
             Console.WriteLine($"Generated OrderId: {orderId}");
             Console.WriteLine($"OrderInfo: {request.OrderInfo}");
@@ -66,4 +67,6 @@ namespace server.Controllers
 public class CreatePaymentRequest
 {
     public string OrderInfo { get; set; }
+
+    public int RecordId { get; set; }
 }

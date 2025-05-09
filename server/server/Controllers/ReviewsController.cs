@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using server.DTO;
 using server.Middleware;
+using server.Models;
 using server.Services;
 using server.Services.RatingRepository;
 
@@ -12,11 +14,11 @@ namespace server.Controllers
     [ApiController]
     public class ReviewsController : Controller
     {
-        private readonly IReview _reviewService;
-
-        public ReviewsController(IReview reviewService)
+        private readonly ClinicManagementContext _context;
+        public ReviewsController(IReview reviewService, ClinicManagementContext context)
         {
             _reviewService = reviewService;
+            _context = context;
         }
 
         [HttpGet("exist/{recordId}")]
@@ -58,20 +60,68 @@ namespace server.Controllers
         public async Task<ActionResult> GetReviews(string type, int id)
         {
             object reviews;
-            if (type == "service") {
+            if (type == "service")
+            {
                 reviews = await _reviewService.GetServiceReviews(id);
-            } else {
+            }
+            else 
+            {
                 reviews = await _reviewService.GetDoctorReviews(id);
             }
             
             return Ok(reviews);
         }
-
+        
         [HttpGet("doctors-rating")]
         public async Task<ActionResult<List<DepartmentRatingsDTO>>> GetTopDoctorsByStar()
         {
             var ratings = await _reviewService.GetTopDoctorsByDepartment();
             return Ok(ratings);
+        
+        [HttpGet("detail/{filter}/{type}/{id}")]
+        public async Task<ActionResult> GetReviewsDetail(string filter, string type, int id)
+        {
+            object reviews;
+            if (type == "service")
+            {
+                reviews = await _reviewService.GetDoctorReviewsDetail(filter, id);
+            }
+            else
+            {
+                reviews = await _reviewService.GetDoctorReviewsDetail(filter, id);
+            }
+
+            return Ok(reviews);
+        }
+
+        [HttpGet("doctors/{specialtyName}")]
+        public async Task<ActionResult> GetDoctorsReviewBySpecialty(string specialtyName)
+        {
+            var reviews = await _context.Reviews
+                .Include(review => review.MedicalRecord)
+                .Include(review => review.MedicalRecord.Appointment)
+                .Include(review => review.MedicalRecord.Appointment.Doctor)
+                .Include(review => review.MedicalRecord.Appointment.Doctor.User)
+                .Include(review => review.MedicalRecord.Appointment.Doctor.Specialty)
+                .Where(review => review.MedicalRecord.Appointment.Doctor.Specialty.Name == specialtyName)
+                .GroupBy(review => review.MedicalRecord.Appointment.Doctor.DoctorId)
+                .Select(group => new DoctorReviewBasic
+                {
+                    DoctorId = Convert.ToInt32(group.Key),
+                    ReviewCount = group.Count(),
+                    AvgScore = group.Average(r => r.OverallRating)
+                })
+                .ToListAsync();
+
+            return Ok(reviews);
+        }
+
+        [HttpGet("rating/{doctorId}")]
+        public async Task<ActionResult> GetRatingReviews(int doctorId)
+        {
+            var review = _reviewService.GetRatingReviews(doctorId);
+            
+            return Ok(review.Result);
         }
     }
 }

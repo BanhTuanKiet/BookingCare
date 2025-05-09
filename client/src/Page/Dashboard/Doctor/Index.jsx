@@ -11,11 +11,6 @@ import UserProfileCard from '../../../Component/UserProfileCard'
 function Index() {
     const [tabActive, setTabActive] = useState("overview")
     const [doctor, setDoctor] = useState()
-    const [showShiftDetail, setShowShiftDetail] = useState(false)
-    const [dateTime, setDateTime] = useState({
-        date: null,
-        time: null
-    })
 
     useEffect(() => {
         const fetchPatient = async () => {
@@ -42,36 +37,24 @@ function Index() {
                         <Nav variant="tabs" className="mb-3">
                             <Nav.Item>
                                 <Nav.Link eventKey="overview" className="d-flex align-items-center">
-                                    <span className="me-2">
-                                        {/* icon can be added here */}
-                                    </span>
                                     Tổng Quan
                                 </Nav.Link>
                             </Nav.Item>
 
                             <Nav.Item>
                                 <Nav.Link eventKey="doctorSchedule" className="d-flex align-items-center">
-                                    <span className="me-2">
-                                        {/* icon can be added here */}
-                                    </span>
                                     Lịch làm việc
                                 </Nav.Link>
                             </Nav.Item>
 
                             <Nav.Item>
                                 <Nav.Link eventKey="patientHistory" className="d-flex align-items-center">
-                                    <span className="me-2">
-                                        {/* icon can be added here */}
-                                    </span>
                                     Danh sách bệnh nhân
                                 </Nav.Link>
                             </Nav.Item>
 
                             <Nav.Item>
                                 <Nav.Link eventKey="evaluate" className="d-flex align-items-center">
-                                    <span className="me-2">
-                                        {/* icon can be added here */}
-                                    </span>
                                     Đánh giá
                                 </Nav.Link>
                             </Nav.Item>
@@ -160,11 +143,7 @@ function Index() {
                             <Tab.Pane eventKey="doctorSchedule">
                                 <Card>
                                     <Card.Body>
-                                        {
-                                            showShiftDetail ? 
-                                            <DoctorShiftDetail dateTime={dateTime} setShowShiftDetail={setShowShiftDetail} /> : 
-                                            <DoctorSchedule setShowShiftDetail={setShowShiftDetail} setDateTime={setDateTime} />
-                                        }
+                                        <DoctorSchedule />
                                     </Card.Body>
                                 </Card>
                             </Tab.Pane>

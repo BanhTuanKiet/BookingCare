@@ -1,13 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Badge, Button, Card, Table, Modal } from 'react-bootstrap';
+import { Badge, Button, Card, Table } from 'react-bootstrap';
 import axios from '../../../Util/AxiosConfig';
-import { toast } from 'react-toastify'; // nếu bạn có cài react-toastify
 
 function Appointments({ tabActive }) {
     const [appointments, setAppointments] = useState([]);
     const [quantity, setQuantity] = useState(10);
-    const [showPaymentModal, setShowPaymentModal] = useState(false);
-    const [selectedAppointment, setSelectedAppointment] = useState(null);
 
     useEffect(() => {
         const fetchAppointments = async () => {
@@ -78,7 +75,6 @@ function Appointments({ tabActive }) {
             console.error(error, 'Có lỗi khi tạo yêu cầu thanh toán MoMo.');
         }
     };
-    
 
     return (
         <Card>
@@ -117,9 +113,6 @@ function Appointments({ tabActive }) {
                                             <div className="d-flex gap-2 justify-content-center">
                                                 <Button size="sm" variant="danger" onClick={() => handleCancelAppointment(appointment.appointmentId)}>
                                                     Hủy
-                                                </Button>
-                                                <Button size="sm" variant="primary" onClick={() => handlePaymentClick(appointment)}>
-                                                    Thanh toán
                                                 </Button>
                                             </div>
                                         )}

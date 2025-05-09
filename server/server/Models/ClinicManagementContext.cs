@@ -113,7 +113,7 @@ public partial class ClinicManagementContext : IdentityDbContext<ApplicationUser
             entity.Property(e => e.Diagnosis).HasMaxLength(255);
             entity.Property(e => e.Treatment).HasMaxLength(255);
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
-            entity.Property(e => e.Price).HasColumnType("float");;
+            entity.Property(e => e.Price).HasColumnType("float");
 
             entity.HasOne(d => d.Appointment).WithOne(p => p.MedicalRecord)
                 .HasForeignKey<MedicalRecord>(d => d.AppointmentId)
@@ -284,7 +284,7 @@ public partial class ClinicManagementContext : IdentityDbContext<ApplicationUser
                 .HasForeignKey(d => d.MedicineId)
                 .HasConstraintName("FK__MedicalRe__Medic__07220AB2");
 
-            entity.HasOne(d => d.ReCord).WithMany()
+            entity.HasOne(d => d.ReCord).WithMany(p => p.MedicalRecordDetails)
                 .HasForeignKey(d => d.ReCordId)
                 .HasConstraintName("FK__MedicalRe__ReCor__08162EEB");
         });

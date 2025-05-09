@@ -164,6 +164,57 @@ namespace server.Services.RatingRepository
                 .ToList();
 
             return departments;
+
+        public async Task<List<DoctorReviewDetailDTO>> GetDoctorReviewsDetail(string filter, int doctorId)
+        {
+            var query = _context.Reviews
+                .Include(review => review.MedicalRecord)
+                .Include(review => review.DoctorReviewDetail)
+                .Include(review => review.MedicalRecord.Appointment)
+                .Include(review => review.MedicalRecord.Appointment.Patient)
+                .Include(review => review.MedicalRecord.Appointment.Doctor)
+                .Include(review => review.MedicalRecord.Appointment.Patient.User)
+                .Where(review => review.MedicalRecord.Appointment.Doctor.DoctorId == doctorId);
+
+            if (filter == "positive")
+            {
+                query = query.Where(review => review.OverallRating > 3);
+            }
+            else if (filter == "negative")
+            {
+                query = query.Where(review => review.OverallRating <= 3);
+            }
+
+            var reviews = await query.ToListAsync();
+
+            var reviewDTOs = _mapper.Map<List<DoctorReviewDetailDTO>>(reviews);
+
+            return reviewDTOs;
+        }
+
+        public async Task<List<ReviewRating>> GetRatingReviews(int doctorId)
+        {
+            var reviews = await _context.Reviews
+                .Include(r => r.MedicalRecord)
+                .Include(r => r.MedicalRecord.Appointment)
+                .Include(r => r.MedicalRecord.Appointment.Doctor)
+                .Where(r => r.MedicalRecord.Appointment.Doctor.DoctorId == doctorId)
+                .GroupBy(r => r.OverallRating)
+                .Select(group => new ReviewRating {
+                    Rating = group.Key,
+                    ReviewCount = group.Count()
+                })
+                .ToListAsync();
+
+            var result = Enumerable.Range(1, 5)
+                .Select(rating => new ReviewRating
+                {
+                    Rating = rating,
+                    ReviewCount = reviews.FirstOrDefault(x => x.Rating == rating)?.ReviewCount ?? 0
+                })
+                .ToList();
+
+            return result;
         }
     }
 }

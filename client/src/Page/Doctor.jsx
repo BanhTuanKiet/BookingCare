@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react'
-import { Container, Form, InputGroup, Button, Nav } from 'react-bootstrap'
+import { Container, Form, InputGroup, Button, Nav, Row, Col } from 'react-bootstrap'
 import { FaSearch } from 'react-icons/fa'
 import { DoctorCard } from '../Component/Card/Index'
 import axios from '../Util/AxiosConfig'
@@ -13,25 +13,36 @@ const Doctor = () => {
   const [activeSpecialty, setActiveSpecialty] = useState('all')
   const [searchTerm, setSearchTerm] = useState('')
   const [loading, setLoading] = useState(true)
+  
+  // Pagination
   const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 15
-
-  const indexOfLastDoctor = currentPage * itemsPerPage
-  const indexOfFirstDoctor = indexOfLastDoctor - itemsPerPage
-  const currentDoctors = doctors.slice(indexOfFirstDoctor, indexOfLastDoctor)
-  const totalPages = Math.ceil(doctors.length / itemsPerPage)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalItems, setTotalItems] = useState(0)
 
   useEffect(() => {
-    fetchDoctors()
+    fetchDoctors(1)
   }, [])
 
-  const fetchDoctors = async () => {
+  const fetchDoctors = async (page, specialty = 'all', keyword = '') => {
     try {
       setLoading(true)
-      const response = await axios.get('/doctors', { withCredentials: true })
-      const filteredDoctors = response.data.filter(doctor => doctor.doctorId)
-      setDoctors(filteredDoctors)
-      setCurrentPage(1)
+      let url = `/doctors/paged?pageNumber=${page}`
+      if (specialty !== 'all') {
+        url += `&specialty=${specialty}`
+      }
+      if (keyword.trim()) {
+        url += `&keyword=${keyword}`
+      }
+      
+      const response = await axios.get(url, { withCredentials: true })
+
+      console.log(response)
+      
+      setDoctors(response.data.items)
+      setTotalPages(response.data.totalPages)
+      setTotalItems(response.data.totalItems)
+      setCurrentPage(response.data.pageNumber)
+
     } catch (error) {
       console.error('Lỗi khi lấy danh sách bác sĩ:', error)
     } finally {
@@ -41,48 +52,23 @@ const Doctor = () => {
 
   const handleSpecialtyFilter = async (specialty) => {
     setActiveSpecialty(specialty)
-    setLoading(true)
-    try {
-      if (specialty === 'all') {
-        await fetchDoctors()
-        return
-      }
-      const response = await axios.get(`/doctors/${specialty}`)
-      setDoctors(response.data)
-      setCurrentPage(1)
-    } catch (error) {
-      console.error('Lỗi lọc theo chuyên khoa:', error)
-    } finally {
-      setLoading(false)
-    }
+    await fetchDoctors(1, specialty, searchTerm)
   }
 
   const handleSearch = async (e) => {
     e.preventDefault()
-    try {
-      setLoading(true)
-      if (!searchTerm.trim()) {
-        handleSpecialtyFilter(activeSpecialty)
-        return
-      }
-      const response = await axios.get(`/doctors/search?keyword=${searchTerm}`)
-      const filteredDoctors = response.data.filter(doctor => doctor.doctorId)
-      setDoctors(filteredDoctors)
-      setCurrentPage(1)
-    } catch (error) {
-      console.error('Lỗi tìm kiếm:', error)
-    } finally {
-      setLoading(false)
-    }
+    await fetchDoctors(1, activeSpecialty, searchTerm)
   }
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber)
+    fetchDoctors(pageNumber, activeSpecialty, searchTerm)
     window.scrollTo(0, 0)
   }
 
   return (
-    <Container className="py-5 doctor-section">
+    <Container className="py-5">
+      <div className='mx-auto'>
       <h1 className="text-center text-primary mb-5">Đội ngũ bác sĩ</h1>
 
       <div className="search-container mb-4">
@@ -113,7 +99,7 @@ const Doctor = () => {
         {specialties.map((specialty) => (
           <Nav.Item key={specialty.id}>
             <Nav.Link
-              className={activeSpecialty === specialty.id ? 'active' : ''}
+              className={activeSpecialty === specialty.name ? 'active' : ''}
               onClick={() => handleSpecialtyFilter(specialty.name)}
             >
               {specialty.name}
@@ -126,10 +112,15 @@ const Doctor = () => {
         <Loading text="Đang tải danh sách bác sĩ..." />
       ) : (
         <>
-          <div className="doctor-grid mx-auto" style={{ width: "85%" }}>
-            {currentDoctors.length > 0 ? (
-              currentDoctors.map(doctor => (
-                <div key={doctor.doctorId} className="doctor-grid-item">
+          <Row className="d-flex g-1">
+            {doctors.length > 0 ? (
+              doctors.map(doctor => (
+                <Col
+                  key={doctor.doctorId}
+                  lg={3} md={4} sm={6}
+                  className="mb-4 d-flex justify-content-center"
+                  style={{ minHeight: '300px' }}
+                >
                   <DoctorCard doctor={doctor} />
                 </div>
               ))
@@ -140,7 +131,7 @@ const Doctor = () => {
             )}
           </div>
 
-          {doctors.length > itemsPerPage && (
+          {totalItems > 0 && (
             <div className="d-flex justify-content-center mt-4">
               <nav>
                 <ul className="pagination">
