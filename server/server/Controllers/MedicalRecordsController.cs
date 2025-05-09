@@ -31,18 +31,18 @@ namespace Clinic_Management.Controllers
         private readonly IAppointment _appointmentService;
         private readonly IPatient _patientService;
         private readonly IDoctor _doctorService;
-        private readonly IEmailService _emailService;
         private readonly IMedicine _medicineService;
+        private readonly IConfiguration _configuration;
 
-        public MedicalRecords(ClinicManagementContext context, IMedicalRecord medicalRecordService, IAppointment appointmentService, IPatient patientService, IDoctor doctorService, IEmailService emailService, IMedicine medicineService)
+        public MedicalRecords(ClinicManagementContext context, IMedicalRecord medicalRecordService, IAppointment appointmentService, IPatient patientService, IDoctor doctorService, IMedicine medicineService, IConfiguration configuration)
         {
             _context = context;
             _medicalRecordService = medicalRecordService;
             _appointmentService = appointmentService;
             _patientService = patientService;
             _doctorService = doctorService;
-            _emailService = emailService;
             _medicineService = medicineService;
+            _configuration = configuration;
         }
 
         [Authorize(Roles = "doctor")]
@@ -117,8 +117,9 @@ namespace Clinic_Management.Controllers
                  <p>Lời dặn của bác sĩ: <b>{prescriptionRequest.Notes}</b></p>
                  <br><p><i>Lưu ý: Vui lòng sử dụng thuốc đúng theo hướng dẫn và quay lại tái khám nếu cần.</i></p>
                  <p>Chúc bạn mau hồi phục sức khỏe!</p>";
+            
  
-             await _emailService.SendEmailAsync(Email, subject, body);
+             await EmailUtil.SendEmailAsync(Email, subject, body, _configuration);
         }
 
         [Authorize(Roles = "patient")]
