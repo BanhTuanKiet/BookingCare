@@ -2,9 +2,9 @@ import { useEffect, useState } from "react"
 import { Container, Row, Col, Card, Badge, Tab, Nav, Button } from "react-bootstrap"
 import { Bar } from "react-chartjs-2"
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from "chart.js"
-import axios from "../../../Util/AxiosConfig"
+import axios from "../../../../Util/AxiosConfig"
 import { Star, StarHalf, User, Award } from "lucide-react"
-import ReviewDetailCard from "../../../Component/Card/ReviewDetailCard"
+import ReviewDetailCard from "../../../../Component/Card/ReviewDetailCard"
 import { useNavigate } from "react-router-dom"
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement)

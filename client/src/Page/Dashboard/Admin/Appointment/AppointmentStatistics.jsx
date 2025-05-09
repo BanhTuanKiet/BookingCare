@@ -1,4 +1,4 @@
-import axios from '../../../Util/AxiosConfig'
+import axios from '../../../../Util/AxiosConfig'
 import React, { useEffect, useState } from 'react'
 import { Col, Row, Card } from 'react-bootstrap'
 import { Pie, Bar } from 'react-chartjs-2'

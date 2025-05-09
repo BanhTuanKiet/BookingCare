@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Table, Button, Spinner, Card, Row, Col, Modal } from 'react-bootstrap';
-import axios from '../../../Util/AxiosConfig';
-import { extractDateOnly } from '../../../Util/DateUtils';
-import PrescriptionCard from '../../../Component/Card/PrescriptionCard';
+import axios from '../../../../Util/AxiosConfig';
+import { extractDateOnly } from '../../../../Util/DateUtils';
+import PrescriptionCard from '../../../../Component/Card/PrescriptionCard';
 import PrescriptionDetail from './PrescriptionDetail';
 
 const PatientPrescriptions = ({ patientId, patientName, goBack }) => {

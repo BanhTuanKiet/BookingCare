@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Container, Table, Button, Badge, Form, Modal, Spinner, Pagination, Row, Col } from 'react-bootstrap'
-import axios from '../../../Util/AxiosConfig'
-import { extractDateOnly } from '../../../Util/DateUtils'
+import axios from '../../../../Util/AxiosConfig'
+import { extractDateOnly } from '../../../../Util/DateUtils'
 
 const AppointmentAdmin = () => {
   const [appointments, setAppointments] = useState([])

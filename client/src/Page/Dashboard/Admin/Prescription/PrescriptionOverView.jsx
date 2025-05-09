@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Table, Button, Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import axios from '../../../Util/AxiosConfig';
-import { extractDateOnly } from '../../../Util/DateUtils';
+import axios from '../../../../Util/AxiosConfig';
+import { extractDateOnly } from '../../../../Util/DateUtils';
 import PatientPrescriptions from './PatientPrescription'; // đảm bảo đúng path
 
 const PrescriptionOverView = () => {

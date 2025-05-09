@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Spinner, Alert, Form, Modal, Button } from 'react-bootstrap';
-import axios from '../../../Util/AxiosConfig';
+import axios from '../../../../Util/AxiosConfig';
 
 function DoctorSalaryTable() {
     const [salaries, setSalaries] = useState([]);

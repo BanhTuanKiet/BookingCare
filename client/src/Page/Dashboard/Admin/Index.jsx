@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
 import { Container, Row, Col, Card, Nav, Tab } from 'react-bootstrap'
-import AppointmentAdmin from './AppointmentAdmin'
-import AppointmentStatistics from './AppointmentStatistics'
-import Reviews from './Reviews'
+import AppointmentAdmin from './Appointment/AppointmentAdmin'
+import AppointmentStatistics from './Appointment/AppointmentStatistics'
+import PrescriptionOverView from './Prescription/PrescriptionOverView'
+import Reviews from './Doctor/Reviews'
+import DoctorSalary from './Salary/DoctorSalary'
 import "../../../Style/Admin.css"
 
 function Index() {
@@ -48,6 +50,12 @@ function Index() {
                                     >
                                         Đơn Thuốc
                                     </Nav.Link>
+                                    <Nav.Link 
+                                        eventKey="salary"
+                                        className={`sidebar-link mb-2 ${tabActive === "salary" ? "active" : ""}`}
+                                    >
+                                        Lương
+                                    </Nav.Link>                                    
                                     <Nav.Link 
                                         eventKey="users"
                                         className={`sidebar-link mb-2 ${tabActive === "users" ? "active" : ""}`}
@@ -96,16 +104,11 @@ function Index() {
                             </Tab.Pane>
 
                             <Tab.Pane eventKey="prescriptions">
-                                <Card>
-                                    <Card.Body>
-                                        <h4>Quản Lý Đơn Thuốc</h4>
-                                        <p className="text-muted">Xem và quản lý đơn thuốc trong hệ thống</p>
-                                        
-                                        <div className="p-4 bg-light rounded text-center">
-                                            <p>Nội dung quản lý đơn thuốc sẽ hiển thị ở đây</p>
-                                        </div>
-                                    </Card.Body>
-                                </Card>
+                                <PrescriptionOverView />
+                            </Tab.Pane>
+
+                            <Tab.Pane eventKey="salary">
+                                <DoctorSalary />
                             </Tab.Pane>
 
                             <Tab.Pane eventKey="users">

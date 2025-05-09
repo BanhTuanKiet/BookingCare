@@ -1,5 +1,5 @@
 import { Button, Col, Row } from 'react-bootstrap'
-import axios from '../../../Util/AxiosConfig'
+import axios from '../../../../Util/AxiosConfig'
 import React, { useEffect, useState } from 'react'
 import ReviewDetail from './ReviewDetail'
 
