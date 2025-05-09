@@ -1,152 +1,155 @@
-import React, { useEffect, useState } from 'react';
-import { Badge, Button, Card, Table } from 'react-bootstrap';
+import React, { useEffect, useState, useContext } from 'react';
+import { Card, Form, Row, Col, Button } from 'react-bootstrap';
 import axios from '../../../Util/AxiosConfig';
+import { ValideFormContext } from '../../../Context/ValideFormContext';
+import { NavContext } from '../../../Context/NavContext'; // Giả định bạn có NavContext
 
 function Appointments({ tabActive }) {
-    const [appointments, setAppointments] = useState([]);
-    const [quantity, setQuantity] = useState(10);
+  const [appointments, setAppointments] = useState([]);
+  const [formData, setFormData] = useState({
+    department: '',
+    doctor: '',
+    service: '',
+    appointmentDate: '',
+    appointmentTime: '',
+  });
 
-    useEffect(() => {
-        const fetchAppointments = async () => {
-            try {
-                const response = await axios.post(`appointments/by-patient/${quantity}`);
-                setAppointments(response.data);
-            } catch (error) {
-                console.error(error);
-            }
-        };
+  const { specialties } = useContext(NavContext);
+  const { validateForm, formErrors } = useContext(ValideFormContext);
 
-        if (tabActive === "appointments") {
-            fetchAppointments();
-        }
-    }, [tabActive, quantity]);
+  const [specialty, setSpecialty] = useState('');
+  const [doctors, setDoctors] = useState([]);
+  const [services, setServices] = useState([]);
 
-    const handleCancelAppointment = async (appointmentId) => {
-        if (window.confirm("Bạn có chắc chắn muốn hủy lịch hẹn này không?")) {
-            try {
-                await axios.put(`/appointments/cancel/${appointmentId}`);
-                const response = await axios.post(`appointments/by-patient`);
-                setAppointments(response.data);
-            } catch (error) {
-                console.error(error);
-            }
-        }
+  // Load doctors và services khi specialty thay đổi
+  useEffect(() => {
+    if (!specialty) return;
+
+    const fetchDoctors = async () => {
+      try {
+        const response = await axios.get(`/doctors/${specialty}`);
+        setDoctors(response.data);
+      } catch (error) {
+        console.error(error);
+      }
     };
 
-    const handlePaymentClick = (appointment) => {
-        setSelectedAppointment(appointment);
-        setShowPaymentModal(true);
+    const fetchServices = async () => {
+      try {
+        const response = await axios.get(`/services/${specialty}/services`);
+        setServices(response.data);
+      } catch (error) {
+        console.error(error);
+      }
     };
 
-    const handleCloseModal = () => {
-        setShowPaymentModal(false);
-        setSelectedAppointment(null);
-    };
+    fetchDoctors();
+    fetchServices();
+  }, [specialty]);
 
-    const handleSelectVnpay = async (appointmentId) => {
-        try {
-            const response = await axios.post(`/vnpaypayment/create/${appointmentId}`);
-    
-            if (response.status === 200 && response.data.paymentUrl) {
-                window.location.href = response.data.paymentUrl;
-            } else {
-                toast.error("Không lấy được URL thanh toán.");
-            }
-        } catch (error) {
-            console.error(error);
-            toast.error("Có lỗi khi tạo thanh toán.");
-        }
-    };
-    
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name === 'department') setSpecialty(value);
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+  };
 
-    const handleSelectMomo = async () => {
-        if (!selectedAppointment) return;
-        try {
-            const orderId = new Date().getTime().toString();
-            const response = await axios.post('momopayment/create-payment', { orderInfo: "Thanh toán lịch hẹn",});
-    
-            console.log('Momo payment response:', response.data);  // Log API response
-            if (response.data.payUrl) {
-                window.location.href = response.data.payUrl;   // Sửa ở đây
-            } else {
-                alert('Không nhận được URL thanh toán từ Momo.');
-            }
-        } catch (error) {
-            console.error(error, 'Có lỗi khi tạo yêu cầu thanh toán MoMo.');
-        }
-    };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const errors = validateForm(formData);
+    if (Object.keys(errors).length > 0) return;
 
-    return (
-        <Card>
-            <Card.Body>
-                <h4>Lịch Hẹn</h4>
-                <p>Danh sách các lịch hẹn sắp tới</p>
-                <div className="table-responsive">
-                    <Table bordered hover>
-                        <thead className="table-light text-center">
-                            <tr>
-                                <th>Ngày hẹn</th>
-                                <th>Bác sĩ</th>
-                                <th>Dịch vụ</th>
-                                <th>Trạng thái</th>
-                                <th>Thao tác</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {appointments.map((appointment) => (
-                                <tr key={appointment.appointmentId} className="align-middle text-center">
-                                    <td>{new Date(appointment.appointmentDate).toLocaleDateString()}</td>
-                                    <td>{appointment.doctorName}</td>
-                                    <td>{appointment.serviceName}</td>
-                                    <td>
-                                        <Badge bg={
-                                            appointment.status === "Chờ xác nhận" ? "warning" :
-                                            appointment.status === "Đã xác nhận" ? "primary" :
-                                            appointment.status === "Đã hủy" ? "danger" :
-                                            appointment.status === "Đã hoàn thành" ? "success" : "secondary"
-                                        }>
-                                            {appointment.status}
-                                        </Badge>
-                                    </td>
-                                    <td>
-                                        {(appointment.status !== "Đã hủy" && appointment.status !== "Đã hoàn thành") && (
-                                            <div className="d-flex gap-2 justify-content-center">
-                                                <Button size="sm" variant="danger" onClick={() => handleCancelAppointment(appointment.appointmentId)}>
-                                                    Hủy
-                                                </Button>
-                                            </div>
-                                        )}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </Table>
-                </div>
-                <div className="text-end mt-3">
-                    {appointments.length % 10 === 0 ? (
-                        <Button onClick={() => setQuantity(quantity + 10)} variant="outline-primary">Xem thêm</Button>
-                    ) : (
-                        <Button onClick={() => setQuantity(10)} variant="outline-primary">Thu gọn</Button>
-                    )}
-                </div>
+    try {
+      await axios.post('/appointments', formData);
+      // Optional: Reset form hoặc hiển thị thông báo
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-                {/* Modal chọn phương thức thanh toán */}
-                <Modal show={showPaymentModal} onHide={handleCloseModal} centered>
-                    <Modal.Header closeButton>
-                        <Modal.Title>Chọn phương thức thanh toán</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body className="text-center">
-                    <Button variant="success" className="m-2" onClick={() => handleSelectVnpay(selectedAppointment.appointmentId)}>
-                        Thanh toán VNPay
-                    </Button>
-                        <Button variant="warning" className="m-2" onClick={handleSelectMomo}>
-                            Thanh toán MoMo
-                        </Button>
-                    </Modal.Body>
-                </Modal>
-            </Card.Body>
-        </Card>
-    );
+  return (
+    <Card className="p-4">
+      <h4 className="mb-4">Đăng Ký Lịch Khám</h4>
+      <p className="text-muted mb-4">
+        Vui lòng điền thông tin vào form bên dưới để đăng ký khám bệnh theo yêu cầu.
+      </p>
+
+      <Form onSubmit={handleSubmit}>
+        <Form.Group className="mb-3">
+          <Form.Select
+            name="department"
+            onChange={handleChange}
+            isInvalid={!!formErrors.specialty}
+          >
+            <option>Chọn chuyên khoa</option>
+            {specialties.map((spec, index) => (
+              <option key={index} value={spec.name}>
+                {spec.name}
+              </option>
+            ))}
+          </Form.Select>
+          <Form.Control.Feedback type="invalid">{formErrors.specialty}</Form.Control.Feedback>
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Select name="doctor" onChange={handleChange} isInvalid={!!formErrors.doctor}>
+            <option>Chọn bác sĩ</option>
+            {doctors.map((doctor, index) => (
+              <option key={index} value={doctor.userName}>
+                {doctor.userName}
+              </option>
+            ))}
+          </Form.Select>
+          <Form.Control.Feedback type="invalid">{formErrors.doctor}</Form.Control.Feedback>
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Select name="service" onChange={handleChange} isInvalid={!!formErrors.service}>
+            <option>Chọn dịch vụ</option>
+            {services.map((service, index) => (
+              <option key={index} value={service.serviceName}>
+                {service.serviceName}
+              </option>
+            ))}
+          </Form.Select>
+          <Form.Control.Feedback type="invalid">{formErrors.service}</Form.Control.Feedback>
+        </Form.Group>
+
+        <Row className="mb-3">
+          <Col md={6}>
+            <Form.Group>
+              <Form.Control
+                type="date"
+                name="appointmentDate"
+                onChange={handleChange}
+                isInvalid={!!formErrors.appointmentDate}
+              />
+              <Form.Control.Feedback type="invalid">
+                {formErrors.appointmentDate}
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Group>
+              <Form.Select
+                name="appointmentTime"
+                onChange={handleChange}
+                isInvalid={!!formErrors.appointmentTime}
+              >
+                <option>Buổi khám</option>
+                <option>Sáng</option>
+                <option>Chiều</option>
+              </Form.Select>
+              <Form.Control.Feedback type="invalid">
+                {formErrors.appointmentTime}
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Col>
+        </Row>
+
+        <Button type="submit">Đặt lịch</Button>
+      </Form>
+    </Card>
+  );
 }
 
 export default Appointments;

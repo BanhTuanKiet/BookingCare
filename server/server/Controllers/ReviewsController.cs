@@ -15,6 +15,7 @@ namespace server.Controllers
     public class ReviewsController : Controller
     {
         private readonly ClinicManagementContext _context;
+        private readonly IReview _reviewService;
         public ReviewsController(IReview reviewService, ClinicManagementContext context)
         {
             _reviewService = reviewService;
@@ -77,6 +78,7 @@ namespace server.Controllers
         {
             var ratings = await _reviewService.GetTopDoctorsByDepartment();
             return Ok(ratings);
+        }
         
         [HttpGet("detail/{filter}/{type}/{id}")]
         public async Task<ActionResult> GetReviewsDetail(string filter, string type, int id)

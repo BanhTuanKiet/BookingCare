@@ -164,6 +164,7 @@ namespace server.Services.RatingRepository
                 .ToList();
 
             return departments;
+        }
 
         public async Task<List<DoctorReviewDetailDTO>> GetDoctorReviewsDetail(string filter, int doctorId)
         {
