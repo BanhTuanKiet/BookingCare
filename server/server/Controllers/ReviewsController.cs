@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using server.DTO;
@@ -14,7 +14,6 @@ namespace server.Controllers
     [ApiController]
     public class ReviewsController : Controller
     {
-        private readonly IReview _reviewService;
         private readonly ClinicManagementContext _context;
         public ReviewsController(IReview reviewService, ClinicManagementContext context)
         {
@@ -73,6 +72,12 @@ namespace server.Controllers
             
             return Ok(reviews);
         }
+        
+        [HttpGet("doctors-rating")]
+        public async Task<ActionResult<List<DepartmentRatingsDTO>>> GetTopDoctorsByStar()
+        {
+            var ratings = await _reviewService.GetTopDoctorsByDepartment();
+            return Ok(ratings);
         
         [HttpGet("detail/{filter}/{type}/{id}")]
         public async Task<ActionResult> GetReviewsDetail(string filter, string type, int id)
