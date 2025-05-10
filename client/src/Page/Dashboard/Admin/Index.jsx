@@ -4,6 +4,7 @@ import AppointmentAdmin from './Appointment/AppointmentAdmin'
 import AppointmentStatistics from './Appointment/AppointmentStatistics'
 import PrescriptionOverView from './Prescription/PrescriptionOverView'
 import Reviews from './Doctor/Reviews'
+import ServiceReviews from './Service/ServiceReviews'
 import DoctorSalary from './Salary/DoctorSalary'
 import "../../../Style/Admin.css"
 
@@ -37,6 +38,12 @@ function Index() {
                                         className={`sidebar-link mb-2 ${tabActive === "reviews" ? "active" : ""}`}
                                     >
                                         Thống kê đánh giá
+                                    </Nav.Link>
+                                    <Nav.Link 
+                                        eventKey="servicereviews"
+                                        className={`sidebar-link mb-2 ${tabActive === "servicereviews" ? "active" : ""}`}
+                                    >
+                                        Dịch vụ
                                     </Nav.Link>
                                     <Nav.Link 
                                         eventKey="appointments"
@@ -97,6 +104,9 @@ function Index() {
                             
                             <Tab.Pane eventKey="reviews">
                                 <Reviews />
+                            </Tab.Pane>
+                            <Tab.Pane eventKey="servicereviews">
+                                <ServiceReviews />
                             </Tab.Pane>
 
                             <Tab.Pane eventKey="appointments" >

@@ -129,6 +129,66 @@ namespace server.Services.RatingRepository
             return reviewDTOs;
         }
 
+        public async Task<List<ServiceReviewDetailDTO>> GetServiceReviewsDetail(string filter, int serviceId)
+        {
+            var query = _context.Reviews
+                .Include(review => review.MedicalRecord)
+                .Include(review => review.ServiceReviewDetail)
+                .Include(review => review.MedicalRecord.Appointment)
+                .Include(review => review.MedicalRecord.Appointment.Patient)
+                .Include(review => review.MedicalRecord.Appointment.Patient.User)
+                .Include(review => review.MedicalRecord.Appointment.Service)
+                .Where(review => review.MedicalRecord.Appointment.Service.ServiceId == serviceId);
+
+            if (filter == "positive")
+            {
+                query = query.Where(review => review.OverallRating > 3);
+            }
+            else if (filter == "negative")
+            {
+                query = query.Where(review => review.OverallRating <= 3);
+            }
+
+            var reviews = await query.ToListAsync();
+
+            var reviewDTOs = reviews.Select(r => new ServiceReviewDetailDTO
+            {
+                ReviewId = r.ReviewId,
+                MedicalRecordId = r.PrescriptionId,
+                OverallRating = r.OverallRating,
+                Comment = r.Comment,
+                CreatedAt = r.CreatedAt ?? DateTime.MinValue,
+                Effectiveness = r.ServiceReviewDetail?.Effectiveness ?? 0,
+                Price = r.ServiceReviewDetail?.Price ?? 0,
+                ServiceSpeed = r.ServiceReviewDetail?.ServiceSpeed ?? 0,
+                Convenience = r.ServiceReviewDetail?.Convenience ?? 0,
+                PatientName = r.MedicalRecord.Appointment.Patient.User.FullName
+            }).ToList();
+
+            return reviewDTOs;
+        }
+
+        public async Task<List<ServiceReviewBasic>> GetServiceReviewsBySpecialty(string specialtyName)
+        {
+            var reviews = await _context.Reviews
+                .Include(review => review.MedicalRecord)
+                .Include(review => review.MedicalRecord.Appointment)
+                .Include(review => review.MedicalRecord.Appointment.Service)
+                .Include(review => review.MedicalRecord.Appointment.Service.Specialties)
+                .Where(review => review.MedicalRecord.Appointment.Service.Specialties.Contains(review.MedicalRecord.Appointment.Service.Specialties.FirstOrDefault(s => s.Name == specialtyName)))
+                .GroupBy(review => review.MedicalRecord.Appointment.Service.ServiceId)
+                .Select(group => new ServiceReviewBasic
+                {
+                    ServiceId = group.Key,
+                    ReviewCount = group.Count(),
+                    AvgScore = group.Average(r => r.OverallRating)
+                })
+                .ToListAsync();
+
+            return reviews;
+        }
+
+
         public async Task<List<ReviewRating>> GetRatingReviews(int doctorId)
         {
             var reviews = await _context.Reviews
