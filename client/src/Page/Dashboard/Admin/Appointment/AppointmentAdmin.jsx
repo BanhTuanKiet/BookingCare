@@ -1,86 +1,82 @@
 import React, { useState, useEffect } from 'react'
-import { Container, Table, Button, Badge, Form, Modal, Spinner, Pagination, Row, Col } from 'react-bootstrap'
+import { Container, Table, Button, Badge, Modal, Spinner, Pagination, Row, Col, Form } from 'react-bootstrap'
 import axios from '../../../../Util/AxiosConfig'
 import { extractDateOnly } from '../../../../Util/DateUtils'
+import { PencilSquare } from 'react-bootstrap-icons'
 
-const AppointmentAdmin = () => {
+const statusOptions = ['Chờ xác nhận', 'Đã xác nhận', 'Đã hoàn thành', 'Đã hủy']
+
+const statusColors = {
+  'Chờ xác nhận': 'warning',
+  'Đã xác nhận': 'info',
+  'Đã hoàn thành': 'success',
+  'Đã hủy': 'danger'
+}
+
+const AppointmentAdmin = ({ month, year }) => {
   const [appointments, setAppointments] = useState([])
   const [loading, setLoading] = useState(true)
+  const [updating, setUpdating] = useState(false)
   const [showModal, setShowModal] = useState(false)
-  const [currentAppointment, setCurrentAppointment] = useState(null)
+  const [selected, setSelected] = useState(null)
   const [newStatus, setNewStatus] = useState('')
   const [currentPage, setCurrentPage] = useState(0)
 
   const itemsPerPage = 10
   const totalPages = Math.ceil(appointments.length / itemsPerPage)
 
-  const statusOptions = [
-    'Chờ xác nhận',
-    'Đã xác nhận',
-    'Đã hoàn thành',
-    'Đã hủy'
-  ]
-
-  const statusColors = {
-    'Chờ xác nhận': 'warning',
-    'Đã xác nhận': 'info',
-    'Đã hoàn thành': 'success',
-    'Đã hủy': 'danger'
-  }
-
   useEffect(() => {
-    fetchAppointments()
-  }, [])
-
-  const fetchAppointments = async () => {
-    setLoading(true)
-
-    try {
-      const response = await axios.get('/appointments')
-      setAppointments(response.data)
-    } catch (err) {
-      console.error('Error fetching appointments:', err)
-    } finally {
-      setLoading(false)
+    const fetchAppointments = async () => {
+      setLoading(true)
+      try {
+        const { data } = await axios.get(`/appointments/${month}/${year}`)
+        setAppointments(data)
+      } catch (err) {
+        console.error('Error fetching appointments:', err)
+      } finally {
+        setLoading(false)
+      }
     }
-  }
 
-  const handleOpenModal = (appointment) => {
-    setCurrentAppointment(appointment)
+    fetchAppointments()
+  }, [month, year])
+
+  const openModal = (appointment) => {
+    setSelected(appointment)
     setNewStatus(appointment.status)
     setShowModal(true)
   }
 
-  const handleCloseModal = () => {
+  const closeModal = () => {
     setShowModal(false)
-    setCurrentAppointment(null)
+    setSelected(null)
     setNewStatus('')
   }
 
-  const handleUpdateStatus = async () => {
-    if (!currentAppointment || newStatus === currentAppointment.status) {
-      return
-    }
+  const updateStatus = async () => {
+    if (!selected || newStatus === selected.status) return
 
+    setUpdating(true)
     try {
-      await axios.put(`/appointments/status/${currentAppointment.appointmentId}`, { status: newStatus })
-      await fetchAppointments()
-      handleCloseModal()
+      await axios.put(`/appointments/status/${selected.appointmentId}`, { status: newStatus })
+      setAppointments(prev => prev.map(a =>
+        a.appointmentId === selected.appointmentId ? { ...a, status: newStatus } : a
+      ))
+      closeModal()
     } catch (err) {
-      console.error('Error updating appointment status:', err)
+      console.error('Error updating status:', err)
+    } finally {
+      setUpdating(false)
     }
   }
 
-  const startIndex = currentPage * itemsPerPage
-  const endIndex = startIndex + itemsPerPage
-  const currentAppointments = appointments.slice(startIndex, endIndex)
+  const currentAppointments = appointments.slice(currentPage * itemsPerPage, (currentPage + 1) * itemsPerPage)
 
   if (loading) {
     return (
-      <Container fluid className="d-flex justify-content-center align-items-center" style={{ minHeight: '300px' }}>
-        <Spinner animation="border" role="status">
-          <span className="visually-hidden">Đang tải...</span>
-        </Spinner>
+      <Container className="text-center py-5">
+        <Spinner animation="border" variant="primary" />
+        <div>Đang tải dữ liệu...</div>
       </Container>
     )
   }
@@ -88,47 +84,39 @@ const AppointmentAdmin = () => {
   return (
     <Container fluid>
       <Row>
-        <Col className='p-0'>
-          {/* <h2 className="my-4">Quản lý lịch hẹn</h2> */}
-          
+        <Col>
           <div className="table-responsive">
-            <Table bordered hover className="w-100">
-              <thead>
+            <Table striped bordered hover>
+              <thead className='table-light'>
                 <tr>
-                  <th>ID</th>
+                  <th className='text-center'>STT</th>
                   <th>Bệnh nhân</th>
                   <th>Bác sĩ</th>
                   <th>Dịch vụ</th>
                   <th>Ngày hẹn</th>
                   <th>Trạng thái</th>
-                  <th style={{ width: "90px" }}>Thao tác</th>
+                  <th>Hành động</th>
                 </tr>
               </thead>
               <tbody>
                 {currentAppointments.length === 0 ? (
                   <tr>
-                    <td colSpan="7" className="text-center">Không có lịch hẹn nào</td>
+                    <td colSpan="7" className="text-center">Không có lịch hẹn</td>
                   </tr>
                 ) : (
-                  currentAppointments.map((appointment, index) => (
-                    <tr key={index}>
-                      <td>{index + 1}</td>
-                      <td>{appointment.patientName}</td>
-                      <td>{appointment.doctorName}</td>
-                      <td>{appointment.serviceName}</td>
-                      <td>{extractDateOnly(appointment.appointmentDate)}</td>
+                  currentAppointments.map((item, index) => (
+                    <tr key={item.appointmentId}>
+                      <td className='text-center'>{index + 1 + currentPage * itemsPerPage}</td>
+                      <td>{item.patientName}</td>
+                      <td>{item.doctorName}</td>
+                      <td>{item.serviceName}</td>
+                      <td>{extractDateOnly(item.appointmentDate)}</td>
                       <td>
-                        <Badge bg={statusColors[appointment.status] || 'secondary'}>
-                          {appointment.status}
-                        </Badge>
+                        <Badge bg={statusColors[item.status] || 'secondary'}>{item.status}</Badge>
                       </td>
                       <td>
-                        <Button
-                          variant="outline-primary"
-                          size="sm"
-                          onClick={() => handleOpenModal(appointment)}
-                        >
-                          Cập nhật
+                        <Button size="sm" variant="outline-primary" onClick={() => openModal(item)}>
+                          <PencilSquare size={16} className="me-1" /> Sửa
                         </Button>
                       </td>
                     </tr>
@@ -138,68 +126,48 @@ const AppointmentAdmin = () => {
             </Table>
           </div>
 
-          {/* Pagination */}
-          <Row>
-            <Col className="d-flex justify-content-center mt-3">
-              <Pagination>
-                <Pagination.First onClick={() => setCurrentPage(0)} disabled={currentPage === 0} />
-                <Pagination.Prev onClick={() => setCurrentPage(prev => Math.max(prev - 1, 0))} disabled={currentPage === 0} />
-                {Array.from({ length: totalPages }).map((_, index) => (
-                  <Pagination.Item
-                    key={index}
-                    active={index === currentPage}
-                    onClick={() => setCurrentPage(index)}
-                  >
-                    {index + 1}
-                  </Pagination.Item>
-                ))}
-                <Pagination.Next onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages - 1))} disabled={currentPage === totalPages - 1} />
-                <Pagination.Last onClick={() => setCurrentPage(totalPages - 1)} disabled={currentPage === totalPages - 1} />
-              </Pagination>
-            </Col>
-          </Row>
+          <div className="d-flex justify-content-center mt-3">
+            <Pagination>
+              <Pagination.First disabled={currentPage === 0} onClick={() => setCurrentPage(0)} />
+              <Pagination.Prev disabled={currentPage === 0} onClick={() => setCurrentPage(p => Math.max(p - 1, 0))} />
+              {Array.from({ length: totalPages }).map((_, i) => (
+                <Pagination.Item key={i} active={i === currentPage} onClick={() => setCurrentPage(i)}>
+                  {i + 1}
+                </Pagination.Item>
+              ))}
+              <Pagination.Next disabled={currentPage === totalPages - 1} onClick={() => setCurrentPage(p => p + 1)} />
+              <Pagination.Last disabled={currentPage === totalPages - 1} onClick={() => setCurrentPage(totalPages - 1)} />
+            </Pagination>
+          </div>
         </Col>
       </Row>
 
-      {/* Status Update Modal */}
-      <Modal show={showModal} onHide={handleCloseModal}>
+      <Modal show={showModal} onHide={closeModal}>
         <Modal.Header closeButton>
-          <Modal.Title>Cập nhật trạng thái lịch hẹn</Modal.Title>
+          <Modal.Title>Cập nhật trạng thái</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {currentAppointment && (
-            <Form>
-              <Form.Group className="mb-3">
-                <Form.Label>Thông tin lịch hẹn:</Form.Label>
-                <p><strong>Bệnh nhân:</strong> {currentAppointment.patientName}</p>
-                <p><strong>Bác sĩ:</strong> {currentAppointment.doctorName}</p>
-                <p><strong>Ngày hẹn:</strong> {extractDateOnly(currentAppointment.appointmentDate)}</p>
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Trạng thái:</Form.Label>
-                <Form.Select
-                  value={newStatus}
-                  onChange={(e) => setNewStatus(e.target.value)}
-                >
-                  {statusOptions.map(status => (
-                    <option key={status} value={status}>{status}</option>
-                  ))}
-                </Form.Select>
-              </Form.Group>
-            </Form>
+          {selected && (
+            <>
+              <p><strong>Bệnh nhân:</strong> {selected.patientName}</p>
+              <p><strong>Bác sĩ:</strong> {selected.doctorName}</p>
+              <p><strong>Ngày hẹn:</strong> {extractDateOnly(selected.appointmentDate)}</p>
+              <Form.Select value={newStatus} onChange={(e) => setNewStatus(e.target.value)}>
+                {statusOptions.map(status => (
+                  <option key={status} value={status}>{status}</option>
+                ))}
+              </Form.Select>
+            </>
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseModal}>
-            Đóng
-          </Button>
+          <Button variant="secondary" onClick={closeModal}>Đóng</Button>
           <Button
             variant="primary"
-            onClick={handleUpdateStatus}
-            disabled={!currentAppointment || newStatus === currentAppointment.status}
+            onClick={updateStatus}
+            disabled={updating || newStatus === selected?.status}
           >
-            Cập nhật
+            {updating ? 'Đang cập nhật...' : 'Cập nhật'}
           </Button>
         </Modal.Footer>
       </Modal>

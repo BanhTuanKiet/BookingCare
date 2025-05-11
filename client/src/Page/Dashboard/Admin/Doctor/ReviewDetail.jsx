@@ -6,13 +6,18 @@ import axios from "../../../../Util/AxiosConfig"
 import { Star, StarHalf, User, Award } from "lucide-react"
 import ReviewDetailCard from "../../../../Component/Card/ReviewDetailCard"
 import { useNavigate } from "react-router-dom"
+import BarChart from "../../../../Component/Chart/BarChart"
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement)
 
 const ReviewDetail = ({ specialty, doctor, review }) => {
   const [reviews, setReviews] = useState()
   const [reviewRating, setReviewRating] = useState()
+  const [monthlyRating, setMonthlyRating] = useState()
   const [total, setTotal] = useState()
+  const [monthlyTolal, setMonthlyTotal] = useState()
+  const [month, setMonth] = useState(new Date().getMonth() + 1)
+  const [year, setYear] = useState(new Date().getFullYear())
   const [tabActive, setTabActive] = useState('all')
   const navigate = useNavigate()
 
@@ -43,22 +48,38 @@ const ReviewDetail = ({ specialty, doctor, review }) => {
   }, [doctor])
 
   useEffect(() => {
+    const fetchMonthlyRatingReview = async () => {
+      try {
+        const response = await axios.get(`/reviews/rating/${month}/${year}/${doctor?.doctorId}`)
+        setMonthlyRating(response.data)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    fetchMonthlyRatingReview()
+  }, [doctor, month, year])
+
+  useEffect(() => {
     if (reviewRating === null) return
     setTotal(reviewRating?.reduce((sum, review) => sum + (review?.reviewCount || 0), 0))
-  }, [reviewRating])
 
-  const ratingsData = {
+    if (monthlyRating === null) return
+    setMonthlyTotal(monthlyRating?.reduce((sum, review) => sum + (review?.reviewCount || 0, 0)))
+  }, [reviewRating, monthlyRating])
+
+  const monthlyRatingsData = {
     labels: ["1⭐", "2⭐", "3⭐", "4⭐", "5⭐"],
     datasets: [
       {
         label: "Số lượt đánh giá",
-        data: reviewRating
+        data: monthlyRating
           ? [
-              reviewRating[0]?.reviewCount || 0,
-              reviewRating[1]?.reviewCount || 0,
-              reviewRating[2]?.reviewCount || 0,
-              reviewRating[3]?.reviewCount || 0,
-              reviewRating[4]?.reviewCount || 0,
+              monthlyRating[0]?.reviewCount || 0,
+              monthlyRating[1]?.reviewCount || 0,
+              monthlyRating[2]?.reviewCount || 0,
+              monthlyRating[3]?.reviewCount || 0,
+              monthlyRating[4]?.reviewCount || 0,
             ]
           : [0, 0, 0, 0, 0],
         backgroundColor: [
@@ -72,16 +93,16 @@ const ReviewDetail = ({ specialty, doctor, review }) => {
     ],
   }
 
-
-  const barOptions = {
+  const monthlyBarOptions = {
     responsive: true,
     plugins: {
       legend: {
+        display: false,
         position: "top",
       },
       title: {
-        display: true,
-        text: "Phân bố đánh giá theo số sao",
+        display: false,
+        text: "Phân bố đánh giá theo tháng",
         font: {
           size: 16,
         },
@@ -90,7 +111,7 @@ const ReviewDetail = ({ specialty, doctor, review }) => {
     scales: {
       y: {
         beginAtZero: true,
-        suggestedMax: total, 
+        suggestedMax: monthlyTolal, 
         ticks: {
           stepSize: 1,
         },
@@ -176,11 +197,53 @@ const ReviewDetail = ({ specialty, doctor, review }) => {
         </Card.Body>
       </Card>
 
-      <Row>
-        <Col md={7}>
-          <Card className="border-0 shadow-sm mb-4">
+      <Row className="g-4">
+        <Col md={6}>
+          <Card className="border-0 shadow-sm h-100">
             <Card.Body className="p-4">
-              <Bar data={ratingsData} options={barOptions} />
+              <div className="d-flex justify-content-between align-items-center mb-4 pb-1 flex-wrap">
+                <h5 className="mb-5 text-center w-100">Phân bố đánh giá tổng quát</h5>
+              </div>
+              <BarChart data={reviewRating} total={total} label={"Phân bố đánh giá tổng quát"} labels={["1⭐", "2⭐", "3⭐", "4⭐", "5⭐"]} />
+            </Card.Body>
+          </Card>
+        </Col>
+
+        <Col md={6}>
+          <Card className="border-0 shadow-sm h-100">
+            <Card.Body className="p-4">
+              <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+                <h5 className="mb-2 text-center w-100">Phân bố đánh giá theo tháng</h5>
+                <div className="d-flex gap-2 justify-content-center w-100 mb-3">
+                  <select
+                    value={month}
+                    onChange={(e) => setMonth(Number(e.target.value))}
+                    className="form-select w-auto"
+                  >
+                    {[...Array(12)].map((_, idx) => (
+                      <option key={idx} value={idx + 1}>
+                        Tháng {idx + 1}
+                      </option>
+                    ))}
+                  </select>
+
+                  <select
+                    value={year}
+                    onChange={(e) => setYear(Number(e.target.value))}
+                    className="form-select w-auto"
+                  >
+                    {[...Array(5)].map((_, idx) => {
+                      const y = new Date().getFullYear() - idx
+                      return (
+                        <option key={y} value={y}>
+                          Năm {y}
+                        </option>
+                      )
+                    })}
+                  </select>
+                </div>
+              </div>
+              <Bar data={monthlyRatingsData} options={monthlyBarOptions} />
             </Card.Body>
           </Card>
         </Col>
@@ -191,20 +254,20 @@ const ReviewDetail = ({ specialty, doctor, review }) => {
           <h4 className="mb-0">Đánh giá từ bệnh nhân</h4>
         </Card.Header>
         <Card.Body>
-          <Tab.Container>
-            <Nav variant="tabs" className="mb-3" activeKey={tabActive} onSelect={(k) => setTabActive(k)}>
+          <Tab.Container variant="tabs" className="mb-3" activeKey={tabActive} onSelect={(k) => setTabActive(k)} defaultActiveKey={"all"}>
+            <Nav className="py-0">
               <Nav.Item>
-                <Nav.Link eventKey="all" className="d-flex align-items-center">
+                <Nav.Link eventKey="all" className={`d-flex align-items-center ${tabActive === "all" ? "fw-bold" : "text-dark"}`}>
                   Tất cả
                 </Nav.Link>
               </Nav.Item>
               <Nav.Item>
-                <Nav.Link eventKey="positive" className="d-flex align-items-center">
+                <Nav.Link eventKey="positive" className={`d-flex align-items-center ${tabActive === "positive" ? "fw-bold" : "text-dark"}`}>
                   Tích cực
                 </Nav.Link>
               </Nav.Item>
               <Nav.Item>
-                <Nav.Link eventKey="negative" className="d-flex align-items-center">
+                <Nav.Link eventKey="negative" className={`d-flex align-items-center ${tabActive === "negative" ? "fw-bold" : "text-dark"}`}>
                   Cần cải thiện
                 </Nav.Link>
               </Nav.Item>

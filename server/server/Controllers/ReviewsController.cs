@@ -118,5 +118,13 @@ namespace server.Controllers
             
             return Ok(review.Result);
         }
+
+        [HttpGet("rating/{month}/{year}/{doctorId}")]
+        public async Task<ActionResult> GetMonthlyRatingReviews(int month, int year, int doctorId)
+        {
+            var review = _reviewService.GetMonthlyRatingReviews(month, year, doctorId);
+            
+            return Ok(review.Result);
+        }
     }
 }

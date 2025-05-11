@@ -1,0 +1,56 @@
+import React, { useEffect, useState } from 'react'
+import { Bar } from 'react-chartjs-2'
+
+function BarChart({ data, total, label, labels }) {
+    const [key, setKey] = useState()
+
+    useEffect(() => {
+        if (data?.length > 0) {
+            const keys = Object.keys(data[0])
+            console.log('Keys:', keys)
+            setKey(keys[1])
+        }
+    }, [data])
+    
+    const barData = {
+        labels: labels,
+        datasets: [
+        {
+            label: label,
+            data: key ? data.map(item => item[key] || 0) : [],
+            backgroundColor: [
+            "rgba(255, 99, 132, 0.7)",
+            "rgba(255, 159, 64, 0.7)",
+            "rgba(255, 205, 86, 0.7)",
+            "rgba(75, 192, 192, 0.7)",
+            "rgba(54, 162, 235, 0.7)",
+            ],
+        },
+        ],
+    }
+
+    const barOptions = {
+        responsive: true,
+            plugins: {
+            legend: {
+                display: false,
+                position: "top",
+            },
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                suggestedMax: total, 
+                ticks: {
+                stepSize: 1,
+                },
+            },
+        },
+    }
+
+    return (
+        <Bar data={barData} options={barOptions} />
+    )
+}
+
+export default BarChart

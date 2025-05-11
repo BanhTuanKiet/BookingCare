@@ -70,7 +70,7 @@ function Reviews() {
         <div className='container py-4'>
             <Row className='mb-4'>
                 <Col>
-                    <h4>Thống kê đánh giá bác sĩ của {specialty?.name}</h4>
+                    <h4>Quản lý bác sĩ của {specialty?.name}</h4>
                     <select value={specialty?.specialtyId} onChange={(e) => handleSpecialty(e)}>
                         {specialties?.map((s, idx) => (
                             <option key={idx} value={s.specialtyId}>

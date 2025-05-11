@@ -8,6 +8,7 @@ namespace server.Services
         Task<Appointment> IsExistAppointment (int? patientId, DateTime appointmentDate, string appointmentTime);
         Task<Appointment> Appointment (int? patientId, int? doctorId, int? serviceId, DateTime appointmentDate, string appointmentTime, string status);
         Task<List<AppointmentDTO.AppointmentDetail>> GetAppointments();
+        Task<List<AppointmentDTO.AppointmentDetail>> GetAppointmentsByMonthYear(int month, int year);
         Task<List<AppointmentDTO.AppointmentDetail>> GetAppointmentByPatientId(int? patientId, int quantity);
         Task<Appointment> GetAppointmentById(int appointmentId);
         Task UpdateStatus(Appointment appointment, string newStatus);

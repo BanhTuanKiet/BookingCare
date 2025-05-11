@@ -13,5 +13,6 @@ namespace server.Services.RatingRepository
         Task<List<DoctorReviewDetailDTO>> GetDoctorReviewsDetail(string filter, int doctorId);
         Task<ReviewDTO> CheckExistReview(int recordId);
         Task<List<ReviewRating>> GetRatingReviews(int doctorId);
+        Task<List<ReviewRating>> GetMonthlyRatingReviews(int month, int year, int doctorId);
     }
 }

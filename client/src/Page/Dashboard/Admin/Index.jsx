@@ -6,9 +6,10 @@ import PrescriptionOverView from './Prescription/PrescriptionOverView'
 import Reviews from './Doctor/Reviews'
 import DoctorSalary from './Salary/DoctorSalary'
 import "../../../Style/Admin.css"
+import Admin from './Admin'
 
 function Index() {
-    const [tabActive, setTabActive] = useState("dashboard")
+    const [tabActive, setTabActive] = useState("admin")
 
     return (
         <Tab.Container activeKey={tabActive} onSelect={(k) => setTabActive(k)}>
@@ -21,28 +22,22 @@ function Index() {
                                 
                                 <Nav className="flex-column">
                                     <Nav.Link 
-                                        eventKey="dashboard"
-                                        className={`sidebar-link mb-2 ${tabActive === "dashboard" ? "active" : ""}`}
+                                        eventKey="admin"
+                                        className={`sidebar-link mb-2 ${tabActive === "admin" ? "active" : ""}`}
                                     >
-                                        Tổng Quan
-                                    </Nav.Link>
-                                    <Nav.Link 
-                                        eventKey="appointment_statistics"
-                                        className={`sidebar-link mb-2 ${tabActive === "appointment_statistics" ? "active" : ""}`}
-                                    >
-                                        Thống kê lịch hẹn
-                                    </Nav.Link>
-                                    <Nav.Link 
-                                        eventKey="reviews"
-                                        className={`sidebar-link mb-2 ${tabActive === "reviews" ? "active" : ""}`}
-                                    >
-                                        Thống kê đánh giá
+                                        Admin
                                     </Nav.Link>
                                     <Nav.Link 
                                         eventKey="appointments"
                                         className={`sidebar-link mb-2 ${tabActive === "appointments" ? "active" : ""}`}
                                     >
-                                        Lịch Hẹn
+                                        Lịch hẹn
+                                    </Nav.Link>
+                                    <Nav.Link 
+                                        eventKey="doctors"
+                                        className={`sidebar-link mb-2 ${tabActive === "reviews" ? "active" : ""}`}
+                                    >
+                                        Bác sĩ
                                     </Nav.Link>
                                     <Nav.Link 
                                         eventKey="prescriptions"
@@ -78,29 +73,16 @@ function Index() {
                     
                     <Col md={9} style={{ fontSize: "14px" }} className='p-0'>
                         <Tab.Content>
-                            <Tab.Pane eventKey="dashboard">
-                                <Card>
-                                    <Card.Body>
-                                        <h4>Tổng Quan Hệ Thống</h4>
-                                        <p className="text-muted">Thống kê và báo cáo tổng hợp</p>
-                                        
-                                        <div className="p-4 bg-light rounded text-center">
-                                            <p>Nội dung tổng quan sẽ hiển thị ở đây</p>
-                                        </div>
-                                    </Card.Body>
-                                </Card>
+                            <Tab.Pane eventKey="admin">
+                                <Admin />
                             </Tab.Pane>
 
-                            <Tab.Pane eventKey="appointment_statistics">
+                            <Tab.Pane eventKey="appointments">
                                 <AppointmentStatistics />
                             </Tab.Pane>
                             
-                            <Tab.Pane eventKey="reviews">
+                            <Tab.Pane eventKey="doctors">
                                 <Reviews />
-                            </Tab.Pane>
-
-                            <Tab.Pane eventKey="appointments" >
-                                <AppointmentAdmin />
                             </Tab.Pane>
 
                             <Tab.Pane eventKey="prescriptions">
