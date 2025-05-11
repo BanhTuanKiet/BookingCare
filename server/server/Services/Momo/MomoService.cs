@@ -1,25 +1,30 @@
-using Microsoft.EntityFrameworkCore;
+using System.Net.Http;
+using System.Text;
+using System.Security.Cryptography;
+using System.Text.Json;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 using server.Models;
 using server.Services;
-using System.Net.Http;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
+using Newtonsoft.Json;
+
 
 public class MomoService : IMomoService
 {
     private readonly MomoOptionModel _options;
     private readonly HttpClient _httpClient;
     private readonly ClinicManagementContext _context;
-
-    public MomoService(IOptions<MomoOptionModel> options, ClinicManagementContext context)
+    private readonly IConfiguration _configuration;
+    public MomoService(IOptions<MomoOptionModel> options, ClinicManagementContext context, IConfiguration configuration)
     {
         _options = options.Value;
         _httpClient = new HttpClient();
         _context = context;
+        _configuration = configuration;
     }
+
 
     public async Task<MomoCreatePaymentResponseModel> CreatePaymentAsync(string orderId, string orderInfo, int amount)
     {
@@ -72,36 +77,97 @@ public class MomoService : IMomoService
     }
 
    public async Task<int> CalculateAmountFromRecordId(int recordId)
-{
-    Console.WriteLine("Mã toa thuốc service : " + recordId);
-    var record = await _context.MedicalRecords
-        .Include(r => r.Appointment)
-            .ThenInclude(a => a.Service)
-        .Include(r => r.MedicalRecordDetails)
-            .ThenInclude(d => d.Medicine)
-        .FirstOrDefaultAsync(r => r.RecordId == recordId);
-
-    if (record == null) return 0;
-
-    float total = 0;
-    Console.WriteLine("Tên dịch vụ : " + record.Appointment?.Service.ServiceName + "Giá dịch vụ: "+ record.Appointment?.Service?.Price);
-    // 1. Giá dịch vụ khám
-    if (record.Appointment?.Service?.Price != null)
     {
-        total += record.Appointment.Service.Price.Value;
-    }
+        Console.WriteLine("Mã toa thuốc service : " + recordId);
+        var record = await _context.MedicalRecords
+            .Include(r => r.Appointment)
+                .ThenInclude(a => a.Service)
+            .Include(r => r.MedicalRecordDetails)
+                .ThenInclude(d => d.Medicine)
+            .FirstOrDefaultAsync(r => r.RecordId == recordId);
 
-    // 2. Tính tổng giá thuốc theo từng chi tiết
-    foreach (var detail in record.MedicalRecordDetails)
-    {
-        if (detail.Medicine != null && detail.Medicine.Price != null && detail.Quantity != null)
+        if (record == null) return 0;
+
+        float total = 0;
+        Console.WriteLine("Tên dịch vụ : " + record.Appointment?.Service.ServiceName + "Giá dịch vụ: "+ record.Appointment?.Service?.Price);
+        // 1. Giá dịch vụ khám
+        if (record.Appointment?.Service?.Price != null)
         {
-            total += detail.Medicine.Price.Value * detail.Quantity.Value;
+            total += record.Appointment.Service.Price.Value;
         }
+
+        // 2. Tính tổng giá thuốc theo từng chi tiết
+        foreach (var detail in record.MedicalRecordDetails)
+        {
+            if (detail.Medicine != null && detail.Medicine.Price != null && detail.Quantity != null)
+            {
+                total += detail.Medicine.Price.Value * detail.Quantity.Value;
+            }
+        }
+
+        return (int)total;
     }
 
-    return (int)total;
+public async Task<CheckPaymentStatusResponse?> CheckPaymentStatusAsync(string orderId)
+{
+    string partnerCode = _configuration["Momo:PartnerCode"];
+    string accessKey = _configuration["Momo:AccessKey"];
+    string secretKey = _configuration["Momo:SecretKey"];
+    string endpoint = _configuration["Momo:QueryUrl"]; // VD: https://test-payment.momo.vn/v2/gateway/api/query
+
+    var requestId = Guid.NewGuid().ToString();
+
+    // Tạo raw data để ký
+    var rawData = $"accessKey={accessKey}&orderId={orderId}&partnerCode={partnerCode}&requestId={requestId}";
+    string signature = CreateSignature(rawData, secretKey);
+
+    // Payload gửi đến API truy vấn
+    var payload = new
+    {
+        partnerCode = partnerCode,
+        requestId = requestId,
+        orderId = orderId,
+        lang = "vi",
+        signature = signature
+    };
+
+    // Chuyển payload thành JSON
+    var json = System.Text.Json.JsonSerializer.Serialize(payload);
+    var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+    // Gửi POST request
+    var response = await _httpClient.PostAsync(endpoint, content);
+    if (!response.IsSuccessStatusCode)
+    {
+        return null;
+    }
+
+    // Đọc nội dung phản hồi
+    var jsonResponse = await response.Content.ReadAsStringAsync();
+    var result = System.Text.Json.JsonSerializer.Deserialize<CheckPaymentStatusResponse>(jsonResponse, new JsonSerializerOptions
+    {
+        PropertyNameCaseInsensitive = true
+    });
+
+    return result;
 }
+
+
+    private string CreateSignature(string rawData, string secretKey)
+    {
+        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey));
+        byte[] hashValue = hmac.ComputeHash(Encoding.UTF8.GetBytes(rawData));
+        return BitConverter.ToString(hashValue).Replace("-", "").ToLower();
+    }
+     public class CheckPaymentStatusResponse
+    {
+        public int ResultCode { get; set; }
+        public string Message { get; set; }
+        public string OrderId { get; set; }
+        public string RequestId { get; set; }
+        public long Amount { get; set; }
+        public string OrderInfo { get; set; }
+    }
 
     // public async Task<MomoPaymentStatusResponseModel> CheckPaymentStatusAsync(string orderId)
     // {

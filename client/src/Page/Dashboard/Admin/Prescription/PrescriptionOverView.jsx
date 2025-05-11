@@ -1,23 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Table, Button, Spinner } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Container, Table, Button, Spinner, Form, Row, Col } from 'react-bootstrap';
 import axios from '../../../../Util/AxiosConfig';
 import { extractDateOnly } from '../../../../Util/DateUtils';
-import PatientPrescriptions from './PatientPrescription'; // đảm bảo đúng path
+import PatientPrescriptions from './PatientPrescription';
 
 const PrescriptionOverView = () => {
   const [prescriptions, setPrescriptions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedPatient, setSelectedPatient] = useState(null); // 👈 thêm state mới
+  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [hasSearched, setHasSearched] = useState(false); // 👈 để không gọi lại API mặc định sau khi tìm kiếm
 
   useEffect(() => {
-    fetchPrescriptions();
-  }, []);
+    // Chỉ gọi API mặc định nếu chưa tìm kiếm
+    if (!hasSearched) {
+      fetchPrescriptions();
+    }
+  }, [hasSearched]);
 
-  const fetchPrescriptions = async () => {
+  const fetchPrescriptions = async (keyword = '') => {
     setLoading(true);
     try {
-      const response = await axios.get('/medicalrecords/prescriptions/patient');
+      const endpoint = keyword.trim()
+        ? `/medicalrecords/search/${keyword.trim()}`
+        : '/medicalrecords/prescriptions/patient';
+
+      const response = await axios.get(endpoint);
       setPrescriptions(response.data);
     } catch (err) {
       console.error('Lỗi khi lấy đơn thuốc:', err);
@@ -26,18 +34,29 @@ const PrescriptionOverView = () => {
     }
   };
 
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchKeyword.trim() !== '') {
+      setHasSearched(true);
+      fetchPrescriptions(searchKeyword);
+    } else {
+      // Nếu xóa hết input => trở lại fetch mặc định
+      setHasSearched(false);
+    }
+  };
+
   const handleViewPatientPrescriptions = (patientId, patientName) => {
-    setSelectedPatient({ id: patientId, name: patientName }); // 👈 set khi nhấn xem chi tiết
+    setSelectedPatient({ id: patientId, name: patientName });
   };
 
   const handleBackToOverview = () => {
-    setSelectedPatient(null); // 👈 quay lại danh sách tổng quan
+    setSelectedPatient(null);
   };
 
   return (
     <Container fluid>
       {selectedPatient ? (
-        <PatientPrescriptions 
+        <PatientPrescriptions
           patientId={selectedPatient.id}
           patientName={selectedPatient.name}
           goBack={handleBackToOverview}
@@ -45,6 +64,38 @@ const PrescriptionOverView = () => {
       ) : (
         <>
           <h4 className="mb-3">Quản lý đơn thuốc</h4>
+
+          <Form onSubmit={handleSearchSubmit} className="mb-3">
+            <Row>
+              <Col md={6}>
+                <Form.Control
+                  type="text"
+                  placeholder="Nhập từ khóa (tên bệnh nhân, bác sĩ, mã đơn thuốc...)"
+                  value={searchKeyword}
+                  onChange={(e) => setSearchKeyword(e.target.value)}
+                />
+              </Col>
+              <Col md="auto">
+                <Button type="submit" variant="primary">
+                  Tìm kiếm
+                </Button>
+              </Col>
+              {hasSearched && (
+                <Col md="auto">
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      setSearchKeyword('');
+                      setHasSearched(false);
+                    }}
+                  >
+                    Xóa tìm kiếm
+                  </Button>
+                </Col>
+              )}
+            </Row>
+          </Form>
+
           {loading ? (
             <div className="text-center py-3">
               <Spinner animation="border" />
@@ -90,6 +141,5 @@ const PrescriptionOverView = () => {
     </Container>
   );
 };
-
 
 export default PrescriptionOverView;

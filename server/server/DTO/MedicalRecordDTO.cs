@@ -23,6 +23,8 @@ namespace server.DTO
             public int PatientId {get; set;}
             public string SpecialtyName { get; set; }
             public string ServiceName { get; set; }
+            public string? Status { get; set; }
+
         }
 
         public class MedicineDto

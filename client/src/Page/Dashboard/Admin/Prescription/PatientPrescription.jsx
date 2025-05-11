@@ -12,6 +12,8 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
   const [selectedPrescriptionId, setSelectedPrescriptionId] = useState(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
+  // const [quantity, setQuantity] = useState(10);
+  // const [appointments, setAppointments] = useState([]);
 
   useEffect(() => {
     if (patientId) {
@@ -33,6 +35,7 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
     setLoading(true);
     try {
       const response = await axios.get(`/medicalrecords/prescriptions/patient/${patientId}`);
+      console.log(response)
       setPatientPrescriptions(response.data);
     } catch (err) {
       console.error('Lỗi khi lấy đơn thuốc bệnh nhân:', err);
@@ -150,8 +153,11 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
               <thead>
                 <tr>
                   <th>Mã toa thuốc</th>
+                  <th>Bác sĩ phụ trách</th>
+                  <th>Dịch vụ khám</th>
                   <th>Chẩn đoán</th>
                   <th>Ngày tạo</th>
+                  <th>Trạng thái</th>
                   <th>Thao tác</th>
                 </tr>
               </thead>
@@ -159,29 +165,45 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
                 {patientPrescriptions.map(p => (
                   <tr key={p.recordId}>
                     <td>{p.recordId}</td>
+                    <td>{p.doctorName}</td>
+                    <td>{p.serviceName}</td>
                     <td>{p.diagnosis}</td>
                     <td>{extractDateOnly(p.appointmentDate)}</td>
+                    <td>{p.status}</td>
                     <td>
-                      <Button
-                        variant="outline-primary"
-                        size="sm"
-                        className="me-2"
-                        onClick={() => handleSelectPrescription(p.recordId)}
-                      >
-                        Chi tiết
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="success"
-                        onClick={() => handlePaymentClick(p)}
-                      >
-                        Thanh toán
-                      </Button>
+                      <div className="d-flex gap-1">
+                        <Button
+                          variant="outline-primary"
+                          size="sm"
+                          className="d-inline-flex align-items-center"
+                          onClick={() => handleSelectPrescription(p.recordId)}
+                        >
+                          Chi tiết
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant={p.status === "Đã hoàn thành" ? "secondary" : "success"}
+                          className="d-inline-flex align-items-center"
+                          onClick={() => handlePaymentClick(p)}
+                          disabled={p.status === "Đã hoàn thành"}
+                        >
+                          {p.status === "Đã hoàn thành" ? "Đã thanh toán" : "Thanh toán"}
+                        </Button>
+
+                      </div>
                     </td>
+
                   </tr>
                 ))}
               </tbody>
             </Table>
+            {/* <div className="text-end mt-3">
+                                {appointments.length % 10 === 0 ? (
+                                    <Button onClick={() => setQuantity(quantity + 10)} variant="outline-primary">Xem thêm</Button>
+                                ) : (
+                                    <Button onClick={() => setQuantity(10)} variant="outline-primary">Thu gọn</Button>
+                                )}
+            </div> */}
           </div>
         ) : (
         //   <Row xs={1} md={2} lg={3} className="g-4">

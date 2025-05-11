@@ -1,5 +1,6 @@
 using server.DTO;
 using server.Models;
+using static MomoService;
 
 namespace server.Services
 {
@@ -9,6 +10,7 @@ namespace server.Services
     Task<MomoCreatePaymentResponseModel> CreatePaymentAsync(string orderId, string orderInfo, int amount);
     MomoExecuteResponseModel PaymentExecuteAsync(IQueryCollection collection);
     Task<int> CalculateAmountFromRecordId(int recordId);
+    Task<CheckPaymentStatusResponse?> CheckPaymentStatusAsync(string orderId);
     
 }
 

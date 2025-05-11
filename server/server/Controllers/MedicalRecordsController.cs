@@ -14,6 +14,7 @@ using server.DTO;
 using server.Middleware;
 using server.Models;
 using server.Services;
+using server.Util;
 using Server.DTO;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
@@ -166,6 +167,41 @@ namespace Clinic_Management.Controllers
             return Ok(medicalRecords);
         }
 
+        [Authorize(Roles = "admin")]
+        [HttpGet("search/{keyWord}")]
+        public async Task<ActionResult> Search(string keyWord)
+        {
+            // Lấy danh sách appointments và group theo PatientId để loại trùng
+            var distinctAppointments = await _context.MedicalRecords
+                .Join(_context.Appointments,
+                    mr => mr.AppointmentId,
+                    ap => ap.AppointmentId,
+                    (mr, ap) => ap)
+                .GroupBy(a => a.PatientId)
+                .Select(g => new
+                {
+                    PatientId = g.Key,
+                    AppointmentId = g.OrderBy(a => a.AppointmentDate).Select(a => a.AppointmentId).FirstOrDefault()
+                })
+                .ToListAsync();
+            
+            var keyword = Others.RemoveDiacritics(keyWord).ToLower();
+
+            // Lấy danh sách AppointmentId duy nhất
+            var appointmentIds = distinctAppointments.Select(a => a.AppointmentId).ToList();
+
+            // Gọi MedicalRecordService để lấy tất cả đơn thuốc theo danh sách AppointmentId
+            var medicalRecords = await _medicalRecordService.GetMedicalRecords(appointmentIds)
+                                ?? throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");
+
+            var filteredRecords = medicalRecords
+            .Where(mr => Others.RemoveDiacritics(mr.PatientName).Contains(keyWord, StringComparison.OrdinalIgnoreCase) ||
+                        Others.RemoveDiacritics(mr.DoctorName).Contains(keyWord, StringComparison.OrdinalIgnoreCase) ||
+                        Others.RemoveDiacritics(mr.Diagnosis).Contains(keyWord, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+            return Ok(filteredRecords);
+        }
 
         [Authorize(Roles = "admin")]
         [HttpGet("prescriptions/patient/{patientId}")]
