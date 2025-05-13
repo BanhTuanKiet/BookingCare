@@ -11,6 +11,13 @@ namespace server.Services
         Task<List<MedicalRecordDTO.MedicalRecordBasic>> GetRecentMedicalRecords(List<int> appointmentIds);
         Task<MedicalRecordDTO.MedicalRecordBasic> GetMedicalRecordsByRecoredId(int recordId);
         Task<List<MedicalRecordDTO.MedicineDto>> GetRecordDetail(int recordId);
+
+        Task<MomoCreatePaymentResponseModel> CreatePaymentAsync(string orderId, string orderInfo, int amount);
+        MomoExecuteResponseModel PaymentExecuteAsync(IQueryCollection collection);
+        Task<int> CalculateAmountFromRecordId(int recordId);
+        Task<MedicalRecordDTO.CheckPaymentStatusResponse?> CheckPaymentStatusAsync(string orderId);
         
+        string CreatePaymentUrl(PaymentDTO.PaymentInformationModel model, HttpContext context);
+        PaymentDTO.PaymentResponseModel PaymentExecute(IQueryCollection collections);
     }
 }

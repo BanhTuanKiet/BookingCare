@@ -113,7 +113,7 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
 
   const handleMomoPayment = async () => {
     try {
-      const response = await axios.post('/momopayment/create-payment', {
+      const response = await axios.post('/medicalrecords/create-payment', {
         orderInfo: "Thanh toán đơn thuốc",
         recordId: selectedRecord.recordId,
       });
@@ -131,7 +131,7 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
 
   const handleVnpayPayment = async () => {
     try {
-      const response = await axios.post('/vnpaypayment/create', {
+      const response = await axios.post('/medicalrecords/create', {
         orderType: "other",
         amount: 10000, // TODO: lấy từ đơn thuốc thực tế
         orderDescription: `Thanh toán đơn thuốc #${selectedRecord.recordId}`,

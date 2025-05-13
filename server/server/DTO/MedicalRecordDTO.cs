@@ -40,5 +40,21 @@ namespace server.DTO
             public float Price { get; set; }
 
         }
+        public class CheckPaymentStatusResponse
+        {
+            public int ResultCode { get; set; }
+            public string Message { get; set; }
+            public string OrderId { get; set; }
+            public string RequestId { get; set; }
+            public long Amount { get; set; }
+            public string OrderInfo { get; set; }
+        }
+        // Request DTO// Update CreatePaymentRequest DTO to only include OrderInfo
+        public class CreatePaymentRequest
+        {
+            public string OrderInfo { get; set; }
+
+            public int RecordId { get; set; }
+        }
     }
 }

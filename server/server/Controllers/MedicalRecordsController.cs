@@ -19,6 +19,7 @@ using Server.DTO;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Microsoft.OpenApi.Expressions;
+using System.Text.Json;
 
 namespace Clinic_Management.Controllers
 {
@@ -337,6 +338,132 @@ namespace Clinic_Management.Controllers
             return Ok(recordDetail);
         }
 
+        /// <summary>
+        /// Create payment URL for VnPay
+        /// </summary>
+        [HttpPost("create")]
+        public IActionResult CreatePaymentUrlVnpay([FromBody] PaymentDTO.PaymentInformationModel model)
+        {
+            if (model == null)
+            {
+                return BadRequest("Invalid payment request.");
+            }
 
+            var url = _medicalRecordService.CreatePaymentUrl(model, HttpContext);
+            return Ok(new { paymentUrl = url });
+        }
+
+        /// <summary>
+        /// Payment callback from VnPay
+        /// </summary>
+        [HttpGet("callback")]
+        public IActionResult PaymentCallbackVnpay()
+        {
+            var response = _medicalRecordService.PaymentExecute(Request.Query);
+            Console.WriteLine($"Call back: {response}");
+            return Ok(response);
+        }
+
+        // Update CreatePayment method to generate OrderId and Amount on the backend
+        [HttpPost("create-payment")]
+        public async Task<IActionResult> CreatePayment([FromBody] MedicalRecordDTO.CreatePaymentRequest request)
+        {
+            Console.WriteLine("Mã toa thuốc : "+request.RecordId.ToString());
+            if (request == null || string.IsNullOrWhiteSpace(request.OrderInfo))
+            {
+                return BadRequest("Invalid request");
+            }
+
+            // Generate OrderId and Amount on the backend
+            var orderId = Guid.NewGuid().ToString();
+            int amount = await _medicalRecordService.CalculateAmountFromRecordId(request.RecordId);
+
+            Console.WriteLine($"Generated OrderId: {orderId}");
+            Console.WriteLine($"OrderInfo: {request.OrderInfo}");
+            Console.WriteLine($"Generated Amount: {amount}");
+
+            var result = await _medicalRecordService.CreatePaymentAsync(orderId, request.OrderInfo, amount);
+            Console.WriteLine($"MoMo payment response: {JsonSerializer.Serialize(result)}");
+            return Ok(result);
+        }
+
+
+        [HttpGet("payment-execute")]
+        public IActionResult PaymentExecute()
+        {
+            var data = _medicalRecordService.PaymentExecuteAsync(Request.Query);
+            return Ok(data);
+        }
+        // [HttpGet("payment-status")]
+        // public async Task<IActionResult> CheckPaymentStatus(string orderId)
+        // {
+        //     var result = await _momoService.CheckPaymentStatusAsync(orderId);
+        //     if (result.IsSuccess)
+        //     {
+        //         return Ok(new { status = "success" });
+        //     }
+        //     else
+        //     {
+        //         return Ok(new { status = "failure" });
+        //     }
+        // }
+
+        [HttpGet("check-payment-status")]
+        public async Task<IActionResult> CheckPaymentStatus([FromQuery] string orderId)
+        {
+            if (string.IsNullOrEmpty(orderId))
+            {
+                return BadRequest(new { message = "Thiếu mã đơn hàng (orderId)" });
+            }
+
+            // Gọi service kiểm tra trạng thái thanh toán MoMo
+            var result = await _medicalRecordService.CheckPaymentStatusAsync(orderId);
+
+            if (result == null)
+            {
+                return StatusCode(500, new { message = "Không thể kiểm tra trạng thái thanh toán từ MoMo" });
+            }
+
+            // Nếu thanh toán thành công (ResultCode == 0 theo tài liệu MoMo)
+            if (result.ResultCode == 0)
+            {
+                // Tìm lịch hẹn liên kết với MedicalRecord.RecordId == orderId
+                var appointment = await _context.Appointments
+                    .Include(a => a.Patient).ThenInclude(p => p.User)
+                    .Include(a => a.Doctor).ThenInclude(d => d.User)
+                    .Include(a => a.Service)
+                    .Include(a => a.MedicalRecord) // cần Include để truy xuất RecordId
+                    .FirstOrDefaultAsync(a => a.MedicalRecord != null && a.MedicalRecord.RecordId == int.Parse(orderId));
+
+                if (appointment == null)
+                {
+                    return NotFound(new { message = "Không tìm thấy lịch hẹn tương ứng với đơn hàng" });
+                }
+
+                // Cập nhật trạng thái lịch hẹn
+                string oldStatus = appointment.Status;
+                appointment.Status = "Hoàn thành"; // hoặc bất kỳ giá trị chuẩn nào bạn đặt
+                await _context.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    message = "Đã thanh toán thành công",
+                    paymentStatus = "Paid",
+                    appointmentId = appointment.AppointmentId,
+                    oldStatus = oldStatus,
+                    updatedStatus = appointment.Status
+                });
+            }
+            else
+            {
+                return Ok(new
+                {
+                    message = "Chưa thanh toán hoặc giao dịch thất bại",
+                    paymentStatus = "Unpaid",
+                    resultCode = result.ResultCode,
+                    resultMessage = result.Message
+                });
+            }
+        }
     }
 }
