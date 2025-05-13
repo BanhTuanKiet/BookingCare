@@ -205,20 +205,60 @@ namespace Clinic_Management.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpGet("prescriptions/patient/{patientId}")]
-        public async Task<ActionResult<List<MedicalRecordDTO.MedicalRecordBasic>>> GetAllMedicalRecordByPatientId(int patientId)
+        public async Task<ActionResult<List<MedicalRecordDTO.MedicalRecordBasic>>> GetAllMedicalRecordByPatientId(
+            int patientId,
+            [FromQuery] DateTime? startDate = null,
+            [FromQuery] DateTime? endDate = null,
+            [FromQuery] string? serviceName = null,
+            [FromQuery] string? status = null)
         {
-            // Lấy tất cả appointmentId có PatientId == patientId
-            var appointmentIds = await _context.Appointments
-                .Include(mr => mr.Patient)
-                .Where(a => a.PatientId == patientId)
-                .Select(a => a.AppointmentId)
-                .ToListAsync();
+            try
+            {
+                // Lấy tất cả appointmentId có PatientId == patientId
+                var appointmentsQuery = _context.Appointments
+                    .Include(mr => mr.Patient)
+                    .Where(a => a.PatientId == patientId);
 
-            // Truy vấn đơn thuốc dựa trên danh sách appointmentId
-            var medicalRecords = await _medicalRecordService.GetMedicalRecords(appointmentIds) 
-                                ?? throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");
+                // Lọc theo ngày nếu có
+                if (startDate.HasValue)
+                {
+                    appointmentsQuery = appointmentsQuery.Where(a => a.AppointmentDate >= startDate.Value);
+                }
 
-            return Ok(medicalRecords);
+                if (endDate.HasValue)
+                {
+                    // Đặt thời gian là cuối ngày để so sánh chính xác
+                    DateTime endOfDay = endDate.Value.Date.AddDays(1).AddTicks(-1);
+                    appointmentsQuery = appointmentsQuery.Where(a => a.AppointmentDate <= endOfDay);
+                }
+
+                var appointmentIds = await appointmentsQuery
+                    .Select(a => a.AppointmentId)
+                    .ToListAsync();
+
+                // Truy vấn đơn thuốc dựa trên danh sách appointmentId
+                var medicalRecords = await _medicalRecordService.GetMedicalRecords(appointmentIds) 
+                                    ?? throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");
+
+                // Lọc thêm theo dịch vụ và trạng thái nếu có
+                var filteredRecords = medicalRecords;
+
+                if (!string.IsNullOrEmpty(serviceName))
+                {
+                    filteredRecords = filteredRecords.Where(r => r.ServiceName == serviceName).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(status))
+                {
+                    filteredRecords = filteredRecords.Where(r => r.Status == status).ToList();
+                }
+
+                return Ok(filteredRecords);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = $"Lỗi khi lấy đơn thuốc: {ex.Message}" });
+            }
         }
 
         [Authorize(Roles = "admin")]

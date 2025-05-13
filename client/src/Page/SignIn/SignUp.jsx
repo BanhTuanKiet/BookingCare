@@ -229,7 +229,7 @@ function SignUp({ setIsLogin }) {
 
                 <Form.Control
                     type="email"
-                    placeholder="Email"
+                    placeholder="Email (Example@gmail.com)"
                     value={registerData.email}
                     isInvalid={!!formErrors.email}
                     onChange={handleEmailChange}
