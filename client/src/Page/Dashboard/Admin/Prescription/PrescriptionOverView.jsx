@@ -26,6 +26,7 @@ const PrescriptionOverView = () => {
         : '/medicalrecords/prescriptions/patient';
 
       const response = await axios.get(endpoint);
+      console.log(response)
       setPrescriptions(response.data);
     } catch (err) {
       console.error('Lỗi khi lấy đơn thuốc:', err);
@@ -63,14 +64,14 @@ const PrescriptionOverView = () => {
         />
       ) : (
         <>
-          <h4 className="mb-3">Quản lý đơn thuốc</h4>
+          <h4 className="mb-3">Quản lý hồ sơ bệnh nhân</h4>
 
           <Form onSubmit={handleSearchSubmit} className="mb-3">
             <Row>
               <Col md={6}>
                 <Form.Control
                   type="text"
-                  placeholder="Nhập từ khóa (tên bệnh nhân, bác sĩ, mã đơn thuốc...)"
+                  placeholder="Nhập từ khóa (tên bệnh nhân, số điện thoại, email. địa chỉ)"
                   value={searchKeyword}
                   onChange={(e) => setSearchKeyword(e.target.value)}
                 />
@@ -105,27 +106,29 @@ const PrescriptionOverView = () => {
               <Table bordered hover>
                 <thead>
                   <tr>
-                    <th>Mã đơn thuốc</th>
+                    {/* <th>Mã đơn thuốc</th> */}
                     <th>Tên bệnh nhân</th>
-                    <th>Bác sĩ</th>
-                    <th>Chẩn đoán</th>
-                    <th>Ngày tạo</th>
+                    <th>Năm sinh</th>
+                    <th>Email</th>
+                    <th>Địa Chỉ</th>
+                    <th>Số điện thoại</th>
                     <th>Thao tác</th>
                   </tr>
                 </thead>
                 <tbody>
                   {prescriptions.map(p => (
-                    <tr key={p.recordId}>
-                      <td>{p.recordId}</td>
-                      <td>{p.patientName}</td>
-                      <td>{p.doctorName}</td>
-                      <td>{p.diagnosis}</td>
-                      <td>{extractDateOnly(p.appointmentDate)}</td>
+                    <tr key={prescriptions.recordId}>
+                      {/* <td>{p.recordId}</td> */}
+                      <td>{p.patient.userName}</td>
+                      <td>{extractDateOnly(p.patient.dateOfBirth)}</td>
+                      <td>{p.patient.email}</td>
+                      <td>{p.patient.address}</td>
+                      <td>{p.patient.phoneNumber}</td>
                       <td>
                         <Button
                           size="sm"
                           variant="info"
-                          onClick={() => handleViewPatientPrescriptions(p.patientId, p.patientName)}
+                          onClick={() => handleViewPatientPrescriptions(p.patient.patientId, p.patient.userName)}
                         >
                           Danh sách đơn thuốc của bệnh nhân
                         </Button>

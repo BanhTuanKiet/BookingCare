@@ -43,7 +43,7 @@ function Index() {
                                         eventKey="prescriptions"
                                         className={`sidebar-link mb-2 ${tabActive === "prescriptions" ? "active" : ""}`}
                                     >
-                                        Đơn Thuốc
+                                        Hồ sơ bệnh nhân
                                     </Nav.Link>
                                     <Nav.Link 
                                         eventKey="salary"
