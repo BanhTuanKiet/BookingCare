@@ -18,11 +18,11 @@ namespace server.Controllers
     // [Authorize(Roles = "admin")]
     [ApiController]
     [Route("api/[controller]")]
-    public class PaymentsController : ControllerBase
+    public class RevenuesController : ControllerBase
     {
         private readonly ClinicManagementContext _context;
 
-        public PaymentsController(ClinicManagementContext context)
+        public RevenuesController(ClinicManagementContext context)
         {
             _context = context;
         }

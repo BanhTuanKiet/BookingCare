@@ -34,7 +34,7 @@ const RevenueChart = () => {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.get(`/payments/${selectedType}`);
+      const response = await axios.get(`/revenues/${selectedType}`);
       console.log(response.data);
       setChartData(response.data);
     } catch (err) {
