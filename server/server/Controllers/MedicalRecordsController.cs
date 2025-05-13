@@ -144,7 +144,7 @@ namespace Clinic_Management.Controllers
         [HttpGet("prescriptions/patient")]
         public async Task<ActionResult> GetPrescriptionsByPatient()
         {
-            // Lấy danh sách appointments và group theo PatientId để loại trùng
+            // Lấy danh sách appointments duy nhất theo PatientId
             var distinctAppointments = await _context.MedicalRecords
                 .Join(_context.Appointments,
                     mr => mr.AppointmentId,
@@ -158,21 +158,42 @@ namespace Clinic_Management.Controllers
                 })
                 .ToListAsync();
 
-            // Lấy danh sách AppointmentId duy nhất
-            var appointmentIds = distinctAppointments.Select(a => a.AppointmentId).ToList();
+            if (distinctAppointments == null || !distinctAppointments.Any())
+            {
+                throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");
+            }
 
-            // Gọi MedicalRecordService để lấy tất cả đơn thuốc theo danh sách AppointmentId
-            var medicalRecords = await _medicalRecordService.GetMedicalRecords(appointmentIds)
-                                ?? throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");
+            var resultList = new List<object>();
 
-            return Ok(medicalRecords);
+            foreach (var item in distinctAppointments)
+            {
+                // Lấy đơn thuốc theo AppointmentId
+                var records = await _medicalRecordService.GetMedicalRecords(new List<int> { item.AppointmentId });
+
+                // Nếu có MedicalRecord thì mới lấy thông tin bệnh nhân
+                if (records != null && records.Any())
+                {
+                    var patientDetail = await _patientService.GetPatientDetailByUserId(item.PatientId.Value);
+
+                    resultList.Add(new
+                    {
+                        Patient = patientDetail,
+                        Prescriptions = records
+                    });
+                }
+            }
+
+            return Ok(resultList);
         }
+
 
         [Authorize(Roles = "admin")]
         [HttpGet("search/{keyWord}")]
         public async Task<ActionResult> Search(string keyWord)
         {
-            // Lấy danh sách appointments và group theo PatientId để loại trùng
+            var keyword = Others.RemoveDiacritics(keyWord).ToLower();
+
+            // Lấy danh sách appointments duy nhất theo PatientId
             var distinctAppointments = await _context.MedicalRecords
                 .Join(_context.Appointments,
                     mr => mr.AppointmentId,
@@ -185,24 +206,52 @@ namespace Clinic_Management.Controllers
                     AppointmentId = g.OrderBy(a => a.AppointmentDate).Select(a => a.AppointmentId).FirstOrDefault()
                 })
                 .ToListAsync();
-            
-            var keyword = Others.RemoveDiacritics(keyWord).ToLower();
 
-            // Lấy danh sách AppointmentId duy nhất
-            var appointmentIds = distinctAppointments.Select(a => a.AppointmentId).ToList();
+            if (distinctAppointments == null || !distinctAppointments.Any())
+            {
+                throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");
+            }
 
-            // Gọi MedicalRecordService để lấy tất cả đơn thuốc theo danh sách AppointmentId
-            var medicalRecords = await _medicalRecordService.GetMedicalRecords(appointmentIds)
-                                ?? throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");
+            var resultList = new List<object>();
 
-            var filteredRecords = medicalRecords
-            .Where(mr => Others.RemoveDiacritics(mr.PatientName).Contains(keyWord, StringComparison.OrdinalIgnoreCase) ||
-                        Others.RemoveDiacritics(mr.DoctorName).Contains(keyWord, StringComparison.OrdinalIgnoreCase) ||
-                        Others.RemoveDiacritics(mr.Diagnosis).Contains(keyWord, StringComparison.OrdinalIgnoreCase))
-            .ToList();
+            foreach (var item in distinctAppointments)
+            {
+                if (!item.PatientId.HasValue) continue;
 
-            return Ok(filteredRecords);
+                // Lấy đơn thuốc theo từng appointment
+                var records = await _medicalRecordService.GetMedicalRecords(new List<int> { item.AppointmentId });
+
+                if (records != null && records.Any())
+                {
+                    var patientDetail = await _patientService.GetPatientDetailByUserId(item.PatientId.Value);
+                    var dobString = patientDetail.DateOfBirth?.ToString("dd/MM/yyyy") ?? "";
+
+                    // Lọc theo keyword trên nhiều trường
+                    var isMatch = Others.RemoveDiacritics(patientDetail.UserName).Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
+                                Others.RemoveDiacritics(patientDetail.Email).Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
+                                Others.RemoveDiacritics(patientDetail.PhoneNumber ?? "").Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
+                                Others.RemoveDiacritics(dobString).Contains(keyword, StringComparison.OrdinalIgnoreCase);
+
+                    var filteredPrescriptions = records.Where(mr =>
+                        Others.RemoveDiacritics(mr.PatientName).Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
+                        Others.RemoveDiacritics(mr.DoctorName).Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
+                        Others.RemoveDiacritics(mr.Diagnosis).Contains(keyword, StringComparison.OrdinalIgnoreCase)
+                    ).ToList();
+
+                    if (isMatch || filteredPrescriptions.Any())
+                    {
+                        resultList.Add(new
+                        {
+                            Patient = patientDetail,
+                            Prescriptions = filteredPrescriptions
+                        });
+                    }
+                }
+            }
+
+            return Ok(resultList);
         }
+
 
         [Authorize(Roles = "admin")]
         [HttpGet("prescriptions/patient/{patientId}")]
