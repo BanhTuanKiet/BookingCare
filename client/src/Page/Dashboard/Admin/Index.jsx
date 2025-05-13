@@ -1,12 +1,13 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Container, Row, Col, Card, Nav, Tab } from 'react-bootstrap'
-import AppointmentAdmin from './Appointment/AppointmentAdmin'
 import AppointmentStatistics from './Appointment/AppointmentStatistics'
 import PrescriptionOverView from './Prescription/PrescriptionOverView'
-import Reviews from './Doctor/Reviews'
+import DoctorReviews from './Doctor/Reviews'
 import DoctorSalary from './Salary/DoctorSalary'
 import "../../../Style/Admin.css"
 import Admin from './Admin'
+import UserAdmin from './UserAdmin'
+import Review from './Service/Review'
 
 function Index() {
     const [tabActive, setTabActive] = useState("admin")
@@ -38,6 +39,12 @@ function Index() {
                                         className={`sidebar-link mb-2 ${tabActive === "reviews" ? "active" : ""}`}
                                     >
                                         Bác sĩ
+                                    </Nav.Link>
+                                     <Nav.Link 
+                                        eventKey="services"
+                                        className={`sidebar-link mb-2 ${tabActive === "services" ? "active" : ""}`}
+                                    >
+                                        Dịch vụ
                                     </Nav.Link>
                                     <Nav.Link 
                                         eventKey="prescriptions"
@@ -82,7 +89,11 @@ function Index() {
                             </Tab.Pane>
                             
                             <Tab.Pane eventKey="doctors">
-                                <Reviews />
+                                <DoctorReviews />
+                            </Tab.Pane>
+
+                            <Tab.Pane eventKey="services">
+                                <Review />
                             </Tab.Pane>
 
                             <Tab.Pane eventKey="prescriptions">
@@ -94,16 +105,7 @@ function Index() {
                             </Tab.Pane>
 
                             <Tab.Pane eventKey="users">
-                                <Card>
-                                    <Card.Body>
-                                        <h4>Quản Lý Người Dùng</h4>
-                                        <p className="text-muted">Quản lý tài khoản bác sĩ, nhân viên và bệnh nhân</p>
-                                        
-                                        <div className="p-4 bg-light rounded text-center">
-                                            <p>Nội dung quản lý người dùng sẽ hiển thị ở đây</p>
-                                        </div>
-                                    </Card.Body>
-                                </Card>
+                                <UserAdmin />
                             </Tab.Pane>
                         </Tab.Content>
                     </Col>

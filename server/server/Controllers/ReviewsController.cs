@@ -111,10 +111,40 @@ namespace server.Controllers
             return Ok(reviews);
         }
 
-        [HttpGet("rating/{doctorId}")]
-        public async Task<ActionResult> GetRatingReviews(int doctorId)
+        [HttpGet("services/{specialtyName}")]
+        public async Task<ActionResult> GetServicesReviewBySpecialty(string specialtyName)
         {
-            var review = _reviewService.GetRatingReviews(doctorId);
+            var reviews = await _context.Reviews
+                .Include(review => review.MedicalRecord)
+                .Include(review => review.MedicalRecord.Appointment)
+                .Include(review => review.MedicalRecord.Appointment.Doctor)
+                .Include(review => review.MedicalRecord.Appointment.Doctor.Specialty)
+                .Include(review => review.MedicalRecord.Appointment.Service)
+                .Where(review => review.MedicalRecord.Appointment.Doctor.Specialty.Name == specialtyName)
+                .GroupBy(review => review.MedicalRecord.Appointment.Service.ServiceId)
+                .Select(group => new ServiceReviewBasic
+                {
+                    ServiceId = Convert.ToInt32(group.Key),
+                    ReviewCount = group.Count(),
+                    AvgScore = group.Average(r => r.OverallRating)
+                })
+                .ToListAsync();
+
+            return Ok(reviews);
+        }
+
+        [HttpGet("rating/doctor/{doctorId}")]
+        public async Task<ActionResult> GetDoctorRatings(int doctorId)
+        {
+            var review = _reviewService.GetDoctorRatings(doctorId);
+            
+            return Ok(review.Result);
+        }
+
+        [HttpGet("rating/service/{serviceId}")]
+        public async Task<ActionResult> GetServiceRatings(int serviceId)
+        {
+            var review = _reviewService.GetServiceRatings(serviceId);
             
             return Ok(review.Result);
         }

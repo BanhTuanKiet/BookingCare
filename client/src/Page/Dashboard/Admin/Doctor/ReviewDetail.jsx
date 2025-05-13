@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react"
-import { Container, Row, Col, Card, Badge, Tab, Nav, Button } from "react-bootstrap"
-import { Bar } from "react-chartjs-2"
+import { Container, Row, Col, Card, Tab, Nav } from "react-bootstrap"
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from "chart.js"
 import axios from "../../../../Util/AxiosConfig"
-import { Star, StarHalf, User, Award } from "lucide-react"
+import { Star, StarHalf } from "lucide-react"
 import ReviewDetailCard from "../../../../Component/Card/ReviewDetailCard"
-import { useNavigate } from "react-router-dom"
 import BarChart from "../../../../Component/Chart/BarChart"
+import DoctorServiceCard from "../../../../Component/Card/DoctorServiceCard"
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement)
 
@@ -19,7 +18,6 @@ const ReviewDetail = ({ specialty, doctor, review }) => {
   const [month, setMonth] = useState(new Date().getMonth() + 1)
   const [year, setYear] = useState(new Date().getFullYear())
   const [tabActive, setTabActive] = useState('all')
-  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchReview = async () => {
@@ -33,11 +31,12 @@ const ReviewDetail = ({ specialty, doctor, review }) => {
 
     fetchReview()
   }, [tabActive, doctor])
-  
+
   useEffect(() => {
     const fetchRatingReview = async () => {
       try {
-        const response = await axios.get(`/reviews/rating/${doctor?.doctorId}`)
+        const response = await axios.get(`/reviews/rating/doctor/${doctor?.doctorId}`)
+        console.log(response.data)
         setReviewRating(response.data)
       } catch (error) {
         console.log(error)
@@ -51,6 +50,7 @@ const ReviewDetail = ({ specialty, doctor, review }) => {
     const fetchMonthlyRatingReview = async () => {
       try {
         const response = await axios.get(`/reviews/rating/${month}/${year}/${doctor?.doctorId}`)
+        console.log(response.data)
         setMonthlyRating(response.data)
       } catch (error) {
         console.log(error)
@@ -67,57 +67,6 @@ const ReviewDetail = ({ specialty, doctor, review }) => {
     if (monthlyRating === null) return
     setMonthlyTotal(monthlyRating?.reduce((sum, review) => sum + (review?.reviewCount || 0, 0)))
   }, [reviewRating, monthlyRating])
-
-  const monthlyRatingsData = {
-    labels: ["1⭐", "2⭐", "3⭐", "4⭐", "5⭐"],
-    datasets: [
-      {
-        label: "Số lượt đánh giá",
-        data: monthlyRating
-          ? [
-              monthlyRating[0]?.reviewCount || 0,
-              monthlyRating[1]?.reviewCount || 0,
-              monthlyRating[2]?.reviewCount || 0,
-              monthlyRating[3]?.reviewCount || 0,
-              monthlyRating[4]?.reviewCount || 0,
-            ]
-          : [0, 0, 0, 0, 0],
-        backgroundColor: [
-          "rgba(255, 99, 132, 0.7)",
-          "rgba(255, 159, 64, 0.7)",
-          "rgba(255, 205, 86, 0.7)",
-          "rgba(75, 192, 192, 0.7)",
-          "rgba(54, 162, 235, 0.7)",
-        ],
-      },
-    ],
-  }
-
-  const monthlyBarOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        display: false,
-        position: "top",
-      },
-      title: {
-        display: false,
-        text: "Phân bố đánh giá theo tháng",
-        font: {
-          size: 16,
-        },
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        suggestedMax: monthlyTolal, 
-        ticks: {
-          stepSize: 1,
-        },
-      },
-    },
-  }
 
   const renderStars = (rating) => {
     const stars = []
@@ -142,60 +91,7 @@ const ReviewDetail = ({ specialty, doctor, review }) => {
 
   return (
     <Container className="mt-4 mb-5">
-      <Card className="border-0 shadow-sm mb-4 overflow-hidden">
-        <Card.Header className="bg-primary text-white py-3">
-          <h4 className="mb-0">Thông tin bác sĩ</h4>
-        </Card.Header>
-        <Card.Body className="p-3">
-          <Row className="align-items-center">
-            <Col lg={7} xs={12} className="mb-4 mb-lg-0">
-              <Row className="align-items-center">
-                <Col md={4} className="text-center text-md-start pe-0">
-                  <Card.Img
-                    src={doctor?.doctorImage || "/placeholder.svg?height=150&width=150"}
-                    alt={doctor?.userName}
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                  />
-                </Col>
-
-                <Col md={8} className="ps-0">
-                  <div className="mt-3 mt-md-0">
-                    <h3 className="fw-bold text-primary mb-2">{doctor?.userName || "Tên bác sĩ"}</h3>
-                    <div className="d-flex align-items-center mb-2">
-                      <Award size={18} className="text-primary me-2" />
-                      <span className="fw-semibold">{specialty || "Chuyên khoa"}</span>
-                    </div>
-                    <div className="d-flex align-items-center mb-3">
-                      <User size={18} className="text-primary me-2" />
-                      <span>{doctor?.position || "Vị trí"}</span>
-                    </div>
-                    <div className="d-flex align-items-center">
-                      <Button onClick={() => navigate(`/bac-si/${doctor?.userName}`)}>Chi tiết</Button>
-                    </div>
-                  </div>
-                </Col>
-              </Row>
-            </Col>
-
-            <Col lg={5} xs={12}>
-              <Card className="border-0 bg-light shadow-sm">
-                <Card.Body className="p-4">
-                  <div className="d-flex align-items-center mb-3">
-                    <h4 className="mb-0 me-2">Đánh giá trung bình:</h4>
-                    <span className="fs-4 fw-bold text-primary">{review?.avgScore || "N/A"}</span>
-                    <span className="ms-2 text-muted">/5</span>
-                  </div>
-
-                  <div className="mb-3 d-flex align-items-center">{renderStars(review?.avgScore || 0)}</div>
-                  <Badge bg="primary" className="px-3 py-2 rounded-pill">
-                      {review?.reviewCount || 0} lượt đánh giá
-                    </Badge>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
-        </Card.Body>
-      </Card>
+      <DoctorServiceCard specialty={specialty?.name} item={doctor} review={review} type={"bác sĩ"} />
 
       <Row className="g-4">
         <Col md={6}>
@@ -243,7 +139,7 @@ const ReviewDetail = ({ specialty, doctor, review }) => {
                   </select>
                 </div>
               </div>
-              <Bar data={monthlyRatingsData} options={monthlyBarOptions} />
+              <BarChart data={monthlyRating} total={monthlyTolal} label={"Phaan d"} labels={["1⭐", "2⭐", "3⭐", "4⭐", "5⭐"]} />
             </Card.Body>
           </Card>
         </Col>

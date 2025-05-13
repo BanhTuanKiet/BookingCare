@@ -135,7 +135,7 @@ function AppointmentStatistics() {
         <Col md={4}>
           <Card className='p-3'>
             <h5 className='text-center mb-3'>Biểu đồ theo tuần</h5>
-            <BarChart data={appointmentsPerWeek} total={total} label='Lịch hẹn theo tuần' labels={['Tuần 1', 'Tuần 2', 'Tuần 3', 'Tuần 4']} />
+            {/* <BarChart data={appointmentsPerWeek} total={total} label='Lịch hẹn theo tuần' labels={['Tuần 1', 'Tuần 2', 'Tuần 3', 'Tuần 4']} /> */}
           </Card>
         </Col>
       </Row>

@@ -11,6 +11,27 @@
                 CreateMap<ApplicationUser, UserDTO.UserBasic>()
                     .ForMember(dest =>  dest.UserName, m => m.MapFrom(source => source.FullName));
 
+                CreateMap<ApplicationUser, UserDTO.Doctor>()
+                    .ForMember(dest => dest.UserId, m => m.MapFrom(src => src.Doctor.UserId))
+                    .ForMember(dest => dest.DoctorId, m => m.MapFrom(src => src.Doctor.DoctorId))
+                    .ForMember(dest => dest.SpecialtyName, m => m.MapFrom(src => src.Doctor.Specialty.Name))
+                    .ForMember(dest => dest.ExperienceYears, m => m.MapFrom(src => src.Doctor.ExperienceYears))
+                    .ForMember(dest => dest.Position, m => m.MapFrom(src => src.Doctor.Position))
+                    .ForMember(dest => dest.Biography, m => m.MapFrom(src => src.Doctor.Biography))
+                    .ForMember(dest => dest.Qualifications, m => m.MapFrom(src => src.Doctor.Qualifications))
+                    .ForMember(dest => dest.WorkExperience, m => m.MapFrom(src => src.Doctor.WorkExperience))
+                    .ForMember(dest => dest.Degree, m => m.MapFrom(src => src.Doctor.Degree))
+                    .ForMember(dest => dest.DoctorImage, m => m.MapFrom(src =>
+                        src.Doctor.DoctorImage != null
+                            ? $"data:image/png;base64,{Convert.ToBase64String(src.Doctor.DoctorImage)}"
+                            : null
+                    ));
+
+                CreateMap<ApplicationUser, UserDTO.Patient>()
+                    .ForMember(dest => dest.UserId, m => m.MapFrom(src => src.Patient.UserId))
+                    .ForMember(dest => dest.DateOfBirth, m => m.MapFrom(src => src.Patient.DateOfBirth))
+                    .ForMember(dest => dest.Address, m => m.MapFrom(src => src.Patient.Address));
+
                 CreateMap<Doctor, DoctorDTO.DoctorBasic>()
                     .ForMember(dest => dest.UserName, m => m.MapFrom(source => source.User.FullName))
                     .ForMember(dest => dest.DoctorImage, m => m.MapFrom(source =>

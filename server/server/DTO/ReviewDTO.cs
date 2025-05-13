@@ -26,6 +26,13 @@ namespace server.DTO
         public string? ServiceName { get; set; }
     }
 
+    public class ServiceReviewBasic
+    {
+        public int ServiceId { get; set; }
+        public double AvgScore { get; set; }
+        public int ReviewCount { get; set; }
+    }
+
     public class DoctorReviewBasic
     {
         public int DoctorId { get; set; }
