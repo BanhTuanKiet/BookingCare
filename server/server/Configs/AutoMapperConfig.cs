@@ -82,7 +82,8 @@
                     .ForMember(dest => dest.ServiceName, m => m.MapFrom(source => source.Appointment.Service.ServiceName))
                     .ForMember(dest => dest.PatientName, m => m.MapFrom(source => source.Appointment.Patient.User.FullName))
                     .ForMember(dest => dest.PatientId, m => m.MapFrom(source => source.Appointment.PatientId))
-                    .ForMember(dest => dest.SpecialtyName, m => m.MapFrom(source => source.Appointment.Doctor.Specialty.Name));
+                    .ForMember(dest => dest.SpecialtyName, m => m.MapFrom(source => source.Appointment.Doctor.Specialty.Name))
+                    .ForMember(dest => dest.Status, m => m.MapFrom(source => source.Appointment.Status));
 
                 CreateMap<MedicalRecordDetail, MedicalRecordDTO.MedicineDto>()
                     .ForMember(dest => dest.MedicineName, m => m.MapFrom(source => source.Medicine.MedicalName))
