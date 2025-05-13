@@ -131,12 +131,8 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
 
   const handleVnpayPayment = async () => {
     try {
-      const response = await axios.post('/medicalrecords/create', {
-        orderType: "other",
-        amount: 10000, // TODO: lấy từ đơn thuốc thực tế
-        orderDescription: `Thanh toán đơn thuốc #${selectedRecord.recordId}`,
-        name: `Đơn thuốc #${selectedRecord.recordId}`
-      });
+      console.log(selectedRecord.recordId)
+      const response = await axios.post(`/medicalrecords/create-vnpay/${selectedRecord.recordId}`);
 
       if (response.status === 200 && response.data.paymentUrl) {
         window.location.href = response.data.paymentUrl;

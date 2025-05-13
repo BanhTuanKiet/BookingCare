@@ -130,32 +130,30 @@ namespace server.Services
             return medicineDTOs;
         }
 
-        public string CreatePaymentUrl(PaymentDTO.PaymentInformationModel model, HttpContext context)
+        public async Task<string> CreatePaymentUrl(HttpContext context, float amount, string orderType, string orderDescription, string name)
         {
             var timeZoneById = TimeZoneInfo.FindSystemTimeZoneById(_configuration["TimeZoneId"]);
             var timeNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneById);
-            var tick = timeNow.Ticks.ToString(); // sửa từ DateTime.Now thành timeNow cho đồng bộ
+            var tick = timeNow.Ticks.ToString();
+
             var pay = new VnPayUtil();
             var urlCallBack = _configuration["PaymentCallBack:ReturnUrl"];
 
             pay.AddRequestData("vnp_Version", _configuration["Vnpay:Version"]);
             pay.AddRequestData("vnp_Command", _configuration["Vnpay:Command"]);
             pay.AddRequestData("vnp_TmnCode", _configuration["Vnpay:TmnCode"]);
-            pay.AddRequestData("vnp_Amount", ((long)model.Amount * 100).ToString());
+            pay.AddRequestData("vnp_Amount", ((long)amount * 100).ToString());
             pay.AddRequestData("vnp_CreateDate", timeNow.ToString("yyyyMMddHHmmss"));
             pay.AddRequestData("vnp_CurrCode", _configuration["Vnpay:CurrCode"]);
             pay.AddRequestData("vnp_IpAddr", pay.GetIpAddress(context));
             pay.AddRequestData("vnp_Locale", _configuration["Vnpay:Locale"]);
-
-            // Dùng WebUtility.UrlEncode
-            pay.AddRequestData("vnp_OrderInfo", WebUtility.UrlEncode($"{model.Name} {model.OrderDescription} {model.Amount}"));
-            //pay.AddRequestData("vnp_OrderInfo", $"{model.Name} {model.OrderDescription} {model.Amount}");
-            pay.AddRequestData("vnp_OrderType", model.OrderType);
+            pay.AddRequestData("vnp_OrderInfo", WebUtility.UrlEncode($"{name} {orderDescription} {amount}"));
+            pay.AddRequestData("vnp_OrderType", orderType);
             pay.AddRequestData("vnp_ReturnUrl", urlCallBack);
             pay.AddRequestData("vnp_TxnRef", tick);
 
             var paymentUrl = pay.CreateRequestUrl(
-                _configuration["Vnpay:BaseUrl"], 
+                _configuration["Vnpay:BaseUrl"],
                 _configuration["Vnpay:HashSecret"]
             );
 

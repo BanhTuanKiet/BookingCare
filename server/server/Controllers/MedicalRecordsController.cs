@@ -341,16 +341,47 @@ namespace Clinic_Management.Controllers
         /// <summary>
         /// Create payment URL for VnPay
         /// </summary>
-        [HttpPost("create")]
-        public IActionResult CreatePaymentUrlVnpay([FromBody] PaymentDTO.PaymentInformationModel model)
+        [HttpPost("create-vnpay/{recordId}")]
+        public async Task<IActionResult> CreatePayment(int recordId)
         {
-            if (model == null)
+            try
             {
-                return BadRequest("Invalid payment request.");
-            }
+                Console.WriteLine($"Mã record: {recordId}");
+                var appointment = await _context.Appointments
+                .Include(a => a.Service)
+                .Include(a => a.Patient)
+                    .ThenInclude(p => p.User)
+                .FirstOrDefaultAsync(a => a.MedicalRecord.RecordId == recordId);
 
-            var url = _medicalRecordService.CreatePaymentUrl(model, HttpContext);
-            return Ok(new { paymentUrl = url });
+
+                if (appointment == null)
+                    throw new Exception("Không tìm thấy lịch hẹn.");
+
+                var record = await _context.MedicalRecords
+                    .FirstOrDefaultAsync(r => r.RecordId == recordId);
+                
+                Console.WriteLine($"Mã record: {record.RecordId}");
+
+                float recordPrice = record?.Price ?? 0;
+                float servicePrice = appointment.Service?.Price ?? 0;
+                var totalAmount = recordPrice + servicePrice;
+
+                // Bạn set sẵn ở backend
+                string orderType = "other";
+                string orderDescription = "Thanh toán đơn thuốc";
+                string name = $"Đơn thuốc của bệnh nhân {appointment.Patient?.User?.FullName ?? "Unknown"}";
+
+
+                Console.WriteLine($"Mã record: {appointment.Patient?.User?.FullName ?? "Unknown"}");
+
+                var paymentUrl = await _medicalRecordService.CreatePaymentUrl(HttpContext, totalAmount, orderType, orderDescription, name);
+                return Ok(new { paymentUrl });
+            }
+            catch (Exception ex)
+            {
+                // _logger.LogError(ex, "Lỗi khi tạo VNPay URL");
+                return StatusCode(500, "Lỗi khi tạo VNPay URL");
+            }
         }
 
         /// <summary>

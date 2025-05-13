@@ -17,7 +17,7 @@ namespace server.Services
         Task<int> CalculateAmountFromRecordId(int recordId);
         Task<MedicalRecordDTO.CheckPaymentStatusResponse?> CheckPaymentStatusAsync(string orderId);
         
-        string CreatePaymentUrl(PaymentDTO.PaymentInformationModel model, HttpContext context);
+        Task<string> CreatePaymentUrl(HttpContext context, float amount, string orderType, string orderDescription, string name);
         PaymentDTO.PaymentResponseModel PaymentExecute(IQueryCollection collections);
     }
 }
