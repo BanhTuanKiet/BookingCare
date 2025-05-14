@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using System.Net.Mail;
 using Microsoft.Extensions.Configuration;
 using System.Net;
+using System.Text;
+using System.Globalization;
 
 namespace server.Util
 {
@@ -18,6 +20,21 @@ namespace server.Util
             if (day <= 21) return 3;
             return 4;
         }
- 
+        public static string RemoveDiacritics(string input)
+        {
+            string normalized = input.Normalize(NormalizationForm.FormD);
+            StringBuilder sb = new StringBuilder();
+
+            foreach (var c in normalized)
+            {
+                UnicodeCategory uc = CharUnicodeInfo.GetUnicodeCategory(c);
+                if (uc != UnicodeCategory.NonSpacingMark)
+                {
+                    sb.Append(c);
+                }
+            }
+
+            return sb.ToString().Normalize(NormalizationForm.FormC);
+        }
     }
 }

@@ -73,6 +73,18 @@ namespace server.Controllers
             return Ok(appointments);
         }
 
+        [Authorize(Roles = "admin")]
+        [HttpGet("{month}/{year}")]
+        public async Task<ActionResult<List<AppointmentDTO.AppointmentDetail>>> GetAppointmentsByMonthYear(int month, int year)
+        {
+            var userId = HttpContext.Items["UserId"];
+            int parsedUserId = Convert.ToInt32(userId.ToString());
+
+            var appointments = await _appointmentService.GetAppointmentsByMonthYear(month, year);
+
+            return Ok(appointments);
+        }
+
         [Authorize(Roles = "admin, doctor")]
         [HttpPut("status/{id}")]
         public async Task<ActionResult> UpdateAppointmentStatus(int id, [FromBody] UpdateStatusDTO statusUpdate)

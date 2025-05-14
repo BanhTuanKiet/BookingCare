@@ -35,6 +35,15 @@ namespace server.Services
             return patientDTO;
         }
 
+        public async Task<PatientDTO.PatientDetail> GetPatientDetailByUserId(int patientId)
+        {
+            var patient = await _context.Patients.Include(p => p.User).FirstOrDefaultAsync(p => p.PatientId == patientId);
+
+            var patientDTO = _mapper.Map<PatientDTO.PatientDetail>(patient);
+
+            return patientDTO;
+        }
+
         public async Task<List<PatientDTO.PatientDetail>> GetAllPatients(){
             var patients = await _context.Patients.ToListAsync();
             return _mapper.Map<List<PatientDTO.PatientDetail>>(patients);

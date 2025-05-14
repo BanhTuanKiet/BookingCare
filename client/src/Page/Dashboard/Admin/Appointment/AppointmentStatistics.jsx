@@ -1,16 +1,10 @@
 import axios from '../../../../Util/AxiosConfig'
 import React, { useEffect, useState } from 'react'
 import { Col, Row, Card } from 'react-bootstrap'
-import { Pie, Bar } from 'react-chartjs-2'
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-  CategoryScale,
-  LinearScale,
-  BarElement
-} from 'chart.js'
+import PieChart from "../../../../Component/Chart/PieChart"
+import BarChart from '../../../../Component/Chart/BarChart'
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js'
+import AppointmentAdmin from './AppointmentAdmin'
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement)
 
@@ -21,6 +15,8 @@ function AppointmentStatistics() {
   const [year, setYear] = useState(new Date().getFullYear())
   const [total, setTotal] = useState(0)
   const [prevTotal, setPrevTotal] = useState(20)
+  const labels = ['Chờ xác nhận', 'Đã xác nhận', 'Đã khám', 'Đã hoàn thành', 'Đã hủy']
+  const backgroundColor = ['#0dcaf0', '#FF9800', '#198754', '#0d6efd', '#dc3545']
 
   useEffect(() => {
     const fetchAppointmentsPerMonth = async () => {
@@ -60,66 +56,17 @@ function AppointmentStatistics() {
   }, [month, year])
 
   useEffect(() => {
-        const fetchAppointmentsPerWeek = async () => {
-            try {
-                const response = await axios.get(`/appointments/statistics/${month}/week`)
-                setAppointmentsPerWeek(response.data)
-            } catch (error) {
-                console.log(error)
-            }            
-        }
+    const fetchAppointmentsPerWeek = async () => {
+      try {
+        const response = await axios.get(`/appointments/statistics/${month}/week`)
+        setAppointmentsPerWeek(response.data)
+      } catch (error) {
+        console.log(error)
+      }            
+    }
 
-        fetchAppointmentsPerWeek()
+    fetchAppointmentsPerWeek()
     }, [month])
-
-  const pieData = {
-    labels: ['Chờ xác nhận', 'Đã xác nhận', 'Đã khám', 'Đã hoàn thành', 'Đã hủy'],
-    datasets: [
-        {
-            data: [
-                appointmentsPerMonth[0]?.appointments || 0,
-                appointmentsPerMonth[1]?.appointments || 0,
-                appointmentsPerMonth[2]?.appointments || 0,
-                appointmentsPerMonth[3]?.appointments || 0,
-                appointmentsPerMonth[4]?.appointments || 0,
-            ],
-            backgroundColor: ['#0dcaf0', '#FF9800', '#198754', '#0d6efd', '#dc3545'],
-            borderWidth: 1,
-        },
-    ],
-  }
-
-  const pieOptions = {
-    plugins: {
-      legend: {
-        display: false,
-      },
-    },
-  }
-
-  const barData = {
-    labels: ['Tuần 1', 'Tuần 2', 'Tuần 3', 'Tuần 4'],
-    datasets: [
-      {
-        label: 'Lịch hẹn theo tuần',
-        data: [
-            appointmentsPerWeek[0]?.appointments || 0,
-            appointmentsPerWeek[1]?.appointments || 0,
-            appointmentsPerWeek[2]?.appointments || 0,
-            appointmentsPerWeek[3]?.appointments || 0,
-        ],
-        backgroundColor: '#0d6efd',
-      },
-    ],
-  }
-
-  const barOptions = {
-    scales: {
-      y: {
-        beginAtZero: true,
-      },
-    },
-  }
 
   const rateChange = prevTotal === 0 ? 0 : (((total - prevTotal) / prevTotal) * 100).toFixed(1)
 
@@ -154,26 +101,24 @@ function AppointmentStatistics() {
           <Card className='p-3'>
             <h5>Tổng số lịch hẹn</h5>
             <h3>{total}</h3>
-            <p className={rateChange >= 0 ? 'text-success' : 'text-danger'}>
-              So với tháng trước: {rateChange}%
-            </p>
+            <p className={rateChange >= 0 ? 'text-success' : 'text-danger'}>So với tháng trước: {rateChange}%</p>
           </Card>
 
           <Card className='px-3 my-3'>
             <ul style={{ listStyle: 'none', padding: 0, marginTop: '1rem' }}>
-              {pieData.labels.map((label, idx) => (
+              {labels.map((label, idx) => (
                 <li key={idx} style={{ marginBottom: '6px', display: 'flex', alignItems: 'center' }}>
                   <span
                     style={{
                       display: 'inline-block',
                       width: 12,
                       height: 12,
-                      backgroundColor: pieData.datasets[0].backgroundColor[idx],
+                      backgroundColor: backgroundColor[idx],
                       marginRight: 8,
                       borderRadius: '50%',
                     }}
                   ></span>
-                  {label}: {pieData.datasets[0].data[idx]}
+                  {label}: {appointmentsPerMonth[idx]?.appointments || 0}
                 </li>
               ))}
             </ul>
@@ -183,16 +128,20 @@ function AppointmentStatistics() {
         <Col md={4}>
           <Card className='p-3'>
             <h5 className='text-center mb-3'>Biểu đồ theo tháng</h5>
-            <Pie data={pieData} options={pieOptions} />
+            <PieChart appointments={appointmentsPerMonth} />
           </Card>
         </Col>
 
         <Col md={4}>
           <Card className='p-3'>
             <h5 className='text-center mb-3'>Biểu đồ theo tuần</h5>
-            <Bar data={barData} options={barOptions} />
+            {/* <BarChart data={appointmentsPerWeek} total={total} label='Lịch hẹn theo tuần' labels={['Tuần 1', 'Tuần 2', 'Tuần 3', 'Tuần 4']} /> */}
           </Card>
         </Col>
+      </Row>
+
+      <Row className='' >
+        <AppointmentAdmin month={month} year={year} />
       </Row>
     </div>
   )

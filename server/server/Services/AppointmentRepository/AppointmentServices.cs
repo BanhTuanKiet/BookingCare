@@ -47,7 +47,6 @@ namespace server.Services
             return appointment;
         }
 
-
         public async Task<List<AppointmentDTO.AppointmentDetail>> GetAppointments()
         {
             var appointments = await _context.Appointments
@@ -59,15 +58,28 @@ namespace server.Services
                 .OrderByDescending(a => a.AppointmentDate)
                 .ToListAsync();
 
-            // foreach (var a in appointments)
-            // {
-            //     Console.WriteLine(a.Doctor.User.Id);
-            // }
+            var appointmentDTOs = _mapper.Map<List<AppointmentDTO.AppointmentDetail>>(appointments);
+
+            return appointmentDTOs;
+        }
+
+        public async Task<List<AppointmentDTO.AppointmentDetail>> GetAppointmentsByMonthYear(int month, int year)
+        {
+            var appointments = await _context.Appointments
+                .Include(a => a.Patient)
+                .Include(a => a.Patient.User)
+                .Include(a => a.Doctor)
+                .Include(a => a.Doctor.User)
+                .Include(a => a.Service)
+                .Where(a => a.AppointmentDate.Value.Month == month && a.AppointmentDate.Value.Year == year)
+                .OrderByDescending(a => a.AppointmentDate)
+                .ToListAsync();
 
             var appointmentDTOs = _mapper.Map<List<AppointmentDTO.AppointmentDetail>>(appointments);
 
             return appointmentDTOs;
         }
+
         public async Task UpdateStatus(Appointment appointment, string newStatus)
         {
             appointment.Status = newStatus;

@@ -52,11 +52,11 @@ builder.Services.AddOptions<MomoOptionModel>()
     .ValidateOnStart();
 
 
-// Đăng ký Service
-builder.Services.AddScoped<IMomoService, MomoService>();
+// // Đăng ký Service
+// builder.Services.AddScoped<IMomoService, MomoService>();
 
 
-builder.Services.AddScoped<IVnPayService, VnPayService>();
+// builder.Services.AddScoped<IVnPayService, VnPayService>();
 
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");

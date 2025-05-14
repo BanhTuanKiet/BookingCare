@@ -12,6 +12,8 @@ namespace server.Services.RatingRepository
         Task<List<ServiceReview>> GetDoctorReviews(int doctorId);
         Task<List<DoctorReviewDetailDTO>> GetDoctorReviewsDetail(string filter, int doctorId);
         Task<ReviewDTO> CheckExistReview(int recordId);
-        Task<List<ReviewRating>> GetRatingReviews(int doctorId);
+        Task<List<ReviewRating>> GetDoctorRatings(int doctorId);
+        Task<List<ReviewRating>> GetServiceRatings(int serviceId);
+        Task<List<ReviewRating>> GetMonthlyRatingReviews(int month, int year, int doctorId);
     }
 }

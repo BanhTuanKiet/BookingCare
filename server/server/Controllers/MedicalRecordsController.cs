@@ -14,10 +14,12 @@ using server.DTO;
 using server.Middleware;
 using server.Models;
 using server.Services;
+using server.Util;
 using Server.DTO;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Microsoft.OpenApi.Expressions;
+using System.Text.Json;
 
 namespace Clinic_Management.Controllers
 {
@@ -142,7 +144,7 @@ namespace Clinic_Management.Controllers
         [HttpGet("prescriptions/patient")]
         public async Task<ActionResult> GetPrescriptionsByPatient()
         {
-            // Lấy danh sách appointments và group theo PatientId để loại trùng
+            // Lấy danh sách appointments duy nhất theo PatientId
             var distinctAppointments = await _context.MedicalRecords
                 .Join(_context.Appointments,
                     mr => mr.AppointmentId,
@@ -156,33 +158,157 @@ namespace Clinic_Management.Controllers
                 })
                 .ToListAsync();
 
-            // Lấy danh sách AppointmentId duy nhất
-            var appointmentIds = distinctAppointments.Select(a => a.AppointmentId).ToList();
+            if (distinctAppointments == null || !distinctAppointments.Any())
+            {
+                throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");
+            }
 
-            // Gọi MedicalRecordService để lấy tất cả đơn thuốc theo danh sách AppointmentId
-            var medicalRecords = await _medicalRecordService.GetMedicalRecords(appointmentIds)
-                                ?? throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");
+            var resultList = new List<object>();
 
-            return Ok(medicalRecords);
+            foreach (var item in distinctAppointments)
+            {
+                // Lấy đơn thuốc theo AppointmentId
+                var records = await _medicalRecordService.GetMedicalRecords(new List<int> { item.AppointmentId });
+
+                // Nếu có MedicalRecord thì mới lấy thông tin bệnh nhân
+                if (records != null && records.Any())
+                {
+                    var patientDetail = await _patientService.GetPatientDetailByUserId(item.PatientId.Value);
+
+                    resultList.Add(new
+                    {
+                        Patient = patientDetail,
+                        Prescriptions = records
+                    });
+                }
+            }
+
+            return Ok(resultList);
+        }
+
+
+        [Authorize(Roles = "admin")]
+        [HttpGet("search/{keyWord}")]
+        public async Task<ActionResult> Search(string keyWord)
+        {
+            var keyword = Others.RemoveDiacritics(keyWord).ToLower();
+
+            // Lấy danh sách appointments duy nhất theo PatientId
+            var distinctAppointments = await _context.MedicalRecords
+                .Join(_context.Appointments,
+                    mr => mr.AppointmentId,
+                    ap => ap.AppointmentId,
+                    (mr, ap) => ap)
+                .GroupBy(a => a.PatientId)
+                .Select(g => new
+                {
+                    PatientId = g.Key,
+                    AppointmentId = g.OrderBy(a => a.AppointmentDate).Select(a => a.AppointmentId).FirstOrDefault()
+                })
+                .ToListAsync();
+
+            if (distinctAppointments == null || !distinctAppointments.Any())
+            {
+                throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");
+            }
+
+            var resultList = new List<object>();
+
+            foreach (var item in distinctAppointments)
+            {
+                if (!item.PatientId.HasValue) continue;
+
+                // Lấy đơn thuốc theo từng appointment
+                var records = await _medicalRecordService.GetMedicalRecords(new List<int> { item.AppointmentId });
+
+                if (records != null && records.Any())
+                {
+                    var patientDetail = await _patientService.GetPatientDetailByUserId(item.PatientId.Value);
+                    var dobString = patientDetail.DateOfBirth?.ToString("dd/MM/yyyy") ?? "";
+
+                    // Lọc theo keyword trên nhiều trường
+                    var isMatch = Others.RemoveDiacritics(patientDetail.UserName).Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
+                                Others.RemoveDiacritics(patientDetail.Email).Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
+                                Others.RemoveDiacritics(patientDetail.PhoneNumber ?? "").Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
+                                Others.RemoveDiacritics(dobString).Contains(keyword, StringComparison.OrdinalIgnoreCase);
+
+                    var filteredPrescriptions = records.Where(mr =>
+                        Others.RemoveDiacritics(mr.PatientName).Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
+                        Others.RemoveDiacritics(mr.DoctorName).Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
+                        Others.RemoveDiacritics(mr.Diagnosis).Contains(keyword, StringComparison.OrdinalIgnoreCase)
+                    ).ToList();
+
+                    if (isMatch || filteredPrescriptions.Any())
+                    {
+                        resultList.Add(new
+                        {
+                            Patient = patientDetail,
+                            Prescriptions = filteredPrescriptions
+                        });
+                    }
+                }
+            }
+
+            return Ok(resultList);
         }
 
 
         [Authorize(Roles = "admin")]
         [HttpGet("prescriptions/patient/{patientId}")]
-        public async Task<ActionResult<List<MedicalRecordDTO.MedicalRecordBasic>>> GetAllMedicalRecordByPatientId(int patientId)
+        public async Task<ActionResult<List<MedicalRecordDTO.MedicalRecordBasic>>> GetAllMedicalRecordByPatientId(
+            int patientId,
+            [FromQuery] DateTime? startDate = null,
+            [FromQuery] DateTime? endDate = null,
+            [FromQuery] string? serviceName = null,
+            [FromQuery] string? status = null)
         {
-            // Lấy tất cả appointmentId có PatientId == patientId
-            var appointmentIds = await _context.Appointments
-                .Include(mr => mr.Patient)
-                .Where(a => a.PatientId == patientId)
-                .Select(a => a.AppointmentId)
-                .ToListAsync();
+            try
+            {
+                // Lấy tất cả appointmentId có PatientId == patientId
+                var appointmentsQuery = _context.Appointments
+                    .Include(mr => mr.Patient)
+                    .Where(a => a.PatientId == patientId);
 
-            // Truy vấn đơn thuốc dựa trên danh sách appointmentId
-            var medicalRecords = await _medicalRecordService.GetMedicalRecords(appointmentIds) 
-                                ?? throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");
+                // Lọc theo ngày nếu có
+                if (startDate.HasValue)
+                {
+                    appointmentsQuery = appointmentsQuery.Where(a => a.AppointmentDate >= startDate.Value);
+                }
 
-            return Ok(medicalRecords);
+                if (endDate.HasValue)
+                {
+                    // Đặt thời gian là cuối ngày để so sánh chính xác
+                    DateTime endOfDay = endDate.Value.Date.AddDays(1).AddTicks(-1);
+                    appointmentsQuery = appointmentsQuery.Where(a => a.AppointmentDate <= endOfDay);
+                }
+
+                var appointmentIds = await appointmentsQuery
+                    .Select(a => a.AppointmentId)
+                    .ToListAsync();
+
+                // Truy vấn đơn thuốc dựa trên danh sách appointmentId
+                var medicalRecords = await _medicalRecordService.GetMedicalRecords(appointmentIds) 
+                                    ?? throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");
+
+                // Lọc thêm theo dịch vụ và trạng thái nếu có
+                var filteredRecords = medicalRecords;
+
+                if (!string.IsNullOrEmpty(serviceName))
+                {
+                    filteredRecords = filteredRecords.Where(r => r.ServiceName == serviceName).ToList();
+                }
+
+                if (!string.IsNullOrEmpty(status))
+                {
+                    filteredRecords = filteredRecords.Where(r => r.Status == status).ToList();
+                }
+
+                return Ok(filteredRecords);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = $"Lỗi khi lấy đơn thuốc: {ex.Message}" });
+            }
         }
 
         [Authorize(Roles = "admin")]
@@ -261,6 +387,163 @@ namespace Clinic_Management.Controllers
             return Ok(recordDetail);
         }
 
+        /// <summary>
+        /// Create payment URL for VnPay
+        /// </summary>
+        [HttpPost("create-vnpay/{recordId}")]
+        public async Task<IActionResult> CreatePayment(int recordId)
+        {
+            try
+            {
+                Console.WriteLine($"Mã record: {recordId}");
+                var appointment = await _context.Appointments
+                .Include(a => a.Service)
+                .Include(a => a.Patient)
+                    .ThenInclude(p => p.User)
+                .FirstOrDefaultAsync(a => a.MedicalRecord.RecordId == recordId);
 
+
+                if (appointment == null)
+                    throw new Exception("Không tìm thấy lịch hẹn.");
+
+                var record = await _context.MedicalRecords
+                    .FirstOrDefaultAsync(r => r.RecordId == recordId);
+                
+                Console.WriteLine($"Mã record: {record.RecordId}");
+
+                float recordPrice = record?.Price ?? 0;
+                float servicePrice = appointment.Service?.Price ?? 0;
+                var totalAmount = recordPrice + servicePrice;
+
+                // Bạn set sẵn ở backend
+                string orderType = "other";
+                string orderDescription = "Thanh toán đơn thuốc";
+                string name = $"Đơn thuốc của bệnh nhân {appointment.Patient?.User?.FullName ?? "Unknown"}";
+
+
+                Console.WriteLine($"Mã record: {appointment.Patient?.User?.FullName ?? "Unknown"}");
+
+                var paymentUrl = await _medicalRecordService.CreatePaymentUrl(HttpContext, totalAmount, orderType, orderDescription, name);
+                return Ok(new { paymentUrl });
+            }
+            catch (Exception ex)
+            {
+                // _logger.LogError(ex, "Lỗi khi tạo VNPay URL");
+                return StatusCode(500, "Lỗi khi tạo VNPay URL");
+            }
+        }
+
+        /// <summary>
+        /// Payment callback from VnPay
+        /// </summary>
+        [HttpGet("callback")]
+        public IActionResult PaymentCallbackVnpay()
+        {
+            var response = _medicalRecordService.PaymentExecute(Request.Query);
+            Console.WriteLine($"Call back: {response}");
+            return Ok(response);
+        }
+
+        // Update CreatePayment method to generate OrderId and Amount on the backend
+        [HttpPost("create-payment")]
+        public async Task<IActionResult> CreatePayment([FromBody] MedicalRecordDTO.CreatePaymentRequest request)
+        {
+            Console.WriteLine("Mã toa thuốc : "+request.RecordId.ToString());
+            if (request == null || string.IsNullOrWhiteSpace(request.OrderInfo))
+            {
+                return BadRequest("Invalid request");
+            }
+
+            // Generate OrderId and Amount on the backend
+            var orderId = Guid.NewGuid().ToString();
+            int amount = await _medicalRecordService.CalculateAmountFromRecordId(request.RecordId);
+
+            Console.WriteLine($"Generated OrderId: {orderId}");
+            Console.WriteLine($"OrderInfo: {request.OrderInfo}");
+            Console.WriteLine($"Generated Amount: {amount}");
+
+            var result = await _medicalRecordService.CreatePaymentAsync(orderId, request.OrderInfo, amount);
+            Console.WriteLine($"MoMo payment response: {JsonSerializer.Serialize(result)}");
+            return Ok(result);
+        }
+
+
+        [HttpGet("payment-execute")]
+        public IActionResult PaymentExecute()
+        {
+            var data = _medicalRecordService.PaymentExecuteAsync(Request.Query);
+            return Ok(data);
+        }
+        // [HttpGet("payment-status")]
+        // public async Task<IActionResult> CheckPaymentStatus(string orderId)
+        // {
+        //     var result = await _momoService.CheckPaymentStatusAsync(orderId);
+        //     if (result.IsSuccess)
+        //     {
+        //         return Ok(new { status = "success" });
+        //     }
+        //     else
+        //     {
+        //         return Ok(new { status = "failure" });
+        //     }
+        // }
+
+        [HttpGet("check-payment-status")]
+        public async Task<IActionResult> CheckPaymentStatus([FromQuery] string orderId)
+        {
+            if (string.IsNullOrEmpty(orderId))
+            {
+                return BadRequest(new { message = "Thiếu mã đơn hàng (orderId)" });
+            }
+
+            // Gọi service kiểm tra trạng thái thanh toán MoMo
+            var result = await _medicalRecordService.CheckPaymentStatusAsync(orderId);
+
+            if (result == null)
+            {
+                return StatusCode(500, new { message = "Không thể kiểm tra trạng thái thanh toán từ MoMo" });
+            }
+
+            // Nếu thanh toán thành công (ResultCode == 0 theo tài liệu MoMo)
+            if (result.ResultCode == 0)
+            {
+                // Tìm lịch hẹn liên kết với MedicalRecord.RecordId == orderId
+                var appointment = await _context.Appointments
+                    .Include(a => a.Patient).ThenInclude(p => p.User)
+                    .Include(a => a.Doctor).ThenInclude(d => d.User)
+                    .Include(a => a.Service)
+                    .Include(a => a.MedicalRecord) // cần Include để truy xuất RecordId
+                    .FirstOrDefaultAsync(a => a.MedicalRecord != null && a.MedicalRecord.RecordId == int.Parse(orderId));
+
+                if (appointment == null)
+                {
+                    return NotFound(new { message = "Không tìm thấy lịch hẹn tương ứng với đơn hàng" });
+                }
+
+                // Cập nhật trạng thái lịch hẹn
+                string oldStatus = appointment.Status;
+                appointment.Status = "Hoàn thành"; // hoặc bất kỳ giá trị chuẩn nào bạn đặt
+                await _context.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    message = "Đã thanh toán thành công",
+                    paymentStatus = "Paid",
+                    appointmentId = appointment.AppointmentId,
+                    oldStatus = oldStatus,
+                    updatedStatus = appointment.Status
+                });
+            }
+            else
+            {
+                return Ok(new
+                {
+                    message = "Chưa thanh toán hoặc giao dịch thất bại",
+                    paymentStatus = "Unpaid",
+                    resultCode = result.ResultCode,
+                    resultMessage = result.Message
+                });
+            }
+        }
     }
 }

@@ -129,13 +129,66 @@ namespace server.Services.RatingRepository
             return reviewDTOs;
         }
 
-        public async Task<List<ReviewRating>> GetRatingReviews(int doctorId)
+        public async Task<List<ReviewRating>> GetDoctorRatings(int doctorId)
         {
             var reviews = await _context.Reviews
                 .Include(r => r.MedicalRecord)
                 .Include(r => r.MedicalRecord.Appointment)
                 .Include(r => r.MedicalRecord.Appointment.Doctor)
                 .Where(r => r.MedicalRecord.Appointment.Doctor.DoctorId == doctorId)
+                .GroupBy(r => r.OverallRating)
+                .Select(group => new ReviewRating {
+                    Rating = group.Key,
+                    ReviewCount = group.Count()
+                })
+                .ToListAsync();
+
+            var result = Enumerable.Range(1, 5)
+                .Select(rating => new ReviewRating
+                {
+                    Rating = rating,
+                    ReviewCount = reviews.FirstOrDefault(x => x.Rating == rating)?.ReviewCount ?? 0
+                })
+                .ToList();
+
+            return result;
+        }
+
+        public async Task<List<ReviewRating>> GetServiceRatings(int serviceId)
+        {
+            var reviews = await _context.Reviews
+                .Include(r => r.MedicalRecord)
+                .Include(r => r.MedicalRecord.Appointment)
+                .Include(r => r.MedicalRecord.Appointment.Service)
+                .Where(r => r.MedicalRecord.Appointment.Service.ServiceId == serviceId)
+                .GroupBy(r => r.OverallRating)
+                .Select(group => new ReviewRating {
+                    Rating = group.Key,
+                    ReviewCount = group.Count()
+                })
+                .ToListAsync();
+
+            var result = Enumerable.Range(1, 5)
+                .Select(rating => new ReviewRating
+                {
+                    Rating = rating,
+                    ReviewCount = reviews.FirstOrDefault(x => x.Rating == rating)?.ReviewCount ?? 0
+                })
+                .ToList();
+
+            return result;
+        }
+        public async Task<List<ReviewRating>> GetMonthlyRatingReviews(int month, int year, int doctorId)
+        {
+            var reviews = await _context.Reviews
+                .Include(r => r.MedicalRecord)
+                .Include(r => r.MedicalRecord.Appointment)
+                .Include(r => r.MedicalRecord.Appointment.Doctor)
+                .Where(r => 
+                    r.MedicalRecord.Appointment.Doctor.DoctorId == doctorId 
+                    && r.MedicalRecord.Appointment.AppointmentDate.Value.Month == month 
+                    && r.MedicalRecord.Appointment.AppointmentDate.Value.Year == year
+                )
                 .GroupBy(r => r.OverallRating)
                 .Select(group => new ReviewRating {
                     Rating = group.Key,
