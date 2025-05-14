@@ -1,32 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Button, 
-  Form, 
-  Table, 
-  Modal, 
-  Container, 
-  Row, 
-  Col, 
-  Card, 
-  Badge, 
-  InputGroup,
-  FormControl,
-  Spinner,
-  Alert,
-  Pagination,
-  Image
+import { Button, Form, Table, Modal, Container, Row, Col, Card, Badge, InputGroup, FormControl, Spinner, Alert, Pagination, Image
 } from 'react-bootstrap';
-import { 
-  Search, 
-  PlusCircle, 
-  Pencil, 
-  Trash, 
-  XCircle, 
-  ArrowClockwise,
-  Upload,
-  Image as ImageIcon,
-  XSquare
-} from 'react-bootstrap-icons';
+import { Search, PlusCircle, Pencil, Trash, XCircle, ArrowClockwise, Upload, Image as ImageIcon, XSquare} from 'react-bootstrap-icons';
 import axios from '../../../Util/AxiosConfig';
 
 function SpecialtyAdmin() {
@@ -76,6 +51,7 @@ function SpecialtyAdmin() {
         setError(null);
         try {
             const res = await axios.get('/specialties');
+            console.log(res)
             setSpecialties(res.data);
             setFilteredSpecialties(res.data);
         } catch (err) {
@@ -110,7 +86,7 @@ function SpecialtyAdmin() {
         
         // If specialty has an image, show it in the preview
         if (specialty.specialtyImage) {
-            const imageUrl = `data:image/jpeg;base64,${specialty.specialtyImage}`;
+            const imageUrl = specialty.specialtyImage;
             setPreviewImage(imageUrl);
         }
     };
@@ -256,7 +232,7 @@ function SpecialtyAdmin() {
         if (specialty.specialtyImage) {
             return (
                 <Image 
-                    src={`data:image/jpeg;base64,${specialty.specialtyImage}`}
+                    src={specialty.specialtyImage}
                     alt={specialty.name}
                     thumbnail
                     style={{ height: '50px', width: '80px', objectFit: 'cover' }}
