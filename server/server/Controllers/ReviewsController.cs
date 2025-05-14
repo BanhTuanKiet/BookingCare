@@ -15,6 +15,7 @@ namespace server.Controllers
     public class ReviewsController : Controller
     {
         private readonly ClinicManagementContext _context;
+        private readonly IReview _reviewService;       
         public ReviewsController(IReview reviewService, ClinicManagementContext context)
         {
             _reviewService = reviewService;
@@ -77,6 +78,7 @@ namespace server.Controllers
         {
             var ratings = await _reviewService.GetTopDoctorsByDepartment();
             return Ok(ratings);
+        }
         
         [HttpGet("detail/{filter}/{type}/{id}")]
         public async Task<ActionResult> GetReviewsDetail(string filter, string type, int id)
@@ -116,10 +118,48 @@ namespace server.Controllers
             return Ok(reviews);
         }
 
-        [HttpGet("rating/{doctorId}")]
-        public async Task<ActionResult> GetRatingReviews(int doctorId)
+        [HttpGet("services/{specialtyName}")]
+        public async Task<ActionResult> GetServicesReviewBySpecialty(string specialtyName)
         {
-            var review = _reviewService.GetRatingReviews(doctorId);
+            var reviews = await _context.Reviews
+                .Include(review => review.MedicalRecord)
+                .Include(review => review.MedicalRecord.Appointment)
+                .Include(review => review.MedicalRecord.Appointment.Doctor)
+                .Include(review => review.MedicalRecord.Appointment.Doctor.Specialty)
+                .Include(review => review.MedicalRecord.Appointment.Service)
+                .Where(review => review.MedicalRecord.Appointment.Doctor.Specialty.Name == specialtyName)
+                .GroupBy(review => review.MedicalRecord.Appointment.Service.ServiceId)
+                .Select(group => new ServiceReviewBasic
+                {
+                    ServiceId = Convert.ToInt32(group.Key),
+                    ReviewCount = group.Count(),
+                    AvgScore = group.Average(r => r.OverallRating)
+                })
+                .ToListAsync();
+
+            return Ok(reviews);
+        }
+
+        [HttpGet("rating/doctor/{doctorId}")]
+        public async Task<ActionResult> GetDoctorRatings(int doctorId)
+        {
+            var review = _reviewService.GetDoctorRatings(doctorId);
+            
+            return Ok(review.Result);
+        }
+
+        [HttpGet("rating/service/{serviceId}")]
+        public async Task<ActionResult> GetServiceRatings(int serviceId)
+        {
+            var review = _reviewService.GetServiceRatings(serviceId);
+            
+            return Ok(review.Result);
+        }
+
+        [HttpGet("rating/{month}/{year}/{doctorId}")]
+        public async Task<ActionResult> GetMonthlyRatingReviews(int month, int year, int doctorId)
+        {
+            var review = _reviewService.GetMonthlyRatingReviews(month, year, doctorId);
             
             return Ok(review.Result);
         }

@@ -27,7 +27,7 @@ function Reviews() {
     }, [])
 
     useEffect(() => {
-        const fetchDoctor = async () => {
+        const fetchDoctors = async () => {
             try {
                 const response = await axios.get(`/doctors/${specialty?.name}`)  
                 setDoctors(response.data)
@@ -36,7 +36,7 @@ function Reviews() {
             }
         }
 
-        fetchDoctor()
+        fetchDoctors()
     }, [specialty])
 
     useEffect(() => {
@@ -70,7 +70,7 @@ function Reviews() {
         <div className='container py-4'>
             <Row className='mb-4'>
                 <Col>
-                    <h4>Thống kê đánh giá bác sĩ của {specialty?.name}</h4>
+                    <h4>Quản lý bác sĩ của {specialty?.name}</h4>
                     <select value={specialty?.specialtyId} onChange={(e) => handleSpecialty(e)}>
                         {specialties?.map((s, idx) => (
                             <option key={idx} value={s.specialtyId}>
@@ -84,7 +84,7 @@ function Reviews() {
             <Row>
                 <Col>
                     {doctors?.map((doctor, index) => {
-                        const review = reviews?.find(r => r.doctorId === doctor.doctorId)
+                        const r = reviews?.find(r => r.doctorId === doctor.doctorId)
 
                         return (
                             <div key={index} className="mb-3 p-3 border rounded shadow-sm">
@@ -102,8 +102,8 @@ function Reviews() {
                                             <h5 className="mb-1">{doctor?.userName}</h5>
                                             <p className="text-muted mb-1">Chuyên khoa: {specialty?.name}</p>
                                             <p className="mb-0">
-                                                Đánh giá trung bình: <strong>{review?.avgScore || 'NaN'}</strong> / 5
-                                                &nbsp; | &nbsp; {review?.reviewCount || 0} lượt đánh giá
+                                                Đánh giá trung bình: <strong>{r?.avgScore || 'NaN'}</strong> / 5
+                                                &nbsp; | &nbsp; {r?.reviewCount || 0} lượt đánh giá
                                             </p>
                                         </div>
                                         <div className='mt-auto ms-auto'>
@@ -111,7 +111,7 @@ function Reviews() {
                                                 variant="outline-primary" 
                                                 onClick={() => {
                                                     setDoctor(doctor)
-                                                    setReview(review)
+                                                    setReview(r)
                                                     setShowReviewDetail(true)
                                                 }}
                                             >

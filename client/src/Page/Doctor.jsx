@@ -122,14 +122,14 @@ const Doctor = () => {
                   style={{ minHeight: '300px' }}
                 >
                   <DoctorCard doctor={doctor} />
-                </div>
+                </Col>
               ))
             ) : (
               <div className="text-center my-5 w-100">
                 <h5>Không tìm thấy bác sĩ phù hợp!</h5>
               </div>
             )}
-          </div>
+          </Row>
 
           {totalItems > 0 && (
             <div className="d-flex justify-content-center mt-4">
@@ -148,6 +148,7 @@ const Doctor = () => {
           )}
         </>
       )}
+      </div>
     </Container>
   )
 }

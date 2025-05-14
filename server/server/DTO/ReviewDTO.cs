@@ -47,6 +47,13 @@ namespace server.DTO
         public string DepartmentName { get; set; } = string.Empty;
         public List<DoctorReviewDetails> TopDoctors { get; set; } = new();
     }
+    public class ServiceReviewBasic
+    {
+        public int ServiceId { get; set; }
+        public double AvgScore { get; set; }
+        public int ReviewCount { get; set; }
+
+    }
 
     public class DoctorReviewBasic
     {
