@@ -1,12 +1,8 @@
 import React from 'react'
 import { useNavigate } from "react-router-dom"
-import SpecialtyIntroduce from '../../Image/SpecialtyIntroduce/Index'
-
 
 function SpecialtyCard({ specialty }) {
     const navigate = useNavigate()
-    const images = SpecialtyIntroduce
- 
     const truncateDescription = (description, wordLimit = 30) => {
         const words = description.split(' ')
         if (words.length > wordLimit) {
@@ -22,7 +18,7 @@ function SpecialtyCard({ specialty }) {
             onClick={() => navigate(`/chuyên khoa/${specialty.name}`)}
         >
             <img
-                src={images[specialty.name]}
+                src={specialty.specialtyImage}
                 alt={`Hình ảnh của ${specialty.name}`}
                 style={{ width: "100%", height: "150px", objectFit: "cover" }}
             />

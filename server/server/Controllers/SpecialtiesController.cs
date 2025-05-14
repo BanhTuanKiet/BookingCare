@@ -24,7 +24,7 @@ namespace server.Controllers
 
         // GET: api/Specialties
         [HttpGet]
-        public async Task<List<Specialty>> GetSpecialties()
+        public async Task<List<SpecialtyDTO>> GetSpecialties()
         {
             return await _speciatyService.GetSpecialties();
         }

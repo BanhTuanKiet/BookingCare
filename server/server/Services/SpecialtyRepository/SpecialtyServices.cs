@@ -15,10 +15,14 @@ namespace server.Services
             _context = context;
             _mapper = mapper;
         }
-        public async Task<List<Specialty>> GetSpecialties()
+        public async Task<List<SpecialtyDTO>> GetSpecialties()
         {
-            return await _context.Specialties.ToListAsync();
+            var specialties = await _context.Specialties.ToListAsync();
+            var specialtyDTOs = _mapper.Map<List<SpecialtyDTO>>(specialties);
+
+            return specialtyDTOs;
         }
+
 
         public async Task<SpecialtyDTO?> GetDescription(string specialty)
         {
