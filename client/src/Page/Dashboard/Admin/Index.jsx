@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Container, Row, Col, Card, Nav, Tab, NavDropdown } from 'react-bootstrap'
+import { Container, Row, Col, Card, Nav, Tab } from 'react-bootstrap'
 import AppointmentStatistics from './Appointment/AppointmentStatistics'
 import PrescriptionOverView from './Prescription/PrescriptionOverView'
 import DoctorReviews from './Doctor/Reviews'
@@ -16,22 +16,30 @@ function Index() {
     const [systemMenuOpen, setSystemMenuOpen] = useState(false)
     const [MenuOpen, setMenuOpen] = useState(false)
 
-    const handleTabSelect = (k) => {
-        setTabActive(k)
-        if (k === "services" || k === "specialties") {
-            setSystemMenuOpen(true)
-        }
-    }
+    // const handleTabSelect = (k) => {
+    //     setTabActive(k)
+    //     if (k === "services" || k === "specialties") {
+    //         setSystemMenuOpen(true)
+    //     }
+    // }
 
-    const handleTabSelect2 = (k) => {
-        setTabActive(k)
-        if (k === "reviewservices" || k === "doctors") {
-            setMenuOpen(true)
-        }
-    }
+    // const handleTabSelect2 = (k) => {
+    //     setTabActive(k)
+    //     if (k === "reviewservices" || k === "doctors") {
+    //         setMenuOpen(true)
+    //     }
+    // }
 
     return (
-        <Tab.Container activeKey={tabActive} onSelect={(k) => setTabActive(k)}>
+        <Tab.Container activeKey={tabActive} onSelect={(k) => {
+            setTabActive(k)
+            if (k === "reviewservices" || k === "doctors") {
+                setMenuOpen(true)
+            }
+            if (k === "services" || k === "specialties") {
+                setSystemMenuOpen(true)
+            }
+        }}>
             <Container fluid className="p-4">
                 <Row>
                     <Col md={3}>
@@ -77,7 +85,7 @@ function Index() {
                                         
                                         <Nav.Link 
                                             eventKey="doctors"
-                                            className={`sidebar-link ms-3 mb-1 ${tabActive === "reviews" ? "active" : ""}`}
+                                            className={`sidebar-link ms-3 mb-1 ${tabActive === "doctors" ? "active" : ""}`}
                                         >
                                             <i className="fas fa-cogs me-2 small"></i>
                                             Bác sĩ

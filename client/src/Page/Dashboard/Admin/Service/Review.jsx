@@ -35,6 +35,7 @@ function Review() {
                 const response = await axios.get(`/services/${specialty?.name}/services`)
 
                 setServices(response.data)
+                console.log(response)
             } catch (error) {
                 console.error(error)
             }
