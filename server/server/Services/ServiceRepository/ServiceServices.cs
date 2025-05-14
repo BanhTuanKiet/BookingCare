@@ -54,5 +54,39 @@ namespace server.Services
         {
             return await _context.Services.OrderBy(service => Guid.NewGuid()).Take(3).ToListAsync();
         }
+
+        public async Task<Service?> GetById(int id)
+        {
+            return await _context.Services.FindAsync(id);
+        }
+
+        public async Task<Service> Create(Service service)
+        {
+            _context.Services.Add(service);
+            await _context.SaveChangesAsync();
+            return service;
+        }
+
+        public async Task<bool> Update(int id, Service updatedService)
+        {
+            var existing = await _context.Services.FindAsync(id);
+            if (existing == null) return false;
+
+            existing.ServiceName = updatedService.ServiceName;
+            existing.Description = updatedService.Description;
+            existing.Price = updatedService.Price;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> Delete(int id)
+        {
+            var service = await _context.Services.FindAsync(id);
+            if (service == null) return false;
+
+            _context.Services.Remove(service);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

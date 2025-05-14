@@ -9,6 +9,7 @@ import Admin from './Admin'
 import UserAdmin from './UserAdmin'
 import Review from './Service/Review'
 import SpecialtyAdmin from './SpecialtyAdmin'
+import ServiceAdmin from './Service/ServiceAdmin'
 
 function Index() {
     const [tabActive, setTabActive] = useState("admin")
@@ -100,7 +101,7 @@ function Index() {
                             </Tab.Pane>
 
                             <Tab.Pane eventKey="services">
-                                <Review />
+                                <ServiceAdmin />
                             </Tab.Pane>
 
                             <Tab.Pane eventKey="specialties">
