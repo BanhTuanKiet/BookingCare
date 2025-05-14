@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import axios from "../Util/AxiosConfig"
+import axios from "../../Util/AxiosConfig"
 
 const UploadDoctorImage = ({ doctorId }) => {
   const [file, setFile] = useState(null)

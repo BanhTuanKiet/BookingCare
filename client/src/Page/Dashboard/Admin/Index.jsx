@@ -8,6 +8,7 @@ import "../../../Style/Admin.css"
 import Admin from './Admin'
 import UserAdmin from './UserAdmin'
 import Review from './Service/Review'
+import SpecialtyAdmin from './SpecialtyAdmin'
 
 function Index() {
     const [tabActive, setTabActive] = useState("admin")
@@ -40,11 +41,17 @@ function Index() {
                                     >
                                         Bác sĩ
                                     </Nav.Link>
-                                     <Nav.Link 
+                                    <Nav.Link 
                                         eventKey="services"
                                         className={`sidebar-link mb-2 ${tabActive === "services" ? "active" : ""}`}
                                     >
                                         Dịch vụ
+                                    </Nav.Link>
+                                    <Nav.Link 
+                                        eventKey="specialties"
+                                        className={`sidebar-link mb-2 ${tabActive === "specialties" ? "active" : ""}`}
+                                    >
+                                        Chuyên khoa
                                     </Nav.Link>
                                     <Nav.Link 
                                         eventKey="prescriptions"
@@ -94,6 +101,10 @@ function Index() {
 
                             <Tab.Pane eventKey="services">
                                 <Review />
+                            </Tab.Pane>
+
+                            <Tab.Pane eventKey="specialties">
+                                <SpecialtyAdmin/>
                             </Tab.Pane>
 
                             <Tab.Pane eventKey="prescriptions">

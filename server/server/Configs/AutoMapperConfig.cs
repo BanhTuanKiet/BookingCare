@@ -50,6 +50,12 @@
                     ));
 
                 CreateMap<Service, ServiceDTO.ServiceDetail>();
+                CreateMap<Specialty, SpecialtyDTO>()
+                    .ForMember(dest => dest.Name, m => m.MapFrom(source => source.Name))
+                    .ForMember(dest => dest.SpecialtyImage, m => m.MapFrom(source =>
+                        source.SpecialtyImage != null
+                            ? $"data:image/png;base64,{Convert.ToBase64String(source.SpecialtyImage)}"
+                            : null));
 
                 CreateMap<Patient, PatientDTO.PatientBasic>()
                     .ForMember(dest => dest.UserName, m => m.MapFrom(source => source.User.FullName))
