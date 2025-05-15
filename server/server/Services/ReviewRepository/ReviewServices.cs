@@ -111,6 +111,7 @@ namespace server.Services.RatingRepository
                 .Include(review => review.MedicalRecord.Appointment.Patient)
                 .Include(review => review.MedicalRecord.Appointment.Doctor)
                 .Include(review => review.MedicalRecord.Appointment.Patient.User)
+                .Include(review => review.MedicalRecord.Appointment.Service)
                 .Where(review => review.MedicalRecord.Appointment.Doctor.DoctorId == doctorId);
 
             if (filter == "positive")
@@ -125,6 +126,35 @@ namespace server.Services.RatingRepository
             var reviews = await query.ToListAsync();
 
             var reviewDTOs = _mapper.Map<List<DoctorReviewDetailDTO>>(reviews);
+
+            return reviewDTOs;
+        }
+
+        public async Task<List<ServiceReviewDetailDTO>> GetServiceReviewsDetail(string filter, int serviceId)
+        {
+            var query = _context.Reviews
+                .Include(review => review.MedicalRecord)
+                .Include(review => review.ServiceReviewDetail)
+                .Include(review => review.MedicalRecord.Appointment)
+                .Include(review => review.MedicalRecord.Appointment.Patient)
+                .Include(review => review.MedicalRecord.Appointment.Doctor)
+                .Include(review => review.MedicalRecord.Appointment.Doctor.User)
+                .Include(review => review.MedicalRecord.Appointment.Service)
+                .Include(review => review.MedicalRecord.Appointment.Patient.User)
+                .Where(review => review.MedicalRecord.Appointment.Service.ServiceId == serviceId);
+
+            if (filter == "positive")
+            {
+                query = query.Where(review => review.OverallRating > 3);
+            }
+            else if (filter == "negative")
+            {
+                query = query.Where(review => review.OverallRating <= 3);
+            }
+
+            var reviews = await query.ToListAsync();
+
+            var reviewDTOs = _mapper.Map<List<ServiceReviewDetailDTO>>(reviews);
 
             return reviewDTOs;
         }
@@ -205,6 +235,35 @@ namespace server.Services.RatingRepository
                 .ToList();
 
             return result;
+        }
+
+        public async Task<List<ReviewRating>> GetMonthlyServiceRatingReviews(int month, int year, int serviceId)
+        {
+            var reviews = await _context.Reviews
+                .Include(r => r.MedicalRecord)
+                .Include(r => r.MedicalRecord.Appointment)
+                .Include(r => r.MedicalRecord.Appointment.Service)
+                .Where(r => 
+                    r.MedicalRecord.Appointment.Service.ServiceId == serviceId 
+                    && r.MedicalRecord.Appointment.AppointmentDate.Value.Month == month 
+                    && r.MedicalRecord.Appointment.AppointmentDate.Value.Year == year
+                )
+                .GroupBy(r => r.OverallRating)
+                .Select(group => new ReviewRating {
+                    Rating = group.Key,
+                    ReviewCount = group.Count()
+                })
+                .ToListAsync();
+
+            var result = Enumerable.Range(1, 5)
+                .Select(rating => new ReviewRating
+                {
+                    Rating = rating,
+                    ReviewCount = reviews.FirstOrDefault(x => x.Rating == rating)?.ReviewCount ?? 0
+                })
+                .ToList();
+
+            return result;            
         }
     }
 }

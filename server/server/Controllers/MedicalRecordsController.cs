@@ -193,7 +193,6 @@ namespace Clinic_Management.Controllers
         {
             var keyword = Others.RemoveDiacritics(keyWord).ToLower();
 
-            // Lấy danh sách appointments duy nhất theo PatientId
             var distinctAppointments = await _context.MedicalRecords
                 .Join(_context.Appointments,
                     mr => mr.AppointmentId,
@@ -209,7 +208,7 @@ namespace Clinic_Management.Controllers
 
             if (distinctAppointments == null || !distinctAppointments.Any())
             {
-                throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");
+                throw new ErrorHandlingException(404, "Không tìm thấy bệnh nhân!");
             }
 
             var resultList = new List<object>();
@@ -227,15 +226,15 @@ namespace Clinic_Management.Controllers
                     var dobString = patientDetail.DateOfBirth?.ToString("dd/MM/yyyy") ?? "";
 
                     // Lọc theo keyword trên nhiều trường
-                    var isMatch = Others.RemoveDiacritics(patientDetail.UserName).Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
-                                Others.RemoveDiacritics(patientDetail.Email).Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
-                                Others.RemoveDiacritics(patientDetail.PhoneNumber ?? "").Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
-                                Others.RemoveDiacritics(dobString).Contains(keyword, StringComparison.OrdinalIgnoreCase);
+                    var isMatch = Others.RemoveDiacritics(patientDetail.UserName).Contains(keyWord, StringComparison.OrdinalIgnoreCase) ||
+                                Others.RemoveDiacritics(patientDetail.Email).Contains(keyWord, StringComparison.OrdinalIgnoreCase) ||
+                                Others.RemoveDiacritics(patientDetail.PhoneNumber ?? "").Contains(keyWord, StringComparison.OrdinalIgnoreCase) ||
+                                Others.RemoveDiacritics(dobString).Contains(keyWord, StringComparison.OrdinalIgnoreCase);
 
                     var filteredPrescriptions = records.Where(mr =>
-                        Others.RemoveDiacritics(mr.PatientName).Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
-                        Others.RemoveDiacritics(mr.DoctorName).Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
-                        Others.RemoveDiacritics(mr.Diagnosis).Contains(keyword, StringComparison.OrdinalIgnoreCase)
+                        Others.RemoveDiacritics(mr.PatientName).Contains(keyWord, StringComparison.OrdinalIgnoreCase) ||
+                        Others.RemoveDiacritics(mr.DoctorName).Contains(keyWord, StringComparison.OrdinalIgnoreCase) ||
+                        Others.RemoveDiacritics(mr.Diagnosis).Contains(keyWord, StringComparison.OrdinalIgnoreCase)
                     ).ToList();
 
                     if (isMatch || filteredPrescriptions.Any())

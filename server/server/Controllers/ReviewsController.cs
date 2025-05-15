@@ -79,7 +79,7 @@ namespace server.Controllers
             object reviews;
             if (type == "service")
             {
-                reviews = await _reviewService.GetDoctorReviewsDetail(filter, id);
+                reviews = await _reviewService.GetServiceReviewsDetail(filter, id);
             }
             else
             {
@@ -153,6 +153,14 @@ namespace server.Controllers
         public async Task<ActionResult> GetMonthlyRatingReviews(int month, int year, int doctorId)
         {
             var review = _reviewService.GetMonthlyRatingReviews(month, year, doctorId);
+            
+            return Ok(review.Result);
+        }
+
+        [HttpGet("rating/service/{month}/{year}/{serviceId}")]
+        public async Task<ActionResult> GetMonthlyServiceRatingReviews(int month, int year, int serviceId)
+        {
+            var review = _reviewService.GetMonthlyServiceRatingReviews(month, year, serviceId);
             
             return Ok(review.Result);
         }

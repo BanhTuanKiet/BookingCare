@@ -2,13 +2,10 @@ import { useContext, useState } from "react"
 import { Container, Row, Col, Card, Form, Button, Alert } from "react-bootstrap"
 import { MapPin, Phone, Mail, Clock, Send, MessageCircle, ChevronDown, ChevronUp } from "lucide-react"
 import { ValideFormContext } from "../Context/ValideFormContext"
+import axios from "../Util/AxiosConfig"
 
 const Contact = () => {
   const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
-    subject: "",
     message: "",
   })
   const { validateForm, formErrors } = useContext(ValideFormContext)
@@ -58,6 +55,13 @@ const Contact = () => {
     e.preventDefault()
     const errors = validateForm(formData)   
     if (errors > 0) return
+
+    try {
+      const response = await axios.post(`/contactmessages/${formData.message}`)
+      console.log(response.data)
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   return (
@@ -124,63 +128,6 @@ const Contact = () => {
               </Card.Header>
               <Card.Body className="p-4">
                 <Form onSubmit={handleSubmit}>
-                  <Row>
-                    <Col md={6} className="mb-3">
-                      <Form.Group controlId="fullName">
-                        <Form.Label className="fw-medium">
-                          Họ và tên <span className="text-danger">*</span>
-                        </Form.Label>
-                        <Form.Control
-                          type="text"
-                          name="fullName"
-                          value={formData.fullName}
-                          onChange={handleChange}
-                          placeholder="Nhập họ và tên"
-                          isInvalid={!!formErrors.fullName}
-                          className="py-2"
-                        />
-                        <Form.Control.Feedback type="invalid">{formErrors.fullName}</Form.Control.Feedback>
-                      </Form.Group>
-                    </Col>
-                    <Col md={6} className="mb-3">
-                      <Form.Group controlId="email">
-                        <Form.Label className="fw-medium">
-                          Email <span className="text-danger">*</span>
-                        </Form.Label>
-                        <Form.Control
-                          type="email"
-                          name="email"
-                          value={formData.email}
-                          onChange={handleChange}
-                          placeholder="Nhập địa chỉ email"
-                          isInvalid={!!formErrors.email}
-                          className="py-2"
-                        />
-                        <Form.Control.Feedback type="invalid">{formErrors.email}</Form.Control.Feedback>
-                      </Form.Group>
-                    </Col>
-                  </Row>
-
-                  <Row>
-                    <Col md={6} className="mb-3">
-                      <Form.Group controlId="phone">
-                        <Form.Label className="fw-medium">
-                          Số điện thoại <span className="text-danger">*</span>
-                        </Form.Label>
-                        <Form.Control
-                          type="tel"
-                          name="phone"
-                          value={formData.phone}
-                          onChange={handleChange}
-                          placeholder="Nhập số điện thoại"
-                          isInvalid={!!formErrors.phone}
-                          className="py-2"
-                        />
-                        <Form.Control.Feedback type="invalid">{formErrors.phone}</Form.Control.Feedback>
-                      </Form.Group>
-                    </Col>
-                  </Row>
-
                   <Form.Group controlId="message" className="mb-4">
                     <Form.Label className="fw-medium">
                       Nội dung <span className="text-danger">*</span>
@@ -200,7 +147,7 @@ const Contact = () => {
                   <Button
                     variant="primary"
                     className="py-2 px-4 d-flex align-items-center gap-2"
-                    onClick={() => validateForm(formData)}
+                    onClick={(e) => handleSubmit(e)}
                   >
                     <Send size={18} />
                     <span>Gửi tin nhắn</span>

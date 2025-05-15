@@ -106,11 +106,26 @@
                     .ForMember(dest => dest.ServiceName, m => m.MapFrom(src => src.MedicalRecord.Appointment.Service.ServiceName));
 
                 CreateMap<Review, DoctorReviewDetailDTO>()
+                    .ForMember(dest => dest.MedicalRecordId, m => m.MapFrom(src => src.MedicalRecord.RecordId))
                     .ForMember(dest => dest.Attitude, m => m.MapFrom(src => src.DoctorReviewDetail.Attitude))
                     .ForMember(dest => dest.Knowledge, m => m.MapFrom(src => src.DoctorReviewDetail.Knowledge))
                     .ForMember(dest => dest.CommunicationSkill, m => m.MapFrom(src => src.DoctorReviewDetail.CommunicationSkill))
                     .ForMember(dest => dest.Dedication, m => m.MapFrom(src => src.DoctorReviewDetail.Dedication))
-                    .ForMember(dest => dest.PatientName, m => m.MapFrom(src => src.MedicalRecord.Appointment.Patient.User.FullName));
+                    .ForMember(dest => dest.PatientId, m => m.MapFrom(src => src.MedicalRecord.Appointment.Patient.PatientId))
+                    .ForMember(dest => dest.PatientName, m => m.MapFrom(src => src.MedicalRecord.Appointment.Patient.User.FullName))
+                    .ForMember(dest => dest.ServiceId, m => m.MapFrom(src => src.MedicalRecord.Appointment.Service.ServiceId))
+                    .ForMember(dest => dest.ServiceName, m => m.MapFrom(src => src.MedicalRecord.Appointment.Service.ServiceName));
+
+                CreateMap<Review, ServiceReviewDetailDTO>()
+                    .ForMember(dest => dest.MedicalRecordId, m => m.MapFrom(src => src.MedicalRecord.RecordId))
+                    .ForMember(dest => dest.Effectiveness, m => m.MapFrom(src => src.ServiceReviewDetail.Effectiveness))
+                    .ForMember(dest => dest.Price, m => m.MapFrom(src => src.ServiceReviewDetail.Price))
+                    .ForMember(dest => dest.ServiceSpeed, m => m.MapFrom(src => src.ServiceReviewDetail.ServiceSpeed))
+                    .ForMember(dest => dest.Convenience, m => m.MapFrom(src => src.ServiceReviewDetail.Convenience))
+                    .ForMember(dest => dest.PatientId, m => m.MapFrom(src => src.MedicalRecord.Appointment.Patient.PatientId))
+                    .ForMember(dest => dest.PatientName, m => m.MapFrom(src => src.MedicalRecord.Appointment.Patient.User.FullName))
+                    .ForMember(dest => dest.DoctorId, m => m.MapFrom(src => src.MedicalRecord.Appointment.Doctor.DoctorId))
+                    .ForMember(dest => dest.DoctorName, m => m.MapFrom(src => src.MedicalRecord.Appointment.Doctor.User.FullName));    
             }
         }
     }

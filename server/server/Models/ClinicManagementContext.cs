@@ -48,6 +48,7 @@ public partial class ClinicManagementContext : IdentityDbContext<ApplicationUser
 
     public virtual DbSet<Specialty> Specialties { get; set; }
     public virtual DbSet<Review> Reviews { get; set; }
+    public virtual DbSet<ContactMessages> ContactMessages { get; set;}
     public virtual DbSet<DoctorReviewDetail> DoctorReviewDetails { get; set; }
     public virtual DbSet<ServiceReviewDetail> ServiceReviewDetails { get; set; }
 
@@ -134,6 +135,20 @@ public partial class ClinicManagementContext : IdentityDbContext<ApplicationUser
                 .HasForeignKey<Patient>(d => d.UserId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_Patients_AspNetUsers");
+        });
+
+        modelBuilder.Entity<ContactMessages>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Messages__3214EC0764207BF0 ");
+
+            entity.Property(e => e.PatientId).HasColumnName("PatientId");
+            entity.Property(e => e.Messages).HasMaxLength(255);
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Patient).WithOne(p => p.ContactMessages)
+                .HasForeignKey<Patient>(d => d.PatientId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK__Messages__Patien__5FD33367");
         });
 
         modelBuilder.Entity<Payment>(entity =>
