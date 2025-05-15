@@ -9,10 +9,9 @@ const PrescriptionOverView = () => {
   const [loading, setLoading] = useState(true);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [searchKeyword, setSearchKeyword] = useState('');
-  const [hasSearched, setHasSearched] = useState(false); // 👈 để không gọi lại API mặc định sau khi tìm kiếm
+  const [hasSearched, setHasSearched] = useState(false);
 
   useEffect(() => {
-    // Chỉ gọi API mặc định nếu chưa tìm kiếm
     if (!hasSearched) {
       fetchPrescriptions();
     }
@@ -23,36 +22,34 @@ const PrescriptionOverView = () => {
     try {
       const endpoint = keyword.trim()
         ? `/medicalrecords/search/${keyword.trim()}`
-        : '/medicalrecords/prescriptions/patient';
+        : '/medicalrecords/prescriptions/patient'
 
-      const response = await axios.get(endpoint);
-      console.log(response)
-      setPrescriptions(response.data);
+      const response = await axios.get(endpoint)
+      setPrescriptions(response.data)
     } catch (err) {
-      console.error('Lỗi khi lấy đơn thuốc:', err);
+      console.error('Lỗi khi lấy đơn thuốc:', err)
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   const handleSearchSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault()
     if (searchKeyword.trim() !== '') {
-      setHasSearched(true);
-      fetchPrescriptions(searchKeyword);
+      setHasSearched(true)
+      fetchPrescriptions(searchKeyword)
     } else {
-      // Nếu xóa hết input => trở lại fetch mặc định
-      setHasSearched(false);
+      setHasSearched(false)
     }
-  };
+  }
 
   const handleViewPatientPrescriptions = (patientId, patientName) => {
-    setSelectedPatient({ id: patientId, name: patientName });
-  };
+    setSelectedPatient({ id: patientId, name: patientName })
+  }
 
   const handleBackToOverview = () => {
-    setSelectedPatient(null);
-  };
+    setSelectedPatient(null)
+  }
 
   return (
     <Container fluid>
@@ -71,7 +68,7 @@ const PrescriptionOverView = () => {
               <Col md={6}>
                 <Form.Control
                   type="text"
-                  placeholder="Nhập từ khóa (tên bệnh nhân, số điện thoại, email. địa chỉ)"
+                  placeholder="Nhập từ khóa (tên bệnh nhân, số điện thoại, email)"
                   value={searchKeyword}
                   onChange={(e) => setSearchKeyword(e.target.value)}
                 />

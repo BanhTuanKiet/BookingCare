@@ -68,8 +68,6 @@ namespace server.Controllers
             return Ok(users);
         }
 
-        [HttpGet("users")]
-
         [HttpGet("profile")]
         public async Task<ActionResult> GetUserById()
         {

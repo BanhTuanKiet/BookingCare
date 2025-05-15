@@ -68,27 +68,6 @@ const ReviewDetail = ({ specialty, doctor, review }) => {
     setMonthlyTotal(monthlyRating?.reduce((sum, review) => sum + (review?.reviewCount || 0, 0)))
   }, [reviewRating, monthlyRating])
 
-  const renderStars = (rating) => {
-    const stars = []
-    const fullStars = Math.floor(rating)
-    const hasHalfStar = rating % 1 >= 0.5
-
-    for (let i = 0; i < fullStars; i++) {
-      stars.push(<Star key={`star-${i}`} className="text-warning" fill="#ffc107" size={18} />)
-    }
-
-    if (hasHalfStar) {
-      stars.push(<StarHalf key="half-star" className="text-warning" fill="#ffc107" size={18} />)
-    }
-
-    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0)
-    for (let i = 0; i < emptyStars; i++) {
-      stars.push(<Star key={`empty-star-${i}`} className="text-muted" size={18} />)
-    }
-
-    return stars
-  }
-
   return (
     <Container className="mt-4 mb-5">
       <DoctorServiceCard specialty={specialty?.name} item={doctor} review={review} type={"bác sĩ"} />
@@ -173,9 +152,7 @@ const ReviewDetail = ({ specialty, doctor, review }) => {
               <Tab.Pane eventKey="all">
                 <Card.Body>
                   {reviews?.map((review, index) => (
-                    <ReviewDetailCard
-                      review={review}
-                    />
+                    <ReviewDetailCard type={"doctor"} review={review} />
                   ))}
                 </Card.Body>
               </Tab.Pane>
@@ -183,9 +160,7 @@ const ReviewDetail = ({ specialty, doctor, review }) => {
               <Tab.Pane eventKey="positive" >
                 <Card.Body>
                   {reviews?.map((review, index) => (
-                    <ReviewDetailCard
-                      review={review}
-                    />
+                    <ReviewDetailCard type={"doctor"} review={review} />
                   ))}
                 </Card.Body>
               </Tab.Pane>
@@ -193,9 +168,7 @@ const ReviewDetail = ({ specialty, doctor, review }) => {
               <Tab.Pane eventKey="negative" >
                 <Card.Body>
                   {reviews?.map((review, index) => (
-                    <ReviewDetailCard
-                      review={review}
-                    />
+                    <ReviewDetailCard type={"doctor"} review={review} />
                   ))}
                 </Card.Body>
               </Tab.Pane> 

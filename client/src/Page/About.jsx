@@ -70,7 +70,7 @@ function About() {
 
   return (
     <Container fluid className="py-5 bg-light">
-      <Container>
+      <Container className="w-75">
         <Row className="mb-5">
           <Col lg={12}>
             <Card className="border-0 shadow-sm overflow-hidden">

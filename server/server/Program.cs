@@ -42,21 +42,13 @@ builder.Services.AddScoped<IMedicine, MedicineService>();
 builder.Services.AddScoped<IMedicalRecord, MedicalRecordService>();
 builder.Services.AddScoped<IAuth, AuthServices>();
 builder.Services.AddScoped<IReview, ReviewServices>();
-
+builder.Services.AddScoped<IContact, ContactServices>();
 //Connect Momo API Payment
 // Binding config cho MOMO
 builder.Services.AddOptions<MomoOptionModel>()
     .Bind(builder.Configuration.GetSection("MomoAPI"))
     .ValidateDataAnnotations()
     .ValidateOnStart();
-
-
-// // Đăng ký Service
-// builder.Services.AddScoped<IMomoService, MomoService>();
-
-
-// builder.Services.AddScoped<IVnPayService, VnPayService>();
-
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
