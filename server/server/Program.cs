@@ -41,7 +41,6 @@ builder.Services.AddScoped<IAppointment, AppointmentServices>();
 builder.Services.AddScoped<IMedicine, MedicineService>();
 builder.Services.AddScoped<IMedicalRecord, MedicalRecordService>();
 builder.Services.AddScoped<IAuth, AuthServices>();
-builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IReview, ReviewServices>();
 
 //Connect Momo API Payment

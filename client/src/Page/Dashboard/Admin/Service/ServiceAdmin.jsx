@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, Form, Table, Modal, Container, Row, Col, Card, Badge, InputGroup, FormControl, Spinner, Alert, Pagination, Image} from 'react-bootstrap';
 import { Search, PlusCircle, Pencil, Trash, XCircle, ArrowClockwise, Upload, Image as ImageIcon, XSquare} from 'react-bootstrap-icons';
-import axios from '../../../Util/AxiosConfig';
+import axios from '../../../../Util/AxiosConfig';
 
-function SpecialtyAdmin() {
+function ServiceAdmin() {
     // State management
-    const [specialties, setSpecialties] = useState([]);
-    const [filteredSpecialties, setFilteredSpecialties] = useState([]);
+    const [services, setServices] = useState([]);
+    const [filteredServices, setFilteredServices] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [editing, setEditing] = useState(false);
     const [formData, setFormData] = useState({ name: '', description: '' });
@@ -24,38 +24,37 @@ function SpecialtyAdmin() {
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(5);
 
-    // Fetch specialties on component mount
+    // Fetch services on component mount
     useEffect(() => {
-        fetchSpecialties();
+        fetchServices();
     }, []);
 
-    // Filter specialties based on search term
+    // Filter services based on search term
     useEffect(() => {
-        const results = specialties.filter(specialty => 
-            specialty.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (specialty.description && specialty.description.toLowerCase().includes(searchTerm.toLowerCase()))
+        const results = services.filter(service => 
+            service.serviceName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (service.description && service.description.toLowerCase().includes(searchTerm.toLowerCase()))
         );
-        setFilteredSpecialties(results);
+        setFilteredServices(results);
         setCurrentPage(1); // Reset to first page when filtering
-    }, [searchTerm, specialties]);
+    }, [searchTerm, services]);
 
     // Get current specialties for pagination
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentSpecialties = filteredSpecialties.slice(indexOfFirstItem, indexOfLastItem);
+    const currentServices = filteredServices.slice(indexOfFirstItem, indexOfLastItem);
 
     // Fetch specialties from API
-    const fetchSpecialties = async () => {
+    const fetchServices = async () => {
         setLoading(true);
         setError(null);
         try {
-            const res = await axios.get('/specialties');
-            console.log(res)
-            setSpecialties(res.data);
-            setFilteredSpecialties(res.data);
+            const res = await axios.get('/services');
+            setServices(res.data);
+            setFilteredServices(res.data);
         } catch (err) {
-            console.error("Failed to fetch specialties:", err);
-            setError("Không thể tải dữ liệu chuyên khoa. Vui lòng thử lại sau.");
+            console.error("Failed to fetch services:", err);
+            setError("Không thể tải dữ liệu dịch vụ. Vui lòng thử lại sau.");
         } finally {
             setLoading(false);
         }
@@ -63,7 +62,7 @@ function SpecialtyAdmin() {
 
     // Modal handlers
     const handleShowCreate = () => {
-        setFormData({ name: '', description: '' });
+        setFormData({ serviceName: '', description: '', price: '' });
         setEditing(false);
         setShowModal(true);
         setPreviewImage(null);
@@ -71,12 +70,13 @@ function SpecialtyAdmin() {
         setUploadStatus('');
     };
 
-    const handleEdit = (specialty) => {
+    const handleEdit = (service) => {
         setFormData({ 
-            name: specialty.name || '', 
-            description: specialty.description || '' 
+            serviceName: service.serviceName || '', 
+            description: service.description || '',
+            price: service.price
         });
-        setSelectedId(specialty.specialtyId);
+        setSelectedId(service.serviceId);
         setEditing(true);
         setShowModal(true);
         setPreviewImage(null);
@@ -84,8 +84,8 @@ function SpecialtyAdmin() {
         setUploadStatus('');
         
         // If specialty has an image, show it in the preview
-        if (specialty.specialtyImage) {
-            const imageUrl = specialty.specialtyImage;
+        if (service.serviceImage) {
+            const imageUrl = service.serviceImage;
             setPreviewImage(imageUrl);
         }
     };
@@ -97,12 +97,12 @@ function SpecialtyAdmin() {
 
     const handleDeleteConfirm = async () => {
         try {
-            await axios.delete(`/specialties/${confirmDelete.id}`);
-            fetchSpecialties();
+            await axios.delete(`/services/${confirmDelete.id}`);
+            fetchServices();
             setConfirmDelete({ show: false, id: null });
         } catch (err) {
-            console.error("Failed to delete specialty:", err);
-            setError("Không thể xóa chuyên khoa. Vui lòng thử lại sau.");
+            console.error("Failed to delete service:", err);
+            setError("Không thể xóa dịch vụ. Vui lòng thử lại sau.");
         }
     };
 
@@ -112,9 +112,9 @@ function SpecialtyAdmin() {
         setLoading(true);
         try {
             if (editing) {
-                await axios.put(`/specialties/${selectedId}`, formData);
+                await axios.put(`/services/${selectedId}`, formData);
             } else {
-                await axios.post("/specialties", formData);
+                await axios.post("/services", formData);
             }
             
             // If there's a new image to upload and we're editing an existing specialty
@@ -122,20 +122,20 @@ function SpecialtyAdmin() {
                 await handleImageUpload(selectedId);
             } else if (imageFile && !editing) {
                 // For new specialty, we need to fetch it first to get its ID
-                const res = await axios.get('/specialties');
-                const newSpecialty = res.data.find(s => s.name === formData.name);
-                if (newSpecialty) {
-                    await handleImageUpload(newSpecialty.specialtyId);
+                const res = await axios.get('/services');
+                const newService = res.data.find(s => s.serviceName === formData.serviceName);
+                if (newService) {
+                    await handleImageUpload(newService.serviceId);
                 }
             }
             
             setShowModal(false);
-            fetchSpecialties();
+            fetchServices();
         } catch (err) {
-            console.error("Failed to save specialty:", err);
+            console.error("Failed to save service:", err);
             setError(editing 
-                ? "Không thể cập nhật chuyên khoa. Vui lòng thử lại sau."
-                : "Không thể thêm chuyên khoa mới. Vui lòng thử lại sau."
+                ? "Không thể cập nhật dịch vụ. Vui lòng thử lại sau."
+                : "Không thể thêm dịch vụ mới. Vui lòng thử lại sau."
             );
         } finally {
             setLoading(false);
@@ -167,16 +167,16 @@ function SpecialtyAdmin() {
     };
     
     // Handle image upload
-    const handleImageUpload = async (specialtyId) => {
+    const handleImageUpload = async (serviceId) => {
         if (!imageFile) return;
         
         setUploadStatus('uploading');
         const formData = new FormData();
         formData.append('file', imageFile);
-        formData.append('specialtyId', specialtyId);
+        formData.append('serviceId', serviceId);
         
         try {
-            await axios.post('/specialties/upload', formData, {
+            await axios.post('/services/upload', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -190,7 +190,7 @@ function SpecialtyAdmin() {
 
     // Pagination handlers
     const paginate = (pageNumber) => setCurrentPage(pageNumber);
-    const totalPages = Math.ceil(filteredSpecialties.length / itemsPerPage);
+    const totalPages = Math.ceil(filteredServices.length / itemsPerPage);
 
     // Render pagination
     const renderPagination = () => {
@@ -227,12 +227,12 @@ function SpecialtyAdmin() {
     };
 
     // Helper function to render image or placeholder
-    const renderSpecialtyImage = (specialty) => {
-        if (specialty.specialtyImage) {
+    const renderServiceImage = (service) => {
+        if (service.serviceImage) {
             return (
                 <Image 
-                    src={specialty.specialtyImage}
-                    alt={specialty.name}
+                    src={service.serviceImage}
+                    alt={service.serviceName}
                     thumbnail
                     style={{ height: '50px', width: '80px', objectFit: 'cover' }}
                 />
@@ -258,16 +258,16 @@ function SpecialtyAdmin() {
                         <Col xs={12} md={6} className="mb-3 mb-md-0">
                             <h4 className="mb-0">
                                 <Badge bg="primary" className="me-2">
-                                    {filteredSpecialties.length}
+                                    {filteredServices.length}
                                 </Badge>
-                                Quản lý chuyên khoa
+                                Quản lý dịch vụ
                             </h4>
                         </Col>
                         <Col xs={12} md={6}>
                             <div className="d-flex gap-2 justify-content-md-end">
                                 <Button 
                                     variant="outline-secondary" 
-                                    onClick={fetchSpecialties}
+                                    onClick={fetchServices}
                                     disabled={loading}
                                     title="Làm mới dữ liệu"
                                 >
@@ -279,7 +279,7 @@ function SpecialtyAdmin() {
                                     disabled={loading}
                                     className="d-flex align-items-center gap-1"
                                 >
-                                    <PlusCircle /> Thêm chuyên khoa
+                                    <PlusCircle /> Thêm dịch vụ
                                 </Button>
                             </div>
                         </Col>
@@ -297,7 +297,7 @@ function SpecialtyAdmin() {
                                     <Search />
                                 </InputGroup.Text>
                                 <FormControl
-                                    placeholder="Tìm kiếm chuyên khoa..."
+                                    placeholder="Tìm kiếm dịch vụ..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
@@ -330,19 +330,19 @@ function SpecialtyAdmin() {
                             <Spinner animation="border" variant="primary" />
                             <p className="mt-2">Đang tải dữ liệu...</p>
                         </div>
-                    ) : filteredSpecialties.length === 0 ? (
+                    ) : filteredServices.length === 0 ? (
                         <div className="text-center py-5">
                             <p className="text-muted">
                                 {searchTerm 
-                                    ? "Không tìm thấy chuyên khoa nào phù hợp" 
-                                    : "Chưa có chuyên khoa nào trong hệ thống"}
+                                    ? "Không tìm thấy dịch vụ nào phù hợp" 
+                                    : "Chưa có dịch vụ nào trong hệ thống"}
                             </p>
                             <Button 
                                 variant="primary" 
                                 onClick={handleShowCreate}
                                 className="mt-2"
                             >
-                                <PlusCircle className="me-1" /> Thêm chuyên khoa mới
+                                <PlusCircle className="me-1" /> Thêm dịch vụ mới
                             </Button>
                         </div>
                     ) : (
@@ -352,34 +352,36 @@ function SpecialtyAdmin() {
                                     <tr>
                                         <th style={{ width: '80px' }} className="text-center">ID</th>
                                         <th style={{ width: '100px' }} className="text-center">Hình ảnh</th>
-                                        <th>Tên chuyên khoa</th>
+                                        <th>Tên dịch vụ</th>
                                         <th>Mô tả</th>
+                                        <th>Giá</th>
                                         <th style={{ width: '150px' }} className="text-center">Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {currentSpecialties.map((specialty) => (
-                                        <tr key={specialty.specialtyId}>
+                                    {currentServices.map((service) => (
+                                        <tr key={service.serviceId}>
                                             <td className="text-center">
                                                 <Badge bg="secondary">
-                                                    {specialty.specialtyId}
+                                                    {service.serviceId}
                                                 </Badge>
                                             </td>
                                             <td className="text-center">
-                                                {renderSpecialtyImage(specialty)}
+                                                {renderServiceImage(service)}
                                             </td>
-                                            <td className="fw-medium">{specialty.name}</td>
+                                            <td className="fw-medium">{service.serviceName}</td>
                                             <td>
-                                                {specialty.description 
-                                                    ? specialty.description 
+                                                {service.description 
+                                                    ? service.description 
                                                     : <span className="text-muted fst-italic">Chưa có mô tả</span>}
                                             </td>
+                                            <td className="fw-medium">{service.price}</td>
                                             <td>
                                                 <div className="d-flex gap-2 justify-content-center">
                                                     <Button 
                                                         variant="outline-warning" 
                                                         size="sm" 
-                                                        onClick={() => handleEdit(specialty)}
+                                                        onClick={() => handleEdit(service)}
                                                         title="Sửa"
                                                     >
                                                         <Pencil />
@@ -387,7 +389,7 @@ function SpecialtyAdmin() {
                                                     <Button 
                                                         variant="outline-danger" 
                                                         size="sm" 
-                                                        onClick={() => handleShowDeleteConfirm(specialty.specialtyId)}
+                                                        onClick={() => handleShowDeleteConfirm(service.serviceId)}
                                                         title="Xóa"
                                                     >
                                                         <Trash />
@@ -414,7 +416,7 @@ function SpecialtyAdmin() {
             >
                 <Modal.Header closeButton>
                     <Modal.Title>
-                        {editing ? "Cập nhật chuyên khoa" : "Thêm chuyên khoa mới"}
+                        {editing ? "Cập nhật dịch vụ" : "Thêm dịch vụ mới"}
                     </Modal.Title>
                 </Modal.Header>
                 <Form onSubmit={handleSubmit}>
@@ -422,12 +424,12 @@ function SpecialtyAdmin() {
                         <Row>
                             <Col md={8}>
                                 <Form.Group className="mb-3">
-                                    <Form.Label>Tên chuyên khoa <span className="text-danger">*</span></Form.Label>
+                                    <Form.Label>Tên dịch vụ <span className="text-danger">*</span></Form.Label>
                                     <Form.Control
                                         type="text"
                                         required
-                                        placeholder="Nhập tên chuyên khoa"
-                                        value={formData.name}
+                                        placeholder="Nhập tên dịch vụ"
+                                        value={formData.serviceName}
                                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                                     />
                                 </Form.Group>
@@ -436,15 +438,25 @@ function SpecialtyAdmin() {
                                     <Form.Control
                                         as="textarea"
                                         rows={5}
-                                        placeholder="Nhập mô tả chi tiết về chuyên khoa (không bắt buộc)"
+                                        placeholder="Nhập mô tả chi tiết về dịch vụ (không bắt buộc)"
                                         value={formData.description || ''}
                                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                    />
+                                </Form.Group>
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Giá</Form.Label>
+                                    <Form.Control
+                                        as="textarea"
+                                        rows={5}
+                                        placeholder="Nhập giá dịch vụ (không bắt buộc)"
+                                        value={formData.price || ''}
+                                        onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                                     />
                                 </Form.Group>
                             </Col>
                             <Col md={4}>
                                 <Form.Group className="mb-3">
-                                    <Form.Label>Hình ảnh chuyên khoa</Form.Label>
+                                    <Form.Label>Hình ảnh dịch vụ</Form.Label>
                                     <div className="mb-3">
                                         {previewImage ? (
                                             <div className="position-relative mb-3">
@@ -548,7 +560,7 @@ function SpecialtyAdmin() {
                     <Modal.Title className="text-danger">Xác nhận xóa</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <p>Bạn có chắc chắn muốn xóa chuyên khoa này?</p>
+                    <p>Bạn có chắc chắn muốn xóa dịch vụ này?</p>
                     <p className="text-muted small mb-0">Lưu ý: Thao tác này không thể hoàn tác.</p>
                 </Modal.Body>
                 <Modal.Footer>
@@ -576,4 +588,4 @@ function SpecialtyAdmin() {
     );
 }
 
-export default SpecialtyAdmin;
+export default ServiceAdmin;

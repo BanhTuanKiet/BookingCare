@@ -9,7 +9,8 @@ import Doctor from '../Page/Doctor'
 import DoctorDetail from '../Page/DoctorDetail'
 import Appointment from '../Page/Appointment'
 import Specialty from '../Page/Specialty'
-import UploadDoctorImage from '../Page/UploadDoctorImage'
+import UploadDoctorImage from '../Page/UploadImages/UploadDoctorImage'
+import UploadSpecialtyImage from '../Page/UploadImages/UploadSpecialtyImage'
 import Login from '../Page/Login'
 import Signin from '../Page/SignIn/Index'
 import ServiceDetail from '../Page/ServiceDetail'
@@ -37,6 +38,7 @@ function AppRoute() {
             <Route path='/liên hệ' element={<Index><Contact /></Index>} />
             <Route path='/' element={<Index><Home /></Index>} />
             <Route path='/upload' element={<UploadDoctorImage></UploadDoctorImage>} />
+            <Route path='/UploadSpecialtyImage' element={<UploadSpecialtyImage></UploadSpecialtyImage>} />
             <Route path="/auth/forgot-password" element={<ForgotPassword />} />
         </Routes>
     )

@@ -1,7 +1,7 @@
 import React, { useState } from "react"
-import axios from "../Util/AxiosConfig"
+import axios from "../../Util/AxiosConfig"
 
-const UploadDoctorImage = ({ doctorId }) => {
+const UploadServiceImage = ({ serviceId }) => {
   const [file, setFile] = useState(null)
 
   const handleFileChange = (event) => {
@@ -16,10 +16,10 @@ const UploadDoctorImage = ({ doctorId }) => {
 
     const formData = new FormData()
     formData.append("file", file)
-    formData.append("doctorId", 16)
+    // formData.append("specialtyId", 16)
 
     try {
-        const response = await axios.post("/doctors/upload", formData, {
+        const response = await axios.post("/services/upload", formData, {
             headers: { 
                 "Content-Type": "multipart/form-data" 
             },
@@ -37,4 +37,4 @@ const UploadDoctorImage = ({ doctorId }) => {
   )
 }
 
-export default UploadDoctorImage
+export default UploadServiceImage

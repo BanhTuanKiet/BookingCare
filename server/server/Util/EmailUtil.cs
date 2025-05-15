@@ -4,18 +4,11 @@ using System;
  using System.Threading.Tasks;
  using Microsoft.Extensions.Configuration;
  
- namespace server.Services
+ namespace server.Util
  {
-     public class EmailService : IEmailService
+     public class EmailUtil
      {
-         private readonly IConfiguration _configuration;
- 
-         public EmailService(IConfiguration configuration)
-         {
-             _configuration = configuration;
-         }
- 
-         public async Task SendEmailAsync(string toEmail, string subject, string message)
+         public static async Task SendEmailAsync(IConfiguration _configuration, string toEmail, string subject, string message)
          {
              if (string.IsNullOrWhiteSpace(toEmail))
                  throw new ArgumentException("Email không hợp lệ", nameof(toEmail));

@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using server.DTO;
 using server.Models;
 
 namespace server.Services
@@ -6,21 +8,28 @@ namespace server.Services
     public class SpecialtyServices : ISpecialty
     {
         private readonly ClinicManagementContext _context;
+        private readonly IMapper _mapper;
 
-        public SpecialtyServices(ClinicManagementContext context)
+        public SpecialtyServices(ClinicManagementContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
-        public async Task<List<Specialty>> GetSpecialties()
+        public async Task<List<SpecialtyDTO>> GetSpecialties()
         {
-            return await _context.Specialties.ToListAsync();
+            var specialties = await _context.Specialties.ToListAsync();
+            var specialtyDTOs = _mapper.Map<List<SpecialtyDTO>>(specialties);
+
+            return specialtyDTOs;
         }
 
-        public async Task<string?> GetDescription(string specialty)
-        {
-            var description = await _context.Specialties.Where(s => s.Name == specialty).Select(s => s.Description).FirstOrDefaultAsync();
 
-            return description;
+        public async Task<SpecialtyDTO?> GetDescription(string specialty)
+        {
+            Specialty description = await _context.Specialties.FirstOrDefaultAsync(s => s.Name == specialty);
+            SpecialtyDTO specialtyDTO = _mapper.Map<SpecialtyDTO>(description);
+
+            return specialtyDTO;
         }
         
         public async Task<List<Specialty>> GetRandomSpecialties()

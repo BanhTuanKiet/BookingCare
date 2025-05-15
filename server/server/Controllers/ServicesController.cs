@@ -11,6 +11,7 @@ using server.Middleware;
 using server.Models;
 using server.Services;
 using server.DTO;
+using Microsoft.AspNetCore.Authorization;
 
 namespace server.Controllers
 {
@@ -77,6 +78,73 @@ namespace server.Controllers
             if (services.Count() == 0 || services == null) throw new ErrorHandlingException("Lỗi không lấy được dịch vụ!");
 
             return Ok(services);
+        }
+
+        [Authorize(Roles = "admin")]
+        [HttpPost("upload")]
+        public async Task<ActionResult> Upload([FromForm] IFormFile file, [FromForm] int serviceId)
+        {
+            try
+            {
+                using var memoryStream = new MemoryStream();
+                await file.CopyToAsync(memoryStream);
+                var imageData = memoryStream.ToArray();
+
+                Service service = await _context.Services.FindAsync(serviceId);
+                if (service == null)
+                {
+                    return NotFound("Service not found.");
+                }
+
+                service.ServiceImage = imageData;
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Image uploaded successfully." });
+            }
+            catch (ErrorHandlingException ex)
+            {
+                if (ex is ErrorHandlingException) throw;
+
+                throw new ErrorHandlingException(500, ex.Message);
+            }
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetService(int id)
+        {
+            var service = await _serviceService.GetById(id);
+            if (service == null)
+                return NotFound();
+            return Ok(service);
+        }
+
+        [Authorize(Roles = "admin")]
+        [HttpPost]
+        public async Task<IActionResult> CreateService(Service service)
+        {
+            var result = await _serviceService.Create(service);
+            return CreatedAtAction(nameof(GetService), new { id = result.ServiceId }, result);
+        }
+
+        [Authorize(Roles = "admin")]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateService(int id, Service service)
+        {
+            var success = await _serviceService.Update(id, service);
+            if (!success)
+                return NotFound();
+            return NoContent();
+        }
+
+        [Authorize(Roles = "admin")]
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteService(int id)
+        {
+            var success = await _serviceService.Delete(id);
+            if (!success)
+                return NotFound();
+            return NoContent();
         }
 
         // [HttpGet("{specialty}/services")]

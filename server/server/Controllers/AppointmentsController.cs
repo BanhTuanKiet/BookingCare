@@ -14,6 +14,7 @@ using server.DTO;
 using server.Middleware;
 using server.Models;
 using server.Services;
+using server.Util;
 using Server.DTO;
 
 namespace server.Controllers
@@ -136,24 +137,11 @@ namespace server.Controllers
         {
             try
             {
-                var smtpClient = new SmtpClient
-                {
-                    Host = _configuration["EmailSettings:SmtpServer"],
-                    Port = int.Parse(_configuration["EmailSettings:Port"]),
-                    EnableSsl = bool.Parse(_configuration["EmailSettings:EnableSsl"]),
-                    Credentials = new System.Net.NetworkCredential(
-                        _configuration["EmailSettings:SenderEmail"],
-                        _configuration["EmailSettings:Password"]
-                    )
-                };
-
                 string formattedDate = appointmentDate.ToString("dd/MM/yyyy HH:mm");
 
-                var message = new MailMessage
-                {
-                    From = new MailAddress(_configuration["EmailSettings:SenderEmail"], _configuration["EmailSettings:SenderName"]),
-                    Subject = "Thông báo cập nhật trạng thái lịch hẹn",
-                    Body = $@"
+                var Subject = "Thông báo cập nhật trạng thái lịch hẹn";
+
+                var Body = $@"
                         <html>
                         <body>
                             <h2>Cập nhật trạng thái lịch hẹn</h2>
@@ -170,13 +158,9 @@ namespace server.Controllers
                             <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>
                             <p>Trân trọng,<br/>Hệ thống đặt lịch khám bệnh</p>
                         </body>
-                        </html>",
-                    IsBodyHtml = true
-                };
+                        </html>";
 
-                message.To.Add(email);
-
-                await smtpClient.SendMailAsync(message);
+                await EmailUtil.SendEmailAsync(_configuration, email, Subject, Body);
 
                 return true;
             }

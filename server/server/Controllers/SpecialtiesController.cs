@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
+using server.DTO;
 using server.Middleware;
 using server.Models;
 using server.Services;
@@ -23,23 +24,23 @@ namespace server.Controllers
 
         // GET: api/Specialties
         [HttpGet]
-        public async Task<List<Specialty>> GetSpecialties()
+        public async Task<List<SpecialtyDTO>> GetSpecialties()
         {
             return await _speciatyService.GetSpecialties();
         }
 
         // GET: api/Specialties/specialty/description
         [HttpGet("{specialty}/description")]
-        public async Task<IActionResult> GetDescription(string specialty)
+        public async Task<ActionResult<SpecialtyDTO>> GetDescription(string specialty)
         {
-            var description = await _speciatyService.GetDescription(specialty);
-
-            if (string.IsNullOrEmpty(description))
+            if (string.IsNullOrEmpty(specialty))
             {
-                throw new ErrorHandlingException("Không tìm thấy chuyên khoa!");
+                throw new ErrorHandlingException(500, "UserName is required");
             }
 
-            return Ok(description);
+            SpecialtyDTO specialtyDTO = await _speciatyService.GetDescription(specialty);
+
+            return Ok(specialtyDTO);
         }
 
         [HttpGet("random")]
@@ -61,7 +62,7 @@ namespace server.Controllers
             return Ok(specialty);
         }
         
-        [Authorize("admin")]
+        [Authorize(Roles = "admin")]
         [HttpPost]
         public async Task<IActionResult> CreateSpecialty(Specialty specialty)
         {
@@ -69,7 +70,7 @@ namespace server.Controllers
             return CreatedAtAction(nameof(GetSpecialty), new { id = result.SpecialtyId }, result);
         }
 
-        [Authorize("admin")]
+        [Authorize(Roles = "admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateSpecialty(int id, Specialty specialty)
         {
@@ -78,7 +79,8 @@ namespace server.Controllers
                 return NotFound();
             return NoContent();
         }
-        [Authorize("admin")]
+        [Authorize(Roles = "admin")]
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSpecialty(int id)
         {
@@ -86,6 +88,35 @@ namespace server.Controllers
             if (!success)
                 return NotFound();
             return NoContent();
+        }
+
+        [Authorize(Roles = "admin")]
+        [HttpPost("upload")]
+        public async Task<ActionResult> Upload([FromForm] IFormFile file, [FromForm] int specialtyId)
+        {
+            try
+            {
+                using var memoryStream = new MemoryStream();
+                await file.CopyToAsync(memoryStream);
+                var imageData = memoryStream.ToArray();
+
+                Specialty specialty = await _context.Specialties.FindAsync(specialtyId);
+                if (specialty == null)
+                {
+                    return NotFound("Service not found.");
+                }
+
+                specialty.SpecialtyImage = imageData;
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Image uploaded successfully." });
+            }
+            catch (ErrorHandlingException ex)
+            {
+                if (ex is ErrorHandlingException) throw;
+
+                throw new ErrorHandlingException(500, ex.Message);
+            }
         }
     }
 }

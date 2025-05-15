@@ -3,13 +3,11 @@ import { Link, useNavigate, useParams } from "react-router-dom"
 import axios from "../Util/AxiosConfig"
 import { Container, Row, Col, Card, Spinner, Button, Badge } from "react-bootstrap"
 import { MapPin, Calendar, ChevronLeft, ExternalLink, Info, CheckCircle, DollarSign } from "lucide-react"
-import serviceImage from "../Image/ServiceImage/Index"
 import ReviewCard from "../Component/Card/ReviewCard"
 import Recomend from "../Component/Card/Recomend"
 import ServiceSteps from "../Component/Card/ServiceSteps"
 
 const ServiceDetail = () => {
-  const images = serviceImage
   const { serviceName } = useParams()
   const [service, setService] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -128,7 +126,7 @@ const ServiceDetail = () => {
             <Card className="border-0 shadow-sm mb-4 overflow-hidden">
               <Card.Img
                 variant="top"
-                src={images[service.serviceName]}
+                src={service.serviceImage}
                 alt={`Hình ảnh của ${service.serviceName}`}
                 className="img-fluid"
                 style={{ objectFit: "cover", maxHeight: "400px", width: "100%" }}

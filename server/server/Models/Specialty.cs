@@ -10,6 +10,7 @@ public partial class Specialty
     public string? Name { get; set; }
 
     public string? Description { get; set; }
+    public byte[]? SpecialtyImage { get; set; }
 
     public virtual ICollection<Doctor> Doctors { get; set; } = new List<Doctor>();
 

@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom"
 import { Container, Row, Col, Card, Spinner, Button, Badge, ListGroup, Tab, Nav } from "react-bootstrap"
 import { ChevronLeft, ExternalLink, Stethoscope, Activity, FileText } from "lucide-react"
 import axios from "../Util/AxiosConfig"
-import images from "../Image/SpecialtyIntroduce/Index"
+// import images from "../Image/SpecialtyIntroduce/Index"
 import DoctorCard from "../Component/Card/DoctorCard"
 import ServiceCard from "../Component/Card/ServiceCard"
 import Recomend from "../Component/Card/Recomend"
@@ -13,6 +13,7 @@ const DepartmentDetail = () => {
     const [loading, setLoading] = useState(true)
     const [activeTab, setActiveTab] = useState("overview")
     const [infor, setInfor] = useState(activeTab === "overview" ? "" : [])
+    const [inforSpecialty, setInforspecialty] = useState(activeTab === "overview" ? "" : [])
     const [recommendSpecialties, setRecommendSpecialties] = useState()
 console.log(activeTab)
     useEffect(() => {
@@ -23,8 +24,8 @@ console.log(activeTab)
                 switch (activeTab) {
                     case "overview":
                         response = await axios.get(`/specialties/${specialty}/description`)
-
-                        setInfor(response.data)
+                        console.log(response)
+                        setInforspecialty(response.data)
                         break
         
                     case "doctors":
@@ -112,8 +113,8 @@ console.log(activeTab)
                         <Card className="border-0 shadow-sm mb-4 overflow-hidden">
                             <Card.Img
                             variant="top"
-                            src={images[specialty]}
-                            alt={`Hình ảnh của ${specialty}`}
+                            src={inforSpecialty.specialtyImage}
+                            alt={`Hình ảnh của ${inforSpecialty.name}`}
                             className="img-fluid"
                             style={{ objectFit: "cover", maxHeight: "400px", width: "100%" }}
                             />
@@ -146,11 +147,10 @@ console.log(activeTab)
                             
                             <Tab.Content>
                                 <Tab.Pane eventKey="overview">
-                                    {typeof infor === "string" &&   
                                         <Card className="border-0 shadow-sm">
                                             <Card.Body className="p-4">
-                                                <h4 className="text-primary mb-4">Giới thiệu về {specialty}</h4>
-                                                <p className="mb-4">{specialty} {infor}</p>
+                                                <h4 className="text-primary mb-4">Giới thiệu về {inforSpecialty?.name}</h4>
+                                                <p className="mb-4">{inforSpecialty?.name} {inforSpecialty?.description}</p>
 
                                                 <h5 className="mb-3">Lịch sử phát triển</h5>
                                                 <p className="mb-4">
@@ -165,13 +165,13 @@ console.log(activeTab)
                                                     nâng cao trình độ chuyên môn, ứng dụng các kỹ thuật tiên tiến trong chẩn đoán và điều trị.
                                                 </p>
                                             </Card.Body>
-                                        </Card>}
+                                        </Card>
                                 </Tab.Pane>
                                 
                                 <Tab.Pane eventKey="services">
                                     <Card className="border-0 shadow-sm">
                                         <Card.Body className="p-4">
-                                            <h4 className="text-primary mb-4">Dịch vụ của {specialty}</h4>
+                                            <h4 className="text-primary mb-4">Dịch vụ của {inforSpecialty?.name}</h4>
 
                                             {Array.isArray(infor) && infor.length > 0 ? (
                                                 <div className="mx-auto">

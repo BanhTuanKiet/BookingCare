@@ -2,13 +2,11 @@ import React from 'react'
 import { Card, Button } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
 import images from '../../Image/Service/Index'
-import imageService from '../../Image/ServiceImage/Index'
 import '../../Style/ServiceCard.css'
 
 const ServiceCard = ({ service }) => {
   const navigate = useNavigate()
   const serviceImage = images[service.serviceId] || '/default-service.png'
-  const imageOfEachService = imageService
 
   const truncateText = (text = "", wordLimit) => {
     const words = text ? text.split(' ') : []
@@ -21,8 +19,8 @@ const ServiceCard = ({ service }) => {
         <div className="image-container">
           <Card.Img
             variant="top"
-            src={imageOfEachService[service.serviceName]}
-            alt={`Hình ảnh của dịch vụ ${service.serviceName}`}
+            src={service.serviceImage}
+            alt={`Hình ảnh của dịch vụ ${service.serviceImage}`}
             className="service-main-image"
           />
         </div>
