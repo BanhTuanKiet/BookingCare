@@ -168,7 +168,7 @@ namespace Clinic_Management.Controllers
             foreach (var item in distinctAppointments)
             {
                 // Lấy đơn thuốc theo AppointmentId
-                var records = await _medicalRecordService.GetMedicalRecords(new List<int> { item.AppointmentId });
+                var records = await _medicalRecordService.GetMedicalRecordsForAdmin(new List<int> { item.AppointmentId });
 
                 // Nếu có MedicalRecord thì mới lấy thông tin bệnh nhân
                 if (records != null && records.Any())
@@ -286,7 +286,7 @@ namespace Clinic_Management.Controllers
                     .ToListAsync();
 
                 // Truy vấn đơn thuốc dựa trên danh sách appointmentId
-                var medicalRecords = await _medicalRecordService.GetMedicalRecords(appointmentIds) 
+                var medicalRecords = await _medicalRecordService.GetMedicalRecordsForAdmin(appointmentIds) 
                                     ?? throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");
 
                 // Lọc thêm theo dịch vụ và trạng thái nếu có

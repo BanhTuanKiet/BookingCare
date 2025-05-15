@@ -9,7 +9,11 @@
             public AutoMapperConfig()
             {
                 CreateMap<ApplicationUser, UserDTO.UserBasic>()
+                    .ForMember(dest =>  dest.Address, m => m.MapFrom(source => source.Address))
+                    .ForMember(dest =>  dest.PhoneNumber, m => m.MapFrom(source => source.PhoneNumber))
+                    .ForMember(dest =>  dest.DateOfBirth, m => m.MapFrom(source => source.DateOfBirth))
                     .ForMember(dest =>  dest.UserName, m => m.MapFrom(source => source.FullName));
+
 
                 CreateMap<ApplicationUser, UserDTO.Doctor>()
                     .ForMember(dest => dest.UserId, m => m.MapFrom(src => src.Doctor.UserId))

@@ -10,6 +10,8 @@ namespace server.Models
 
         public string? FullName { get; set; }
         public string? RefreshToken { get; set; }
+        public DateOnly? DateOfBirth { get; set; }
+        public string? Address { get; set; }
         // public virtual ICollection<ApplicationUserClaim> AspNetUserClaims { get; set; } = new List<ApplicationUserClaim>();
 
         // public virtual ICollection<ApplicationUserLogin> AspNetUserLogins { get; set; } = new List<ApplicationUserLogin>();
