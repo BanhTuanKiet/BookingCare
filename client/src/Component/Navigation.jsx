@@ -18,7 +18,7 @@ const Navigation = () => {
     { name: "Đội ngũ bác sĩ", link: "/bác sĩ" },
     { name: "Chuyên khoa", link: "/chuyên khoa" },
     { name: "Dịch vụ", link: "/dịch vụ" },
-    { name: "Tin tức", link: "/tin tức" },
+    // { name: "Tin tức", link: "/tin tức" },
     { name: "Đặt lịch khám", link: "/đặt lịch khám" },
     { name: "Liên hệ", link: "/liên hệ" },
   ]

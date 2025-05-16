@@ -15,6 +15,8 @@ const UserProfileCard = ({ user, setUser, userType = "patient" }) => {
     return <div>Không có dữ liệu người dùng.</div>;
   }
 
+    console.log("Thông tin người dùng: ", user)
+
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
   };
