@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { Table, Container, Spinner, Button, Modal, Pagination, Row, Col, Form, Card, Badge, Nav, Tab } from "react-bootstrap"
 import axios from "../../../Util/AxiosConfig"
 
-const UserAdmin = () => {
+const UserAdmin = ({ tabActive }) => {
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(0)
@@ -19,8 +19,10 @@ const UserAdmin = () => {
   const totalPages = Math.ceil(users.length / itemsPerPage)
 
   useEffect(() => {
+    if (tabActive !== "users") return
+    
     fetchUsers()
-  }, [role])
+  }, [role, tabActive])
 
   useEffect(() => {
     if (searchTerm === "" || searchTerm === null) {
@@ -41,9 +43,10 @@ const UserAdmin = () => {
   }, [role, searchTerm])
 
   const fetchUsers = async () => {
+    if (tabActive !== "users") return
+
     try {
       const response = await axios.get(`/users/${role}`)
-      console.log(response.data)
       setUsers(response.data)
     } catch (err) {
       console.error("Lỗi khi lấy danh sách người dùng:", err)

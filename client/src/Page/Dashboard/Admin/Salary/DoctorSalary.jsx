@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Table, Spinner, Alert, Form, Modal, Button } from 'react-bootstrap';
 import axios from '../../../../Util/AxiosConfig';
 
-function DoctorSalaryTable() {
+function DoctorSalaryTable({ tabActive }) {
     const [salaries, setSalaries] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -20,6 +20,8 @@ function DoctorSalaryTable() {
     };
 
     const fetchSalaries = async () => {
+        if (tabActive !== "salary") return
+
         setLoading(true);
         setError(null);
         try {
@@ -41,6 +43,8 @@ function DoctorSalaryTable() {
     };
 
     const fetchSalaryDetails = async (doctorId) => {
+        if (tabActive !== "salary") return
+        
         try {
             const formattedMonth = formatMonth(month);
             const params = {

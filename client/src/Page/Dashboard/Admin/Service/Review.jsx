@@ -3,7 +3,7 @@ import { Button, Col, Container, Form, ListGroup, Row } from 'react-bootstrap'
 import axios from '../../../../Util/AxiosConfig'
 import ReviewDetail from './ReviewDetail'
 
-function Review() {
+function Review({ tabActive }) {
     const [specialties, setSpecialties] = useState([])
     const [specialty, setSpecialty] = useState('')
     const [services, setServices] = useState([])
@@ -11,8 +11,10 @@ function Review() {
     const [reviews, setReviews] = useState()
     const [review, setReview] = useState()
     const [showReviewDetail, setShowReviewDetail] = useState(false)
-
+        
     useEffect(() => {
+        if (tabActive !== "reviewservices") return 
+
         const fetchSpecialty = async () => {
             try {
                 const response = await axios.get('/specialties')
@@ -25,7 +27,7 @@ function Review() {
         }
 
         fetchSpecialty()
-    }, [])
+    }, [tabActive])
 
     useEffect(() => {
         if (!specialty) return

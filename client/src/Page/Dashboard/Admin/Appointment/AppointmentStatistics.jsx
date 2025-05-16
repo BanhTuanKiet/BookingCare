@@ -8,7 +8,7 @@ import AppointmentAdmin from './AppointmentAdmin'
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement)
 
-function AppointmentStatistics() {
+function AppointmentStatistics({ tabActive }) {
   const [appointmentsPerMonth, setAppointmentsMonth] = useState([])
   const [appointmentsPerWeek, setAppointmentsPerWeek] = useState([])
   const [month, setMonth] = useState(new Date().getMonth() + 1)
@@ -19,6 +19,8 @@ function AppointmentStatistics() {
   const backgroundColor = ['#0dcaf0', '#FF9800', '#198754', '#0d6efd', '#dc3545']
 
   useEffect(() => {
+    if (tabActive !== "appointments") return
+
     const fetchAppointmentsPerMonth = async () => {
       try {
         const response = await axios.get(`/appointments/statistics/${month}/${year}`)
@@ -33,6 +35,8 @@ function AppointmentStatistics() {
   }, [month, year])
 
   useEffect(() => {
+    if (tabActive !== "appointments") return
+
     let prevMonth 
     let preYear
     if (month === 1) {
@@ -56,6 +60,8 @@ function AppointmentStatistics() {
   }, [month, year])
 
   useEffect(() => {
+    if (tabActive !== "appointments") return
+    
     const fetchAppointmentsPerWeek = async () => {
       try {
         const response = await axios.get(`/appointments/statistics/${month}/week`)

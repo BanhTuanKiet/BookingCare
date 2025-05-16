@@ -1,8 +1,5 @@
 import axios from "axios"
 import { SuccessNotify, WarningNotify, ErrorNotify } from "./ToastConfig"
-import { useContext } from "react"
-import { AuthContext } from "../Context/AuthContext"
-import { useLocation } from "react-router-dom"
 
 const instance = axios.create({
     baseURL: "http://127.0.0.1:5140/api",
@@ -31,10 +28,18 @@ instance.interceptors.response.use(function (response) {
 }, function (error) {
 // Any status codes that falls outside the range of 2xx cause this function to trigger
 // Do something with response error
-console.log(error.response)
   if (error && error.response && error.response.data) {
     const errorMessage = error.response.data.ErrorMessage || error.response.data.errorMessage
     const statusCode = error.response.status
+    // console.log(error)
+    // console.log(statusCode, error.response.data?.RetryRequest)
+    if (statusCode === 401 && error.response.data?.RetryRequest && !error.config.retry) {
+      console.log(error.config)
+      console.log(error.config.retry)
+
+      error.config.retry = true
+      return instance(error.config)
+    }
 
     switch (statusCode) {
       case 400:
@@ -52,9 +57,9 @@ console.log(error.response)
         localStorage.setItem("prevPage", currentPath);
         WarningNotify(errorMessage);
   
-        setTimeout(() => {
-          window.location.href = "/đăng nhập"
-        }, 1700);
+        // setTimeout(() => {
+        //   window.location.href = "/đăng nhập"
+        // }, 1700);
         break
       default:
         ErrorNotify(errorMessage)
