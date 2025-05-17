@@ -160,7 +160,15 @@ namespace server.Controllers
             return Ok(salaries);
         }
 
+        [HttpGet("salary-summary")]
+        public async Task<IActionResult> GetSalarySummary([FromQuery] DateTime? month)
+        {
+            var summary = await _doctorService.GetSalarySummaryAsync(month ?? DateTime.Now);
+            return Ok(summary);
+        }
 
+
+        [Authorize(Roles = "admin")]
         [HttpGet("salary/details")]
         public async Task<IActionResult> GetDoctorSalaryDetails(int doctorId, DateTime? month)
         {

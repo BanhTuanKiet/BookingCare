@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react'
 import { Container, Table, Button, Badge, Form, Modal, Spinner, Row, Col, ListGroup, Card } from 'react-bootstrap'
 import axios from "../../../Util/AxiosConfig"
@@ -19,6 +20,9 @@ function DoctorShiftDetail({ dateTime, setShowShiftDetail }) {
     
     const [medicinesList, setMedicinesList] = useState([])
     const [selectedMedicines, setSelectedMedicines] = useState([])
+    const [searchTerm, setSearchTerm] = useState('')
+    const [medicineSuggestions, setMedicineSuggestions] = useState([])
+    const [showSuggestions, setShowSuggestions] = useState(false)
     
     // Current medicine being edited
     const [currentMedicine, setCurrentMedicine] = useState({
@@ -47,6 +51,19 @@ function DoctorShiftDetail({ dateTime, setShowShiftDetail }) {
         fetchDoctorSchedule()
         fetchMedicines()
     }, [dateTime])
+
+    // Add debounce effect for search
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            if (searchTerm.trim()) {
+                searchMedicines(searchTerm)
+            } else {
+                setMedicineSuggestions([])
+            }
+        }, 300)
+
+        return () => clearTimeout(timeoutId)
+    }, [searchTerm])
 
     const convertToDateObject = (dateString) => {
         const [day, month, year] = dateString.split('/')
@@ -83,6 +100,24 @@ function DoctorShiftDetail({ dateTime, setShowShiftDetail }) {
         }
     }
 
+    const searchMedicines = async (query) => {
+        if (!query.trim()) {
+            setMedicineSuggestions([])
+            return
+        }
+        
+        try {
+            const response = await axios.get(`/medicines/search`, {
+                params: { query }
+            })
+            setMedicineSuggestions(response.data || [])
+            setShowSuggestions(true)
+        } catch (error) {
+            console.log(error.response?.data || error.message)
+            setMedicineSuggestions([])
+        }
+    }
+
     const handleOpenStatusModal = (appointment) => {
         setCurrentAppointment(appointment)
         setNewStatus(appointment.status)
@@ -106,6 +141,7 @@ function DoctorShiftDetail({ dateTime, setShowShiftDetail }) {
         setCurrentAppointment(appointment)
         setSelectedMedicines([])
         setShowPrescriptionModal(true)
+        resetCurrentMedicine()
     }
 
     const handleClosePrescriptionModal = () => {
@@ -113,16 +149,20 @@ function DoctorShiftDetail({ dateTime, setShowShiftDetail }) {
         setCurrentAppointment(null)
         setSelectedMedicines([])
         resetCurrentMedicine()
+        setSearchTerm('')
     }
 
     const resetCurrentMedicine = () => {
         setCurrentMedicine({
             medicineId: "",
+            medicineName: "",
             dosage: 0,
             frequencyPerDay: 0,
             durationInDays: 0,
-            usage: ""
+            usage: "",
+            unit: ""
         })
+        setSearchTerm('')
     }
 
     const handleUpdateStatus = async () => {
@@ -152,29 +192,24 @@ function DoctorShiftDetail({ dateTime, setShowShiftDetail }) {
             const response = await axios.post(`/medicalRecords/${currentAppointment.appointmentId}`, payload)
 
             console.log(response.data)
-            
-            // handleClosePrescriptionModal()
+            handleClosePrescriptionModal()
+            // Optionally update appointment status to "Đã hoàn thành" after prescription
+            await fetchDoctorSchedule()
         } catch (err) {
             console.error('Error saving prescription:', err)
         }
     }
 
     const handleAddMedicine = () => {
-        // if (!currentMedicine.medicineId || !currentMedicine.dosage || !currentMedicine.frequencyPerDay || !currentMedicine.durationInDays) {
-        //     return
-        // }
-        console.log(medicinesList)
+        if (!currentMedicine.medicineId || !currentMedicine.dosage || !currentMedicine.frequencyPerDay || !currentMedicine.durationInDays) {
+            return
+        }
+        
         // Calculate quantity based on the formula
         const quantity = parseInt(currentMedicine.dosage) * parseInt(currentMedicine.frequencyPerDay) * parseInt(currentMedicine.durationInDays)
-        console.log(currentMedicine)
-        // Find medicine details from the list
-        const selectedMedicine = medicinesList.find(med => med.medicineId == currentMedicine.medicineId)
-
-        const medicineName = selectedMedicine ? selectedMedicine.medicalName : ''
-        const unit = selectedMedicine ? selectedMedicine.unit : ''
         
         // Add to selected medicines with calculated quantity
-        const newMedicine = { ...currentMedicine, quantity, medicineName, unit }
+        const newMedicine = { ...currentMedicine, quantity }
         
         setSelectedMedicines([...selectedMedicines, newMedicine])
         
@@ -188,34 +223,38 @@ function DoctorShiftDetail({ dateTime, setShowShiftDetail }) {
         setSelectedMedicines(updated)
     }
 
-
     const handleMedicineChange = (field, value) => {
-        if (field === "medicineId") {
-            const medicineName = getMedicineName(value)
-            const medicineUnit = getMedicineUnit(value)
-            setCurrentMedicine(prev => ({
-                ...prev,
-                ["medicineName"]: medicineName
-            }))
-
-            setCurrentMedicine(prev => ({
-                ...prev,
-                ["unit"]: medicineUnit
-            }))
-        }
-
         setCurrentMedicine(prev => ({
             ...prev,
             [field]: value
         }))
     }   
 
-    const getMedicineName = (medicineId) => {
-        return medicinesList[medicineId]?.medicalName ?? ""
+    const handleSelectMedicine = (medicine) => {
+        setCurrentMedicine({
+            ...currentMedicine,
+            medicineId: medicine.medicineId,
+            medicineName: medicine.medicalName,
+            unit: medicine.unit
+        })
+        setSearchTerm(medicine.medicalName)
+        setShowSuggestions(false)
+        setIsMouseOverSuggestions(false)
     }
 
-    const getMedicineUnit = (medicineId) => {
-        return medicinesList[medicineId]?.unit ?? ""
+    const handleSearchInputChange = (e) => {
+        setSearchTerm(e.target.value)
+        setShowSuggestions(true)
+    }
+
+    // Track if mouse is over suggestions
+    const [isMouseOverSuggestions, setIsMouseOverSuggestions] = useState(false)
+    
+    const handleSearchInputBlur = () => {
+        // Only hide suggestions if mouse is not over them
+        if (!isMouseOverSuggestions) {
+            setShowSuggestions(false)
+        }
     }
 
     if (loading) {
@@ -230,9 +269,9 @@ function DoctorShiftDetail({ dateTime, setShowShiftDetail }) {
 
     return (
         <Container fluid className="mt-4">
-            <div className='d-flex'>
-                <h2 className="mb-4">Chi tiết ca làm việc: {dateTime.date} - {dateTime.time}</h2>
-                <Button variant='warning text-light' onClick={() => setShowShiftDetail(false)} >Trở về</Button>
+            <div className='d-flex justify-content-between mb-4'>
+                <h2>Chi tiết ca làm việc: {dateTime.date} - {dateTime.time}</h2>
+                <Button variant='warning text-light' onClick={() => setShowShiftDetail(false)}>Trở về</Button>
             </div>
             
             <Table responsive striped bordered hover>
@@ -376,18 +415,43 @@ function DoctorShiftDetail({ dateTime, setShowShiftDetail }) {
                                         <Col md={6}>
                                             <Form.Group>
                                                 <Form.Label>Tên thuốc</Form.Label>
-                                                <Form.Select
-                                                    value={currentMedicine.medicineId}
-                                                    onChange={(e) => handleMedicineChange('medicineId', e.target.value)}
-                                                    required
-                                                >
-                                                    <option value="">-- Chọn thuốc --</option>
-                                                    {medicinesList.map(med => (
-                                                        <option key={med.medicineId} value={med.medicineId}>
-                                                            {med.medicalName} 
-                                                        </option>
-                                                    ))}
-                                                </Form.Select>
+                                                <div className="position-relative">
+                                                    <Form.Control
+                                                        type="text"
+                                                        value={searchTerm}
+                                                        onChange={handleSearchInputChange}
+                                                        onBlur={handleSearchInputBlur}
+                                                        placeholder="Nhập từ khóa để tìm thuốc..."
+                                                        autoComplete="off"
+                                                    />
+                                                    {showSuggestions && medicineSuggestions.length > 0 && (
+                                                        <div 
+                                                            className="position-absolute w-100 bg-white border rounded-bottom shadow-sm" 
+                                                            style={{
+                                                                zIndex: 1000, 
+                                                                maxHeight: '200px', 
+                                                                overflow: 'auto'
+                                                            }}
+                                                            onMouseEnter={() => setIsMouseOverSuggestions(true)}
+                                                            onMouseLeave={() => setIsMouseOverSuggestions(false)}
+                                                        >
+                                                            {medicineSuggestions.map(medicine => (
+                                                                <div 
+                                                                    key={medicine.medicineId} 
+                                                                    className="p-2 border-bottom"
+                                                                    style={{ cursor: 'pointer' }}
+                                                                    onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
+                                                                    onMouseOut={(e) => e.currentTarget.style.backgroundColor = ''}
+                                                                    onClick={() => handleSelectMedicine(medicine)}
+                                                                    onMouseDown={(e) => e.preventDefault()} // Prevent blur before click
+                                                                >
+                                                                    <strong>{medicine.medicalName}</strong>
+                                                                    <span className="text-muted ms-2">({medicine.unit})</span>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </Form.Group>
                                         </Col>
                                         <Col md={3}>
@@ -524,6 +588,7 @@ function DoctorShiftDetail({ dateTime, setShowShiftDetail }) {
                     <Button 
                         variant="primary" 
                         onClick={handleSavePrescription}
+                        disabled={selectedMedicines.length === 0 || !prescriptionInfo.diagnosis}
                     >
                         Lưu đơn thuốc
                     </Button>

@@ -106,6 +106,27 @@ namespace server.Services
             return result;
         }
 
+        public async Task<SalarySummaryDTO> GetSalarySummaryAsync(DateTime month)
+        {
+            Console.WriteLine("Tháng : ",month);
+            var doctorSalaries = await GetDoctorSalariesAsync(month);
+
+            var totalCommission = doctorSalaries.Sum(d => d.Commission);
+            var totalSalary = doctorSalaries.Sum(d => d.TotalSalary);
+            var grossRevenue = totalCommission/30*100;
+            var netRevenue = grossRevenue - totalSalary;
+
+            return new SalarySummaryDTO
+            {
+                TotalCommission = totalCommission,
+                TotalSalary = totalSalary,
+                GrossRevenue = grossRevenue,
+                NetRevenue = netRevenue,
+                DoctorSalaries = doctorSalaries
+            };
+        }
+
+
         public async Task<PaginatedResult<DoctorDTO.DoctorBasic>> GetDoctorsPaged(int pageNumber, string specialty = null, string searchKeyword = null)
         {
             int pageSize = 12;

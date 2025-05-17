@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Spinner, Alert, Form, Modal, Button } from 'react-bootstrap';
 import axios from '../../../../Util/AxiosConfig';
+import { Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+
+ChartJS.register( CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend );
+
 
 function DoctorSalaryTable({ tabActive }) {
     const [salaries, setSalaries] = useState([]);
@@ -10,6 +15,12 @@ function DoctorSalaryTable({ tabActive }) {
     const [showModal, setShowModal] = useState(false);
     const [detailData, setDetailData] = useState([]);
     const [selectedDoctor, setSelectedDoctor] = useState(null);
+    const [revenueStats, setRevenueStats] = useState({
+        totalCommission: 0,
+        grossRevenue: 0,
+        totalSalary: 0,
+        netRevenue: 0,
+    });
 
     const formatMonth = (month) => {
         if (month) {
@@ -42,6 +53,19 @@ function DoctorSalaryTable({ tabActive }) {
         }
     };
 
+    const fetchSalarySummary = async () => {
+        try {
+            const formattedMonth = formatMonth(month);
+            const params = formattedMonth ? { month: formattedMonth.toISOString() } : {};
+            const response = await axios.get("/doctors/salary-summary", { params });
+
+            setRevenueStats(response.data); // Gán trực tiếp từ backend
+        } catch (err) {
+            console.error("Lỗi khi tải tổng kết lương từ backend:", err);
+        }
+    };
+
+
     const fetchSalaryDetails = async (doctorId) => {
         if (tabActive !== "salary") return
         
@@ -73,6 +97,7 @@ function DoctorSalaryTable({ tabActive }) {
 
     useEffect(() => {
         fetchSalaries();
+        fetchSalarySummary();
     }, [month]);
 
     const handleClose = () => {
@@ -97,6 +122,66 @@ function DoctorSalaryTable({ tabActive }) {
             {error && <Alert variant="danger">{error}</Alert>}
 
             {!loading && salaries.length > 0 && (
+            <>
+                {revenueStats && (
+                    <div className="d-flex flex-wrap gap-3 mb-4">
+  {/* Tổng kết tháng */}
+  <div className="card flex-fill" style={{ minWidth: '300px', flex: '1' }}>
+    <div className="card-body p-3">
+      <h6 className="card-title mb-3">📊 <strong>Tổng kết tháng:</strong></h6>
+      <p className="mb-1"><strong>Tổng hoa hồng:</strong> {revenueStats.totalCommission.toLocaleString()} đ</p>
+      <p className="mb-1"><strong>Tổng lương bác sĩ:</strong> {revenueStats.totalSalary.toLocaleString()} đ</p>
+      <p className="mb-1"><strong>Tổng doanh thu (ước tính):</strong> {revenueStats.grossRevenue.toLocaleString()} đ</p>
+      <p className="mb-0"><strong>Doanh thu ròng:</strong> {revenueStats.netRevenue.toLocaleString()} đ</p>
+    </div>
+  </div>
+
+  {/* Biểu đồ */}
+  <div className="card flex-fill" style={{ minWidth: '300px', flex: '1' }}>
+    <div className="card-body p-3" style={{ height: '250px' }}>
+      <Bar
+        data={{
+          labels: ['Tổng hoa hồng', 'Tổng lương bác sĩ', 'Tổng doanh thu', 'Doanh thu ròng'],
+          datasets: [
+            {
+              label: 'VNĐ',
+              data: [
+                revenueStats.totalCommission,
+                revenueStats.totalSalary,
+                revenueStats.grossRevenue,
+                revenueStats.netRevenue
+              ],
+              backgroundColor: ['#36a2eb', '#ff6384', '#4bc0c0', '#9966ff']
+            }
+          ]
+        }}
+        options={{
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            title: {
+              display: true,
+              text: 'Biểu đồ doanh thu tháng'
+            }
+          },
+          scales: {
+            y: {
+              ticks: {
+                callback: function (value) {
+                  return value.toLocaleString() + ' đ';
+                }
+              }
+            }
+          }
+        }}
+      />
+    </div>
+  </div>
+</div>
+
+                )}
+
                 <Table striped bordered hover responsive>
                     <thead>
                         <tr>
@@ -134,7 +219,8 @@ function DoctorSalaryTable({ tabActive }) {
                         ))}
                     </tbody>
                 </Table>
-            )}
+            </>
+        )}
 
             {/* Modal Chi tiết */}
             <Modal show={showModal} onHide={handleClose} size="lg">

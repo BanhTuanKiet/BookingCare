@@ -59,6 +59,10 @@
 
                 CreateMap<Service, ServiceDTO.ServiceDetail>()
                     .ForMember(dest => dest.ServiceName, m => m.MapFrom(source => source.ServiceName))
+                    .ForMember(dest => dest.ServiceIcon, m => m.MapFrom(source =>
+                        source.ServiceIcon != null
+                            ? $"data:image/png;base64,{Convert.ToBase64String(source.ServiceIcon)}"
+                            : null))
                     .ForMember(dest => dest.ServiceImage, m => m.MapFrom(source =>
                         source.ServiceImage != null
                             ? $"data:image/png;base64,{Convert.ToBase64String(source.ServiceImage)}"

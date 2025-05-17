@@ -40,5 +40,17 @@ namespace Clinic_Management.Controllers
         {
             return await _medicineService.GetAllMedicines();
         }
+                // GET: api/medicines/search?query=para
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<MedicineDTO.MedicineBasic>>> SearchMedicines([FromQuery] string query)
+        {
+            if (string.IsNullOrEmpty(query))
+            {
+                return await _medicineService.GetAllMedicines();
+            }
+
+            var medicines = await _medicineService.SearchMedicinesByName(query);
+            return Ok(medicines);
+        }
     }
 }

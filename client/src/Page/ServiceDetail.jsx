@@ -103,7 +103,7 @@ const ServiceDetail = () => {
             onClick={() => window.history.back()}
           >
             <ChevronLeft size={18} />
-            <span>Quay lại danh sách dịch vụ</span>
+            <span>Quay lại trang trước</span>
           </Button>
         </div>
 

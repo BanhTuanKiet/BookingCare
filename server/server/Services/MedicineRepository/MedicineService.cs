@@ -22,5 +22,21 @@ namespace server.Services
             var medicineDTOs = _mapper.Map<List<MedicineDTO.MedicineBasic>>(medicines);
             return medicineDTOs;
         }
+
+        public async Task<List<MedicineDTO.MedicineBasic>> SearchMedicinesByName(string query)
+        {
+            query = query.ToLower();
+            
+            return await _context.Medicines
+                .Where(m => m.MedicalName.ToLower().Contains(query))
+                .Select(m => new MedicineDTO.MedicineBasic
+                {
+                    MedicineId = m.MedicineId,
+                    MedicalName = m.MedicalName,
+                    Unit = m.Unit
+                })
+                .Take(10) // Limit results to 10 suggestions
+                .ToListAsync();
+        }
     }
 }

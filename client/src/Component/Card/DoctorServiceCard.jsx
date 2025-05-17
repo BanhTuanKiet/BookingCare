@@ -1,6 +1,6 @@
 import { Award, Star, StarHalf, User } from 'lucide-react'
 import { Badge, Button, Card, Col, Row } from 'react-bootstrap'
-import ServiceImages from "../../Image/Service/Index"
+// import ServiceImages from "../../Image/Service/Index"
 import { useNavigate } from 'react-router-dom'
 
 function DoctorServiceCard({ specialty, item, review, type }) {
@@ -39,7 +39,7 @@ console.log(review)
                             <Row className="align-items-center">
                                 <Col md={4} className="text-center text-md-start pe-0">
                                 <Card.Img
-                                    src={ServiceImages[item?.serviceId] || "/placeholder.svg?height=150&width=150"}
+                                    src={item?.serviceIcon || "/placeholder.svg?height=150&width=150"}
                                     alt={item?.serviceName}
                                     style={{ width: "100%", height: "100%", objectFit: "cover" }}
                                 />
