@@ -1,6 +1,7 @@
 import { Container, Row, Col, Card, Button, Badge } from "react-bootstrap"
 import { useNavigate } from "react-router-dom"
 import { Building, CheckCircle, Users, Heart, Award, Calendar, Clock, Target, ChevronRight, MapPin, Phone, Mail } from "lucide-react"
+import image from '../Image/About/Anh_gioi_thieu.jpg'
 
 function About() {
   const navigate = useNavigate()
@@ -82,9 +83,9 @@ function About() {
                 <Col md={6}>
                   <div className="h-100">
                     <img
-                      src="/placeholder.svg?height=400&width=600&text=Phòng+Khám+Đa+Khoa+X"
+                      src={image}
                       alt="Phòng Khám Đa Khoa X"
-                      className="img-fluid h-100 w-100"
+                      className="img-fluid h-90 w-100"
                       style={{ objectFit: "cover" }}
                     />
                   </div>
