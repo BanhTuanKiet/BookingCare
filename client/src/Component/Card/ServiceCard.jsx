@@ -1,12 +1,10 @@
 import React from 'react'
 import { Card, Button } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
-import images from '../../Image/Service/Index'
 import '../../Style/ServiceCard.css'
 
 const ServiceCard = ({ service }) => {
   const navigate = useNavigate()
-  const serviceImage = images[service.serviceId] || '/default-service.png'
 
   const truncateText = (text = "", wordLimit) => {
     const words = text ? text.split(' ') : []
@@ -27,7 +25,7 @@ const ServiceCard = ({ service }) => {
 
         <div className="service-icon-wrapper custom-service-image">
           <img
-            src={serviceImage}
+            src={service.serviceIcon}
             alt={service.serviceName}
             className="service-icon-img"
           />
