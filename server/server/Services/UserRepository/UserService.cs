@@ -87,6 +87,21 @@ namespace server.Services
             return patientDTOs;
         }
 
+        public async Task<List<UserDTO.Admin>> GetAdmins()
+        {
+            var usersInRole = await _userManager.GetUsersInRoleAsync("admin");
+            var userIds = usersInRole.Select(u => u.Id).ToList();
+
+            var admins = await _context.Users
+                .Where(u => userIds.Contains(u.Id))
+                .AsNoTracking()
+                .ToListAsync();
+
+            var adminDTOs = _mapper.Map<List<UserDTO.Admin>>(admins);
+
+            return adminDTOs;
+        }
+
         public async Task<List<ApplicationUser>> SearchUser(string role, string searchTerm)
         {
             var usersInRole = await _userManager.GetUsersInRoleAsync(role);

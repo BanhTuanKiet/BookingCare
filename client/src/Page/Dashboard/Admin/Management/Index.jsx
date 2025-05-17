@@ -1,4 +1,3 @@
-import React, { useState } from 'react'
 import { Nav } from 'react-bootstrap'
 
 function Index({ tabActive, systemMenuOpen, setSystemMenuOpen }) {
@@ -37,6 +36,20 @@ function Index({ tabActive, systemMenuOpen, setSystemMenuOpen }) {
                         className={`sidebar-link ms-3 mb-1 ${tabActive === "prescriptions" ? "active" : ""}`}
                     >
                         Hồ sơ bệnh nhân
+                    </Nav.Link>
+
+                    <Nav.Link 
+                        eventKey="admins"
+                        className={`sidebar-link ms-3 mb-1 ${tabActive === "admins" ? "active" : ""}`}
+                    >
+                        Quản trị viên
+                    </Nav.Link>
+
+                    <Nav.Link 
+                        eventKey="doctors"
+                        className={`sidebar-link ms-3 mb-1 ${tabActive === "admins" ? "active" : ""}`}
+                    >
+                        Bác sĩ
                     </Nav.Link>
                 </>
             )}

@@ -53,13 +53,13 @@ instance.interceptors.response.use(function (response) {
         ErrorNotify(errorMessage)
         break
       case 401:
-        const currentPath = window.location.pathname + window.location.search;
-        localStorage.setItem("prevPage", currentPath);
-        WarningNotify(errorMessage);
+        const currentPath = window.location.pathname + window.location.search
+        localStorage.setItem("prevPage", currentPath)
+        WarningNotify(errorMessage)
   
-        // setTimeout(() => {
-        //   window.location.href = "/đăng nhập"
-        // }, 1700);
+        setTimeout(() => {
+          window.location.href = "/đăng nhập"
+        }, 1700)
         break
       default:
         ErrorNotify(errorMessage)

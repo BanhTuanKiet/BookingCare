@@ -32,7 +32,7 @@ function AppointmentStatistics({ tabActive }) {
     }
 
     fetchAppointmentsPerMonth()
-  }, [month, year])
+  }, [tabActive, month, year])
 
   useEffect(() => {
     if (tabActive !== "appointments") return
@@ -57,7 +57,7 @@ function AppointmentStatistics({ tabActive }) {
     }
 
     fetchPrevAppointmentsPerMonth()
-  }, [month, year])
+  }, [tabActive, month, year])
 
   useEffect(() => {
     if (tabActive !== "appointments") return
@@ -72,7 +72,7 @@ function AppointmentStatistics({ tabActive }) {
     }
 
     fetchAppointmentsPerWeek()
-    }, [month])
+    }, [tabActive, month])
 
   const rateChange = prevTotal === 0 ? 0 : (((total - prevTotal) / prevTotal) * 100).toFixed(1)
 
@@ -141,7 +141,7 @@ function AppointmentStatistics({ tabActive }) {
         <Col md={4}>
           <Card className='p-3'>
             <h5 className='text-center mb-3'>Biểu đồ theo tuần</h5>
-            {/* <BarChart data={appointmentsPerWeek} total={total} label='Lịch hẹn theo tuần' labels={['Tuần 1', 'Tuần 2', 'Tuần 3', 'Tuần 4']} /> */}
+            <BarChart data={appointmentsPerWeek} total={total} label='Lịch hẹn theo tuần' labels={['Tuần 1', 'Tuần 2', 'Tuần 3', 'Tuần 4']} />
           </Card>
         </Col>
       </Row>

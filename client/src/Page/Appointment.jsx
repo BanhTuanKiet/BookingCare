@@ -3,6 +3,7 @@ import { Button, Col, Container, Form, Row } from "react-bootstrap"
 import { NavContext } from "../Context/NavContext"
 import axios from "../Util/AxiosConfig"
 import { ValideFormContext } from "../Context/ValideFormContext"
+import debounce from "../Util/Debounce"
 
 function Appointment() {
   const [formData, setFormData] = useState({
@@ -21,9 +22,7 @@ function Appointment() {
   useEffect(() => {
     const fetchDoctors =  async () => {
       try {
-        console.log(specialty)
         const response = await axios.get(`/doctors/${specialty}`)
-        console.log(response)
         setDoctors(response.data)
       } catch (error) {
         console.log(error)
@@ -72,6 +71,8 @@ function Appointment() {
     }
   }
 
+  const debouncedSubmit = debounce(submit)  
+
   return (
     <Container className="p-0 w-75 my-4">
       <div className="text-center mb-4">
@@ -111,50 +112,6 @@ function Appointment() {
             </p>
 
             <Form>
-              {/* <Row className="mb-3">
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Control type="text" placeholder="Họ và tên" name="name" onChange={handleChange} />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Control type="email" placeholder="Email" name="email" onChange={handleChange} />
-                  </Form.Group>
-                </Col>
-              </Row> */}
-
-              {/* <Row className="mb-3">
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Control
-                      type="date"
-                      placeholder="Ngày sinh"
-                      name="dateOfBirth"
-                      onChange={handleChange}
-                      className="position-relative"
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Control type="tel" placeholder="Số điện thoại" name="phoneNumber" onChange={handleChange} />
-                  </Form.Group>
-                </Col>
-              </Row> */}
-
-              {/* <Form.Group className="mb-3">
-                <Form.Select name="gender" onChange={handleChange}>
-                  <option>Giới tính</option>
-                  <option value={true}>Nam</option>
-                  <option value={false}>Nữ</option>
-                </Form.Select>
-              </Form.Group> */}
-
-              {/* <Form.Group className="mb-3">
-                <Form.Control type="text" placeholder="Địa chỉ" name="address" onChange={handleChange} />
-              </Form.Group> */}
-
               <Form.Group className="mb-3">
                 <Form.Select name="department" onChange={handleChange} isInvalid={!!formErrors.specialty} >
                   <option>Chọn chuyên khoa</option>
@@ -228,7 +185,7 @@ function Appointment() {
 
               <div className="text-end">
                 <Button
-                  onClick={submit}
+                  onClick={debouncedSubmit}
                   className="px-5 py-2 border-0 rounded-5" style={{backgroundColor: "#4dabf7"}}
                 >
                   GỬI

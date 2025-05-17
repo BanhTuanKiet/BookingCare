@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -24,25 +25,25 @@ namespace server.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IDoctor _doctorService;
         private readonly IPatient _patientService;
-
-        public UsersController(ClinicManagementContext context, IUser userService, UserManager<ApplicationUser> userManager, IDoctor doctorService, IPatient patientService)
+        private readonly IMapper _mapper;
+        public UsersController(ClinicManagementContext context, IUser userService, UserManager<ApplicationUser> userManager, IDoctor doctorService, IPatient patientService, IMapper mapper)
         {
             _context = context;
             _userService = userService;
             _userManager = userManager;
             _doctorService = doctorService;
             _patientService = patientService;
+            _mapper = mapper;
         }
 
         [Authorize(Roles = "admin")]
         [HttpGet("{role}")]
         public async Task<ActionResult> GetUsersByRole(string role)
         {
-
-            if (role == "doctor") 
+            if (role == "doctor")
             {
                 var users = await _userService.GetDoctors();
-                
+
                 return Ok(users);
             }
 
@@ -53,9 +54,10 @@ namespace server.Controllers
                 return Ok(users);
             }
 
-            else 
+            else
             {
-                return Ok("null");
+                var users = await _userService.GetAdmins();
+                return Ok(users);
             }
         }
 
@@ -82,7 +84,8 @@ namespace server.Controllers
 
         [Authorize(Roles = "patient")]
         [HttpPut("update-info")]
-        public async Task<ActionResult> UpdatePatientInfo([FromBody] PatientDTO.PatientUpdateDTO updateInfo)        {
+        public async Task<ActionResult> UpdatePatientInfo([FromBody] PatientDTO.PatientUpdateDTO updateInfo)
+        {
             try
             {
                 var userId = HttpContext.Items["UserId"];
@@ -137,8 +140,16 @@ namespace server.Controllers
 
                 return Ok(patientDetail);
             }
-            
-            return Ok(user);
+
+            var admin = _mapper.Map<UserDTO.Admin>(user);
+
+            return Ok(admin);
+        }
+
+        [HttpPut("edit/{role}")]
+        public async Task<ActionResult> EditUser([FromBody] object user, string role)
+        {
+            return Ok(new { role = role, user = user });
         }
     }
 }

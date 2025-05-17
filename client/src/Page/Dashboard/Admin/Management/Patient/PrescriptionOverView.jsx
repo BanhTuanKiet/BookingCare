@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { Container, Table, Button, Spinner, Form, Row, Col } from 'react-bootstrap'
-import axios from '../../../../Util/AxiosConfig'
-import { extractDateOnly } from '../../../../Util/DateUtils'
+import axios from '../../../../../Util/AxiosConfig'
 import PatientPrescriptions from './PatientPrescription'
+import List from '../General/List'
 
 const PrescriptionOverView = ({ tabActive }) => {
   const [prescriptions, setPrescriptions] = useState([])
@@ -25,7 +25,7 @@ const PrescriptionOverView = ({ tabActive }) => {
     try {
       const endpoint = keyword.trim()
         ? `/medicalrecords/search/${keyword.trim()}`
-        : '/medicalrecords/prescriptions/patient'
+        : `/users/${"patient"}`
 
       const response = await axios.get(endpoint)
       setPrescriptions(response.data)
@@ -46,26 +46,22 @@ const PrescriptionOverView = ({ tabActive }) => {
     }
   }
 
-  const handleViewPatientPrescriptions = (patientId, patientName) => {
-    setSelectedPatient({ id: patientId, name: patientName })
-  }
-
   const handleBackToOverview = () => {
     setSelectedPatient(null)
   }
 
   return (
-    <Container fluid>
+    <Container fluid className='py-4'>
       {selectedPatient ? (
         <PatientPrescriptions
-          patientId={selectedPatient.id}
-          patientName={selectedPatient.name}
+          patientId={selectedPatient.patientId}
+          patientName={selectedPatient.fullName}
           goBack={handleBackToOverview}
         />
       ) : (
         <>
           <Form onSubmit={handleSearchSubmit} className="mb-3">
-            <Row>
+            <Row >
               <Col md={6}>
                 <Form.Control
                   type="text"
@@ -100,42 +96,7 @@ const PrescriptionOverView = ({ tabActive }) => {
               <Spinner animation="border" />
             </div>
           ) : (
-            <div className="table-responsive">
-              <Table bordered hover>
-                <thead>
-                  <tr>
-                    {/* <th>Mã đơn thuốc</th> */}
-                    <th>Tên bệnh nhân</th>
-                    <th>Năm sinh</th>
-                    <th>Email</th>
-                    <th>Địa Chỉ</th>
-                    <th>Số điện thoại</th>
-                    <th>Thao tác</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {prescriptions.map(p => (
-                    <tr key={prescriptions.recordId}>
-                      {/* <td>{p.recordId}</td> */}
-                      <td>{p.patient.userName}</td>
-                      <td>{extractDateOnly(p.patient.dateOfBirth)}</td>
-                      <td>{p.patient.email}</td>
-                      <td>{p.patient.address}</td>
-                      <td>{p.patient.phoneNumber}</td>
-                      <td>
-                        <Button
-                          size="sm"
-                          variant="info"
-                          onClick={() => handleViewPatientPrescriptions(p.patient.patientId, p.patient.userName)}
-                        >
-                          Danh sách đơn thuốc của bệnh nhân
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </div>
+            <List users={prescriptions} role={"patient"} setselected={setSelectedPatient} />
           )}
         </>
       )}

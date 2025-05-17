@@ -21,13 +21,7 @@ function BarChart({ data, total, label, labels }) {
                 {
                     label: label || 'Data',
                     data: data.map(item => item[key] || 0),
-                    backgroundColor: [
-                        "rgba(255, 99, 132, 0.7)",
-                        "rgba(255, 159, 64, 0.7)",
-                        "rgba(255, 205, 86, 0.7)",
-                        "rgba(75, 192, 192, 0.7)",
-                        "rgba(54, 162, 235, 0.7)",
-                    ],
+                    backgroundColor: ['#0dcaf0', '#FF9800', '#198754', '#0d6efd', '#dc3545'],
                 },
             ],
         }

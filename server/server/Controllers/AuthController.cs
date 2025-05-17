@@ -91,7 +91,7 @@ namespace server.Controllers
             var token = JwtUtil.GenerateToken(user, roles, 1, _configuration);
             var refreshToken = JwtUtil.GenerateToken(user, roles, 8, _configuration);
             
-            CookieUtil.SetCookie(Response, "token", token, 1);
+            CookieUtil.SetCookie(Response, "token", token, 8);
 
             await _auth.SaveRefreshToken(user, refreshToken);
 

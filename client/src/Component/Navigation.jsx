@@ -180,7 +180,7 @@ const Navigation = () => {
           <Nav>
             {isAuthenticated ? (
               <Nav.Link
-                onClick={() => navigate("/thông tin cá nhân")}
+                onClick={() => navigate("/thông tin cá nhân/#appointments")}
                 className="btn-login"
               >
                 {`Xin chào, ${UserName}`}

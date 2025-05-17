@@ -31,8 +31,12 @@
                             : null
                     ));
 
+                CreateMap<ApplicationUser, UserDTO.Admin>()
+                    .ForMember(dest => dest.UserId, m => m.MapFrom(src => src.Id));
+
                 CreateMap<ApplicationUser, UserDTO.Patient>()
-                    .ForMember(dest => dest.UserId, m => m.MapFrom(src => src.Patient.UserId))
+                    .ForMember(dest => dest.UserId, m => m.MapFrom(src => src.Id))
+                    .ForMember(dest => dest.PatientId, m => m.MapFrom(src => src.Patient.PatientId))
                     .ForMember(dest => dest.DateOfBirth, m => m.MapFrom(src => src.Patient.DateOfBirth))
                     .ForMember(dest => dest.Address, m => m.MapFrom(src => src.Patient.Address));
 

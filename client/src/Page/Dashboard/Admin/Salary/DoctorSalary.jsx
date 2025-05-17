@@ -81,7 +81,7 @@ function DoctorSalaryTable({ tabActive }) {
     };
 
     return (
-        <div>
+        <div className='py-4'>
             <h5 className="mb-4">Bảng Lương Bác Sĩ Theo Tháng</h5>
 
             <Form.Group className="mb-3" controlId="monthPicker">

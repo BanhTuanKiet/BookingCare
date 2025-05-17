@@ -48,6 +48,7 @@ const UserAdmin = ({ tabActive }) => {
     try {
       const response = await axios.get(`/users/${role}`)
       setUsers(response.data)
+      console.log(response.data)
     } catch (err) {
       console.error("Lỗi khi lấy danh sách người dùng:", err)
     } finally {
@@ -69,7 +70,6 @@ const UserAdmin = ({ tabActive }) => {
     setShowModal(true)
     setSelectedUser(user)
     processUserFields(user)
-    console.log(user)
   }
 
   const handleEditClick = (field) => {
@@ -89,20 +89,17 @@ const UserAdmin = ({ tabActive }) => {
     
     setSaving(true)
     try {
-      // Here would be your API call to save the changes
-      // await axios.put(`/users/${editableUser.id}`, editableUser)
-      setSelectedUser({...editableUser})
+      console.log(editableUser)
+      const response = await axios.put(`/users/edit/${role}`, editableUser)
+      // setSelectedUser({...editableUser})
+      console.log(response.data)
+      // const updatedUsers = users.map(user => 
+      //   user.id === editableUser.id ? editableUser : user
+      // )
+      // setUsers(updatedUsers)
       
-      // Update the user in the users list
-      const updatedUsers = users.map(user => 
-        user.id === editableUser.id ? editableUser : user
-      )
-      setUsers(updatedUsers)
-      
-      // Show success message or notification here
     } catch (error) {
       console.error("Error saving user:", error)
-      // Show error message or notification here
     } finally {
       setSaving(false)
     }
@@ -128,7 +125,7 @@ const UserAdmin = ({ tabActive }) => {
   }
 
   return (
-    <Container fluid>
+    <Container fluid className="py-4">
       <h4 className="mb-4">Danh Sách Người Dùng</h4>
       <Row className="mb-4">
         <Col md={3}>

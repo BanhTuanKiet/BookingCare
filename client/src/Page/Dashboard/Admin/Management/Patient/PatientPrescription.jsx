@@ -1,77 +1,72 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Table, Button, Spinner, Card, Row, Col, Modal, Form } from 'react-bootstrap';
-import axios from '../../../../Util/AxiosConfig';
-import { extractDateOnly } from '../../../../Util/DateUtils';
-import PrescriptionCard from '../../../../Component/Card/PrescriptionCard';
-import PrescriptionDetail from './PrescriptionDetail';
+import React, { useState, useEffect } from 'react'
+import { Container, Table, Button, Spinner, Card, Row, Col, Modal, Form } from 'react-bootstrap'
+import axios from '../../../../../Util/AxiosConfig'
+import { extractDateOnly } from '../../../../../Util/DateUtils'
+import PrescriptionCard from '../../../../../Component/Card/PrescriptionCard'
+import PrescriptionDetail from './PrescriptionDetail'
 
 const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
-  const [patientPrescriptions, setPatientPrescriptions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState('table');
-  const [selectedPrescriptionId, setSelectedPrescriptionId] = useState(null);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState(null);
+  const [patientPrescriptions, setPatientPrescriptions] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [viewMode, setViewMode] = useState('table')
+  const [selectedPrescriptionId, setSelectedPrescriptionId] = useState(null)
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [selectedRecord, setSelectedRecord] = useState(null)
   
-  // Filter states
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [selectedService, setSelectedService] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState('');
-  const [uniqueServices, setUniqueServices] = useState([]);
-  const [uniqueStatuses, setUniqueStatuses] = useState([]);
+  const [startDate, setStartDate] = useState('')
+  const [endDate, setEndDate] = useState('')
+  const [selectedService, setSelectedService] = useState('')
+  const [selectedStatus, setSelectedStatus] = useState('')
+  const [uniqueServices, setUniqueServices] = useState([])
+  const [uniqueStatuses, setUniqueStatuses] = useState([])
 
   useEffect(() => {
     if (patientId) {
-      fetchPatientPrescriptions();
+      fetchPatientPrescriptions()
     }
-  }, [patientId]);
+  }, [patientId])
 
-  // Check for a selected prescription from sessionStorage
   useEffect(() => {
     const savedPrescriptionId = sessionStorage.getItem("selectedPrescriptionId");
     if (savedPrescriptionId) {
-      setSelectedPrescriptionId(savedPrescriptionId);
-      // Clear the session storage after retrieving the ID
-      sessionStorage.removeItem("selectedPrescriptionId");
+      setSelectedPrescriptionId(savedPrescriptionId)
+      sessionStorage.removeItem("selectedPrescriptionId")
     }
-  }, []);
+  }, [])
 
-  // Lấy danh sách dịch vụ và trạng thái duy nhất khi dữ liệu đầu tiên tải xong
   useEffect(() => {
     if (patientPrescriptions.length > 0) {
-      const services = [...new Set(patientPrescriptions.map(p => p.serviceName))];
-      const statuses = [...new Set(patientPrescriptions.map(p => p.status))];
-      setUniqueServices(services);
-      setUniqueStatuses(statuses);
+      const services = [...new Set(patientPrescriptions.map(p => p.serviceName))]
+      const statuses = [...new Set(patientPrescriptions.map(p => p.status))]
+      setUniqueServices(services)
+      setUniqueStatuses(statuses)
     }
-  }, [patientPrescriptions]);
+  }, [patientPrescriptions])
 
   const fetchPatientPrescriptions = async (filters = {}) => {
-    setLoading(true);
+    setLoading(true)
     try {
-      // Xây dựng query params từ các filter
-      let url = `/medicalrecords/prescriptions/patient/${patientId}`;
+      let url = `/medicalrecords/prescriptions/patient/${patientId}`
       
       const queryParams = [];
-      if (filters.startDate) queryParams.push(`startDate=${filters.startDate}`);
-      if (filters.endDate) queryParams.push(`endDate=${filters.endDate}`);
-      if (filters.serviceName) queryParams.push(`serviceName=${encodeURIComponent(filters.serviceName)}`);
-      if (filters.status) queryParams.push(`status=${encodeURIComponent(filters.status)}`);
+      if (filters.startDate) queryParams.push(`startDate=${filters.startDate}`)
+      if (filters.endDate) queryParams.push(`endDate=${filters.endDate}`)
+      if (filters.serviceName) queryParams.push(`serviceName=${encodeURIComponent(filters.serviceName)}`)
+      if (filters.status) queryParams.push(`status=${encodeURIComponent(filters.status)}`)
       
       if (queryParams.length > 0) {
-        url += `?${queryParams.join('&')}`;
+        url += `?${queryParams.join('&')}`
       }
       
-      const response = await axios.get(url);
-      console.log(response);
-      setPatientPrescriptions(response.data);
+      const response = await axios.get(url)
+
+      setPatientPrescriptions(response.data)
     } catch (err) {
-      console.error('Lỗi khi lấy đơn thuốc bệnh nhân:', err);
+      console.error('Lỗi khi lấy đơn thuốc bệnh nhân:', err)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const applyFilters = () => {
     const filters = {
@@ -82,7 +77,7 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
     };
     
     fetchPatientPrescriptions(filters);
-  };
+  }
 
   const resetFilters = () => {
     setStartDate('');
@@ -90,26 +85,26 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
     setSelectedService('');
     setSelectedStatus('');
     fetchPatientPrescriptions(); // Fetch without filters
-  };
+  }
 
   const handleSelectPrescription = (recordId) => {
-    console.log("===> Chọn recordId:", recordId);
-    setSelectedPrescriptionId(recordId);
-  };
+    console.log("===> Chọn recordId:", recordId)
+    setSelectedPrescriptionId(recordId)
+  }
 
   const handleBackToList = () => {
-    setSelectedPrescriptionId(null);
-  };
+    setSelectedPrescriptionId(null)
+  }
 
   const handlePaymentClick = (record) => {
-    setSelectedRecord(record);
-    setShowPaymentModal(true);
-  };
+    setSelectedRecord(record)
+    setShowPaymentModal(true)
+  }
 
   const handleCloseModal = () => {
-    setShowPaymentModal(false);
-    setSelectedRecord(null);
-  };
+    setShowPaymentModal(false)
+    setSelectedRecord(null)
+  }
 
   const handleMomoPayment = async () => {
     try {
@@ -127,7 +122,7 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
       console.error('Lỗi khi tạo yêu cầu thanh toán MoMo:', error);
       alert("Có lỗi xảy ra khi tạo thanh toán.");
     }
-  };
+  }
 
   const handleVnpayPayment = async () => {
     try {
@@ -143,7 +138,7 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
       console.error('Lỗi khi tạo yêu cầu thanh toán VNPay:', error);
       alert("Có lỗi xảy ra khi tạo thanh toán.");
     }
-  };
+  }
 
   const renderFilterSection = () => {
     return (
@@ -210,7 +205,7 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
         </Card.Body>
       </Card>
     );
-  };
+  }
 
   return (
     <Container fluid>
@@ -259,10 +254,8 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
         <PrescriptionDetail recordId={selectedPrescriptionId} goBack={handleBackToList} />
       ) : (
         <>
-          {/* Phần bộ lọc */}
           {renderFilterSection()}
 
-          {/* Phần kết quả */}
           {patientPrescriptions.length > 0 ? (
             viewMode === 'table' ? (
               <div className="table-responsive">
@@ -340,7 +333,6 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
         </>
       )}
 
-      {/* Modal thanh toán */}
       <Modal show={showPaymentModal} onHide={handleCloseModal} centered>
         <Modal.Header closeButton>
           <Modal.Title>Chọn phương thức thanh toán</Modal.Title>
@@ -385,7 +377,7 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
         </Modal.Footer>
       </Modal>
     </Container>
-  );
-};
+  )
+}
 
-export default PatientPrescriptions;
+export default PatientPrescriptions

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Button, Spinner, Card } from 'react-bootstrap';
-import axios from '../../../../Util/AxiosConfig';
+import axios from '../../../../../Util/AxiosConfig';
 
 const PrescriptionDetail = ({ recordId, goBack }) => {
   const [htmlContent, setHtmlContent] = useState('');

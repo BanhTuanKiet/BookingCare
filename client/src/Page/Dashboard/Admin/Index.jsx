@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Container, Row, Col, Card, Nav, Tab } from 'react-bootstrap'
 import AppointmentStatistics from './Appointment/AppointmentStatistics'
-import PrescriptionOverView from './Prescription/PrescriptionOverView'
+import PrescriptionOverView from '../Admin/Management/Patient/PrescriptionOverView'
 import DoctorReviews from './Doctor/Reviews'
 import DoctorSalary from './Salary/DoctorSalary'
 import UserAdmin from './UserAdmin'
@@ -9,24 +9,44 @@ import Review from './Service/Review'
 import SpecialtyAdmin from './Management/SpecialtyAdmin'
 import ServiceAdmin from './Management/ServiceAdmin'
 import ReviewManagement from "./Review/Index"
-import UserManagement from "./Management/Index"
+import UserManagement from "./Management/index"
+import AdminList from './Management/Admin/AdminList'
 import "../../../Style/Admin.css"
+import DoctorList from './Management/Doctor/DoctorList'
 
 function Index() {
-    const [tabActive, setTabActive] = useState("admin")
+    const [tabActive, setTabActive] = useState(() => {
+        const hash = window.location.hash.replace('#', '')
+        window.location.hash = "appointments"
+        return hash || 'appointments'
+    })
     const [menuOpen, setMenuOpen] = useState(false)
     const [systemMenuOpen, setSystemMenuOpen] = useState(false)
+
+    useEffect(() => {
+        const handleHashChange = () => {
+            const hash = window.location.hash.replace('#', '')
+            setTabActive(hash || 'appointments')
+        }
+        window.addEventListener('hashchange', handleHashChange)
+        return () => window.removeEventListener('hashchange', handleHashChange)
+    }, [])
     
     return (
-        <Tab.Container activeKey={tabActive} onSelect={(k) => {
-            setTabActive(k)
-            if (k === "reviewservices" || k === "doctors") {
-                setMenuOpen(true)
+        <Tab.Container 
+            activeKey={tabActive} 
+            onSelect={(k) => {
+                setTabActive(k)
+                window.location.hash = k
+                
+                if (k === "reviewservices" || k === "doctors") {
+                    setMenuOpen(true)
+                }
+                if (k === "services" || k === "specialties") {
+                    setSystemMenuOpen(true)
+                }
             }
-            if (k === "services" || k === "specialties") {
-                setSystemMenuOpen(true)
-            }
-        }}>
+        }>
             <Container fluid className="p-4">
                 <Row>
                     <Col md={3}>
@@ -104,6 +124,14 @@ function Index() {
 
                             <Tab.Pane eventKey="users">
                                 <UserAdmin tabActive={tabActive} />
+                            </Tab.Pane>
+
+                            <Tab.Pane eventKey="admins">
+                                <AdminList tabActive={tabActive} />
+                            </Tab.Pane>
+
+                            <Tab.Pane eventKey="doctors">
+                                <DoctorList tabActive={tabActive} />
                             </Tab.Pane>
                         </Tab.Content>
                     </Col>
