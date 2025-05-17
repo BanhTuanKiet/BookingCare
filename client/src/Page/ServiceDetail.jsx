@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react"
 import { Link, useNavigate, useParams } from "react-router-dom"
-import axios from "../Util/AxiosConfig"
 import { Container, Row, Col, Card, Spinner, Button, Badge } from "react-bootstrap"
-import { MapPin, Calendar, ChevronLeft, ExternalLink, Info, CheckCircle, DollarSign } from "lucide-react"
+import { Calendar, ChevronLeft, ExternalLink, Info, DollarSign } from "lucide-react"
 import ReviewCard from "../Component/Card/ReviewCard"
 import Recomend from "../Component/Card/Recomend"
 import ServiceSteps from "../Component/Card/ServiceSteps"
+import axios from "../Util/AxiosConfig"
 
 const ServiceDetail = () => {
   const { serviceName } = useParams()
@@ -35,6 +35,8 @@ const ServiceDetail = () => {
   }, [serviceName])
 
   useEffect(() => {
+    if (service === null) return
+
     const fetchServiceReviews = async () => {
       try {
         const type = "service"
@@ -238,13 +240,18 @@ const ServiceDetail = () => {
 
             <Card className="border-0 shadow-sm">
               <Card.Header className="bg-white p-3 border-bottom">
-                <h5 className="mb-0 fw-bold">Reviews từ bệnh nhân</h5>
+                <h5 className="mb-0 fw-bold">Đánh giá từ bệnh nhân</h5>
               </Card.Header>
               <Card.Body className="pb-1">
                 <div className="d-flex flex-column gap-3">
-                  {reviews?.map((review, index) => (
-                    <ReviewCard review={review} />
-                  ))}
+                  {reviews?.length > 0 ?
+                    reviews.map(review => 
+                      <ReviewCard review={review} />
+                    ) :
+                    <div className="py-auto">
+                      <p>Không có đánh giá</p>
+                    </div>
+                  }
                 </div>
               </Card.Body>
             </Card>

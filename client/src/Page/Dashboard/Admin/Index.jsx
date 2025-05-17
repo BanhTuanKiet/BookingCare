@@ -8,12 +8,13 @@ import UserAdmin from './UserAdmin'
 import Review from './Service/Review'
 import SpecialtyAdmin from './Management/SpecialtyAdmin'
 import ServiceAdmin from './Management/ServiceAdmin'
+import ReviewManagement from "./Review/Index"
+import UserManagement from "./Management/Index"
 import "../../../Style/Admin.css"
-import Management from "./Management/Index"
 
 function Index() {
     const [tabActive, setTabActive] = useState("admin")
-    const [MenuOpen, setMenuOpen] = useState(false)
+    const [menuOpen, setMenuOpen] = useState(false)
     const [systemMenuOpen, setSystemMenuOpen] = useState(false)
     
     return (
@@ -41,38 +42,9 @@ function Index() {
                                         Lịch hẹn
                                     </Nav.Link>
                                     
-                                    <div className="system-management-section mb-2">
-                                    <div 
-                                        className="system-management-header px-3 py-2 mb-1 bg-light rounded d-flex justify-content-between align-items-center"
-                                        onClick={() => setMenuOpen(!MenuOpen)}
-                                        style={{ cursor: 'pointer' }}
-                                    >
-                                        <span className="fw-medium text-primary">Quản Lý Đánh Giá</span>
-                                        <i className={`fas ${MenuOpen ? 'fa-chevron-up' : 'fa-chevron-down'} small text-secondary`}></i>
-                                    </div>
-                                    
-                                    {MenuOpen && (
-                                        <>
-                                        <Nav.Link 
-                                            eventKey="reviewservices" 
-                                            className={`sidebar-link ms-3 mb-1 ${tabActive === "reviewservices" ? "active" : ""}`}
-                                        >
-                                            <i className="fas fa-cogs me-2 small"></i>
-                                            Dịch vụ
-                                        </Nav.Link>
-                                        
-                                        <Nav.Link 
-                                            eventKey="reviewDoctors"
-                                            className={`sidebar-link ms-3 mb-1 ${tabActive === "reviewDoctors" ? "active" : ""}`}
-                                        >
-                                            <i className="fas fa-cogs me-2 small"></i>
-                                            Bác sĩ
-                                        </Nav.Link>
-                                        </>
-                                    )}
-                                    </div>
+                                    <ReviewManagement tabActive={tabActive} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
 
-                                    <Management tabActive={tabActive} systemMenuOpen={systemMenuOpen} setSystemMenuOpen={setSystemMenuOpen} />
+                                    <UserManagement tabActive={tabActive} systemMenuOpen={systemMenuOpen} setSystemMenuOpen={setSystemMenuOpen} />
 
                                     <Nav.Link 
                                         eventKey="salary"
