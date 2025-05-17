@@ -90,7 +90,7 @@ function Appointment() {
           <Col md={4} className="p-4 text-white" style={{ backgroundColor: "#0091ea" }}>
             <h5>Lưu ý:</h5>
             <div>
-              <p className="text-white">Lịch hẹn có hiệu lực sau khi có xác nhận chính thức từ Phòng khám Bệnh viện Đại học Y Dược 1</p>
+              <p className="text-white">Lịch hẹn có hiệu lực sau khi có xác nhận chính thức từ Phòng khám.</p>
               <p className="text-white">
                 Quý khách hàng vui lòng cung cấp thông tin chính xác để được phục vụ tốt nhất. Trong trường hợp cung cấp
                 sai thông tin email & điện thoại, việc xác nhận cuộc hẹn sẽ không hiệu lực.

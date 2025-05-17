@@ -1,14 +1,14 @@
 import React, { useContext, useState, useRef, useEffect } from "react"
 import { Container, Nav, Navbar, NavDropdown } from "react-bootstrap"
 import { useLocation, useNavigate } from "react-router-dom"
-import "../Style/Nav.css"
 import { NavContext } from "../Context/NavContext"
 import { AuthContext } from "../Context/AuthContext"
+import "../Style/Nav.css"
 
 const Navigation = () => {
   const location = useLocation()
   const navigate = useNavigate()
-  const { isAuthenticated, UserName, logout, role} = useContext(AuthContext)
+  const { isAuthenticated, UserName, logout } = useContext(AuthContext)
   const { specialties, services, HandleNavigation } = useContext(NavContext)
   const indicatorRef = useRef(null)
   const navRefs = useRef([])
@@ -18,7 +18,6 @@ const Navigation = () => {
     { name: "Đội ngũ bác sĩ", link: "/bác sĩ" },
     { name: "Chuyên khoa", link: "/chuyên khoa" },
     { name: "Dịch vụ", link: "/dịch vụ" },
-    // { name: "Tin tức", link: "/tin tức" },
     { name: "Đặt lịch khám", link: "/đặt lịch khám" },
     { name: "Liên hệ", link: "/liên hệ" },
   ]
@@ -98,7 +97,7 @@ const Navigation = () => {
             show={openDropdown === index}
             onMouseEnter={() => handleMouseEnter(index)}
             onMouseLeave={handleMouseLeave}
-            className={`drop-item nav-item ${isActive ? "active" : ""}`}
+            className={`drop-item nav-item ${isActive ? "active" : ""} me-2`}
             ref={(el) => (navRefs.current[index] = el)}
           >
             {index === 3 ? RenderSpecialties() : RenderServices()}
@@ -109,7 +108,7 @@ const Navigation = () => {
       return (
         <Nav.Link
           key={index}
-          className={`nav ${isActive ? "active" : ""}`}
+          className={`nav ${isActive ? "active" : ""} me-2`}
           onMouseEnter={() => handleMouseEnter(index)}
           onMouseLeave={handleMouseLeave}
           onClick={() => handleClick(index, page.link)}
@@ -154,7 +153,6 @@ const Navigation = () => {
               <NavDropdown.Item
                 key={i}
                 onClick={() => {
-                  // Đóng dropdown trước khi điều hướng
                   setOpenDropdown(null);
                   HandleNavigation("dịch vụ", service.serviceName);
                   savedIndexRef.current = 4;
@@ -171,7 +169,7 @@ const Navigation = () => {
   
   return (
     <Navbar expand="lg" className="bg-info-subtle py-2">
-      <Container className="w-75 mx-auto">
+      <Container className="w-75 mx-auto" style={{ width: "70%" }}>
         <Navbar.Brand href="/">{/* Logo */}</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">

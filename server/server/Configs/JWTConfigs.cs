@@ -101,7 +101,8 @@ namespace server.Configs
 
                                 var nameIdClaim = jwtToken?.Claims.FirstOrDefault(c => c.Type == "nameid");
                                 var roleClaim = jwtToken?.Claims.FirstOrDefault(c => c.Type == "role");
-
+                                    // await context.Response.WriteAsync(JsonSerializer.Serialize(new { ErrorMessage = "Chờ cấp lại token" }));
+                                    // return;
                                 if (nameIdClaim != null && roleClaim != null)
                                 {
                                     string userId = nameIdClaim.Value;
@@ -113,18 +114,6 @@ namespace server.Configs
 
                                     var newRefreshToken = await authService.GetRefreshToken(Convert.ToInt32(userId));
 
-                                    // if (string.IsNullOrEmpty(refreshToken))
-                                    // {
-                                    //     await context.Response.WriteAsync(JsonSerializer.Serialize(new { ErrorMessage = "Không tìm thấy refresh token." }));
-                                    //     return;
-                                    // }
-
-                                    // if (!authService.VerifyToken(refreshToken))
-                                    // {
-                                    //     await context.Response.WriteAsync(JsonSerializer.Serialize(new { ErrorMessage = "Refresh token không hợp lệ hoặc đã hết hạn." }));
-                                    //     return;
-                                    // }
-
                                     if (string.IsNullOrEmpty(newRefreshToken))
                                     {
                                         await context.Response.WriteAsync(JsonSerializer.Serialize(new { ErrorMessage = "Không tìm thấy refresh token." }));
@@ -133,17 +122,19 @@ namespace server.Configs
 
                                     if (!authService.VerifyToken(newRefreshToken))
                                     {
-                                        await context.Response.WriteAsync(JsonSerializer.Serialize(new { ErrorMessage = "Refresh token không hợp lệ hoặc đã hết hạn." }));
+                                        await context.Response.WriteAsync(JsonSerializer.Serialize(new { ErrorMessage = "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập l." }));
                                         return;
                                     }
 
+                                    // await context.Response.WriteAsync(JsonSerializer.Serialize(new { ErrorMessage = "Đang cấp lại token" }));
+                                    // return;
                                     var user = await userService.FindByIdAsync(userId);
                                     var newToken = JwtUtil.GenerateToken(user, new List<string> { role }, 1, config);
                                     CookieUtil.SetCookie(context.Response, "token", newToken, 1);
 
-                                    // await context.Response.WriteAsync(JsonSerializer.Serialize(new { newToken, userRole = role }));
-                                    await context.Response.WriteAsync(JsonSerializer.Serialize(new {
-                                        RetryRequest = true, // client dựa vào flag này để retry
+                                    await context.Response.WriteAsync(JsonSerializer.Serialize(new
+                                    {
+                                        RetryRequest = true,
                                     }));                                
 
                                     return;

@@ -4,32 +4,19 @@ import AppointmentStatistics from './Appointment/AppointmentStatistics'
 import PrescriptionOverView from './Prescription/PrescriptionOverView'
 import DoctorReviews from './Doctor/Reviews'
 import DoctorSalary from './Salary/DoctorSalary'
-import "../../../Style/Admin.css"
-import Admin from './Admin'
 import UserAdmin from './UserAdmin'
 import Review from './Service/Review'
-import SpecialtyAdmin from './SpecialtyAdmin'
-import ServiceAdmin from './Service/ServiceAdmin'
+import SpecialtyAdmin from './Management/SpecialtyAdmin'
+import ServiceAdmin from './Management/ServiceAdmin'
+import ReviewManagement from "./Review/Index"
+import UserManagement from "./Management/Index"
+import "../../../Style/Admin.css"
 
 function Index() {
     const [tabActive, setTabActive] = useState("admin")
+    const [menuOpen, setMenuOpen] = useState(false)
     const [systemMenuOpen, setSystemMenuOpen] = useState(false)
-    const [MenuOpen, setMenuOpen] = useState(false)
-
-    // const handleTabSelect = (k) => {
-    //     setTabActive(k)
-    //     if (k === "services" || k === "specialties") {
-    //         setSystemMenuOpen(true)
-    //     }
-    // }
-
-    // const handleTabSelect2 = (k) => {
-    //     setTabActive(k)
-    //     if (k === "reviewservices" || k === "doctors") {
-    //         setMenuOpen(true)
-    //     }
-    // }
-
+    
     return (
         <Tab.Container activeKey={tabActive} onSelect={(k) => {
             setTabActive(k)
@@ -49,88 +36,16 @@ function Index() {
                                 
                                 <Nav className="flex-column">
                                     <Nav.Link 
-                                        eventKey="admin"
-                                        className={`sidebar-link mb-2 ${tabActive === "admin" ? "active" : ""}`}
-                                    >
-                                        Admin
-                                    </Nav.Link>
-                                    <Nav.Link 
                                         eventKey="appointments"
                                         className={`sidebar-link mb-2 ${tabActive === "appointments" ? "active" : ""}`}
                                     >
                                         Lịch hẹn
                                     </Nav.Link>
                                     
-                                    {/* Menu dropdown quản lý hệ thống */}
-                                    {/* Khu vực quản lý hệ thống với chức năng đóng/mở */}
-                                    <div className="system-management-section mb-2">
-                                    <div 
-                                        className="system-management-header px-3 py-2 mb-1 bg-light rounded d-flex justify-content-between align-items-center"
-                                        onClick={() => setMenuOpen(!MenuOpen)}
-                                        style={{ cursor: 'pointer' }}
-                                    >
-                                        <span className="fw-medium text-primary">Quản Lý Đánh Giá</span>
-                                        <i className={`fas ${MenuOpen ? 'fa-chevron-up' : 'fa-chevron-down'} small text-secondary`}></i>
-                                    </div>
-                                    
-                                    {MenuOpen && (
-                                        <>
-                                        <Nav.Link 
-                                            eventKey="reviewservices" 
-                                            className={`sidebar-link ms-3 mb-1 ${tabActive === "reviewservices" ? "active" : ""}`}
-                                        >
-                                            <i className="fas fa-cogs me-2 small"></i>
-                                            Dịch vụ
-                                        </Nav.Link>
-                                        
-                                        <Nav.Link 
-                                            eventKey="doctors"
-                                            className={`sidebar-link ms-3 mb-1 ${tabActive === "doctors" ? "active" : ""}`}
-                                        >
-                                            <i className="fas fa-cogs me-2 small"></i>
-                                            Bác sĩ
-                                        </Nav.Link>
-                                        </>
-                                    )}
-                                    </div>
+                                    <ReviewManagement tabActive={tabActive} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
 
-                                    {/* Khu vực quản lý hệ thống với chức năng đóng/mở */}
-                                    <div className="system-management-section mb-2">
-                                    <div 
-                                        className="system-management-header px-3 py-2 mb-1 bg-light rounded d-flex justify-content-between align-items-center"
-                                        onClick={() => setSystemMenuOpen(!systemMenuOpen)}
-                                        style={{ cursor: 'pointer' }}
-                                    >
-                                        <span className="fw-medium text-primary">Quản lý hệ thống</span>
-                                        <i className={`fas ${systemMenuOpen ? 'fa-chevron-up' : 'fa-chevron-down'} small text-secondary`}></i>
-                                    </div>
-                                    
-                                    {systemMenuOpen && (
-                                        <>
-                                        <Nav.Link 
-                                            eventKey="services" 
-                                            className={`sidebar-link ms-3 mb-1 ${tabActive === "services" ? "active" : ""}`}
-                                        >
-                                            <i className="fas fa-cogs me-2 small"></i>
-                                            Dịch vụ
-                                        </Nav.Link>
-                                        
-                                        <Nav.Link 
-                                            eventKey="specialties" 
-                                            className={`sidebar-link ms-3 mb-1 ${tabActive === "specialties" ? "active" : ""}`}
-                                        >
-                                            <i className="fas fa-stethoscope me-2 small"></i>
-                                            Chuyên khoa
-                                        </Nav.Link>
-                                        </>
-                                    )}
-                                    </div>
-                                    <Nav.Link 
-                                        eventKey="prescriptions"
-                                        className={`sidebar-link mb-2 ${tabActive === "prescriptions" ? "active" : ""}`}
-                                    >
-                                        Hồ sơ bệnh nhân
-                                    </Nav.Link>
+                                    <UserManagement tabActive={tabActive} systemMenuOpen={systemMenuOpen} setSystemMenuOpen={setSystemMenuOpen} />
+
                                     <Nav.Link 
                                         eventKey="salary"
                                         className={`sidebar-link mb-2 ${tabActive === "salary" ? "active" : ""}`}
@@ -159,40 +74,36 @@ function Index() {
                     
                     <Col md={9} style={{ fontSize: "14px" }} className='p-0'>
                         <Tab.Content>
-                            <Tab.Pane eventKey="admin">
-                                <Admin />
-                            </Tab.Pane>
-
                             <Tab.Pane eventKey="appointments">
-                                <AppointmentStatistics />
+                                <AppointmentStatistics tabActive={tabActive} />
                             </Tab.Pane>
                             
                             <Tab.Pane eventKey="reviewservices">
-                                <Review />
+                                <Review tabActive={tabActive} />
                             </Tab.Pane>
 
-                            <Tab.Pane eventKey="doctors">
-                                <DoctorReviews />
+                            <Tab.Pane eventKey="reviewDoctors">
+                                <DoctorReviews tabActive={tabActive} />
                             </Tab.Pane>
 
                             <Tab.Pane eventKey="services">
-                                <ServiceAdmin />
+                                <ServiceAdmin tabActive={tabActive} />
                             </Tab.Pane>
 
                             <Tab.Pane eventKey="specialties">
-                                <SpecialtyAdmin/>
+                                <SpecialtyAdmin tabActive={tabActive} />
                             </Tab.Pane>
 
                             <Tab.Pane eventKey="prescriptions">
-                                <PrescriptionOverView />
+                                <PrescriptionOverView tabActive={tabActive} />
                             </Tab.Pane>
 
                             <Tab.Pane eventKey="salary">
-                                <DoctorSalary />
+                                <DoctorSalary tabActive={tabActive} />
                             </Tab.Pane>
 
                             <Tab.Pane eventKey="users">
-                                <UserAdmin />
+                                <UserAdmin tabActive={tabActive} />
                             </Tab.Pane>
                         </Tab.Content>
                     </Col>

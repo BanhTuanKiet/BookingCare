@@ -35,7 +35,7 @@ const ServiceCard = ({ service }) => {
 
         <Card.Body className="card-body-custom text-center px-3 d-flex flex-column justify-content-between" style={{ height: "80px" }}>
           <div>
-            <Card.Text className="fw-bold card-title text-primary pt-2">
+            <Card.Text className="fw-bold card-title text-primary pt-3 mt-2">
               {service.serviceName}
             </Card.Text>
             <Card.Text className="card-description px-0">

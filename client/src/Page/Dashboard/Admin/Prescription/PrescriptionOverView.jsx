@@ -1,24 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Table, Button, Spinner, Form, Row, Col } from 'react-bootstrap';
-import axios from '../../../../Util/AxiosConfig';
-import { extractDateOnly } from '../../../../Util/DateUtils';
-import PatientPrescriptions from './PatientPrescription';
+import React, { useState, useEffect } from 'react'
+import { Container, Table, Button, Spinner, Form, Row, Col } from 'react-bootstrap'
+import axios from '../../../../Util/AxiosConfig'
+import { extractDateOnly } from '../../../../Util/DateUtils'
+import PatientPrescriptions from './PatientPrescription'
 
-const PrescriptionOverView = () => {
-  const [prescriptions, setPrescriptions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedPatient, setSelectedPatient] = useState(null);
-  const [searchKeyword, setSearchKeyword] = useState('');
-  const [hasSearched, setHasSearched] = useState(false);
+const PrescriptionOverView = ({ tabActive }) => {
+  const [prescriptions, setPrescriptions] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [selectedPatient, setSelectedPatient] = useState(null)
+  const [searchKeyword, setSearchKeyword] = useState('')
+  const [hasSearched, setHasSearched] = useState(false)
 
   useEffect(() => {
     if (!hasSearched) {
-      fetchPrescriptions();
+      fetchPrescriptions()
     }
-  }, [hasSearched]);
+  }, [hasSearched, tabActive])
 
   const fetchPrescriptions = async (keyword = '') => {
-    setLoading(true);
+    if (tabActive !== "prescriptions") return
+
+    setLoading(true)
+    
     try {
       const endpoint = keyword.trim()
         ? `/medicalrecords/search/${keyword.trim()}`
@@ -61,8 +64,6 @@ const PrescriptionOverView = () => {
         />
       ) : (
         <>
-          <h4 className="mb-3">Quản lý hồ sơ bệnh nhân</h4>
-
           <Form onSubmit={handleSearchSubmit} className="mb-3">
             <Row>
               <Col md={6}>

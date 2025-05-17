@@ -8,7 +8,7 @@ const DoctorCard = ({ doctor }) => {
 
   return (
     <Card className="doctor-card text-center shadow-sm" style={{ width: "210px", height: "400px" }} >
-      <Card.Img variant="top" src={doctor.doctorImage} alt={doctor.userName} className="mx-auto mt-3 card-img"/>
+      <Card.Img variant="top" src={doctor.doctorImage} alt={doctor.userName} className="mx-auto mt-2 card-img"/>
         <Card.Body className="d-flex flex-column justify-content-between pb-3 px-1">
           <div>
             <Card.Title className="fw-bold text-primary mb-3 fs-6 pt-1">

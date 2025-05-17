@@ -111,7 +111,7 @@ const Doctor = () => {
         <Loading text="Đang tải danh sách bác sĩ..." />
       ) : (
         <>
-          <Row className="d-flex g-1">
+          <Row className="d-flex g-1 mx-auto" style={{ width: "90%" }}>
             {doctors.length > 0 ? (
               doctors.map(doctor => (
                 <Col

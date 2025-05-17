@@ -1,20 +1,6 @@
-"use client"
 import { Container, Row, Col, Card, Button, Badge } from "react-bootstrap"
 import { useNavigate } from "react-router-dom"
-import {
-  Building,
-  CheckCircle,
-  Users,
-  Heart,
-  Award,
-  Calendar,
-  Clock,
-  Target,
-  ChevronRight,
-  MapPin,
-  Phone,
-  Mail,
-} from "lucide-react"
+import { Building, CheckCircle, Users, Heart, Award, Calendar, Clock, Target, ChevronRight, MapPin, Phone, Mail } from "lucide-react"
 
 function About() {
   const navigate = useNavigate()

@@ -36,6 +36,7 @@ function SignIn({ setIsLogin }) {
                     type="email"
                     name="email"
                     placeholder="Email"
+                    autoFocus={true}
                     value={loginData.email}
                     onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
                     isInvalid={!!formErrors.email}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Container, Table, Button, Modal, Spinner, Pagination } from 'react-bootstrap'
-import axios from '../../../Util/AxiosConfig'
-import { extractDateOnly } from '../../../Util/DateUtils'
+import axios from '../../../../Util/AxiosConfig'
+import { extractDateOnly } from '../../../../Util/DateUtils'
 
 const PatientAdmin = () => {
   const [patients, setPatients] = useState([])

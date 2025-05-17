@@ -1,14 +1,11 @@
-import React from 'react'
 import { Route, Routes } from 'react-router-dom'
 import Home from '../Page/Home'
 import Index from '../Page/Index'
 import About from '../Page/About'
 import Contact from '../Page/Contact'
-import News from '../Page/News'
 import Doctor from '../Page/Doctor'
 import DoctorDetail from '../Page/DoctorDetail'
 import Appointment from '../Page/Appointment'
-import Specialty from '../Page/Specialty'
 import UploadDoctorImage from '../Page/UploadImages/UploadDoctorImage'
 import UploadSpecialtyImage from '../Page/UploadImages/UploadSpecialtyImage'
 import Login from '../Page/Login'
@@ -31,7 +28,6 @@ function AppRoute() {
             <Route path='/bác sĩ/:doctorName' element={<Index></Index>} />
             <Route path='/chuyên khoa/:specialty' element={<Index><DepartmentDetail /></Index>}></Route>
             <Route path='/dịch vụ/:serviceName' element={<Index><ServiceDetail/></Index>}></Route>
-            {/* <Route path='/tin tức' element={<Index><News /></Index>} /> */}
             <Route path='/login' element={<Login /> } />
             <Route path='/Đăng nhập' element={<Signin/>} />
             <Route path='/đặt lịch khám' element={<Index><Appointment /></Index>} />
