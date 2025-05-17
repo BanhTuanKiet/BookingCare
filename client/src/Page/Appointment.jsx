@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from "react"
 import { Button, Col, Container, Form, Row } from "react-bootstrap"
+import { useLocation } from 'react-router-dom'
 import { NavContext } from "../Context/NavContext"
 import axios from "../Util/AxiosConfig"
 import { ValideFormContext } from "../Context/ValideFormContext"
@@ -17,6 +18,25 @@ function Appointment() {
   const [doctors, setDoctors] = useState()
   const [services, setServices] = useState()
   const { validateForm, formErrors } = useContext(ValideFormContext)
+  const { state } = useLocation()
+
+  const applyFormChange = (name, value) => {
+  if (name === "department") {
+    setSpecialty(value);
+  }
+
+  setFormData(prev => ({
+    ...prev,
+    [name]: value
+  }));
+};
+
+useEffect(() => {
+  if (state?.department) {
+    applyFormChange("department", state.department);
+    applyFormChange("doctor", state.doctor);
+  }
+}, [state]);
 
   useEffect(() => {
     const fetchDoctors =  async () => {
@@ -58,6 +78,7 @@ function Appointment() {
     }
 
     setFormData({ ...formData, [event.target.name]: value })
+    applyFormChange(event.target.name, value);
   }
 
   const submit = async (e) => {
@@ -156,7 +177,7 @@ function Appointment() {
               </Form.Group> */}
 
               <Form.Group className="mb-3">
-                <Form.Select name="department" onChange={handleChange} isInvalid={!!formErrors.specialty} >
+                <Form.Select name="department" onChange={handleChange} isInvalid={!!formErrors.specialty} value={formData.department}>
                   <option>Chọn chuyên khoa</option>
                   {specialties.map((specialty, index) => (
                     <option key={index} value={specialty.name}>
@@ -168,7 +189,7 @@ function Appointment() {
               </Form.Group>
 
               <Form.Group className="mb-3">
-                <Form.Select name="doctor" onChange={handleChange} isInvalid={!!formErrors.doctor} >
+                <Form.Select name="doctor" onChange={handleChange} isInvalid={!!formErrors.doctor} value={formData.doctor}>
                   <option>Chọn bác sĩ</option>
                   {doctors?.map((doctor, index) => (
                     <option key={index}>{doctor.userName}</option>

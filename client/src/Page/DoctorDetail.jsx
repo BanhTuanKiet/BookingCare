@@ -8,6 +8,7 @@ import axios from "../Util/AxiosConfig"
 const DoctorDetail = () => {
   const { doctorName } = useParams()
   const [doctor, setDoctor] = useState(null)
+  const [specialty, setSpecialty] = useState(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState("overview")
   const [reviews, setReviews] = useState()
@@ -15,7 +16,7 @@ const DoctorDetail = () => {
   const navigate = useNavigate()
 
   const handleAppointment = () => {
-    navigate("/đặt lịch khám")
+    navigate("/đặt lịch khám/", { state: { doctor: doctor.userName,  department: specialty?.name || "Không xác định"} })
   }
 
   useEffect(() => {
@@ -49,6 +50,20 @@ const DoctorDetail = () => {
 
     fetchDoctorReviews()
   }, [doctor])
+
+  useEffect(() => {
+  const fetchSpecialty = async () => {
+    try {
+      const response = await axios.get(`/specialties/${doctor.specialtyId}`);
+      setSpecialty(response.data);
+    } catch (error) {
+      console.log("Lỗi khi lấy chuyên khoa:", error);
+    }
+  };
+
+  fetchSpecialty();
+}, [doctor]);
+
 
   useEffect(() => {
     const fetchExaminedPatient = async () => {
