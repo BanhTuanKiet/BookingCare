@@ -16,6 +16,7 @@ public partial class Service
     public DateTime? CreatedAt { get; set; }
 
     public byte[]? ServiceImage { get; set; }
+    public byte[]? ServiceIcon { get; set; }
 
     public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
 

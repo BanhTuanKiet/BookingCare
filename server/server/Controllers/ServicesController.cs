@@ -109,6 +109,35 @@ namespace server.Controllers
             }
         }
 
+        [Authorize(Roles = "admin")]
+        [HttpPost("upload-icon")]
+        public async Task<ActionResult> UploadIcon([FromForm] IFormFile file, [FromForm] int serviceId)
+        {
+            try
+            {
+                using var memoryStream = new MemoryStream();
+                await file.CopyToAsync(memoryStream);
+                var iconData = memoryStream.ToArray();
+
+                Service service = await _context.Services.FindAsync(serviceId);
+                if (service == null)
+                {
+                    return NotFound("Service not found.");
+                }
+
+                service.ServiceIcon = iconData;
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Icon uploaded successfully." });
+            }
+            catch (ErrorHandlingException ex)
+            {
+                if (ex is ErrorHandlingException) throw;
+
+                throw new ErrorHandlingException(500, ex.Message);
+            }
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetService(int id)
         {

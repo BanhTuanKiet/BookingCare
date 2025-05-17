@@ -104,7 +104,7 @@ console.log(activeTab)
                         onClick={() => window.history.back()}
                     >
                         <ChevronLeft size={18} />
-                        <span>Quay lại danh sách chuyên khoa</span>
+                        <span>Quay lại trang trước</span>
                     </Button>
                 </div>
     

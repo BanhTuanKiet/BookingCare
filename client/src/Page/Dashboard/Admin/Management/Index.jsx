@@ -29,13 +29,14 @@ function Index({ tabActive, systemMenuOpen, setSystemMenuOpen }) {
                         className={`sidebar-link ms-3 mb-1 ${tabActive === "specialties" ? "active" : ""}`}
                     >
                         <i className="fas fa-stethoscope me-2 small"></i>
-                            Chuyên khoa
+                        Chuyên khoa
                     </Nav.Link>
                     
                     <Nav.Link 
                         eventKey="prescriptions"
                         className={`sidebar-link ms-3 mb-1 ${tabActive === "prescriptions" ? "active" : ""}`}
                     >
+                        <i className="fas fa-stethoscope me-2 small"></i>
                         Hồ sơ bệnh nhân
                     </Nav.Link>
                 </>

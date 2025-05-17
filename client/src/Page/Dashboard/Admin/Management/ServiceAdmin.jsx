@@ -19,6 +19,12 @@ function ServiceAdmin({ tabActive }) {
     const [imageFile, setImageFile] = useState(null)
     const fileInputRef = useRef(null)
     
+    // Thêm state cho icon
+    const [previewIcon, setPreviewIcon] = useState(null)
+    const [iconFile, setIconFile] = useState(null)
+    const iconInputRef = useRef(null)
+    const [iconUploadStatus, setIconUploadStatus] = useState('')
+    
     const [currentPage, setCurrentPage] = useState(1)
     const [itemsPerPage] = useState(5)
 
@@ -65,6 +71,9 @@ function ServiceAdmin({ tabActive }) {
         setPreviewImage(null)
         setImageFile(null)
         setUploadStatus('')
+        setPreviewIcon(null)
+        setIconFile(null)
+        setIconUploadStatus('')
     }
 
     const handleEdit = (service) => {
@@ -79,10 +88,18 @@ function ServiceAdmin({ tabActive }) {
         setPreviewImage(null)
         setImageFile(null)
         setUploadStatus('')
+        setPreviewIcon(null)
+        setIconFile(null)
+        setIconUploadStatus('')
         
         if (service.serviceImage) {
             const imageUrl = service.serviceImage
             setPreviewImage(imageUrl)
+        }
+        
+        if (service.serviceIcon) {
+            const iconUrl = service.serviceIcon
+            setPreviewIcon(iconUrl)
         }
     }
 
@@ -116,15 +133,25 @@ function ServiceAdmin({ tabActive }) {
                 await axios.post("/services", formData)
             }
             
-            if (imageFile && editing) {
-                await handleImageUpload(selectedId)
-            } else if (imageFile && !editing) {
+            // Xử lý upload ảnh và icon khi đã lưu dịch vụ thành công
+            let serviceId = selectedId;
+            
+            if (!editing) {
                 const res = await axios.get('/services')
                 const newService = res.data.find(s => s.serviceName === formData.serviceName)
-
                 if (newService) {
-                    await handleImageUpload(newService.serviceId)
+                    serviceId = newService.serviceId
                 }
+            }
+            
+            // Upload ảnh nếu có
+            if (imageFile && serviceId) {
+                await handleImageUpload(serviceId)
+            }
+            
+            // Upload icon nếu có
+            if (iconFile && serviceId) {
+                await handleIconUpload(serviceId)
             }
         
             setShowModal(false)
@@ -153,11 +180,34 @@ function ServiceAdmin({ tabActive }) {
         }
     }
 
+    // Xử lý thay đổi icon
+    const handleIconChange = (e) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0]
+            setIconFile(file)
+            
+            const reader = new FileReader()
+            reader.onload = (e) => {
+                setPreviewIcon(e.target.result)
+            }
+            reader.readAsDataURL(file)
+        }
+    }
+
     const handleClearImage = () => {
         setPreviewImage(null)
         setImageFile(null)
         if (fileInputRef.current) {
             fileInputRef.current.value = ""
+        }
+    }
+    
+    // Xử lý xóa icon
+    const handleClearIcon = () => {
+        setPreviewIcon(null)
+        setIconFile(null)
+        if (iconInputRef.current) {
+            iconInputRef.current.value = ""
         }
     }
     
@@ -180,6 +230,29 @@ function ServiceAdmin({ tabActive }) {
         } catch (error) {
             console.error('Error uploading image:', error)
             setUploadStatus('error')
+        }
+    }
+    
+    // Xử lý upload icon
+    const handleIconUpload = async (serviceId) => {
+        if (tabActive !== "services") return
+        if (!iconFile) return
+        
+        setIconUploadStatus('uploading')
+        const formData = new FormData()
+        formData.append('file', iconFile)
+        formData.append('serviceId', serviceId)
+        
+        try {
+            await axios.post('/services/upload-icon', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            })
+            setIconUploadStatus('success')
+        } catch (error) {
+            console.error('Error uploading icon:', error)
+            setIconUploadStatus('error')
         }
     }
     
@@ -237,6 +310,29 @@ function ServiceAdmin({ tabActive }) {
                 style={{ height: '50px', width: '80px' }}
             >
                 <ImageIcon size={25} className="text-muted" />
+            </div>
+        )
+    }
+    
+    // Render icon của dịch vụ trong bảng
+    const renderServiceIcon = (service) => {
+        if (service.serviceIcon) {
+            return (
+                <Image 
+                    src={service.serviceIcon}
+                    alt={`Icon ${service.serviceName}`}
+                    thumbnail
+                    style={{ height: '40px', width: '40px', objectFit: 'contain' }}
+                />
+            )
+        }
+        
+        return (
+            <div 
+                className="d-flex align-items-center justify-content-center bg-light border rounded-circle" 
+                style={{ height: '40px', width: '40px' }}
+            >
+                <ImageIcon size={16} className="text-muted" />
             </div>
         )
     }
@@ -340,6 +436,7 @@ function ServiceAdmin({ tabActive }) {
                                     <tr>
                                         <th style={{ width: '80px' }} className="text-center">ID</th>
                                         <th style={{ width: '100px' }} className="text-center">Hình ảnh</th>
+                                        <th style={{ width: '60px' }} className="text-center">Icon</th>
                                         <th>Tên dịch vụ</th>
                                         <th>Mô tả</th>
                                         <th>Giá</th>
@@ -356,6 +453,9 @@ function ServiceAdmin({ tabActive }) {
                                             </td>
                                             <td className="text-center">
                                                 {renderServiceImage(service)}
+                                            </td>
+                                            <td className="text-center">
+                                                {renderServiceIcon(service)}
                                             </td>
                                             <td className="fw-medium">{service.serviceName}</td>
                                             <td>
@@ -417,7 +517,7 @@ function ServiceAdmin({ tabActive }) {
                                         required
                                         placeholder="Nhập tên dịch vụ"
                                         value={formData.serviceName}
-                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                        onChange={(e) => setFormData({ ...formData, serviceName: e.target.value })}
                                     />
                                 </Form.Group>
                                 <Form.Group className="mb-3">
@@ -433,8 +533,7 @@ function ServiceAdmin({ tabActive }) {
                                 <Form.Group className="mb-3">
                                     <Form.Label>Giá</Form.Label>
                                     <Form.Control
-                                        as="textarea"
-                                        rows={5}
+                                        type="text"
                                         placeholder="Nhập giá dịch vụ (không bắt buộc)"
                                         value={formData.price || ''}
                                         onChange={(e) => setFormData({ ...formData, price: e.target.value })}
@@ -442,6 +541,7 @@ function ServiceAdmin({ tabActive }) {
                                 </Form.Group>
                             </Col>
                             <Col md={4}>
+                                {/* Upload hình ảnh */}
                                 <Form.Group className="mb-3">
                                     <Form.Label>Hình ảnh dịch vụ</Form.Label>
                                     <div className="mb-3">
@@ -452,7 +552,7 @@ function ServiceAdmin({ tabActive }) {
                                                     alt="Preview" 
                                                     fluid 
                                                     thumbnail
-                                                    style={{ height: '200px', width: '100%', objectFit: 'cover' }}
+                                                    style={{ height: '150px', width: '100%', objectFit: 'cover' }}
                                                 />
                                                 <Button 
                                                     variant="light" 
@@ -467,7 +567,7 @@ function ServiceAdmin({ tabActive }) {
                                         ) : (
                                             <div 
                                                 className="d-flex flex-column align-items-center justify-content-center bg-light border rounded p-4 mb-3"
-                                                style={{ height: '200px' }}
+                                                style={{ height: '150px' }}
                                             >
                                                 <ImageIcon size={40} className="text-muted mb-2" />
                                                 <p className="text-muted small text-center mb-0">
@@ -493,7 +593,7 @@ function ServiceAdmin({ tabActive }) {
                                             />
                                         </div>
                                         
-                                        <div className="mt-2">
+                                        <div className="mt-2 mb-3">
                                             <small className="text-muted">
                                                 Định dạng hỗ trợ: JPG, PNG, GIF.
                                                 <br />Kích thước tối đa: 2MB.
@@ -513,6 +613,82 @@ function ServiceAdmin({ tabActive }) {
                                         {uploadStatus === 'error' && (
                                             <div className="mt-2 text-danger">
                                                 Lỗi khi tải lên. Vui lòng thử lại.
+                                            </div>
+                                        )}
+                                    </div>
+                                </Form.Group>
+                                
+                                {/* Phần upload icon */}
+                                <Form.Group className="mb-3">
+                                    <Form.Label>Icon dịch vụ</Form.Label>
+                                    <div className="mb-3">
+                                        {previewIcon ? (
+                                            <div className="position-relative mb-3 d-flex justify-content-center">
+                                                <Image 
+                                                    src={previewIcon} 
+                                                    alt="Icon Preview" 
+                                                    thumbnail
+                                                    style={{ height: '80px', width: '80px', objectFit: 'contain' }}
+                                                />
+                                                <Button 
+                                                    variant="light" 
+                                                    size="sm" 
+                                                    className="position-absolute top-0 end-0"
+                                                    onClick={handleClearIcon}
+                                                    title="Xóa icon"
+                                                >
+                                                    <XSquare />
+                                                </Button>
+                                            </div>
+                                        ) : (
+                                            <div 
+                                                className="d-flex flex-column align-items-center justify-content-center bg-light border rounded-circle p-2 mb-3 mx-auto"
+                                                style={{ height: '80px', width: '80px' }}
+                                            >
+                                                <ImageIcon size={30} className="text-muted" />
+                                                <p className="text-muted small text-center mb-0" style={{ fontSize: '0.7rem' }}>
+                                                    Chưa có icon
+                                                </p>
+                                            </div>
+                                        )}
+                                        
+                                        <div className="d-grid">
+                                            <Button 
+                                                variant="outline-primary" 
+                                                onClick={() => iconInputRef.current?.click()}
+                                                className="d-flex align-items-center justify-content-center gap-1"
+                                            >
+                                                <Upload /> Chọn icon
+                                            </Button>
+                                            <Form.Control
+                                                ref={iconInputRef}
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handleIconChange}
+                                                className="d-none"
+                                            />
+                                        </div>
+                                        
+                                        <div className="mt-2">
+                                            <small className="text-muted">
+                                                Nên sử dụng icon vuông hoặc tròn.
+                                                <br />Định dạng: SVG, PNG (khuyên dùng).
+                                            </small>
+                                        </div>
+                                        
+                                        {iconUploadStatus === 'uploading' && (
+                                            <div className="mt-2 text-primary">
+                                                <Spinner as="span" animation="border" size="sm" /> Đang tải icon lên...
+                                            </div>
+                                        )}
+                                        {iconUploadStatus === 'success' && (
+                                            <div className="mt-2 text-success">
+                                                Tải icon lên thành công!
+                                            </div>
+                                        )}
+                                        {iconUploadStatus === 'error' && (
+                                            <div className="mt-2 text-danger">
+                                                Lỗi khi tải icon lên. Vui lòng thử lại.
                                             </div>
                                         )}
                                     </div>
