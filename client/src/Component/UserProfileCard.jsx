@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useContext} from "react";
 import { Card, Row, Col, Form, Button, Alert } from "react-bootstrap";
 import axios from "../../src/Util/AxiosConfig";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../Context/AuthContext";
+
 
 const UserProfileCard = ({ user, setUser, userType = "patient" }) => {
   const [address, setAddress] = useState(user?.address || "");
@@ -10,6 +13,8 @@ const UserProfileCard = ({ user, setUser, userType = "patient" }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" });
+  const navigate = useNavigate();
+  const { logout } = useContext(AuthContext);
 
   if (!user) {
     return <div>Không có dữ liệu người dùng.</div>;
@@ -20,6 +25,14 @@ const UserProfileCard = ({ user, setUser, userType = "patient" }) => {
   const handleEditToggle = () => {
     setIsEditing(!isEditing);
   };
+  
+  const handleLogout = () => {
+    logout();
+    setUser(null);
+    navigate("/");
+  };
+
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -145,9 +158,9 @@ const UserProfileCard = ({ user, setUser, userType = "patient" }) => {
                 Chỉnh sửa
               </Button>
               {/* Sau này bạn có thể thêm nút đăng xuất ở đây */}
-              {/* <Button variant="outline-danger" className="ms-2">
+              <Button variant="outline-danger" className="ms-2" onClick={handleLogout}>
                 Đăng xuất
-              </Button> */}
+              </Button>
             </div>
           </div>
         ) : (

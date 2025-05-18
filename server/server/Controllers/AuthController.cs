@@ -182,6 +182,33 @@ namespace server.Controllers
             return Ok(new { message = "Đăng ký thành công!", user = newUser.Email });
         }
 
+        [Authorize]
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout(int userId)
+        {
+            // Log cookie before deleting
+            var beforeDelete = Request.Cookies["token"];
+            Console.WriteLine($"Cookie before delete: {beforeDelete}");
+
+            Response.Cookies.Delete("token");
+
+            // Xóa refresh token trong bảng ApplicationUser
+            if (userId != 0)
+            {
+                ApplicationUser user = await _context.Users.FirstOrDefaultAsync(user => user.Id == userId);
+                if (user != null)
+                {
+                    user.RefreshToken = null;
+                    await _context.SaveChangesAsync();
+                }
+            }
+            // Log cookie after deleting
+            var afterDelete = Request.Cookies["token"];
+            Console.WriteLine($"Cookie after delete: {afterDelete}");
+            return Ok(new { message = "Đăng xuất thành công!" });
+        }
+
+
         [Authorize(Roles = "doctor")]
         [HttpPost("auth_user")]
         public IActionResult AuthUser([FromBody] LoginForm user)

@@ -255,11 +255,8 @@ namespace Clinic_Management.Controllers
         [Authorize(Roles = "admin")]
         [HttpGet("prescriptions/patient/{patientId}")]
         public async Task<ActionResult<List<MedicalRecordDTO.MedicalRecordBasic>>> GetAllMedicalRecordByPatientId(
-            int patientId,
-            [FromQuery] DateTime? startDate = null,
-            [FromQuery] DateTime? endDate = null,
-            [FromQuery] string? serviceName = null,
-            [FromQuery] string? status = null)
+            int patientId, [FromQuery] DateTime? startDate = null, [FromQuery] DateTime? endDate = null,
+            [FromQuery] string? serviceName = null, [FromQuery] string? status = null)
         {
             try
             {
@@ -301,12 +298,16 @@ namespace Clinic_Management.Controllers
                 {
                     filteredRecords = filteredRecords.Where(r => r.Status == status).ToList();
                 }
+                var sortedRecords = filteredRecords
+                    .OrderByDescending(r => r.AppointmentDate)
+                    .ToList();
 
-                return Ok(filteredRecords);
+                return Ok(sortedRecords);
+
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = $"Lỗi khi lấy đơn thuốc: {ex.Message}" });
+                throw new ErrorHandlingException(500, $"Lỗi khi lấy đơn thuốc: {ex.Message}");
             }
         }
 
