@@ -9,7 +9,7 @@ import Review from './Service/Review'
 import SpecialtyAdmin from './Management/SpecialtyAdmin'
 import ServiceAdmin from './Management/ServiceAdmin'
 import ReviewManagement from "./Review/Index"
-import UserManagement from "./Management/index"
+import UserManagement from "./Management/Index"
 import AdminList from './Management/Admin/AdminList'
 import "../../../Style/Admin.css"
 import DoctorList from './Management/Doctor/DoctorList'
