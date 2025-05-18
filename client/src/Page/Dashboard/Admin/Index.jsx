@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { Container, Row, Col, Card, Nav, Tab } from 'react-bootstrap'
+import { useEffect, useState, useContext} from 'react'
+import { Container, Row, Col, Card, Nav, Tab,Button } from 'react-bootstrap'
 import AppointmentStatistics from './Appointment/AppointmentStatistics'
 import PrescriptionOverView from '../Admin/Management/Patient/PrescriptionOverView'
 import DoctorReviews from './Doctor/Reviews'
@@ -13,6 +13,8 @@ import UserManagement from "./Management/Index"
 import AdminList from './Management/Admin/AdminList'
 import "../../../Style/Admin.css"
 import DoctorList from './Management/Doctor/DoctorList'
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../../Context/AuthContext";
 
 function Index() {
     const [tabActive, setTabActive] = useState(() => {
@@ -22,6 +24,8 @@ function Index() {
     })
     const [menuOpen, setMenuOpen] = useState(false)
     const [systemMenuOpen, setSystemMenuOpen] = useState(false)
+    const navigate = useNavigate();
+    const { logout } = useContext(AuthContext);
 
     useEffect(() => {
         const handleHashChange = () => {
@@ -31,7 +35,11 @@ function Index() {
         window.addEventListener('hashchange', handleHashChange)
         return () => window.removeEventListener('hashchange', handleHashChange)
     }, [])
-    
+
+    const handleLogout = () => {
+        logout();
+        navigate("/");
+    };
     return (
         <Tab.Container 
             activeKey={tabActive} 
@@ -80,13 +88,29 @@ function Index() {
                                     </Nav.Link>
                                 </Nav>
 
-                                <div className="mt-5 pt-5">
-                                    <div className="bg-light p-3 rounded">
-                                        <p className="small text-muted mb-0">Phiên đăng nhập hiện tại:</p>
-                                        <p className="mb-2"><strong>Admin</strong></p>
-                                        <p className="small text-muted mb-0">Đăng nhập lúc:</p>
-                                        <p className="mb-0"><small>{new Date().toLocaleString()}</small></p>
-                                    </div>
+                                <div className="session-info mt-auto mx-3 mb-4">
+                                    <Card className="border-0 bg-light">
+                                        <Card.Body className="p-3">
+                                            <div className="d-flex align-items-center mb-3">
+                                                <div className="admin-avatar rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2" style={{ width: "40px", height: "40px" }}>
+                                                    <span className="fw-bold">A</span>
+                                                </div>
+                                                <div>
+                                                    <h6 className="mb-0 fw-bold">Admin</h6>
+                                                    <small className="text-muted">{new Date().toLocaleString()}</small>
+                                                </div>
+                                            </div>
+                                            <Button 
+                                                variant="outline-danger" 
+                                                className="w-100 d-flex align-items-center justify-content-center" 
+                                                onClick={handleLogout}
+                                                size="sm"
+                                            >
+                                                <i className="bi bi-box-arrow-right me-1"></i>
+                                                Đăng xuất
+                                            </Button>
+                                        </Card.Body>
+                                    </Card>
                                 </div>
                             </Card.Body>
                         </Card>
