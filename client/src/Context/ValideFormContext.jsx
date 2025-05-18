@@ -4,7 +4,24 @@ const ValideFormContext = createContext()
 
 const ValideFormProvider = ({ children }) => {
     const [formErrors, setFormErrors] = useState({})
+    // Hàm xóa lỗi của một trường cụ thể
+    const clearFieldError = (fieldName) => {
+        if (formErrors[fieldName]) {
+            const updatedErrors = { ...formErrors }
+            delete updatedErrors[fieldName]
+            setFormErrors(updatedErrors)
+        }
+    }
 
+    // Hàm kiểm tra từng trường ngay khi người dùng nhập
+    const validateField = (fieldName, value) => {
+        // Nếu trường đã có giá trị hợp lệ, xóa lỗi
+        if (value && value.toString().trim() !== '') {
+            clearFieldError(fieldName)
+            return true
+        }
+        return false
+    }
     const validateForm = (formData) => {
         const errors = {}
         
@@ -19,7 +36,13 @@ const ValideFormProvider = ({ children }) => {
                     phone: "Số điện thoại",
                     email: "Email",
                     password: "Mật khẩu",
-                    passwordConfirmed: "Xác nhận mật khẩu"
+                    signup_password: "Mật khẩu",
+                    passwordConfirmed: "Xác nhận mật khẩu",
+                    specialty: "Chuyên khoa",
+                    doctor: "Bác sĩ",
+                    service: "Dịch vụ",
+                    appointmentDate: "Ngày khám",
+                    appointmentTime: "Buổi khám"
                 }
                 errors[key] = `Vui lòng nhập ${fieldNames[key] || key}`
             }
@@ -42,8 +65,8 @@ const ValideFormProvider = ({ children }) => {
         }
         
         // Kiểm tra mật khẩu mạnh
-        if (formData.password && !errors.password) {
-            const password = formData.password
+        if (formData.signup_password && !errors.signup_password) {
+            const password = formData.signup_password
             
             // Tạo danh sách các lỗi của mật khẩu
             const passwordErrors = []
@@ -66,23 +89,39 @@ const ValideFormProvider = ({ children }) => {
             
             // Nếu có lỗi, tạo thông báo lỗi
             if (passwordErrors.length > 0) {
-                errors.password = `Mật khẩu phải có ${passwordErrors.join(", ")}`
+                errors.signup_password = `Mật khẩu phải có ${passwordErrors.join(", ")}`
             }
         }
         
         // Kiểm tra mật khẩu xác nhận
         if (formData.passwordConfirmed && !errors.passwordConfirmed) {
-            if (formData.password !== formData.passwordConfirmed) {
+            if (formData.signup_password !== formData.passwordConfirmed) {
                 errors.passwordConfirmed = "Mật khẩu xác nhận không khớp với mật khẩu đã nhập"
             }
         }
         
-        setFormErrors(errors)
-        return Object.keys(errors).length
+        if (formData.appointmentDate && !errors.appointmentDate) {
+            const inputDate = new Date(formData.appointmentDate)
+            const today = new Date()
+            const maxDate = new Date()
+            maxDate.setDate(today.getDate() + 15)
+
+            inputDate.setHours(0, 0, 0, 0)
+            today.setHours(0, 0, 0, 0)
+
+            if (inputDate < today) {
+                errors.appointmentDate = "Không được chọn ngày trong quá khứ"
+            } else if (inputDate > maxDate) {
+                errors.appointmentDate = "Ngày khám không được cách quá 15 ngày so với hôm nay"
+            }
+        }
+
+            setFormErrors(errors)
+            return Object.keys(errors).length
     }
 
     return (
-        <ValideFormContext.Provider value={{ validateForm, formErrors, setFormErrors }}>
+        <ValideFormContext.Provider value={{ validateForm, formErrors, setFormErrors, clearFieldError,validateField }}>
         {children}
         </ValideFormContext.Provider>
     )

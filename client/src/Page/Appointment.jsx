@@ -17,7 +17,24 @@ function Appointment() {
   const [specialty, setSpecialty] = useState()
   const [doctors, setDoctors] = useState()
   const [services, setServices] = useState()
-  const { validateForm, formErrors } = useContext(ValideFormContext)
+  const { validateForm, formErrors, validateField } = useContext(ValideFormContext)
+   // Thêm các state để kiểm soát date picker
+  const [minDate, setMinDate] = useState("")
+  const [maxDate, setMaxDate] = useState("")
+
+  // Thiết lập min và max date cho date picker
+  useEffect(() => {
+    const today = new Date()
+    const maxDay = new Date()
+    const minDay = new Date()
+    minDay.setDate(today.getDate() + 1)
+    maxDay.setDate(today.getDate() + 15)
+    
+    // Format dates as YYYY-MM-DD for the date input
+    setMinDate(minDay.toISOString().split('T')[0])
+    setMaxDate(maxDay.toISOString().split('T')[0])
+  }, [])
+
 
   useEffect(() => {
     const fetchDoctors =  async () => {
@@ -46,17 +63,22 @@ function Appointment() {
   }, [specialty])
   
   const handleChange = (event) => {
-    let value = event.target.value
+    const { name, value } = event.target
+    let newValue = value
 
-    if (event.target.name === "department") {
-      setSpecialty(value)
+    if (name === "department") {
+      setSpecialty(newValue)
     }
 
-    if (event.target.name === "gender") {
-      value = value === "true"
+    if (name === "gender") {
+      newValue = newValue === "true"
     }
 
-    setFormData({ ...formData, [event.target.name]: value })
+    // Cập nhật formData
+    setFormData({ ...formData, [name]: newValue })
+    
+    // Validate field khi người dùng thay đổi giá trị
+    validateField(name, newValue)
   }
 
   const submit = async (e) => {
@@ -113,7 +135,11 @@ function Appointment() {
 
             <Form>
               <Form.Group className="mb-3">
-                <Form.Select name="department" onChange={handleChange} isInvalid={!!formErrors.specialty} >
+                <Form.Select 
+                  name="department" 
+                  onChange={handleChange} 
+                  isInvalid={!!formErrors.department}
+                >
                   <option>Chọn chuyên khoa</option>
                   {specialties.map((specialty, index) => (
                     <option key={index} value={specialty.name}>
@@ -121,11 +147,15 @@ function Appointment() {
                     </option>
                   ))}
                 </Form.Select>
-                <Form.Control.Feedback type="invalid">{formErrors.specialty}</Form.Control.Feedback>
+                <Form.Control.Feedback type="invalid">{formErrors.department}</Form.Control.Feedback>
               </Form.Group>
 
               <Form.Group className="mb-3">
-                <Form.Select name="doctor" onChange={handleChange} isInvalid={!!formErrors.doctor} >
+                <Form.Select 
+                  name="doctor" 
+                  onChange={handleChange} 
+                  isInvalid={!!formErrors.doctor}
+                >
                   <option>Chọn bác sĩ</option>
                   {doctors?.map((doctor, index) => (
                     <option key={index}>{doctor.userName}</option>
@@ -135,7 +165,11 @@ function Appointment() {
               </Form.Group>
 
               <Form.Group className="mb-3">
-                <Form.Select name="service" onChange={handleChange} isInvalid={!!formErrors.service} >
+                <Form.Select 
+                  name="service" 
+                  onChange={handleChange} 
+                  isInvalid={!!formErrors.service}
+                >
                    <option>Chọn dịch vụ</option>
                    {services?.map((service, index) => (
                     <option key={index} value={service.serviceName}>
@@ -145,7 +179,6 @@ function Appointment() {
                 </Form.Select>
                 <Form.Control.Feedback type="invalid">{formErrors.service}</Form.Control.Feedback>
               </Form.Group>
-
 
               <Row className="mb-3">
                 <Col md={6}>
@@ -157,13 +190,19 @@ function Appointment() {
                       onChange={handleChange}
                       className="position-relative"
                       isInvalid={!!formErrors.appointmentDate}
+                      min={minDate}
+                      max={maxDate}
                     />
                     <Form.Control.Feedback type="invalid">{formErrors.appointmentDate}</Form.Control.Feedback>
                   </Form.Group>
                 </Col>
                 <Col md={6}>
                   <Form.Group className="mb-3">
-                    <Form.Select name="appointmentTime" onChange={handleChange} isInvalid={!!formErrors.appointmentTime}>
+                    <Form.Select 
+                      name="appointmentTime" 
+                      onChange={handleChange} 
+                      isInvalid={!!formErrors.appointmentTime}
+                    >
                       <option>Buổi khám</option>
                       <option>Sáng</option>
                       <option>Chiều</option>
