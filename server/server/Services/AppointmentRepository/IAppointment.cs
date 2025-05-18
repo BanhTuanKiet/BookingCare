@@ -22,5 +22,7 @@ namespace server.Services
         Task<int> GetExaminedPatientCount(int doctorId);
         Task<object> AppointmentStatistics(int month, int year);
         Task<object> AppointmentStatisticsPerWeek(int month);
+        Task<int> CountAppointmentsByPatientId(int patientId);
+        Task<List<AppointmentDTO.AppointmentDetail>> GetAppointmentsByPatientIdPaginated(int patientId, int page, int pageSize);
     }
 }

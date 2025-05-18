@@ -268,5 +268,33 @@ namespace server.Services
 
             return groupedByWeek;
         }
+
+        // Method để đếm tổng số lịch hẹn của một bệnh nhân
+        public async Task<int> CountAppointmentsByPatientId(int patientId)
+        {
+            return await _context.Appointments
+                .Where(a => a.PatientId == patientId)
+                .CountAsync();
+        }
+
+        // Method để lấy lịch hẹn theo trang
+        public async Task<List<AppointmentDTO.AppointmentDetail>> GetAppointmentsByPatientIdPaginated(int patientId, int page, int pageSize)
+        {
+            int skip = (page - 1) * pageSize;
+            var appointments = await _context.Appointments
+                .Where(a => a.PatientId == patientId)
+                .OrderByDescending(a => a.AppointmentDate)
+                .Include(a => a.Patient)
+                .Include(a => a.Patient.User)
+                .Include(a => a.Doctor)
+                .Include(a => a.Doctor.User)
+                .Include(a => a.Service)
+                .Skip(skip)
+                .Take(pageSize)
+                .ToListAsync();
+            var appointmentDTOs = _mapper.Map<List<AppointmentDTO.AppointmentDetail>>(appointments);
+            
+            return appointmentDTOs;
+        }
     }
 }

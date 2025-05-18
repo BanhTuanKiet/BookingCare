@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mail;
 using System.Runtime.CompilerServices;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -45,8 +46,8 @@ namespace server.Controllers
         public async Task<ActionResult> Appointment([FromBody] AppointmentForm appointmentForm)
         {
             var doctor = await _doctorService.GetDoctorByName(appointmentForm.Doctor);
-            var userId = HttpContext.Items["UserId"];
-            int parsedUserId = Convert.ToInt32(userId.ToString());
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int parsedUserId = Convert.ToInt32(userId);
             var patient = await _patientService.GetPatientByUserId(parsedUserId);
             var service = await _serviceServices.GetServiceByName(appointmentForm.Service);
             
@@ -55,6 +56,12 @@ namespace server.Controllers
             if (isExistAppointment != null) 
             {
                 throw new ErrorHandlingException(400, $"Lịch hẹn {appointmentForm.AppointmentDate} {appointmentForm.AppointmentTime} đang chờ xác nhận");
+            }
+            if(appointmentForm.AppointmentDate <= DateTime.Now){
+                throw new ErrorHandlingException(400,"Không được chọn ngày trong quá khứ");
+            }
+            if(appointmentForm.AppointmentDate >= DateTime.Now.AddDays(15)){
+                throw new ErrorHandlingException(400,"Ngày khám không được cách quá 15 ngày so với hôm nay");
             }
 
             var appointment = await _appointmentService.Appointment(patient.PatientId, doctor.DoctorId, service.ServiceId, appointmentForm.AppointmentDate, appointmentForm.AppointmentTime, "Chờ xác nhận");
@@ -177,26 +184,58 @@ namespace server.Controllers
         public async Task<ActionResult> CancelAppointment(int appointmentId)
         {
             var appointment = await _context.Appointments.FindAsync(appointmentId) ?? throw new ErrorHandlingException("Không tìm thấy lịch hẹn");
-                
+            if(appointment.Status == "Đã khám" || appointment.Status == "Đã hoàn thành"|| appointment.Status == "Đã thanh toán"){
+                throw new ErrorHandlingException($"Không thể hủy cuộc hẹn {appointment.Status}");
+            }
             appointment.Status = "Đã hủy";
             await _context.SaveChangesAsync();
             
             return Ok(new { message = "Cập nhật trạng thái thành công" });
         }
 
+        // [Authorize(Roles = "patient")]
+        // [HttpPost("by-patient/{quantity}")]
+        // public async Task<ActionResult> GetAppointmentByPatientId(int quantity)
+        // {
+        //     var userId = HttpContext.Items["UserId"];
+        //     int parsedUserId = Convert.ToInt32(userId.ToString());
+
+        //     Console.WriteLine("UserId: " + parsedUserId);
+
+        //     var patient = await _patientService.GetPatientByUserId(parsedUserId) ?? throw new ErrorHandlingException("Không tim thấy bệnh nhân");
+
+        //     var appointments = await _appointmentService.GetAppointmentByPatientId(patient.PatientId, quantity);
+        //     return Ok(appointments);
+        // }
         [Authorize(Roles = "patient")]
-        [HttpPost("by-patient/{quantity}")]
-        public async Task<ActionResult> GetAppointmentByPatientId(int quantity)
+        [HttpPost("by-patient")]
+        public async Task<ActionResult> GetAppointmentByPatientId([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             var userId = HttpContext.Items["UserId"];
             int parsedUserId = Convert.ToInt32(userId.ToString());
-
+            
             Console.WriteLine("UserId: " + parsedUserId);
-
+            
             var patient = await _patientService.GetPatientByUserId(parsedUserId) ?? throw new ErrorHandlingException("Không tim thấy bệnh nhân");
+            if (!patient.PatientId.HasValue)
+            throw new ErrorHandlingException("Không tìm thấy ID của bệnh nhân");
+            
+            var totalAppointments = await _appointmentService.CountAppointmentsByPatientId(patient.PatientId.Value);
 
-            var appointments = await _appointmentService.GetAppointmentByPatientId(patient.PatientId, quantity);
-            return Ok(appointments);
+            int totalPages = (int)Math.Ceiling((double)totalAppointments / pageSize);
+            
+            // Đảm bảo page không nhỏ hơn 1 và không lớn hơn totalPages
+            page = Math.Max(1, Math.Min(page, Math.Max(1, totalPages)));
+
+            var appointments = await _appointmentService.GetAppointmentsByPatientIdPaginated( patient.PatientId.Value, page, pageSize);
+            
+            return Ok(new { 
+                appointments, 
+                currentPage = page, 
+                pageSize, 
+                totalPages, 
+                totalItems = totalAppointments 
+            });
         }
 
         [Authorize(Roles = "doctor")]

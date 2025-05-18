@@ -43,6 +43,7 @@ function Index({ tabActive, systemMenuOpen, setSystemMenuOpen }) {
                         eventKey="admins"
                         className={`sidebar-link ms-3 mb-1 ${tabActive === "admins" ? "active" : ""}`}
                     >
+                        <i className="fas fa-stethoscope me-2 small"></i>
                         Quản trị viên
                     </Nav.Link>
 
@@ -50,6 +51,7 @@ function Index({ tabActive, systemMenuOpen, setSystemMenuOpen }) {
                         eventKey="doctors"
                         className={`sidebar-link ms-3 mb-1 ${tabActive === "admins" ? "active" : ""}`}
                     >
+                        <i className="fas fa-stethoscope me-2 small"></i>
                         Bác sĩ
                     </Nav.Link>
                 </>

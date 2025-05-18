@@ -84,14 +84,20 @@ function Appointment() {
   const submit = async (e) => {
     try {
       e.preventDefault()
-      const errors = validateForm(formData)   
+      const errors = validateForm(formData)
       if (errors > 0) return
 
-      await axios.post("/appointments", formData)
+      const res = await axios.post("/appointments", formData)
+      alert(res.data.message) // Hiển thị thông báo thành công
     } catch (error) {
-      console.log(error)
+      if (error.response && error.response.data && error.response.data.message) {
+        alert(error.response.data.message) // Hiển thị lỗi từ backend
+      } else {
+        console.log(error)
+      }
     }
   }
+
 
   const debouncedSubmit = debounce(submit)  
 
