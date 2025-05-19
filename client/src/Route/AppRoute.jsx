@@ -15,6 +15,7 @@ import Dashboard from '../Page/Dashboard/Dashboard'
 import Admin from '../Page/Admin'
 import ForgotPassword from "../Page/ForgotPassword"
 import DepartmentDetail from '../Page/DepartmentDetail'
+import CheckVNPay from '../Page/Dashboard/Admin/Management/Patient/PaymentVNPayResult'
 
 function AppRoute() {
     return (
@@ -36,6 +37,7 @@ function AppRoute() {
             <Route path='/upload' element={<UploadDoctorImage></UploadDoctorImage>} />
             <Route path='/UploadSpecialtyImage' element={<UploadSpecialtyImage></UploadSpecialtyImage>} />
             <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+            <Route path="/kiểm tra trạng thái" element={<CheckVNPay />} />
         </Routes>
     )
 }

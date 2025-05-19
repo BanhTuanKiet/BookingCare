@@ -26,8 +26,8 @@ namespace server.Util
                 }
             }
 
-            var orderId = Convert.ToInt64(GetResponseData("vnp_TxnRef"));
-            var vnPayTranId = Convert.ToInt64(GetResponseData("vnp_TransactionNo"));
+            var orderId = GetResponseData("vnp_TxnRef");
+            var vnPayTranId = GetResponseData("vnp_TransactionNo");
             var vnpResponseCode = GetResponseData("vnp_ResponseCode");
             var vnpSecureHash = collection.FirstOrDefault(k => k.Key == "vnp_SecureHash").Value;
             var orderInfo = GetResponseData("vnp_OrderInfo");
@@ -81,10 +81,7 @@ namespace server.Util
 
         public void AddResponseData(string key, string value)
         {
-            if (!string.IsNullOrEmpty(value))
-            {
-                _responseData[key] = value;
-            }
+            _responseData[key] = value ?? "";
         }
 
         public string GetResponseData(string key)

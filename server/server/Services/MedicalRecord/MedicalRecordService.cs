@@ -147,7 +147,7 @@ namespace server.Services
             return medicineDTOs;
         }
 
-        public async Task<string> CreatePaymentUrl(HttpContext context, float amount, string orderType, string orderDescription, string name)
+        public async Task<string> CreatePaymentUrl(HttpContext context, float amount, string appointmentId, string orderType, string orderDescription, string name)
         {
             var timeZoneById = TimeZoneInfo.FindSystemTimeZoneById(_configuration["TimeZoneId"]);
             var timeNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneById);
@@ -164,10 +164,10 @@ namespace server.Services
             pay.AddRequestData("vnp_CurrCode", _configuration["Vnpay:CurrCode"]);
             pay.AddRequestData("vnp_IpAddr", pay.GetIpAddress(context));
             pay.AddRequestData("vnp_Locale", _configuration["Vnpay:Locale"]);
-            pay.AddRequestData("vnp_OrderInfo", WebUtility.UrlEncode($"{name} {orderDescription} {amount}"));
+            pay.AddRequestData("vnp_OrderInfo", $"{name} {orderDescription} {amount}");
             pay.AddRequestData("vnp_OrderType", orderType);
             pay.AddRequestData("vnp_ReturnUrl", urlCallBack);
-            pay.AddRequestData("vnp_TxnRef", tick);
+            pay.AddRequestData("vnp_TxnRef", appointmentId);
 
             var paymentUrl = pay.CreateRequestUrl(
                 _configuration["Vnpay:BaseUrl"],

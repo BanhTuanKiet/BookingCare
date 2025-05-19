@@ -100,6 +100,9 @@ namespace Clinic_Management.Controllers
                        <th>Liều lượng</th>
                        <th>Tần suất</th>
                        <th>Thời gian</th>
+                       <th>Cách dùng</th>
+                       <th>Giá</th>
+                       <th>Tổng số lượng</th>
                     </tr>";
 
              foreach (var item in recordDetail)
@@ -423,7 +426,7 @@ namespace Clinic_Management.Controllers
 
                 Console.WriteLine($"Mã record: {appointment.Patient?.User?.FullName ?? "Unknown"}");
 
-                var paymentUrl = await _medicalRecordService.CreatePaymentUrl(HttpContext, totalAmount, orderType, orderDescription, name);
+                var paymentUrl = await _medicalRecordService.CreatePaymentUrl(HttpContext, totalAmount, appointment.AppointmentId.ToString(), orderType, orderDescription, name);
                 return Ok(new { paymentUrl });
             }
             catch (Exception ex)
@@ -437,11 +440,31 @@ namespace Clinic_Management.Controllers
         /// Payment callback from VnPay
         /// </summary>
         [HttpGet("callback")]
-        public IActionResult PaymentCallbackVnpay()
+        public async Task<IActionResult> PaymentCallbackVnpay()
         {
             var response = _medicalRecordService.PaymentExecute(Request.Query);
-            Console.WriteLine($"Call back: {response}");
-            return Ok(response);
+
+            if (response.VnPayResponseCode == "00")
+            {
+                var appointment = await _context.Appointments
+                    .FirstOrDefaultAsync(a => a.AppointmentId == int.Parse(response.OrderId));
+
+                if (appointment == null)
+                {
+                    throw new ErrorHandlingException(500, "Không tìm thấy lịch hẹn");
+                }
+
+                var oldStatus = appointment.Status;
+                appointment.Status = "Đã hoàn thành";
+
+                await _context.SaveChangesAsync();
+
+                return Content("success");
+            }
+            else
+            {
+                return Content("fail");
+            }
         }
 
         // Update CreatePayment method to generate OrderId and Amount on the backend
