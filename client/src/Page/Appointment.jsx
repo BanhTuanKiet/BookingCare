@@ -88,7 +88,7 @@ function Appointment() {
       if (errors > 0) return
 
       const res = await axios.post("/appointments", formData)
-      alert(res.data.message) // Hiển thị thông báo thành công
+      // alert(res.data.message) // Hiển thị thông báo thành công
     } catch (error) {
       if (error.response && error.response.data && error.response.data.message) {
         alert(error.response.data.message) // Hiển thị lỗi từ backend

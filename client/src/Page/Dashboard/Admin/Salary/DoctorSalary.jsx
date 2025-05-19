@@ -11,7 +11,12 @@ function DoctorSalaryTable({ tabActive }) {
     const [salaries, setSalaries] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [month, setMonth] = useState("");
+    const getCurrentMonth = () => {
+        const now = new Date();
+        const month = (now.getMonth() + 1).toString().padStart(2, "0"); // Thêm số 0 nếu nhỏ hơn 10
+        return `${now.getFullYear()}-${month}`;
+    };
+    const [month, setMonth] = useState(getCurrentMonth());
     const [showModal, setShowModal] = useState(false);
     const [detailData, setDetailData] = useState([]);
     const [selectedDoctor, setSelectedDoctor] = useState(null);
@@ -96,9 +101,11 @@ function DoctorSalaryTable({ tabActive }) {
     };
 
     useEffect(() => {
-        fetchSalaries();
-        fetchSalarySummary();
-    }, [month]);
+        if (tabActive === 'salary') {
+            fetchSalaries();
+            fetchSalarySummary();
+        }
+    }, [tabActive, month]);
 
     const handleClose = () => {
         setShowModal(false);
@@ -124,62 +131,65 @@ function DoctorSalaryTable({ tabActive }) {
             {!loading && salaries.length > 0 && (
             <>
                 {revenueStats && (
-                    <div className="d-flex flex-wrap gap-3 mb-4">
-  {/* Tổng kết tháng */}
-  <div className="card flex-fill" style={{ minWidth: '300px', flex: '1' }}>
-    <div className="card-body p-3">
-      <h6 className="card-title mb-3">📊 <strong>Tổng kết tháng:</strong></h6>
-      <p className="mb-1"><strong>Tổng hoa hồng:</strong> {revenueStats.totalCommission.toLocaleString()} đ</p>
-      <p className="mb-1"><strong>Tổng lương bác sĩ:</strong> {revenueStats.totalSalary.toLocaleString()} đ</p>
-      <p className="mb-1"><strong>Tổng doanh thu (ước tính):</strong> {revenueStats.grossRevenue.toLocaleString()} đ</p>
-      <p className="mb-0"><strong>Doanh thu ròng:</strong> {revenueStats.netRevenue.toLocaleString()} đ</p>
-    </div>
-  </div>
+                    <div className="row mb-4">
+                        {/* Tổng kết tháng */}
+                        <div className="col-md-5 mb-3 mb-md-0">
+                            <div className="card h-100">
+                                <div className="card-body p-3">
+                                    <h6 className="card-title mb-3">📊 <strong>Tổng kết tháng:</strong></h6>
+                                    <p className="mb-1"><strong>Tổng hoa hồng:</strong> {revenueStats.totalCommission.toLocaleString()} đ</p>
+                                    <p className="mb-1"><strong>Tổng lương bác sĩ:</strong> {revenueStats.totalSalary.toLocaleString()} đ</p>
+                                    <p className="mb-1"><strong>Tổng doanh thu (ước tính):</strong> {revenueStats.grossRevenue.toLocaleString()} đ</p>
+                                    <p className="mb-0"><strong>Doanh thu ròng:</strong> {revenueStats.netRevenue.toLocaleString()} đ</p>
+                                </div>
+                            </div>
+                        </div>
 
-  {/* Biểu đồ */}
-  <div className="card flex-fill" style={{ minWidth: '300px', flex: '1' }}>
-    <div className="card-body p-3" style={{ height: '250px' }}>
-      <Bar
-        data={{
-          labels: ['Tổng hoa hồng', 'Tổng lương bác sĩ', 'Tổng doanh thu', 'Doanh thu ròng'],
-          datasets: [
-            {
-              label: 'VNĐ',
-              data: [
-                revenueStats.totalCommission,
-                revenueStats.totalSalary,
-                revenueStats.grossRevenue,
-                revenueStats.netRevenue
-              ],
-              backgroundColor: ['#36a2eb', '#ff6384', '#4bc0c0', '#9966ff']
-            }
-          ]
-        }}
-        options={{
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            title: {
-              display: true,
-              text: 'Biểu đồ doanh thu tháng'
-            }
-          },
-          scales: {
-            y: {
-              ticks: {
-                callback: function (value) {
-                  return value.toLocaleString() + ' đ';
-                }
-              }
-            }
-          }
-        }}
-      />
-    </div>
-  </div>
-</div>
-
+                        {/* Biểu đồ */}
+                        <div className="col-md-7">
+                            <div className="card h-100">
+                                <div className="card-body p-3" style={{ height: '250px' }}>
+                                    <Bar
+                                        data={{
+                                            labels: ['Tổng hoa hồng', 'Tổng lương bác sĩ', 'Tổng doanh thu', 'Doanh thu ròng'],
+                                            datasets: [
+                                                {
+                                                    label: 'VNĐ',
+                                                    data: [
+                                                        revenueStats.totalCommission,
+                                                        revenueStats.totalSalary,
+                                                        revenueStats.grossRevenue,
+                                                        revenueStats.netRevenue
+                                                    ],
+                                                    backgroundColor: ['#36a2eb', '#ff6384', '#4bc0c0', '#9966ff']
+                                                }
+                                            ]
+                                        }}
+                                        options={{
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                            plugins: {
+                                                legend: { display: false },
+                                                title: {
+                                                    display: true,
+                                                    text: 'Biểu đồ doanh thu tháng'
+                                                }
+                                            },
+                                            scales: {
+                                                y: {
+                                                    ticks: {
+                                                        callback: function (value) {
+                                                            return value.toLocaleString() + ' đ';
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 )}
 
                 <Table striped bordered hover responsive>
