@@ -225,7 +225,7 @@ const ServiceDetail = () => {
               </Card.Body>
             </Card>
 
-            <Card className="border-0 shadow-sm mb-4">
+            <Card className="border-0 shadow-sm mb-4 bg-white">
               <Card.Header className="bg-white p-3 border-bottom">
                 <h5 className="mb-0 fw-bold">Dịch vụ khác</h5>
               </Card.Header>

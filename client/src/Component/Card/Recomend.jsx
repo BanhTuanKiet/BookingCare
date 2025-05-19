@@ -30,7 +30,7 @@ function Recomend({ item, type }) {
     <Link to={`/dịch vụ/${encodeURIComponent(item?.serviceName)}`} className="text-decoration-none">
       <div
         className="d-flex flex-column gap-2 p-3 rounded border hover-shadow"
-        style={{ backgroundColor: '#f9f9f9', minHeight: '150px' }}
+        style={{ minHeight: '150px' }}
       >
         <h6 className="text-primary fw-bold text-wrap mb-1" style={{ wordBreak: 'break-word' }}>
           {item?.serviceName}
