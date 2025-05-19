@@ -18,7 +18,6 @@ function Review({ tabActive }) {
         const fetchSpecialty = async () => {
             try {
                 const response = await axios.get('/specialties')
-
                 setSpecialties(response.data)
                 setSpecialty(response.data[0])
             } catch (error) {
@@ -64,6 +63,7 @@ function Review({ tabActive }) {
     const handleSpecialty = (e) => {
         const selectedId = parseInt(e.target.value)
         const selectedSpecialty = specialties.find(s => s.specialtyId === selectedId)
+        console.log(selectedSpecialty)
         setSpecialty(selectedSpecialty)         
     }
 
@@ -76,7 +76,7 @@ function Review({ tabActive }) {
     return (
         <Container className="mt-4">
             <Form.Group className="mb-3">
-                <Form.Select value={specialty} onChange={handleSpecialty}>
+                <Form.Select value={specialty?.specialtyId || ''} onChange={handleSpecialty}>
                     {specialties.map((spec) => (
                         <option key={spec.specialtyId} value={spec.specialtyId}>
                             {spec.name}
@@ -93,13 +93,13 @@ function Review({ tabActive }) {
                 <Row className="g-3">
                     {services.map((service, index) => {
                     const r = reviews.find((rev) => rev.serviceId === service.serviceId)
-
+                    console.log(services)
                     return (
                         <Col md={6} key={index}>
                             <div className="border p-3 rounded shadow-sm d-flex align-items-center">
                                 <Col xs={9} className='d-flex' >
                                     <img
-                                        src={service.doctorImage || 'https://via.placeholder.com/80'}
+                                        src={service?.serviceImage || 'https://via.placeholder.com/80'}
                                         alt={service.userName}
                                         className="doctor-image rounded-circle me-3"
                                         style={{ width: '80px', height: '80px', objectFit: 'cover' }}

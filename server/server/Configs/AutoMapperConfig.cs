@@ -69,7 +69,6 @@
                             : null));
                             
                 CreateMap<Specialty, SpecialtyDTO>()
-                    .ForMember(dest => dest.Name, m => m.MapFrom(source => source.Name))
                     .ForMember(dest => dest.SpecialtyImage, m => m.MapFrom(source =>
                         source.SpecialtyImage != null
                             ? $"data:image/png;base64,{Convert.ToBase64String(source.SpecialtyImage)}"
