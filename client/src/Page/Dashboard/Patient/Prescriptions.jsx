@@ -29,11 +29,10 @@ function Prescriptions({ tabActive, setTabActive, isSelected}) {
         }
     
         if (tabActive === "prescriptions" || tabActive === "overview") {
-            fetchPrescriptions();
+            fetchPrescriptions()
         }
-    }, [tabActive]);
+    }, [tabActive])
     
-
     return (
         <Card>
             <Card.Body>

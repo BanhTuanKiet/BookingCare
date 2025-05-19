@@ -1,10 +1,9 @@
 import { Clock, FileText } from 'lucide-react'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Card, Col, Container, Nav, Row, Tab } from 'react-bootstrap'
 import ReviewDoctor from './ReviewDoctor'
 import PatientHistory from './PatientHistory'
 import DoctorSchedule from './DoctorSchedule'
-import DoctorShiftDetail from './DoctorShiftDetail'
 import axios from '../../../Util/AxiosConfig'
 import UserProfileCard from '../../../Component/UserProfileCard'
 

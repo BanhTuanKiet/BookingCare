@@ -1,5 +1,5 @@
 import { Clock } from 'lucide-react'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Card, Col, Row } from 'react-bootstrap'
 import axios from '../../../Util/AxiosConfig'
 import PrescriptionCard from '../../../Component/Card/PrescriptionCard'
@@ -10,6 +10,8 @@ function Overview({ tabActive, setTabActive }) {
     const [medicalRecords, setMedicalRecords] = useState([])
 
     useEffect(() => {
+        if (tabActive !== "overview") return
+        
         const fetchAppointment = async () => {
             try {
                 const response = await axios.get("/appointments/recently")
@@ -20,7 +22,7 @@ function Overview({ tabActive, setTabActive }) {
         }
 
         fetchAppointment()
-    }, [])
+    }, [tabActive])
 
     useEffect(() => {
         const fetchPrescriptions = async () => {

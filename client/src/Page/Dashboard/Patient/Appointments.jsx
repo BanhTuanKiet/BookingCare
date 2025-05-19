@@ -13,22 +13,23 @@ function Appointments({ tabActive }) {
 
     useEffect(() => {
         const fetchAppointments = async () => {
-            if (tabActive !== "appointments") return;
-            setLoading(true);
-            try {
-                const response = await axios.post(`appointments/by-patient?page=${currentPage}&pageSize=${pageSize}`);
-                console.log(response)
-                setAppointments(response.data.appointments);
-                setTotalPages(response.data.totalPages);
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setLoading(false);
-            }
-        };
+            if (tabActive !== "appointments") return
+            setLoading(true)
 
-        fetchAppointments();
-    }, [tabActive, currentPage]);
+            try {
+                const response = await axios.post(`appointments/by-patient?page=${currentPage}&pageSize=${pageSize}`)
+                console.log(response)
+                setAppointments(response.data.appointments)
+                setTotalPages(response.data.totalPages)
+            } catch (error) {
+                console.error(error)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchAppointments()
+    }, [tabActive, currentPage])
 
     const handleCancelAppointment = async (appointmentId) => {
         if (window.confirm("Bạn có chắc chắn muốn hủy lịch hẹn này không?")) {
@@ -49,16 +50,16 @@ function Appointments({ tabActive }) {
                 }
             }
         }
-    };
+    }
 
 
     const handlePageChange = (page) => {
-        setCurrentPage(page);
-    };
+        setCurrentPage(page)
+    }
 
     // Tạo các mục phân trang
     const renderPaginationItems = () => {
-        const items = [];
+        const items = []
         
         // Nút Previous
         items.push(
@@ -67,7 +68,7 @@ function Appointments({ tabActive }) {
                 onClick={() => currentPage > 1 && handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1 || loading}
             />
-        );
+        )
 
         // Luôn hiển thị trang đầu tiên
         items.push(
@@ -79,7 +80,7 @@ function Appointments({ tabActive }) {
             >
                 1
             </Pagination.Item>
-        );
+        )
 
         // Hiển thị dấu ... nếu trang hiện tại > 3
         if (currentPage > 3) {
@@ -98,7 +99,7 @@ function Appointments({ tabActive }) {
                     >
                         {page}
                     </Pagination.Item>
-                );
+                )
             }
         }
 
@@ -128,10 +129,10 @@ function Appointments({ tabActive }) {
                 onClick={() => currentPage < totalPages && handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages || loading}
             />
-        );
+        )
 
-        return items;
-    };
+        return items
+    }
 
     return (
         <Card>
@@ -211,7 +212,7 @@ function Appointments({ tabActive }) {
                 </div>
             </Card.Body>
         </Card>
-    );
+    )
 }
 
 export default Appointments

@@ -8,7 +8,7 @@ import DoctorShiftDetail from "./DoctorShiftDetail"
 
 const localizer = momentLocalizer(moment)
 
-const DoctorSchedule = () => {
+const DoctorSchedule = ({ tabActive }) => {
   const [events, setEvents] = useState([])
   const [schedules, setSchedules] = useState()
   const [showShiftDetail, setShowShiftDetail] = useState(false)
@@ -18,6 +18,8 @@ const DoctorSchedule = () => {
   })
 
   useEffect(() => {
+    if (tabActive !== "doctorSchedule") return
+
     const fetchDoctorSchedule = async () => {
         try {
             const response = await axios.get("/appointments/schedule")
@@ -29,7 +31,7 @@ const DoctorSchedule = () => {
     }
 
     fetchDoctorSchedule()
-  }, [])
+  }, [tabActive])
 
   useEffect(() => {
     const formatSchedule = () => {
