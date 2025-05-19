@@ -211,9 +211,10 @@ function PrescriptionCard({ record, tabActive, setTabActive, isSelected }) {
                         </>
                       }
                     </Button>
-                    <Button variant="outline-primary" size="sm" className="d-flex align-items-center">
+
+                    {/* <Button variant="outline-primary" size="sm" className="d-flex align-items-center">
                       <Printer size={16} className="me-1" /> In đơn thuốc
-                    </Button>
+                    </Button> */}
                   </div>
                 </div>
               </div>

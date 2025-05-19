@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Badge, Button, Card, Table, Pagination } from 'react-bootstrap';
 import axios from '../../../Util/AxiosConfig';
+import { formatDateToLocale } from '../../../Util/DateUtils';
 
 function Appointments({ tabActive }) {
     const [appointments, setAppointments] = useState([]);
@@ -135,8 +136,7 @@ function Appointments({ tabActive }) {
     return (
         <Card>
             <Card.Body>
-                <h4>Lịch Hẹn</h4>
-                <p>Danh sách các lịch hẹn sắp tới</p>
+                <p>Danh sách các lịch hẹn</p>
                 {errorMessage && (
                     <div className="alert alert-danger" role="alert">
                         {errorMessage}
@@ -166,7 +166,7 @@ function Appointments({ tabActive }) {
                                     {appointments.length > 0 ? (
                                         appointments.map((appointment) => (
                                             <tr key={appointment.appointmentId} className="align-middle text-center">
-                                                <td>{new Date(appointment.appointmentDate).toLocaleDateString()}</td>
+                                                <td>{formatDateToLocale(appointment.appointmentDate.toString())  }</td>
                                                 <td>{appointment.doctorName}</td>
                                                 <td>{appointment.serviceName}</td>
                                                 <td>
@@ -214,4 +214,4 @@ function Appointments({ tabActive }) {
     );
 }
 
-export default Appointments;
+export default Appointments
