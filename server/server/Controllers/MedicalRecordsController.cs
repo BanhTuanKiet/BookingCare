@@ -396,8 +396,6 @@ namespace Clinic_Management.Controllers
         [HttpPost("create-vnpay/{recordId}")]
         public async Task<IActionResult> CreatePayment(int recordId)
         {
-            try
-            {
                 Console.WriteLine($"Mã record: {recordId}");
                 var appointment = await _context.Appointments
                 .Include(a => a.Service)
@@ -407,35 +405,27 @@ namespace Clinic_Management.Controllers
 
 
                 if (appointment == null)
-                    throw new Exception("Không tìm thấy lịch hẹn.");
+                    throw new ErrorHandlingException(404,"Không tìm thấy lịch hẹn.");
+                if(appointment.Status != "Đã khám")
+                    throw new ErrorHandlingException(400,"Lịch hẹn chưa hoàn thành.");
+                else{
+                    int totalAmount = await _medicalRecordService.CalculateAmountFromRecordId(recordId);
 
-                int totalAmount = await _medicalRecordService.CalculateAmountFromRecordId(recordId);
-
-                // var record = await _context.MedicalRecords
-                //     .FirstOrDefaultAsync(r => r.RecordId == recordId);
-
-                // Console.WriteLine($"Mã record: {record.RecordId}");
-
-                // float recordPrice = record?.Price ?? 0;
-                // float servicePrice = appointment.Service?.Price ?? 0;
-                // var totalAmount = recordPrice + servicePrice;
-
-                // Bạn set sẵn ở backend
-                string orderType = "other";
-                string orderDescription = "Thanh toán đơn thuốc";
-                string name = $"Đơn thuốc của bệnh nhân {appointment.Patient?.User?.FullName ?? "Unknown"}";
+                    // Bạn set sẵn ở backend
+                    string orderType = "other";
+                    string orderDescription = "Thanh toán đơn thuốc";
+                    string name = $"Đơn thuốc của bệnh nhân {appointment.Patient?.User?.FullName ?? "Unknown"}";
 
 
-                Console.WriteLine($"Mã record: {appointment.Patient?.User?.FullName ?? "Unknown"}");
+                    Console.WriteLine($"Mã record: {appointment.Patient?.User?.FullName ?? "Unknown"}");
 
-                var paymentUrl = await _medicalRecordService.CreatePaymentUrl(HttpContext, totalAmount, recordId.ToString(), orderType, orderDescription, name);
-                return Ok(new { paymentUrl });
-            }
-            catch (Exception ex)
-            {
-                // _logger.LogError(ex, "Lỗi khi tạo VNPay URL");
-                return StatusCode(500, "Lỗi khi tạo VNPay URL");
-            }
+                    var paymentUrl = await _medicalRecordService.CreatePaymentUrl(HttpContext, totalAmount, recordId.ToString(), orderType, orderDescription, name);
+                    if(paymentUrl == null)
+                    {
+                        throw new ErrorHandlingException(500, "Không thể tạo URL thanh toán");
+                    }
+                    return Ok(new { paymentUrl });
+                }
         }
 
         /// <summary>
@@ -478,6 +468,17 @@ namespace Clinic_Management.Controllers
             {
                 return BadRequest("Invalid request");
             }
+            var appointment = await _context.Appointments
+                .Include(a => a.Service)
+                .Include(a => a.Patient)
+                    .ThenInclude(p => p.User)
+                .FirstOrDefaultAsync(a => a.MedicalRecord.RecordId == request.RecordId);
+
+
+            if (appointment == null)
+                throw new Exception("Không tìm thấy lịch hẹn.");
+            if(appointment.Status != "Đã khám")
+                throw new Exception("Lịch hẹn chưa hoàn thành.");
 
             // Generate OrderId and Amount on the backend
             var orderId = Guid.NewGuid().ToString();
