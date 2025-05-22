@@ -409,14 +409,16 @@ namespace Clinic_Management.Controllers
                 if (appointment == null)
                     throw new Exception("Không tìm thấy lịch hẹn.");
 
-                var record = await _context.MedicalRecords
-                    .FirstOrDefaultAsync(r => r.RecordId == recordId);
-                
-                Console.WriteLine($"Mã record: {record.RecordId}");
+                int totalAmount = await _medicalRecordService.CalculateAmountFromRecordId(recordId);
 
-                float recordPrice = record?.Price ?? 0;
-                float servicePrice = appointment.Service?.Price ?? 0;
-                var totalAmount = recordPrice + servicePrice;
+                // var record = await _context.MedicalRecords
+                //     .FirstOrDefaultAsync(r => r.RecordId == recordId);
+
+                // Console.WriteLine($"Mã record: {record.RecordId}");
+
+                // float recordPrice = record?.Price ?? 0;
+                // float servicePrice = appointment.Service?.Price ?? 0;
+                // var totalAmount = recordPrice + servicePrice;
 
                 // Bạn set sẵn ở backend
                 string orderType = "other";
@@ -426,7 +428,7 @@ namespace Clinic_Management.Controllers
 
                 Console.WriteLine($"Mã record: {appointment.Patient?.User?.FullName ?? "Unknown"}");
 
-                var paymentUrl = await _medicalRecordService.CreatePaymentUrl(HttpContext, totalAmount, appointment.AppointmentId.ToString(), orderType, orderDescription, name);
+                var paymentUrl = await _medicalRecordService.CreatePaymentUrl(HttpContext, totalAmount, recordId.ToString(), orderType, orderDescription, name);
                 return Ok(new { paymentUrl });
             }
             catch (Exception ex)
@@ -447,7 +449,7 @@ namespace Clinic_Management.Controllers
             if (response.VnPayResponseCode == "00")
             {
                 var appointment = await _context.Appointments
-                    .FirstOrDefaultAsync(a => a.AppointmentId == int.Parse(response.OrderId));
+                    .FirstOrDefaultAsync(a => a.MedicalRecord.RecordId == int.Parse(response.OrderId));
 
                 if (appointment == null)
                 {
