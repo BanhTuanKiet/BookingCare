@@ -57,12 +57,27 @@ namespace server.Controllers
             {
                 throw new ErrorHandlingException(400, $"Lịch hẹn {appointmentForm.AppointmentDate} {appointmentForm.AppointmentTime} đang chờ xác nhận");
             }
-            if(appointmentForm.AppointmentDate <= DateTime.Now){
-                throw new ErrorHandlingException(400,"Không được chọn ngày trong quá khứ");
+            
+            if (appointmentForm.AppointmentDate <= DateTime.Now)
+            {
+                throw new ErrorHandlingException(400, "Không được chọn ngày trong quá khứ");
             }
-            if(appointmentForm.AppointmentDate >= DateTime.Now.AddDays(15)){
-                throw new ErrorHandlingException(400,"Ngày khám không được cách quá 15 ngày so với hôm nay");
+            
+            if (appointmentForm.AppointmentDate >= DateTime.Now.AddDays(15))
+            {
+                throw new ErrorHandlingException(400, "Ngày khám không được cách quá 15 ngày so với hôm nay");
             }
+
+            int quantityAppointment = await _appointmentService.CountAppointsByDate(appointmentForm.AppointmentDate, appointmentForm.AppointmentTime);
+
+            if (quantityAppointment > 0)
+            {
+                var availableAppointment = await _appointmentService.CheckAvailableAppointment(appointmentForm.AppointmentDate, appointmentForm.AppointmentTime);
+                return Ok(availableAppointment);
+                // return Ok(new { message = "Số lượng đặt lịch cho khung giờ này đã đầy. Vui lòng chọn thời gian khác." });
+            }
+
+            return Ok(new { message = "Đặt lịch thành công", quantityAppointment = quantityAppointment });
 
             var appointment = await _appointmentService.Appointment(patient.PatientId, doctor.DoctorId, service.ServiceId, appointmentForm.AppointmentDate, appointmentForm.AppointmentTime, "Chờ xác nhận");
             

@@ -54,9 +54,9 @@ function Appointment() {
       try {
       const response = await axios.get(`/services/${specialty}/services`)
       setServices(response.data)
-    } catch (error) {
-      console.log(error)
-    }
+      } catch (error) {
+        console.log(error)
+      }
     }
 
     fetchServices()
@@ -87,7 +87,8 @@ function Appointment() {
       const errors = validateForm(formData)
       if (errors > 0) return
 
-      const res = await axios.post("/appointments", formData)
+      const response = await axios.post("/appointments", formData)
+      console.log(response)
       // alert(res.data.message) // Hiển thị thông báo thành công
     } catch (error) {
       if (error.response && error.response.data && error.response.data.message) {

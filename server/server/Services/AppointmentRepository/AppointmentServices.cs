@@ -20,7 +20,7 @@ namespace server.Services
             _mapper = mapper;
         }
 
-        public async Task<Appointment> IsExistAppointment (int? patientId, DateTime appointmentDate, string appointmentTime)
+        public async Task<Appointment> IsExistAppointment(int? patientId, DateTime appointmentDate, string appointmentTime)
         {
             var appointment = await _context.Appointments
                 .Where(a => a.PatientId == patientId && a.AppointmentDate == appointmentDate && a.AppointmentTime == appointmentTime && a.Status == "Chờ xác nhận")
@@ -29,7 +29,7 @@ namespace server.Services
             return appointment;
         }
 
-        public async Task<Appointment> Appointment (int? patientId, int? doctorId, int? serviceId, DateTime appointmentDate, string appointmentTime, string status)
+        public async Task<Appointment> Appointment(int? patientId, int? doctorId, int? serviceId, DateTime appointmentDate, string appointmentTime, string status)
         {
             Appointment appointment = new Appointment
             {
@@ -192,7 +192,7 @@ namespace server.Services
                 .Take(3)
                 .Select(a => a.AppointmentId)
                 .ToListAsync() ?? throw new ErrorHandlingException("Lỗi khi lấy đanh sách lịch hẹn!");
-            
+
             return appointmentIds;
         }
 
@@ -224,7 +224,7 @@ namespace server.Services
             var grouped = await _context.Appointments
                 .Where(appointment => appointment.AppointmentDate.Value.Month == month && appointment.AppointmentDate.Value.Year == year)
                 .GroupBy(appointment => appointment.Status)
-                .Select(g => new AppointmentDTO.AppointmentGroup 
+                .Select(g => new AppointmentDTO.AppointmentGroup
                 {
                     Status = g.Key,
                     Appointments = g.Count()
@@ -242,7 +242,7 @@ namespace server.Services
             };
 
             var ordered = statusOrder
-                .Select(status => grouped.FirstOrDefault(g => g.Status == status) 
+                .Select(status => grouped.FirstOrDefault(g => g.Status == status)
                                 ?? new AppointmentDTO.AppointmentGroup { Status = status, Appointments = 0 })
                 .ToList();
 
@@ -293,8 +293,42 @@ namespace server.Services
                 .Take(pageSize)
                 .ToListAsync();
             var appointmentDTOs = _mapper.Map<List<AppointmentDTO.AppointmentDetail>>(appointments);
-            
+
             return appointmentDTOs;
+        }
+
+        public async Task<int> CountAppointsByDate(DateTime date, string time)
+        {
+            var appointments = await _context.Appointments.Where(a => DateOnly.FromDateTime(a.AppointmentDate.Value.Date) == DateOnly.FromDateTime(date) && a.AppointmentTime == time).ToListAsync();
+
+            return appointments.Count();
+        }
+
+        public async Task<List<AppointmentDTO.AvailableAppointment>> CheckAvailableAppointment(DateTime date, string time)
+        {
+            var endDate = date.AddDays(15);
+
+            var appointments = await _context.Appointments
+                .Where(a => a.AppointmentDate.HasValue &&
+                            a.AppointmentDate.Value.Date >= date.Date &&
+                            a.AppointmentDate.Value.Date < endDate.Date)
+                            // a.AppointmentTime == time)
+                .ToListAsync();  
+
+            var groupedAppointments = appointments
+                    .GroupBy(a => new { Date = a.AppointmentDate.Value.Date, Time = a.AppointmentTime })
+                    .Where(g => g.Count() <= 1)
+                    .Select(g => new AppointmentDTO.AvailableAppointment
+                    {
+                        Date = g.Key.Date,
+                        Time = g.Key.Time,
+                        // Quantity = g.Count()
+                    })
+                    .OrderBy(g => g.Date)
+                    .ThenBy(g => g.Time == "Sáng" ? 0 : 1)
+                    .ToList();
+
+            return groupedAppointments;     
         }
     }
 }
