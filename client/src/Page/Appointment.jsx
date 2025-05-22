@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react"
-import { Button, Col, Container, Form, Row } from "react-bootstrap"
+import { Button, Col, Container, Form, Row, Modal } from "react-bootstrap"
 import { NavContext } from "../Context/NavContext"
 import axios from "../Util/AxiosConfig"
 import { ValideFormContext } from "../Context/ValideFormContext"
@@ -18,28 +18,26 @@ function Appointment() {
   const [doctors, setDoctors] = useState()
   const [services, setServices] = useState()
   const { validateForm, formErrors, validateField } = useContext(ValideFormContext)
-   // Thêm các state để kiểm soát date picker
+
   const [minDate, setMinDate] = useState("")
   const [maxDate, setMaxDate] = useState("")
   const [suggestedAppointments, setSuggestedAppointments] = useState([])
-  const [serverMessage, setServerMessage] = useState("")
+  const [showModal, setShowModal] = useState(false)
 
-  // Thiết lập min và max date cho date picker
+  const handleCloseModal = () => setShowModal(false)
+
   useEffect(() => {
     const today = new Date()
     const maxDay = new Date()
     const minDay = new Date()
     minDay.setDate(today.getDate() + 1)
     maxDay.setDate(today.getDate() + 15)
-    
-    // Format dates as YYYY-MM-DD for the date input
     setMinDate(minDay.toISOString().split('T')[0])
     setMaxDate(maxDay.toISOString().split('T')[0])
   }, [])
 
-
   useEffect(() => {
-    const fetchDoctors =  async () => {
+    const fetchDoctors = async () => {
       try {
         const response = await axios.get(`/doctors/${specialty}`)
         setDoctors(response.data)
@@ -47,93 +45,55 @@ function Appointment() {
         console.log(error)
       }
     }
-
-    fetchDoctors()
+    if (specialty) fetchDoctors()
   }, [specialty])
 
   useEffect(() => {
-    const fetchServices =  async () => {
+    const fetchServices = async () => {
       try {
-      const response = await axios.get(`/services/${specialty}/services`)
-      setServices(response.data)
+        const response = await axios.get(`/services/${specialty}/services`)
+        setServices(response.data)
       } catch (error) {
         console.log(error)
       }
     }
-
-    fetchServices()
+    if (specialty) fetchServices()
   }, [specialty])
-  
+
   const handleChange = (event) => {
     const { name, value } = event.target
     let newValue = value
-
-    if (name === "department") {
-      setSpecialty(newValue)
-    }
-
-    if (name === "gender") {
-      newValue = newValue === "true"
-    }
-
-    // Cập nhật formData
+    if (name === "department") setSpecialty(newValue)
+    if (name === "gender") newValue = newValue === "true"
     setFormData({ ...formData, [name]: newValue })
-    
-    // Validate field khi người dùng thay đổi giá trị
     validateField(name, newValue)
   }
 
-  // const submit = async (e) => {
-  //   try {
-  //     e.preventDefault()
-  //     const errors = validateForm(formData)
-  //     if (errors > 0) return
+  const submit = async (e) => {
+    try {
+      e.preventDefault()
+      const errors = validateForm(formData)
+      if (errors > 0) return
 
-  //     const response = await axios.post("/appointments", formData)
-  //     console.log(response)
-  //     // alert(res.data.message) // Hiển thị thông báo thành công
-  //   } catch (error) {
-  //     if (error.response && error.response.data && error.response.data.message) {
-  //       alert(error.response.data.message) // Hiển thị lỗi từ backend
-  //     } else {
-  //       console.log(error)
-  //     }
-  //   }
-  // }
+      const response = await axios.post("/appointments", formData)
 
- const submit = async (e) => {
-  try {
-    e.preventDefault()
-    const errors = validateForm(formData)
-    if (errors > 0) return
-
-    const response = await axios.post("/appointments", formData)
-
-    if (response.data.availableAppointments) {
-      setServerMessage(response.data.message)
-      setSuggestedAppointments(response.data.availableAppointments)
-    } else {
-      setServerMessage(response.data.message)
-      setSuggestedAppointments([]) // Clear suggestions nếu đặt lịch thành công
-    }
-  } catch (error) {
-    if (error.response && error.response.data && error.response.data.message) {
-      setServerMessage(error.response.data.message)
-      setSuggestedAppointments([])
-    } else {
+      if (response.data.availableAppointments) {
+        setSuggestedAppointments(response.data.availableAppointments)
+        setShowModal(true)
+      } else {
+        setSuggestedAppointments([])
+      }
+    } catch (error) {
       console.log(error)
     }
   }
-}
 
-  const debouncedSubmit = debounce(submit)  
+  const debouncedSubmit = debounce(submit)
 
   return (
     <Container className="p-0 w-75 my-4">
       <div className="text-center mb-4">
-        <h1 className="fw-bold" style={{ color: "#0056b3" }}>
-          ĐĂNG KÝ KHÁM
-        </h1>
+        <h1 className="fw-bold" style={{ color: "#0056b3" }}>ĐĂNG KÝ KHÁM</h1>
         <div className="d-flex justify-content-center align-items-center gap-2 mt-2">
           <div style={{ height: "1px", width: "100px", backgroundColor: "#dee2e6" }}></div>
           <span style={{ color: "#4dabf7", fontSize: "24px" }}>✚</span>
@@ -146,49 +106,29 @@ function Appointment() {
           <Col md={4} className="p-4 text-white" style={{ backgroundColor: "#0091ea" }}>
             <h5>Lưu ý:</h5>
             <div>
-              <p className="text-white">Lịch hẹn có hiệu lực sau khi có xác nhận chính thức từ Phòng khám.</p>
-              <p className="text-white">
-                Quý khách hàng vui lòng cung cấp thông tin chính xác để được phục vụ tốt nhất. Trong trường hợp cung cấp
-                sai thông tin email & điện thoại, việc xác nhận cuộc hẹn sẽ không hiệu lực.
-              </p>
-              <p className="text-white">
-                Quý khách sử dụng dịch vụ đặt hẹn trực tuyến, xin vui lòng đặt trước ít nhất là 24 giờ trước khi đến khám.
-              </p>
-              <p className="text-white">
-                Trong trường hợp khẩn cấp hoặc nghi ngờ có các triệu chứng nguy hiểm, quý khách vui lòng ĐẾN TRỰC TIẾP
-                Phòng khám hoặc các trung tâm y tế gần nhất để kịp thời xử lý.
-              </p>
+              <p className="text-white">Lịch hẹn có hiệu lực sau khi có xác nhận từ Phòng khám.</p>
+              <p className="text-white">Vui lòng cung cấp thông tin chính xác để được phục vụ tốt nhất.</p>
+              <p className="text-white">Hãy đặt trước ít nhất 24 giờ.</p>
+              <p className="text-white">Trường hợp khẩn cấp hãy đến trực tiếp cơ sở y tế gần nhất.</p>
             </div>
           </Col>
 
           <Col md={8} className="p-4 bg-white">
-            <p className="text-muted mb-4">
-              Vui lòng điền thông tin vào form bên dưới để đã đăng ký khám bệnh theo yêu cầu
-            </p>
+            <p className="text-muted mb-4">Vui lòng điền thông tin để đăng ký khám</p>
 
             <Form>
               <Form.Group className="mb-3">
-                <Form.Select 
-                  name="department" 
-                  onChange={handleChange} 
-                  isInvalid={!!formErrors.department}
-                >
+                <Form.Select name="department" onChange={handleChange} isInvalid={!!formErrors.department}>
                   <option>Chọn chuyên khoa</option>
                   {specialties.map((specialty, index) => (
-                    <option key={index} value={specialty.name}>
-                      {specialty.name}
-                    </option>
+                    <option key={index} value={specialty.name}>{specialty.name}</option>
                   ))}
                 </Form.Select>
                 <Form.Control.Feedback type="invalid">{formErrors.department}</Form.Control.Feedback>
               </Form.Group>
 
               <Form.Group className="mb-3">
-                <Form.Select 
-                  name="doctor" 
-                  onChange={handleChange} 
-                  isInvalid={!!formErrors.doctor}
-                >
+                <Form.Select name="doctor" onChange={handleChange} isInvalid={!!formErrors.doctor}>
                   <option>Chọn bác sĩ</option>
                   {doctors?.map((doctor, index) => (
                     <option key={index}>{doctor.userName}</option>
@@ -198,30 +138,22 @@ function Appointment() {
               </Form.Group>
 
               <Form.Group className="mb-3">
-                <Form.Select 
-                  name="service" 
-                  onChange={handleChange} 
-                  isInvalid={!!formErrors.service}
-                >
-                   <option>Chọn dịch vụ</option>
-                   {services?.map((service, index) => (
-                    <option key={index} value={service.serviceName}>
-                      {service.serviceName}
-                    </option>
-                   ))} 
+                <Form.Select name="service" onChange={handleChange} isInvalid={!!formErrors.service}>
+                  <option>Chọn dịch vụ</option>
+                  {services?.map((service, index) => (
+                    <option key={index} value={service.serviceName}>{service.serviceName}</option>
+                  ))}
                 </Form.Select>
                 <Form.Control.Feedback type="invalid">{formErrors.service}</Form.Control.Feedback>
               </Form.Group>
 
               <Row className="mb-3">
                 <Col md={6}>
-                  <Form.Group className="mb-3">
+                  <Form.Group>
                     <Form.Control
                       type="date"
-                      placeholder="Ngày khám"
                       name="appointmentDate"
                       onChange={handleChange}
-                      className="position-relative"
                       isInvalid={!!formErrors.appointmentDate}
                       min={minDate}
                       max={maxDate}
@@ -230,12 +162,8 @@ function Appointment() {
                   </Form.Group>
                 </Col>
                 <Col md={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Select 
-                      name="appointmentTime" 
-                      onChange={handleChange} 
-                      isInvalid={!!formErrors.appointmentTime}
-                    >
+                  <Form.Group>
+                    <Form.Select name="appointmentTime" onChange={handleChange} isInvalid={!!formErrors.appointmentTime}>
                       <option>Buổi khám</option>
                       <option>Sáng</option>
                       <option>Chiều</option>
@@ -246,41 +174,38 @@ function Appointment() {
               </Row>
 
               <Form.Group className="mb-4">
-                <Form.Control
-                  as="textarea"
-                  rows={4}
-                  placeholder="Triệu chứng"
-                  name="symptoms"
-                  onChange={handleChange}
-                />
+                <Form.Control as="textarea" rows={4} placeholder="Triệu chứng" name="symptoms" onChange={handleChange} />
               </Form.Group>
 
               <div className="text-end">
-                <Button
-                  onClick={debouncedSubmit}
-                  className="px-5 py-2 border-0 rounded-5" style={{backgroundColor: "#4dabf7"}}
-                >
+                <Button onClick={debouncedSubmit} className="px-5 py-2 border-0 rounded-5" style={{ backgroundColor: "#4dabf7" }}>
                   GỬI
                 </Button>
               </div>
             </Form>
-            <br></br>
-            {suggestedAppointments.length > 0 && (
-            <div className="border rounded p-3 mb-4 bg-light">
-              <h5 className="text-danger">{serverMessage}</h5>
-              <p className="mb-2">Bạn vui lòng chọn các cuộc hẹn khác như sau:</p>
-              <ul className="mb-0">
-                {suggestedAppointments.map((appointment, index) => (
-                  <li key={index}>
-                    {new Date(appointment.date).toLocaleDateString('vi-VN')}: {appointment.time}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
           </Col>
         </Row>
       </div>
+
+      {/* Modal hiển thị lịch hẹn gợi ý */}
+      <Modal show={showModal} onHide={handleCloseModal}>
+        <Modal.Header closeButton>
+          <h4 className="text-danger">Khung giờ bạn chọn đã đầy!</h4>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Vui lòng chọn lịch hẹn khác:</p>
+          <ul>
+            {suggestedAppointments.map((appointment, index) => (
+              <li key={index}>
+                {new Date(appointment.date).toLocaleDateString("vi-VN")}: {appointment.time}
+              </li>
+            ))}
+          </ul>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseModal}>Đóng</Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   )
 }

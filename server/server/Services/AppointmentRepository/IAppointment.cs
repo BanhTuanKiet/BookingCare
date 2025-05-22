@@ -25,6 +25,6 @@ namespace server.Services
         Task<int> CountAppointmentsByPatientId(int patientId);
         Task<List<AppointmentDTO.AppointmentDetail>> GetAppointmentsByPatientIdPaginated(int patientId, int page, int pageSize);
         Task<int> CountAppointsByDate(DateTime date, string time);
-        Task<List<AppointmentDTO.AvailableAppointment>> CheckAvailableAppointment(DateTime date, string time);
+        Task<List<AppointmentDTO.AvailableAppointment>> CheckAvailableAppointment(int? doctorId, DateTime date, string time);
     }
 }

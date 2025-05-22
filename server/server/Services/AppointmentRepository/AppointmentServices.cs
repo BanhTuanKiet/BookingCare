@@ -304,16 +304,19 @@ namespace server.Services
             return appointments.Count();
         }
 
-        public async Task<List<AppointmentDTO.AvailableAppointment>> CheckAvailableAppointment(DateTime date, string time)
+        public async Task<List<AppointmentDTO.AvailableAppointment>> CheckAvailableAppointment(int? doctorId, DateTime date, string time)
         {
             var endDate = date.AddDays(15);
 
             var appointments = await _context.Appointments
-                .Where(a => a.AppointmentDate.HasValue &&
-                            a.AppointmentDate.Value.Date >= date.Date &&
-                            a.AppointmentDate.Value.Date <= endDate.Date)
-                            // a.AppointmentTime == time)
-                .ToListAsync();  
+                .Where(a =>
+                    a.AppointmentDate.HasValue &&
+                    a.AppointmentDate.Value.Date >= date.Date &&
+                    a.DoctorId == doctorId &&
+                    a.AppointmentDate.Value.Date <= endDate.Date &&
+                    !(a.AppointmentDate.Value.Date == date.Date && a.AppointmentTime == time)
+                )
+                .ToListAsync();
 
             var groupedAppointments = appointments
                     .GroupBy(a => new { Date = a.AppointmentDate.Value.Date, Time = a.AppointmentTime })
@@ -326,6 +329,7 @@ namespace server.Services
                     })
                     .OrderBy(g => g.Date)
                     .ThenBy(g => g.Time == "Sáng" ? 0 : 1)
+                    .Take(3)
                     .ToList();
 
             return groupedAppointments;     
