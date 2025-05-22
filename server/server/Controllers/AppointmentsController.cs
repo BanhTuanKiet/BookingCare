@@ -207,6 +207,35 @@ namespace server.Controllers
         //     var appointments = await _appointmentService.GetAppointmentByPatientId(patient.PatientId, quantity);
         //     return Ok(appointments);
         // }
+
+        [Authorize(Roles = "doctor")]
+        [HttpGet("schedule")]
+        public async Task<ActionResult<List<AppointmentDTO.DoctorScheduleDTO>>> GetDoctorSchedule()
+        {
+            var userId = HttpContext.Items["UserId"];
+            int parsedUserId = Convert.ToInt32(userId.ToString());
+
+            var doctor = await _doctorService.GetDoctorById(parsedUserId) ?? throw new ErrorHandlingException("Không tìm thấy bác sĩ!");
+
+            var schedule = await _appointmentService.GetDoctorSchedule(doctor.DoctorId) ?? throw new ErrorHandlingException("Không tìm thấy lịch làm việc!");
+            
+            return schedule;
+        }
+
+        [Authorize(Roles = "doctor")]
+        [HttpGet("schedule_detail")]
+        public async Task<ActionResult> GetDoctorScheduleByDateTime([FromQuery] string date, [FromQuery] string time)
+        {
+            var userId = HttpContext.Items["UserId"];
+            int parsedUserId = Convert.ToInt32(userId.ToString());
+
+            var doctor = await _doctorService.GetDoctorById(parsedUserId) ?? throw new ErrorHandlingException("Không tìm thấy bác sĩ!");
+
+            var schedules = await _appointmentService.GetDoctorScheduleDetail(doctor.DoctorId, date, time);
+
+            return Ok(new { schedules = schedules, doctor = doctor });
+        }
+
         [Authorize(Roles = "patient")]
         [HttpPost("by-patient")]
         public async Task<ActionResult> GetAppointmentByPatientId([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
@@ -239,45 +268,32 @@ namespace server.Controllers
         }
 
         [Authorize(Roles = "doctor")]
-        [HttpGet("schedule")]
-        public async Task<ActionResult<List<AppointmentDTO.DoctorScheduleDTO>>> GetDoctorSchedule()
-        {
-            var userId = HttpContext.Items["UserId"];
-            int parsedUserId = Convert.ToInt32(userId.ToString());
-
-            var doctor = await _doctorService.GetDoctorById(parsedUserId) ?? throw new ErrorHandlingException("Không tìm thấy bác sĩ!");
-
-            var schedule = await _appointmentService.GetDoctorSchedule(doctor.DoctorId) ?? throw new ErrorHandlingException("Không tìm thấy lịch làm việc!");
-            
-            return schedule;
-        }
-
-        [Authorize(Roles = "doctor")]
-        [HttpGet("schedule_detail")]
-        public async Task<ActionResult> GetDoctorScheduleByDateTime([FromQuery] string date, [FromQuery] string time)
-        {
-            var userId = HttpContext.Items["UserId"];
-            int parsedUserId = Convert.ToInt32(userId.ToString());
-
-            var doctor = await _doctorService.GetDoctorById(parsedUserId) ?? throw new ErrorHandlingException("Không tìm thấy bác sĩ!");
-
-            var schedules = await _appointmentService.GetDoctorScheduleDetail(doctor.DoctorId, date, time);
-
-            return Ok(new { schedules = schedules, doctor = doctor });
-        }
-
-        [Authorize(Roles = "doctor")]
         [HttpGet("examined_patients")]
-        public async Task<ActionResult> GetPatientByStatus()
+        public async Task<ActionResult> GetPatientByStatus([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var userId = HttpContext.Items["UserId"].ToString();
-            int parsedUserId = Convert.ToInt32(userId);
-
+            var userId = HttpContext.Items["UserId"];
+            int parsedUserId = Convert.ToInt32(userId.ToString());
+            Console.WriteLine("UserId Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: " + parsedUserId);
             var doctor = await _doctorService.GetDoctorById(parsedUserId) ?? throw new ErrorHandlingException("Không tìm thấy bác sĩ!");
+            if (!doctor.DoctorId.HasValue)
+                throw new ErrorHandlingException("Không tìm thấy ID của bác sĩ");
+            var totalAppointments = await _appointmentService.GetExaminedPatientCount(doctor.DoctorId.Value);
+            if (totalAppointments == 0)
+                throw new ErrorHandlingException("Không tìm thấy lịch hẹn nào");
+            int totalPages = (int)Math.Ceiling((double)totalAppointments / pageSize);
+            
+            // Đảm bảo page không nhỏ hơn 1 và không lớn hơn totalPages
+            page = Math.Max(1, Math.Min(page, Math.Max(1, totalPages)));
 
-            var schedules = await _appointmentService.GetPatientScheduleDetail(doctor.DoctorId);
-
-            return Ok(new { schedules = schedules});
+            var appointments = await _appointmentService.GetPatientScheduleDetailPaged( doctor.DoctorId.Value, page, pageSize);
+            
+            return Ok(new { 
+                appointments, 
+                currentPage = page, 
+                pageSize, 
+                totalPages, 
+                totalItems = totalAppointments 
+            });
         }
 
         [Authorize(Roles = "patient")]

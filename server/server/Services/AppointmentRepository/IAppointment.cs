@@ -16,6 +16,7 @@ namespace server.Services
         Task<List<AppointmentDTO.DoctorScheduleDTO>> GetDoctorSchedule(int? doctorId);
         Task<List<AppointmentDTO.AppointmentDetail>> GetDoctorScheduleDetail(int? doctorId, string date, string time);
         Task<List<AppointmentDTO.AppointmentDetail>> GetPatientScheduleDetail(int? doctorId);
+        Task<List<AppointmentDTO.AppointmentDetail>> GetPatientScheduleDetailPaged(int doctorId, int page, int pageSize);
         Task<List<int>> GetAppointmentsId(int? patientId);
         Task<List<int>> GetRecentAppointmentsId(int? patientId);
         Task<AppointmentDTO.AppointmentDetail> GetRecentAppointment(int? patientId);

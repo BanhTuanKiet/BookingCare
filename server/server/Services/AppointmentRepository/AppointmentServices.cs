@@ -165,8 +165,8 @@ namespace server.Services
                 .Include(a => a.Doctor)
                 .Include(a => a.Doctor.User)
                 .Include(a => a.Service)
-                .Where(a => a.DoctorId == doctorId && a.Status == "Đã khám")
-
+                .Where(a => a.DoctorId == doctorId && a.Status == "Đã khám"|| a.Status == "Đã hoàn thành")
+                .OrderByDescending(a => a.AppointmentDate)
                 .ToListAsync();
 
             var appointmentDTOs = _mapper.Map<List<AppointmentDTO.AppointmentDetail>>(appointments);
@@ -212,11 +212,9 @@ namespace server.Services
 
         public async Task<int> GetExaminedPatientCount(int doctorId)
         {
-            var appointments = await _context.Appointments
+            return await _context.Appointments
                 .Where(a => a.DoctorId == doctorId && (a.Status == "Đã khám" || a.Status == "Đã hoàn thành"))
                 .CountAsync();
-
-            return appointments;
         }
 
         public async Task<object> AppointmentStatistics(int month, int year)
@@ -294,6 +292,27 @@ namespace server.Services
                 .ToListAsync();
             var appointmentDTOs = _mapper.Map<List<AppointmentDTO.AppointmentDetail>>(appointments);
             
+            return appointmentDTOs;
+        }
+
+        public async Task<List<AppointmentDTO.AppointmentDetail>> GetPatientScheduleDetailPaged(int doctorId, int page, int pageSize)
+        {
+            int skip = (page - 1) * pageSize;
+            var query = _context.Appointments
+                .Where(a => a.DoctorId == doctorId &&
+                    (a.Status == "Đã khám" || a.Status == "Đã hoàn thành"))
+                .OrderByDescending(a => a.AppointmentDate)
+                .Include(a => a.Patient)
+                .Include(a => a.Patient.User)
+                .Include(a => a.Doctor)
+                .Include(a => a.Doctor.User)
+                .Include(a => a.Service)
+                .Skip(skip)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var appointmentDTOs = _mapper.Map<List<AppointmentDTO.AppointmentDetail>>(query);
+
             return appointmentDTOs;
         }
     }

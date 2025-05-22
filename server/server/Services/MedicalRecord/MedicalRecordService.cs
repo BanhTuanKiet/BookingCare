@@ -78,7 +78,7 @@ namespace server.Services
                 .Include(mr => mr.Appointment.Doctor.Specialty)
                 .Include(mr => mr.Appointment.Service)
                 .Where(mr => appointmentIds.Contains(mr.AppointmentId ?? 0) && mr.Appointment.Status == "Đã hoàn thành")
-                .OrderBy(mr => mr.Appointment.AppointmentDate)
+                .OrderByDescending(mr => mr.Appointment.AppointmentDate)
                 .ToListAsync() ?? throw new ErrorHandlingException("Lỗi khi lấy danh sách toa thuốc!");
 
             var medicalRecordDTOs = _mapper.Map<List<MedicalRecordDTO.MedicalRecordBasic>>(medicalRecords);
