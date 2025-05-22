@@ -6,7 +6,7 @@ import axios from '../../Util/AxiosConfig';
 function SignUp({ setIsLogin }) {
     const { validateForm, formErrors } = useContext(ValideFormContext);
     const [registerData, setRegisterData] = useState({
-        fullname: "", phone: "", email: "", signup_password: "", passwordConfirmed: ""
+        fullname: "", phone: "", email: "", password: "", passwordConfirmed: ""
     });
     const [otpInputs, setOtpInputs] = useState(["", "", "", "", "", ""]);
     const [showOtpModal, setShowOtpModal] = useState(false);
@@ -84,7 +84,7 @@ function SignUp({ setIsLogin }) {
     }, [showOtpModal]);
 
     const passwordsMatch = () => {
-        return registerData.signup_password === registerData.passwordConfirmed && registerData.signup_password !== "";
+        return registerData.password === registerData.passwordConfirmed && registerData.password !== "";
     };
 
     const handleRegister = async (e) => {
@@ -229,7 +229,7 @@ function SignUp({ setIsLogin }) {
 
                 <Form.Control
                     type="email"
-                    placeholder="Email (Example@gmail.com)"
+                    placeholder="Email"
                     value={registerData.email}
                     isInvalid={!!formErrors.email}
                     onChange={handleEmailChange}
@@ -238,18 +238,18 @@ function SignUp({ setIsLogin }) {
 
                 <InputGroup className="my-1">
                     <Form.Control
-                        type={showPasswords ? "text" : "signup_password"}
+                        type={showPasswords ? "text" : "password"}
                         placeholder="Mật khẩu"
-                        value={registerData.signup_password}
-                        isInvalid={!!formErrors.signup_password}
-                        onChange={(e) => setRegisterData({ ...registerData, signup_password: e.target.value })}
+                        value={registerData.password}
+                        isInvalid={!!formErrors.password}
+                        onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
                     />
-                    <Form.Control.Feedback type="invalid">{formErrors.signup_password}</Form.Control.Feedback>
+                    <Form.Control.Feedback type="invalid">{formErrors.password}</Form.Control.Feedback>
                 </InputGroup>
 
                 <InputGroup className="my-1">
                     <Form.Control
-                        type={showPasswords ? "text" : "signup_password"}
+                        type={showPasswords ? "text" : "password"}
                         placeholder="Xác nhận mật khẩu"
                         value={registerData.passwordConfirmed}
                         isInvalid={!!formErrors.passwordConfirmed || passwordMatchError}
