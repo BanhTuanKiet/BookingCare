@@ -164,7 +164,7 @@ namespace server.Services
             pay.AddRequestData("vnp_CurrCode", _configuration["Vnpay:CurrCode"]);
             pay.AddRequestData("vnp_IpAddr", pay.GetIpAddress(context));
             pay.AddRequestData("vnp_Locale", _configuration["Vnpay:Locale"]);
-            pay.AddRequestData("vnp_OrderInfo", $"{name} {orderDescription} {amount}");
+            pay.AddRequestData("vnp_OrderInfo", $"{name} {orderDescription}");
             pay.AddRequestData("vnp_OrderType", orderType);
             pay.AddRequestData("vnp_ReturnUrl", urlCallBack);
             pay.AddRequestData("vnp_TxnRef", recordId);
@@ -179,7 +179,7 @@ namespace server.Services
             return paymentUrl;
         }
 
-        public PaymentDTO.PaymentResponseModel PaymentExecute(IQueryCollection collections)
+        public PaymentDTO.PaymentCallBack PaymentExecute(IQueryCollection collections)
         {
             var pay = new VnPayUtil();
             var response = pay.GetFullResponseData(collections, _configuration["Vnpay:HashSecret"]);

@@ -390,9 +390,6 @@ namespace Clinic_Management.Controllers
             return Ok(recordDetail);
         }
 
-        /// <summary>
-        /// Create payment URL for VnPay
-        /// </summary>
         [HttpPost("create-vnpay/{recordId}")]
         public async Task<IActionResult> CreatePayment(int recordId)
         {
@@ -413,8 +410,8 @@ namespace Clinic_Management.Controllers
 
                     // Bạn set sẵn ở backend
                     string orderType = "other";
-                    string orderDescription = "Thanh toán đơn thuốc";
-                    string name = $"Đơn thuốc của bệnh nhân {appointment.Patient?.User?.FullName ?? "Unknown"}";
+                    string orderDescription = "thanh toán đơn thuốc";
+                    string name = $"{appointment.Patient?.User?.FullName ?? "Unknown"}";
 
 
                     Console.WriteLine($"Mã record: {appointment.Patient?.User?.FullName ?? "Unknown"}");
@@ -428,18 +425,19 @@ namespace Clinic_Management.Controllers
                 }
         }
 
-        /// <summary>
-        /// Payment callback from VnPay
-        /// </summary>
         [HttpGet("callback")]
-        public async Task<IActionResult> PaymentCallbackVnpay()
+        public async Task<PaymentDTO.PaymentInformationModel> PaymentCallbackVnpay()
         {
             var response = _medicalRecordService.PaymentExecute(Request.Query);
 
-            if (response.VnPayResponseCode == "00")
+            if (response.VnPayResponseCode == "00" && response.TransactionCode == "00")
             {
                 var appointment = await _context.Appointments
-                    .FirstOrDefaultAsync(a => a.MedicalRecord.RecordId == int.Parse(response.OrderId));
+                    .Include(a => a.Patient)
+                    .ThenInclude(p => p.User)
+                    .Include(a => a.MedicalRecord)
+                    .FirstOrDefaultAsync(a => a.MedicalRecord.RecordId == int.Parse(response.PaymentId));
+
 
                 if (appointment == null)
                 {
@@ -448,14 +446,29 @@ namespace Clinic_Management.Controllers
 
                 var oldStatus = appointment.Status;
                 appointment.Status = "Đã hoàn thành";
-
                 await _context.SaveChangesAsync();
-
-                return Content("success");
+                return new PaymentDTO.PaymentInformationModel
+                {
+                    PaymentId = response.TransactionNo,
+                    Amount = response.Amount,
+                    Success = "success",
+                    Name = appointment?.Patient?.User?.FullName ?? "Không xác định",
+                    OrderDescription = response.PaymentInfo,
+                    Date = response.PaymentDateTime
+                };
+                // return Content("success");
             }
             else
             {
-                return Content("fail");
+                return new PaymentDTO.PaymentInformationModel
+                {
+                    PaymentId = "",
+                    Amount = "0",
+                    Success = "fail",
+                    OrderDescription = "",
+                    Name = "",
+                    Date = DateTime.MinValue
+                };
             }
         }
 

@@ -1,20 +1,22 @@
 import { useEffect, useState } from 'react';
-import { Container, Row, Col, Spinner, Card, Alert, Badge } from 'react-bootstrap';
+import { Container, Row, Col, Spinner, Card, Badge } from 'react-bootstrap';
 import { CheckCircle, AlertTriangle, Phone, Mail } from 'lucide-react';
-import axios from '../../../../../Util/AxiosConfig'; // Thay bằng import thực tế
+import axios from '../../../../../Util/AxiosConfig';
 
 const PaymentVNPayResult = () => {
   const [status, setStatus] = useState("loading");
+  const [res, setRes] = useState({});
 
   useEffect(() => {
     const fetchResult = async () => {
       try {
         const query = window.location.search;
-        const res = await axios.get(`/medicalrecords/callback${query}`);
-        console.log(res.data);
-        setStatus(res.data);
+        const response = await axios.get(`/medicalrecords/callback${query}`);
+        setRes(response.data);
+        setStatus(response.data.success);
       } catch (error) {
         setStatus("fail_fetch");
+
       }
     };
 
@@ -24,14 +26,24 @@ const PaymentVNPayResult = () => {
   const renderTransactionDetails = () => (
     <div className="mb-3">
       <Row className="mb-1">
-        <Col xs={6} className="text-muted">Mã tra cứu:</Col>
-        <Col xs={6} className="text-end"><strong>{Math.random().toString(36).substring(2, 10).toUpperCase()}</strong></Col>
+        <Col xs={6} className="text-muted">Mã đơn hàng:</Col>
+        <Col xs={6} className="text-end"><strong>{res.paymentId}</strong></Col>
       </Row>
-      <Row>
-        <Col xs={6} className="text-muted">Thời gian:</Col>
-        <Col xs={6} className="text-end">
-          {new Date().toLocaleDateString('vi-VN')} {new Date().toLocaleTimeString('vi-VN')}
-        </Col>
+      <Row className="mb-1">
+        <Col xs={6} className="text-muted">Ngày gửi:</Col>
+        <Col xs={6} className="text-end"><strong>{res.date}</strong></Col>
+      </Row>
+      <Row className="mb-1">
+        <Col xs={6} className="text-muted">Tên người gửi:</Col>
+        <Col xs={6} className="text-end"><strong>{res.name || "Không rõ"}</strong></Col>
+      </Row>
+      <Row className="mb-1">
+        <Col xs={6} className="text-muted">Nội dung chuyển tiền:</Col>
+        <Col xs={6} className="text-end"><strong>{res.orderDescription}</strong></Col>
+      </Row>
+      <Row className="mb-1">
+        <Col xs={6} className="text-muted">Số tiền:</Col>
+        <Col xs={6} className="text-end"><strong>{res.amount} VNĐ</strong></Col>
       </Row>
     </div>
   );

@@ -18,6 +18,6 @@ namespace server.Services
         Task<int> CalculateAmountFromRecordId(int recordId);
         Task<MedicalRecordDTO.CheckPaymentStatusResponse?> CheckPaymentStatusAsync(string orderId);
         Task<string> CreatePaymentUrl(HttpContext context, float amount, string orderId, string orderType, string orderDescription, string name);
-        PaymentDTO.PaymentResponseModel PaymentExecute(IQueryCollection collections);
+        PaymentDTO.PaymentCallBack PaymentExecute(IQueryCollection collections);
     }
 }
