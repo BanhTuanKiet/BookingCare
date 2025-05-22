@@ -311,13 +311,13 @@ namespace server.Services
             var appointments = await _context.Appointments
                 .Where(a => a.AppointmentDate.HasValue &&
                             a.AppointmentDate.Value.Date >= date.Date &&
-                            a.AppointmentDate.Value.Date < endDate.Date)
+                            a.AppointmentDate.Value.Date <= endDate.Date)
                             // a.AppointmentTime == time)
                 .ToListAsync();  
 
             var groupedAppointments = appointments
                     .GroupBy(a => new { Date = a.AppointmentDate.Value.Date, Time = a.AppointmentTime })
-                    .Where(g => g.Count() <= 1)
+                    .Where(g => g.Count() <= 5)
                     .Select(g => new AppointmentDTO.AvailableAppointment
                     {
                         Date = g.Key.Date,

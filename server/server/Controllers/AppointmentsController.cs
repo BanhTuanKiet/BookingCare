@@ -53,10 +53,10 @@ namespace server.Controllers
             
             var isExistAppointment = await _appointmentService.IsExistAppointment(patient.PatientId, appointmentForm.AppointmentDate, appointmentForm.AppointmentTime);
 
-            if (isExistAppointment != null) 
+            if (isExistAppointment != null)
             {
                 throw new ErrorHandlingException(400, $"Lịch hẹn {appointmentForm.AppointmentDate} {appointmentForm.AppointmentTime} đang chờ xác nhận");
-            }
+            } 
             
             if (appointmentForm.AppointmentDate <= DateTime.Now)
             {
@@ -72,12 +72,17 @@ namespace server.Controllers
 
             if (quantityAppointment > 0)
             {
-                var availableAppointment = await _appointmentService.CheckAvailableAppointment(appointmentForm.AppointmentDate, appointmentForm.AppointmentTime);
-                return Ok(availableAppointment);
+                var availableAppointments = await _appointmentService.CheckAvailableAppointment(appointmentForm.AppointmentDate, appointmentForm.AppointmentTime);
+                // return Ok(400, "ABC", availableAppointments);
                 // return Ok(new { message = "Số lượng đặt lịch cho khung giờ này đã đầy. Vui lòng chọn thời gian khác." });
+                return Ok(new
+                {
+                    message = "Khung giờ bạn chọn đã đầy!",
+                    availableAppointments = availableAppointments
+                });
             }
 
-            return Ok(new { message = "Đặt lịch thành công", quantityAppointment = quantityAppointment });
+            // return Ok(new { message = "Đặt lịch thành công", quantityAppointment = quantityAppointment });
 
             var appointment = await _appointmentService.Appointment(patient.PatientId, doctor.DoctorId, service.ServiceId, appointmentForm.AppointmentDate, appointmentForm.AppointmentTime, "Chờ xác nhận");
             

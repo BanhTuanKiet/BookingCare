@@ -21,6 +21,8 @@ function Appointment() {
    // Thêm các state để kiểm soát date picker
   const [minDate, setMinDate] = useState("")
   const [maxDate, setMaxDate] = useState("")
+  const [suggestedAppointments, setSuggestedAppointments] = useState([])
+  const [serverMessage, setServerMessage] = useState("")
 
   // Thiết lập min và max date cho date picker
   useEffect(() => {
@@ -81,24 +83,48 @@ function Appointment() {
     validateField(name, newValue)
   }
 
-  const submit = async (e) => {
-    try {
-      e.preventDefault()
-      const errors = validateForm(formData)
-      if (errors > 0) return
+  // const submit = async (e) => {
+  //   try {
+  //     e.preventDefault()
+  //     const errors = validateForm(formData)
+  //     if (errors > 0) return
 
-      const response = await axios.post("/appointments", formData)
-      console.log(response)
-      // alert(res.data.message) // Hiển thị thông báo thành công
-    } catch (error) {
-      if (error.response && error.response.data && error.response.data.message) {
-        alert(error.response.data.message) // Hiển thị lỗi từ backend
-      } else {
-        console.log(error)
-      }
+  //     const response = await axios.post("/appointments", formData)
+  //     console.log(response)
+  //     // alert(res.data.message) // Hiển thị thông báo thành công
+  //   } catch (error) {
+  //     if (error.response && error.response.data && error.response.data.message) {
+  //       alert(error.response.data.message) // Hiển thị lỗi từ backend
+  //     } else {
+  //       console.log(error)
+  //     }
+  //   }
+  // }
+
+ const submit = async (e) => {
+  try {
+    e.preventDefault()
+    const errors = validateForm(formData)
+    if (errors > 0) return
+
+    const response = await axios.post("/appointments", formData)
+
+    if (response.data.availableAppointments) {
+      setServerMessage(response.data.message)
+      setSuggestedAppointments(response.data.availableAppointments)
+    } else {
+      setServerMessage(response.data.message)
+      setSuggestedAppointments([]) // Clear suggestions nếu đặt lịch thành công
+    }
+  } catch (error) {
+    if (error.response && error.response.data && error.response.data.message) {
+      setServerMessage(error.response.data.message)
+      setSuggestedAppointments([])
+    } else {
+      console.log(error)
     }
   }
-
+}
 
   const debouncedSubmit = debounce(submit)  
 
@@ -238,6 +264,20 @@ function Appointment() {
                 </Button>
               </div>
             </Form>
+            <br></br>
+            {suggestedAppointments.length > 0 && (
+            <div className="border rounded p-3 mb-4 bg-light">
+              <h5 className="text-danger">{serverMessage}</h5>
+              <p className="mb-2">Bạn vui lòng chọn các cuộc hẹn khác như sau:</p>
+              <ul className="mb-0">
+                {suggestedAppointments.map((appointment, index) => (
+                  <li key={index}>
+                    {new Date(appointment.date).toLocaleDateString('vi-VN')}: {appointment.time}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           </Col>
         </Row>
       </div>

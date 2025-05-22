@@ -269,7 +269,7 @@ function About() {
                   </div>
                   <div>
                     <h5 className="fw-bold mb-2">Email</h5>
-                    <p className="mb-0 text-muted">info@phongkhamx.com</p>
+                    <p className="mb-0 text-muted">datteo192004@gmail.com</p>
                   </div>
                 </div>
 

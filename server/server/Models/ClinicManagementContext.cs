@@ -144,6 +144,7 @@ public partial class ClinicManagementContext : IdentityDbContext<ApplicationUser
             entity.Property(e => e.PatientId).HasColumnName("PatientId");
             entity.Property(e => e.Messages).HasMaxLength(255);
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.Status).HasMaxLength(50);
 
             entity.HasOne(d => d.Patient).WithOne(p => p.ContactMessages)
                 .HasForeignKey<Patient>(d => d.PatientId)
