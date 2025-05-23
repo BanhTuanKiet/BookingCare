@@ -53,8 +53,8 @@ const Contact = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    const errors = validateForm(formData)   
-    if (errors > 0) return
+    // const errors = validateForm(formData)   
+    // if (errors > 0) return
 
     try {
       const response = await axios.post(`/contactmessages/${formData.message}`)

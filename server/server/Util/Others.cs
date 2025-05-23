@@ -22,6 +22,8 @@ namespace server.Util
         }
         public static string RemoveDiacritics(string input)
         {
+            if (string.IsNullOrEmpty(input))
+                return "";
             string normalized = input.Normalize(NormalizationForm.FormD);
             StringBuilder sb = new StringBuilder();
 

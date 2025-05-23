@@ -20,6 +20,7 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Microsoft.OpenApi.Expressions;
 using System.Text.Json;
+using System.Security.Claims;
 
 namespace Clinic_Management.Controllers
 {
@@ -52,7 +53,12 @@ namespace Clinic_Management.Controllers
         public async Task<ActionResult> AddMedicalRecord(int appointmentId, [FromBody] MedicalRecordDTO.PrescriptionRequest prescriptionRequest )
         {
             var appointment = await _appointmentService.GetAppointmentById(appointmentId) ?? throw new ErrorHandlingException("Không tìm thấy lịch hẹn!");
-
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int parsedUserId = Convert.ToInt32(userId);
+            if (appointment.DoctorId != parsedUserId)
+            {
+                throw new ErrorHandlingException(403, "Bạn không có quyền truy cập vào lịch hẹn này!");
+            }
             var record = await _medicalRecordService.AddMedicalRecord(appointmentId, prescriptionRequest) ?? throw new ErrorHandlingException(400, "Lỗi khi tạo toa thuốc");
 
             var recordDetail = await _medicalRecordService.AddMedicalRecordDetail(record.RecordId, prescriptionRequest.Medicines) ?? throw new ErrorHandlingException(400, "Lỗi khi tạo toa thuốc");

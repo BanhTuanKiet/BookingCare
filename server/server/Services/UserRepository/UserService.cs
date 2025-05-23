@@ -21,7 +21,7 @@ namespace server.Services
             _mapper = mapper;
             _userManager = userManager;
         }
-                
+
         public async Task<UserDTO.UserBasic> GetUserById(int id, string role)
         {
             ApplicationUser user;
@@ -111,6 +111,27 @@ namespace server.Services
                 .ToList();
 
             return filteredUsers;
+        }
+
+        public async Task<List<UserDTO.Patient>> SearchUserByKeyWord(string keyWord)
+        {
+            if (string.IsNullOrWhiteSpace(keyWord))
+            {
+                return new List<UserDTO.Patient>();
+            }
+
+            keyWord = keyWord.Trim().ToLower();
+            var users = await _context.Users
+            .Include(u => u.Patient)
+            .Where(p =>
+                (!string.IsNullOrEmpty(p.FullName) && p.FullName.ToLower().Contains(keyWord)) ||
+                (!string.IsNullOrEmpty(p.Email) && p.Email.ToLower().Contains(keyWord)) ||
+                (!string.IsNullOrEmpty(p.PhoneNumber) && p.PhoneNumber.ToLower().Contains(keyWord)) ||
+                (!string.IsNullOrEmpty(p.Address) && p.Address.ToLower().Contains(keyWord))
+            )
+            .ToListAsync();
+
+            return _mapper.Map<List<UserDTO.Patient>>(users);
         }
     }
 }
