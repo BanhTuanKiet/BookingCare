@@ -144,7 +144,7 @@ namespace server.Controllers
         {
             try
             {
-                string formattedDate = appointmentDate.ToString("dd/MM/yyyy HH:mm");
+                string formattedDate = appointmentDate.ToString("dd/MM/yyyy");
 
                 var Subject = "Thông báo cập nhật trạng thái lịch hẹn";
 

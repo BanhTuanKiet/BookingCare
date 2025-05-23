@@ -17,8 +17,7 @@ namespace server.Services
         MomoExecuteResponseModel PaymentExecuteAsync(IQueryCollection collection);
         Task<int> CalculateAmountFromRecordId(int recordId);
         Task<MedicalRecordDTO.CheckPaymentStatusResponse?> CheckPaymentStatusAsync(string orderId);
-        
-        Task<string> CreatePaymentUrl(HttpContext context, float amount, string orderType, string orderDescription, string name);
-        PaymentDTO.PaymentResponseModel PaymentExecute(IQueryCollection collections);
+        Task<string> CreatePaymentUrl(HttpContext context, float amount, string orderId, string orderType, string orderDescription, string name);
+        PaymentDTO.PaymentCallBack PaymentExecute(IQueryCollection collections);
     }
 }

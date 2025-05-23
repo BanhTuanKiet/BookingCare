@@ -255,7 +255,6 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
       ) : (
         <>
           {renderFilterSection()}
-
           {patientPrescriptions.length > 0 ? (
             viewMode === 'table' ? (
               <div className="table-responsive">
@@ -280,25 +279,39 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
                         <td>{p.diagnosis}</td>
                         <td>{extractDateOnly(p.appointmentDate)}</td>
                         <td>{p.status}</td>
-                        <td>
-                          <div className="d-flex gap-1">
+                        <td className="text-nowrap">
+                          <div className="d-flex gap-2 flex-nowrap align-items-center">
                             <Button
                               variant="outline-primary"
                               size="sm"
-                              className="d-inline-flex align-items-center"
+                              className="d-inline-flex align-items-center text-nowrap"
                               onClick={() => handleSelectPrescription(p.recordId)}
                             >
                               Chi tiết
                             </Button>
-                            <Button 
-                              size="sm" 
-                              variant={p.status === "Đã hoàn thành" ? "secondary" : "success"}
-                              className="d-inline-flex align-items-center"
-                              onClick={() => handlePaymentClick(p)}
-                              disabled={p.status === "Đã hoàn thành"}
-                            >
-                              {p.status === "Đã hoàn thành" ? "Đã thanh toán" : "Thanh toán"}
-                            </Button>
+                            {p.status === "Đã hoàn thành" || p.status === "Đã khám" ? (
+                              <Button 
+                                size="sm" 
+                                variant={p.status === "Đã hoàn thành" ? "secondary" : "success"}
+                                className="d-flex justify-content-center align-items-center text-nowrap"
+                                onClick={() => handlePaymentClick(p)}
+                                disabled={p.status === "Đã hoàn thành"}
+                                style={{ minWidth: "120px"  }}
+                                mx-auto
+                              >
+                                {p.status === "Đã hoàn thành" ? "Đã thanh toán" : "Thanh toán"}
+                              </Button>
+                            ) : (
+                              <Button 
+                                size="sm" 
+                                variant="outline-secondary"
+                                className="d-inline-flex align-items-center text-nowrap"
+                                disabled
+                                style={{ minWidth: "120px" }}
+                              >
+                                Không khả dụng
+                              </Button>
+                            )}
                           </div>
                         </td>
                       </tr>

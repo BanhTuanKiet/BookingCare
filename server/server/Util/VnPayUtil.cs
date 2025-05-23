@@ -16,34 +16,38 @@ namespace server.Util
         private readonly SortedList<string, string> _requestData = new(new VnPayCompare());
         private readonly SortedList<string, string> _responseData = new(new VnPayCompare());
 
-        public PaymentDTO.PaymentResponseModel GetFullResponseData(IQueryCollection collection, string hashSecret)
+        public PaymentDTO.PaymentCallBack GetFullResponseData(IQueryCollection collection, string hashSecret)
         {
             foreach (var (key, value) in collection)
             {
-                if (!string.IsNullOrEmpty(key) && key.StartsWith("vnp_", StringComparison.Ordinal))
+                if (!string.IsNullOrEmpty(key) && key.StartsWith("vnp_", StringComparison.OrdinalIgnoreCase))
                 {
                     AddResponseData(key, value);
                 }
             }
 
-            var orderId = Convert.ToInt64(GetResponseData("vnp_TxnRef"));
-            var vnPayTranId = Convert.ToInt64(GetResponseData("vnp_TransactionNo"));
+
+            var orderId = GetResponseData("vnp_TxnRef");
+            var vnPayTranId = GetResponseData("vnp_TransactionStatus");
             var vnpResponseCode = GetResponseData("vnp_ResponseCode");
             var vnpSecureHash = collection.FirstOrDefault(k => k.Key == "vnp_SecureHash").Value;
             var orderInfo = GetResponseData("vnp_OrderInfo");
+            var paymentDateTime = GetResponseData("vnp_PayDate");
+            var amount = GetResponseData("vnp_Amount");
+            var vnPayTranNo = GetResponseData("vnp_TransactionNo");
+            DateTime payDate = DateTime.ParseExact(paymentDateTime, "yyyyMMddHHmmss", null);
 
             var isValid = ValidateSignature(vnpSecureHash, hashSecret);
-
-            return new PaymentDTO.PaymentResponseModel
+             
+            return new PaymentDTO.PaymentCallBack
             {
-                Success = isValid,
-                PaymentMethod = "VnPay",
-                OrderDescription = orderInfo,
-                OrderId = orderId.ToString(),
-                PaymentId = vnPayTranId.ToString(),
-                TransactionId = vnPayTranId.ToString(),
-                Token = vnpSecureHash,
-                VnPayResponseCode = vnpResponseCode
+                PaymentInfo = orderInfo,
+                PaymentId = orderId,
+                TransactionCode = vnPayTranId,
+                PaymentDateTime = payDate,
+                VnPayResponseCode = vnpResponseCode,
+                TransactionNo = vnPayTranNo,
+                Amount = amount
             };
         }
 
@@ -81,10 +85,7 @@ namespace server.Util
 
         public void AddResponseData(string key, string value)
         {
-            if (!string.IsNullOrEmpty(value))
-            {
-                _responseData[key] = value;
-            }
+            _responseData[key] = value ?? "";
         }
 
         public string GetResponseData(string key)
