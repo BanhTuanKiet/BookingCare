@@ -312,27 +312,35 @@ namespace server.Services
                 .Where(a =>
                     a.AppointmentDate.HasValue &&
                     a.AppointmentDate.Value.Date >= date.Date &&
-                    a.DoctorId == doctorId &&
+                    !(a.AppointmentDate.Value.Date == date.Date && a.AppointmentTime == time) &&
                     a.AppointmentDate.Value.Date <= endDate.Date &&
-                    !(a.AppointmentDate.Value.Date == date.Date && a.AppointmentTime == time)
+                    a.DoctorId == doctorId
                 )
                 .ToListAsync();
 
-            var groupedAppointments = appointments
-                    .GroupBy(a => new { Date = a.AppointmentDate.Value.Date, Time = a.AppointmentTime })
-                    .Where(g => g.Count() <= 5)
-                    .Select(g => new AppointmentDTO.AvailableAppointment
-                    {
-                        Date = g.Key.Date,
-                        Time = g.Key.Time,
-                        // Quantity = g.Count()
-                    })
-                    .OrderBy(g => g.Date)
-                    .ThenBy(g => g.Time == "Sáng" ? 0 : 1)
-                    .Take(3)
-                    .ToList();
+            var slotCounts = appointments
+                .GroupBy(a => new { Date = a.AppointmentDate.Value.Date, Time = a.AppointmentTime })
+                .Select(g => new
+                {
+                    Date = g.Key.Date,
+                    Time = g.Key.Time,
+                    Count = g.Count()
+                })
+                .ToList();
 
-            return groupedAppointments;
+            var availableSlots = slotCounts
+                .Where(s => s.Count < 5 && !(s.Date == date.Date && s.Time == time))
+                .OrderBy(s => s.Date)
+                .ThenBy(s => s.Time == "Sáng" ? 0 : 1)
+                .Take(3)
+                .Select(s => new AppointmentDTO.AvailableAppointment
+                {
+                    Date = s.Date,
+                    Time = s.Time
+                })
+                .ToList();
+
+            return availableSlots;
         }
 
         public async Task<Appointment> GetAppointmentById(int appointmentId)

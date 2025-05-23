@@ -25,7 +25,7 @@ function DoctorServiceCard({ specialty, item, review, type }) {
 
         return stars
     }
-console.log(review)
+
     if (type === "dịch vụ") {
         return (
             <Card className="border-0 shadow-sm mb-4 overflow-hidden">

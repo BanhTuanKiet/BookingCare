@@ -119,7 +119,7 @@ namespace server.Controllers
                 {
                     DoctorId = Convert.ToInt32(group.Key),
                     ReviewCount = group.Count(),
-                    AvgScore = group.Average(r => r.OverallRating)
+                    AvgScore = Math.Round(group.Average(r => r.OverallRating) * 2, MidpointRounding.AwayFromZero) / 2
                 })
                 .ToListAsync();
 
