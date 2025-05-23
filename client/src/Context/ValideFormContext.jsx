@@ -4,7 +4,7 @@ const ValideFormContext = createContext()
 
 const ValideFormProvider = ({ children }) => {
     const [formErrors, setFormErrors] = useState({})
-// Hàm xóa lỗi của một trường cụ thể
+    // Hàm xóa lỗi của một trường cụ thể
     const clearFieldError = (fieldName) => {
         if (formErrors[fieldName]) {
             const updatedErrors = { ...formErrors }
@@ -35,7 +35,8 @@ const ValideFormProvider = ({ children }) => {
                     fullname: "Họ và Tên",
                     phone: "Số điện thoại",
                     email: "Email",
-                    password: "Mật khẩu",
+                    password: "Mật khẩu đăng nhập",
+                    signup_password: "Mật khẩu đăng ký",
                     passwordConfirmed: "Xác nhận mật khẩu",
                     specialty: "Chuyên khoa",
                     doctor: "Bác sĩ",
@@ -92,13 +93,43 @@ const ValideFormProvider = ({ children }) => {
             }
         }
         
+        
+        // Kiểm tra mật khẩu mạnh
+        if (formData.signup_password && !errors.signup_password) {
+            const signup_password = formData.signup_password
+            
+            // Tạo danh sách các lỗi của mật khẩu
+            const passwordErrors = []
+            
+            if (signup_password.length < 6) {
+                passwordErrors.push("ít nhất 6 ký tự")
+            }
+            if (!/[0-9]/.test(signup_password)) {
+                passwordErrors.push("ít nhất 1 chữ số")
+            }
+            if (!/[a-z]/.test(signup_password)) {
+                passwordErrors.push("ít nhất 1 chữ thường")
+            }
+            if (!/[A-Z]/.test(signup_password)) {
+                passwordErrors.push("ít nhất 1 chữ hoa")
+            }
+            if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(signup_password)) {
+                passwordErrors.push("ít nhất 1 ký tự đặc biệt")
+            }
+            
+            // Nếu có lỗi, tạo thông báo lỗi
+            if (passwordErrors.length > 0) {
+                errors.signup_password = `Mật khẩu phải có ${passwordErrors.join(", ")}`
+            }
+        }
         // Kiểm tra mật khẩu xác nhận
         if (formData.passwordConfirmed && !errors.passwordConfirmed) {
-            if (formData.password !== formData.passwordConfirmed) {
+            if (formData.signup_password !== formData.passwordConfirmed) {
                 errors.passwordConfirmed = "Mật khẩu xác nhận không khớp với mật khẩu đã nhập"
             }
         }
-                if (formData.appointmentDate && !errors.appointmentDate) {
+        
+        if (formData.appointmentDate && !errors.appointmentDate) {
             const inputDate = new Date(formData.appointmentDate)
             const today = new Date()
             const maxDate = new Date()
@@ -113,9 +144,9 @@ const ValideFormProvider = ({ children }) => {
                 errors.appointmentDate = "Ngày khám không được cách quá 15 ngày so với hôm nay"
             }
         }
-        
-        setFormErrors(errors)
-        return Object.keys(errors).length
+
+            setFormErrors(errors)
+            return Object.keys(errors).length
     }
 
     return (

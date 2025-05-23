@@ -1,20 +1,43 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import { Button, Form } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
 import { AuthContext } from '../../Context/AuthContext'
 import { ValideFormContext } from '../../Context/ValideFormContext'
 import axios from '../../Util/AxiosConfig'
 
-function SignIn({ setIsLogin }) {
+function SignIn({ setIsLogin, transferData, clearTransferData }) {
     const { login } = useContext(AuthContext)
     const { validateForm, formErrors } = useContext(ValideFormContext)
     const [loginData, setLoginData] = useState({ email: "", password: "" })
     const [loading, setLoading] = useState(false)
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false)
     const navigate = useNavigate()
+
+    // Auto-fill data từ signup khi có transferData
+    useEffect(() => {
+        if (transferData) {
+            setLoginData({
+                email: transferData.email,
+                password: transferData.password
+            })
+            setShowSuccessMessage(true)
+            
+            // Ẩn thông báo sau 5 giây
+            const timer = setTimeout(() => {
+                setShowSuccessMessage(false)
+                if (clearTransferData) {
+                    clearTransferData()
+                }
+            }, 5000)
+
+            return () => clearTimeout(timer)
+        }
+    }, [transferData, clearTransferData])
 
     const handleLogin = async (e) => {
         e.preventDefault()
-        const errors = validateForm(loginData)   
+        const errors = validateForm(loginData)
+           
         if (errors > 0) return
         console.log(loginData)
         try {
@@ -31,6 +54,14 @@ function SignIn({ setIsLogin }) {
     return (
         <>
             <h2>Đăng Nhập</h2>
+            
+            {/* Thông báo đăng ký thành công */}
+            {showSuccessMessage && (
+                <div className="alert alert-success" role="alert">
+                    <strong>Đăng ký thành công!</strong> Thông tin đăng nhập đã được điền sẵn cho bạn.
+                </div>
+            )}
+            
             <Form className="auth-form" onSubmit={handleLogin}>
                 <Form.Control
                     type="email"

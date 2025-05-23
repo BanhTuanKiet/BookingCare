@@ -71,7 +71,7 @@ namespace server.Controllers
 
             // Gửi OTP qua email
             bool emailSent = await OtpUtil.SendOtpEmail(request.Email, otp, _configuration);
-            
+            Console.WriteLine($"OTP: {otp}");
             if (!emailSent)
                 throw new ErrorHandlingException(500, "Không thể gửi mã OTP. Vui lòng thử lại sau.");
             
@@ -155,12 +155,14 @@ namespace server.Controllers
                 FullName = user.fullname
             };
 
-            var result = await _userManager.CreateAsync(newUser, user.password);
+            var result = await _userManager.CreateAsync(newUser, user.signup_password);
             if (!result.Succeeded)
             {
                 var firstError = result.Errors.FirstOrDefault();
                 throw new ErrorHandlingException(400, firstError?.Description ?? "Đăng ký thất bại");
             }
+
+            Console.WriteLine("User created successfully!:"+ newUser.Id);
 
             await _context.UserRoles.AddAsync(new IdentityUserRole<int>
             {

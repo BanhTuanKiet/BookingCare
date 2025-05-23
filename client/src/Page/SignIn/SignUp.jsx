@@ -1,12 +1,12 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
 import { Button, InputGroup, Modal, Form } from 'react-bootstrap';
-import { ValideFormContext } from '../../Context/ValideFormContext';
+import { ValideFormContext} from '../../Context/ValideFormContext';
 import axios from '../../Util/AxiosConfig';
 
-function SignUp({ setIsLogin }) {
-    const { validateForm, formErrors } = useContext(ValideFormContext);
+function SignUp({ setIsLogin, onSuccessfulSignup }) {
+    const { validateField, validateForm, formErrors } = useContext(ValideFormContext);
     const [registerData, setRegisterData] = useState({
-        fullname: "", phone: "", email: "", password: "", passwordConfirmed: ""
+        fullname: "", phone: "", email: "", signup_password: "", passwordConfirmed: ""
     });
     const [otpInputs, setOtpInputs] = useState(["", "", "", "", "", ""]);
     const [showOtpModal, setShowOtpModal] = useState(false);
@@ -63,9 +63,16 @@ function SignUp({ setIsLogin }) {
                 const otp = otpInputs.join("");
                 const payload = { ...registerData, otp };
                 await axios.post("/auth/register", payload);
-                // alert("Đăng ký thành công!");
+                
                 setShowOtpModal(false);
-                setIsLogin(true);
+                
+                // Gọi callback để truyền dữ liệu sang SignIn
+                if (onSuccessfulSignup) {
+                    onSuccessfulSignup(registerData);
+                } else {
+                    // Fallback nếu không có callback
+                    setIsLogin(true);
+                }
             } catch (error) {
                 // alert(error.response?.data?.message || "Đăng ký thất bại.");
             } finally {
@@ -73,7 +80,7 @@ function SignUp({ setIsLogin }) {
             }
         };
         register();
-    }, [isValidOtp]);
+    }, [isValidOtp, registerData, onSuccessfulSignup, setIsLogin]);
 
     useEffect(() => {
         if (showOtpModal) {
@@ -84,7 +91,7 @@ function SignUp({ setIsLogin }) {
     }, [showOtpModal]);
 
     const passwordsMatch = () => {
-        return registerData.password === registerData.passwordConfirmed && registerData.password !== "";
+        return registerData.signup_password === registerData.passwordConfirmed && registerData.signup_password !== "";
     };
 
     const handleRegister = async (e) => {
@@ -214,7 +221,12 @@ function SignUp({ setIsLogin }) {
                     placeholder="Họ và Tên"
                     value={registerData.fullname}
                     isInvalid={!!formErrors.fullname}
-                    onChange={(e) => setRegisterData({ ...registerData, fullname: e.target.value })}
+                    onChange={(e) => {
+                        const value = e.target.value;
+                        setRegisterData({ ...registerData, fullname: value });
+                        validateField("fullname", value);
+                    }}
+
                 />
                 <Form.Control.Feedback type="invalid">{formErrors.fullname}</Form.Control.Feedback>
 
@@ -223,16 +235,24 @@ function SignUp({ setIsLogin }) {
                     placeholder="Số điện thoại"
                     value={registerData.phone}
                     isInvalid={!!formErrors.phone}
-                    onChange={(e) => setRegisterData({ ...registerData, phone: e.target.value })}
+                    onChange={(e) => {
+                        const value = e.target.value;
+                        setRegisterData({ ...registerData, phone: value });
+                        validateField("phone", value);
+                    }}
                 />
                 <Form.Control.Feedback type="invalid">{formErrors.phone}</Form.Control.Feedback>
 
                 <Form.Control
                     type="email"
-                    placeholder="Email"
+                    placeholder="Email (Example@gmail.com)"
                     value={registerData.email}
                     isInvalid={!!formErrors.email}
-                    onChange={handleEmailChange}
+                    onChange={(e) => {
+                        const value = e.target.value;
+                        setRegisterData({ ...registerData, email: value });
+                        validateField("email", value);
+                    }}
                 />
                 <Form.Control.Feedback type="invalid">{formErrors.email}</Form.Control.Feedback>
 
@@ -240,11 +260,15 @@ function SignUp({ setIsLogin }) {
                     <Form.Control
                         type={showPasswords ? "text" : "password"}
                         placeholder="Mật khẩu"
-                        value={registerData.password}
-                        isInvalid={!!formErrors.password}
-                        onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
+                        value={registerData.signup_password}
+                        isInvalid={!!formErrors.signup_password}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            setRegisterData({ ...registerData, signup_password: value });
+                            validateField("signup_password", value);
+                        }}
                     />
-                    <Form.Control.Feedback type="invalid">{formErrors.password}</Form.Control.Feedback>
+                    <Form.Control.Feedback type="invalid">{formErrors.signup_password}</Form.Control.Feedback>
                 </InputGroup>
 
                 <InputGroup className="my-1">
@@ -253,7 +277,11 @@ function SignUp({ setIsLogin }) {
                         placeholder="Xác nhận mật khẩu"
                         value={registerData.passwordConfirmed}
                         isInvalid={!!formErrors.passwordConfirmed || passwordMatchError}
-                        onChange={(e) => setRegisterData({ ...registerData, passwordConfirmed: e.target.value })}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            setRegisterData({ ...registerData, passwordConfirmed: value });
+                            validateField("passwordConfirmed", value);
+                        }}
                     />
                     <Form.Control.Feedback type="invalid">
                         {formErrors.passwordConfirmed || passwordMatchError}
