@@ -25,8 +25,9 @@ const ContactMessagesAdmin = () => {
     const fetchMessages = async () => {
       setLoading(true)
       try {
-        const { data } = await axios.get('/contactmessages')
-        setMessages(data)
+        const reponse = await axios.get('/contactmessages')
+        console.log(reponse.data)
+        setMessages(reponse.data)
       } catch (err) {
         console.error('Lỗi khi tải tin nhắn:', err)
       } finally {
@@ -85,7 +86,7 @@ const ContactMessagesAdmin = () => {
               <thead className='table-light'>
                 <tr>
                   <th className='text-center'>STT</th>
-                  <th>Mã bệnh nhân</th>
+                  <th>Tên bệnh nhân</th>
                   <th>Nội dung</th>
                   <th>Ngày gửi</th>
                   <th>Trạng thái</th>
@@ -99,7 +100,7 @@ const ContactMessagesAdmin = () => {
                   currentMessages.map((msg, index) => (
                     <tr key={msg.id}>
                       <td className='text-center'>{index + 1 + currentPage * itemsPerPage}</td>
-                      <td>{msg.patientId}</td>
+                      <td>{msg.patientName}</td>
                       <td>{msg.messages}</td>
                       <td>{extractDateOnly(msg.createdAt)}</td>
                       <td><Badge bg={statusColors[msg.status] || 'secondary'}>{msg.status}</Badge></td>

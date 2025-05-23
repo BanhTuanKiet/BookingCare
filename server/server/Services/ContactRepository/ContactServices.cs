@@ -24,10 +24,13 @@ namespace server.Services
             return contact.Entity;
         }
 
-        public async Task<List<ContactMessages>> GetContactMessages()
+        public async Task<List<ContactMessagesDTO.ContactMessages>> GetContactMessages()
         {
-            List<ContactMessages> contactMessages = await _context.ContactMessages.ToListAsync();
-            return contactMessages;
+            List<ContactMessages> contactMessages = await _context.ContactMessages.Include(c => c.Patient).Include(c => c.Patient.User).ToListAsync();
+
+            var contactMessageDTOs = _mapper.Map<List<ContactMessagesDTO.ContactMessages>>(contactMessages);
+
+            return contactMessageDTOs;
         }
 
         public async Task<bool> ReponseEmail(IConfiguration _configuration, ContactMessages contactMessages, string message)
@@ -50,7 +53,7 @@ namespace server.Services
             }
             catch (Exception ex)
             {
-                 Console.WriteLine("Lỗi gửi email: " + ex.Message);
+                Console.WriteLine("Lỗi gửi email: " + ex.Message);
                 return false;
             }
         }

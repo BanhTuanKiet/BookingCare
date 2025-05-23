@@ -55,10 +55,10 @@ namespace server.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpGet]
-        public async Task<List<ContactMessages>> GetAllContactMessages()
+        public async Task<ActionResult> GetAllContactMessages()
         {
-            List<ContactMessages> contactMessages = await _contactService.GetContactMessages();
-            return contactMessages;
+            List<ContactMessagesDTO.ContactMessages> contactMessages = await _contactService.GetContactMessages();
+            return Ok(contactMessages);
         }
 
         [Authorize(Roles = "admin")]

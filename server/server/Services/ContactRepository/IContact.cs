@@ -7,7 +7,7 @@ namespace server.Services
     public interface IContact
     {
         Task<ContactMessages> SendMessage(ContactMessages contactMessages);
-        Task<List<ContactMessages>> GetContactMessages();
+        Task<List<ContactMessagesDTO.ContactMessages>> GetContactMessages();
         Task<bool> ReponseEmail(IConfiguration _configuration, ContactMessages contactMessages, string message);
     }
 }
