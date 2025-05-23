@@ -40,25 +40,10 @@ function About() {
     },
   ]
 
-  const testimonials = [
-    {
-      name: "Nguyễn Văn A",
-      position: "Giáo viên",
-      content:
-        "Tôi rất hài lòng với dịch vụ tại Phòng Khám Đa Khoa X. Các bác sĩ rất tận tâm và chuyên nghiệp. Tôi sẽ tiếp tục tin tưởng và giới thiệu cho bạn bè, người thân.",
-    },
-    {
-      name: "Trần Thị B",
-      position: "Kỹ sư",
-      content:
-        "Phòng khám có không gian thoáng mát, sạch sẽ. Quy trình khám bệnh nhanh chóng, không phải chờ đợi lâu. Đặc biệt, các bác sĩ tư vấn rất tận tình, giúp tôi hiểu rõ về tình trạng sức khỏe của mình.",
-    },
-  ]
-
   return (
     <Container fluid className="py-5 bg-light">
       <Container className="w-75">
-        <Row className="mb-5">
+        <Row className="mb-4">
           <Col lg={12}>
             <Card className="border-0 shadow-sm overflow-hidden">
               <Row className="g-0">
@@ -95,7 +80,7 @@ function About() {
           </Col>
         </Row>
 
-        <Row className="mb-5">
+        <Row className="mb-4">
           <Col lg={12}>
             <Card className="border-0 shadow-sm">
               <Card.Body className="p-4">
@@ -115,7 +100,7 @@ function About() {
           </Col>
         </Row>
 
-        <Row className="mb-5">
+        <Row className="mb-4">
           <Col lg={8} className="mb-4 mb-lg-0">
             <Card className="border-0 shadow-sm h-100">
               <Card.Header className="bg-white p-4 border-bottom">
@@ -284,7 +269,7 @@ function About() {
                   </div>
                   <div>
                     <h5 className="fw-bold mb-2">Email</h5>
-                    <p className="mb-0 text-muted">info@phongkhamx.com</p>
+                    <p className="mb-0 text-muted">datteo192004@gmail.com</p>
                   </div>
                 </div>
 
@@ -304,7 +289,7 @@ function About() {
           </Col>
         </Row>
 
-        <Row className="mb-5">
+        <Row className="mb-4">
           <Col lg={12}>
             <Card className="border-0 shadow-sm">
               <Card.Header className="bg-white p-4 border-bottom">
@@ -339,48 +324,6 @@ function About() {
                     ))}
                   </Row>
                 </div>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-
-        <Row className="mb-5">
-          <Col lg={12}>
-            <Card className="border-0 shadow-sm">
-              <Card.Header className="bg-white p-4 border-bottom">
-                <h3 className="fw-bold text-primary mb-0">Khách Hàng Nói Gì Về Chúng Tôi</h3>
-              </Card.Header>
-              <Card.Body className="p-4">
-                <Row>
-                  {testimonials.map((testimonial, index) => (
-                    <Col md={6} key={index} className="mb-4 mb-md-0">
-                      <Card className="h-100 border-0 bg-light">
-                        <Card.Body className="p-4">
-                          <div className="mb-3">
-                            {[...Array(5)].map((_, i) => (
-                              <span key={i} className="text-warning me-1">
-                                ★
-                              </span>
-                            ))}
-                          </div>
-                          <p className="mb-4 fst-italic">"{testimonial.content}"</p>
-                          <div className="d-flex align-items-center">
-                            <div
-                              className="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3"
-                              style={{ width: "48px", height: "48px" }}
-                            >
-                              {testimonial.name.charAt(0)}
-                            </div>
-                            <div>
-                              <h5 className="fw-bold mb-1">{testimonial.name}</h5>
-                              <p className="text-muted mb-0">{testimonial.position}</p>
-                            </div>
-                          </div>
-                        </Card.Body>
-                      </Card>
-                    </Col>
-                  ))}
-                </Row>
               </Card.Body>
             </Card>
           </Col>

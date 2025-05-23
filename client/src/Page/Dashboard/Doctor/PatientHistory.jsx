@@ -3,7 +3,8 @@ import { Container, Table, Spinner, Badge, Button, Modal } from 'react-bootstrap
 import { extractDateOnly } from "../../../Util/DateUtils"
 import axios from "../../../Util/AxiosConfig"
 
-function PatientHistory() {
+function PatientHistory({ tabActive }) {
+    console.log(tabActive)
     const [patients, setPatients] = useState([])
     const [loading, setLoading] = useState(true)
     const [showDetailsModal, setShowDetailsModal] = useState(false)
@@ -11,10 +12,12 @@ function PatientHistory() {
 
     useEffect(() => {
         fetchExaminedPatients()
-    }, [])
+    }, [tabActive])
 
     const fetchExaminedPatients = async () => {
+        if (tabActive !== "patientHistory") return
         setLoading(true)
+
         try {
             const response = await axios.get('/appointments/examined_patients')
             setPatients(response.data.schedules || [])

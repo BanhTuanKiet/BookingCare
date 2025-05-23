@@ -32,7 +32,7 @@ const Footer = () => {
             <h5 className="text-primary fw-bold">Liên hệ</h5>
             <p><FaMapMarkerAlt className="text-primary me-2" /> 475A Đ. Điện Biên Phủ, Phường 25, Bình Thạnh, Hồ Chí Minh</p>
             <p><FaPhoneAlt className="text-primary me-2" /> 0123 456 789</p>
-            <p><FaEnvelope className="text-primary me-2" /> contact@clinicxyz.com</p>
+            <p><FaEnvelope className="text-primary me-2" /> datteo192004@gmail.com</p>
           </Col>
         </Row>
 

@@ -3,7 +3,7 @@ import { Button, Col, Container, Form, Row } from 'react-bootstrap'
 import axios from '../../../../Util/AxiosConfig'
 import ReviewDetail from './ReviewDetail'
 
-function Review() {
+function Review({ tabActive }) {
   const [specialties, setSpecialties] = useState([])
   const [specialty, setSpecialty] = useState(null)
   const [doctors, setDoctors] = useState([])
@@ -13,6 +13,8 @@ function Review() {
   const [showReviewDetail, setShowReviewDetail] = useState(false)
 
   useEffect(() => {
+    if (tabActive !== "reviewDoctors") return
+
     const fetchSpecialty = async () => {
       try {
         const response = await axios.get('/specialties')
@@ -24,7 +26,7 @@ function Review() {
     }
 
     fetchSpecialty()
-  }, [])
+  }, [tabActive])
 
   useEffect(() => {
     if (!specialty?.name) return

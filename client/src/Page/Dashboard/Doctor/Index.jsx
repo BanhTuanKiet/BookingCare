@@ -1,10 +1,9 @@
 import { Clock, FileText } from 'lucide-react'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Card, Col, Container, Nav, Row, Tab } from 'react-bootstrap'
 import ReviewDoctor from './ReviewDoctor'
 import PatientHistory from './PatientHistory'
 import DoctorSchedule from './DoctorSchedule'
-import DoctorShiftDetail from './DoctorShiftDetail'
 import axios from '../../../Util/AxiosConfig'
 import UserProfileCard from '../../../Component/UserProfileCard'
 
@@ -35,11 +34,11 @@ function Index() {
                 <Col md={9}>
                     <Tab.Container id="dashboard-tabs" activeKey={tabActive} onSelect={(k) => setTabActive(k)}>
                         <Nav variant="tabs" className="mb-3">
-                            <Nav.Item>
+                            {/* <Nav.Item>
                                 <Nav.Link eventKey="overview" className="d-flex align-items-center">
                                     Tổng Quan
                                 </Nav.Link>
-                            </Nav.Item>
+                            </Nav.Item> */}
 
                             <Nav.Item>
                                 <Nav.Link eventKey="doctorSchedule" className="d-flex align-items-center">
@@ -53,15 +52,15 @@ function Index() {
                                 </Nav.Link>
                             </Nav.Item>
 
-                            <Nav.Item>
-                                <Nav.Link eventKey="evaluate" className="d-flex align-items-center">
+                            {/* <Nav.Item>
+                                <Nav.Link eventKey="reviews" className="d-flex align-items-center">
                                     Đánh giá
                                 </Nav.Link>
-                            </Nav.Item>
+                            </Nav.Item> */}
                         </Nav>
                         
                         <Tab.Content>
-                            <Tab.Pane eventKey="overview">
+                            {/* <Tab.Pane eventKey="overview">
                                 <Card>
                                     <Card.Body>
                                         <h4>Tổng Quan Bệnh Án</h4>
@@ -138,12 +137,12 @@ function Index() {
                                         </Row>
                                     </Card.Body>
                                 </Card>
-                            </Tab.Pane>
+                            </Tab.Pane> */}
 
                             <Tab.Pane eventKey="doctorSchedule">
                                 <Card>
                                     <Card.Body>
-                                        <DoctorSchedule />
+                                        <DoctorSchedule tabActive={tabActive} />
                                     </Card.Body>
                                 </Card>
                             </Tab.Pane>
@@ -151,23 +150,21 @@ function Index() {
                             <Tab.Pane eventKey="patientHistory">
                                 <Card>
                                     <Card.Body>
-                                        <h4>Danh sách bệnh nhân</h4>
-
-                                        <PatientHistory />
+                                        <PatientHistory tabActive={tabActive} />
                                     </Card.Body>
                                 </Card>
                             </Tab.Pane>
                             
-                            <Tab.Pane eventKey="evaluate"> 
+                            {/* <Tab.Pane eventKey="reviews"> 
                                 <Card>
                                     <Card.Body>
                                         <h4>Đánh giá</h4>
                                         <p>Đánh giá từ bệnh nhân</p>
                                         
-                                        <ReviewDoctor />
+                                        <ReviewDoctor tabActive={tabActive} />
                                     </Card.Body>
                                 </Card>
-                            </Tab.Pane>
+                            </Tab.Pane> */}
                         </Tab.Content>
                     </Tab.Container>
                 </Col>

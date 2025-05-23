@@ -56,7 +56,7 @@ namespace Clinic_Management.Controllers
             var record = await _medicalRecordService.AddMedicalRecord(appointmentId, prescriptionRequest) ?? throw new ErrorHandlingException(400, "Lỗi khi tạo toa thuốc");
 
             var recordDetail = await _medicalRecordService.AddMedicalRecordDetail(record.RecordId, prescriptionRequest.Medicines) ?? throw new ErrorHandlingException(400, "Lỗi khi tạo toa thuốc");
-            await _appointmentService.UpdateStatus(appointment, "Đã khám");
+
             var patient = await _patientService.GetPatientById(appointment.PatientId.Value) ?? throw new ErrorHandlingException(400, "Không tìm thấy bệnh nhân!");
             
             await _appointmentService.UpdateStatus(appointment, "Đã khám");
@@ -74,22 +74,19 @@ namespace Clinic_Management.Controllers
         }
 
         private async Task SendEmailForPatient(string Email, Appointment appointment, MedicalRecordDTO.PrescriptionRequest prescriptionRequest, int recordId)
-         {
-             Console.WriteLine($"Id Bác sĩ {appointment.DoctorId}, Id bệnh nhân: {appointment.PatientId}");
-            //  var patient = await _patientService.GetPatientById(appointment.PatientId.Value) ?? throw new ErrorHandlingException(400, "Không tìm thấy bệnh nhân!");
-            //  Console.WriteLine("Tên BỆNh nhân: ", patient.UserName);
-             var doctor = await _doctorService.GetDoctorById(appointment.DoctorId.Value) ?? throw new ErrorHandlingException(400, "Không tìm thấy bác sĩ!");
+        {
+            var doctor = await _doctorService.GetDoctorById(appointment.DoctorId.Value) ?? throw new ErrorHandlingException(400, "Không tìm thấy bác sĩ!");
  
             var recordDetail = await _medicalRecordService.GetRecordDetail(recordId);
 
-             if (recordDetail == null || !recordDetail.Any())
-             {
-                 throw new ErrorHandlingException("Không tìm thấy chi tiết toa thuốc!");
-             }
+            if (recordDetail == null || !recordDetail.Any())
+            {
+                throw new ErrorHandlingException("Không tìm thấy chi tiết toa thuốc!");
+            }
  
-             string subject = "Toa thuốc của bạn từ phòng khám";
+            string subject = "Toa thuốc của bạn từ phòng khám";
  
-             string body = $@"
+            string body = $@"
                 <p>Bạn đã được bác sĩ <b>{doctor.UserName}</b> kê toa thuốc trong buổi khám ngày <b>{appointment.AppointmentDate:dd/MM/yyyy}</b>.</p>
                 <p>Chẩn đoán bệnh: <b>{prescriptionRequest.Diagnosis}</b></p>
                 <p>Hướng điều trị: <b>{prescriptionRequest.Treatment}</b></p>
@@ -102,26 +99,26 @@ namespace Clinic_Management.Controllers
                        <th>Thời gian</th>
                     </tr>";
 
-             foreach (var item in recordDetail)
-             {
-                 body += $@"
-                     <tr style='text-align: center;'>
-                         <td>{item.MedicineName}</td>
-                         <td>{item.Dosage} Lần / Ngày </td>
-                         <td>{item.FrequencyPerDay} Lần  / {item.Unit}</td>
-                         <td>{item.DurationInDays} Ngày</td>
-                         <td>{item.Usage}</td>
-                         <td>{item.Price}</td>
-                         <td>{item.Quantity}</td>
-                     </tr>";
-             }
+            foreach (var item in recordDetail)
+            {
+                body += $@"
+                    <tr style='text-align: center;'>
+                        <td>{item.MedicineName}</td>
+                        <td>{item.Dosage} Lần / Ngày </td>
+                        <td>{item.FrequencyPerDay} Lần  / {item.Unit}</td>
+                        <td>{item.DurationInDays} Ngày</td>
+                        <td>{item.Usage}</td>
+                        <td>{item.Price}</td>
+                        <td>{item.Quantity}</td>
+                    </tr>";
+            }
  
-             body += $@"</table>
-                 <p>Lời dặn của bác sĩ: <b>{prescriptionRequest.Notes}</b></p>
-                 <br><p><i>Lưu ý: Vui lòng sử dụng thuốc đúng theo hướng dẫn và quay lại tái khám nếu cần.</i></p>
-                 <p>Chúc bạn mau hồi phục sức khỏe!</p>";
+            body += $@"</table>
+                <p>Lời dặn của bác sĩ: <b>{prescriptionRequest.Notes}</b></p>
+                <br><p><i>Lưu ý: Vui lòng sử dụng thuốc đúng theo hướng dẫn và quay lại tái khám nếu cần.</i></p>
+                <p>Chúc bạn mau hồi phục sức khỏe!</p>";
  
-             await EmailUtil.SendEmailAsync(_configuration, Email, subject, body);
+            await EmailUtil.SendEmailAsync(_configuration, Email, subject, body);
         }
 
         [Authorize(Roles = "patient")]

@@ -32,5 +32,12 @@ namespace server.DTO
             public string Status { get; set; }
             public int Appointments { get; set; }
         }
+
+        public class AvailableAppointment
+        {
+            public DateTime Date { get; set; }
+            public string Time { get; set; }
+            // public int Quantity { get; set; }
+        }
     }
 }

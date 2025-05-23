@@ -53,15 +53,28 @@ namespace server.Controllers
             
             var isExistAppointment = await _appointmentService.IsExistAppointment(patient.PatientId, appointmentForm.AppointmentDate, appointmentForm.AppointmentTime);
 
-            if (isExistAppointment != null) 
+            if (isExistAppointment != null)
             {
                 throw new ErrorHandlingException(400, $"Lịch hẹn {appointmentForm.AppointmentDate} {appointmentForm.AppointmentTime} đang chờ xác nhận");
+            } 
+            
+            if (appointmentForm.AppointmentDate <= DateTime.Now)
+            {
+                throw new ErrorHandlingException(400, "Không được chọn ngày trong quá khứ");
             }
-            if(appointmentForm.AppointmentDate <= DateTime.Now){
-                throw new ErrorHandlingException(400,"Không được chọn ngày trong quá khứ");
+            
+            if (appointmentForm.AppointmentDate >= DateTime.Now.AddDays(15))
+            {
+                throw new ErrorHandlingException(400, "Ngày khám không được cách quá 15 ngày so với hôm nay");
             }
-            if(appointmentForm.AppointmentDate >= DateTime.Now.AddDays(15)){
-                throw new ErrorHandlingException(400,"Ngày khám không được cách quá 15 ngày so với hôm nay");
+
+            int quantityAppointment = await _appointmentService.CountAppointsByDate(appointmentForm.AppointmentDate, appointmentForm.AppointmentTime);
+
+            if (quantityAppointment > 0)
+            {
+                var availableAppointments = await _appointmentService.CheckAvailableAppointment(doctor.DoctorId, appointmentForm.AppointmentDate, appointmentForm.AppointmentTime);
+
+                return Ok(new { availableAppointments = availableAppointments });
             }
 
             var appointment = await _appointmentService.Appointment(patient.PatientId, doctor.DoctorId, service.ServiceId, appointmentForm.AppointmentDate, appointmentForm.AppointmentTime, "Chờ xác nhận");
@@ -103,29 +116,16 @@ namespace server.Controllers
             {
                 throw new ErrorHandlingException(403, "Bạn không có quyền!");
             }
-                // Sử dụng Include() để load các thực thể liên quan
-            var appointment = await _context.Appointments
-                .Include(a => a.Patient)
-                    .ThenInclude(p => p.User)
-                .Include(a => a.Doctor)
-                    .ThenInclude(d => d.User)
-                .Include(a => a.Service)
-                .FirstOrDefaultAsync(a => a.AppointmentId == id);
-                
-            if (appointment == null)
-            {
-                return NotFound(new { message = "Không tìm thấy lịch hẹn" });
-            }
-                
+
+            var appointment = await _appointmentService.GetAppointmentById(id) ?? throw new ErrorHandlingException(404, "không tìm thấy lịch hẹn");
             string oldStatus = appointment.Status;
-            appointment.Status = statusUpdate.Status;
-            await _context.SaveChangesAsync();
-                
-                // Kiểm tra nếu patient và email tồn tại trước khi gửi email
-            if (appointment.Patient?.User?.Email == null)
+
+            await _appointmentService.UpdateStatus(appointment, statusUpdate.Status);
+
+            if (statusUpdate.Status != "Đã xác nhận")
             {
-                throw new ErrorHandlingException(404, "Không tìm thấy email bệnh nhân!");
-            }
+                return Ok(new { message = "Cập nhật trạng thái thành công" });
+            } 
             
             await SendStatusUpdateEmail(
                 appointment.Patient.User.Email,
@@ -137,7 +137,7 @@ namespace server.Controllers
                 statusUpdate.Status
             );
             
-            return Ok(new { message = "Cập nhật trạng thái thành công" });
+            return Ok(new { message = "Xác nhận lịch hẹn thành công" });
         }
 
         private async Task<bool> SendStatusUpdateEmail(string email, string patientName, string doctorName, DateTime appointmentDate, string serviceName, string oldStatus, string newStatus)

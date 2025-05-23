@@ -15,6 +15,7 @@ import "../../../Style/Admin.css"
 import DoctorList from './Management/Doctor/DoctorList'
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../../Context/AuthContext";
+import ContactMessagesAdmin from './Contact/ContactMessagesAdmin'
 
 function Index() {
     const [tabActive, setTabActive] = useState(() => {
@@ -79,7 +80,15 @@ function Index() {
                                         className={`sidebar-link mb-2 ${tabActive === "salary" ? "active" : ""}`}
                                     >
                                         Lương
-                                    </Nav.Link>                                    
+                                    </Nav.Link>         
+
+                                    <Nav.Link 
+                                        eventKey="contactmessages"
+                                        className={`sidebar-link mb-2 ${tabActive === "contactmessages" ? "active" : ""}`}
+                                    >
+                                        Phản Hồi Thắc Mắc
+                                    </Nav.Link>
+
                                     <Nav.Link 
                                         eventKey="users"
                                         className={`sidebar-link mb-2 ${tabActive === "users" ? "active" : ""}`}
@@ -122,6 +131,10 @@ function Index() {
                                 <AppointmentStatistics tabActive={tabActive} />
                             </Tab.Pane>
                             
+                            <Tab.Pane eventKey="contactmessages">
+                                <ContactMessagesAdmin tabActive={tabActive} />
+                            </Tab.Pane>
+
                             <Tab.Pane eventKey="reviewservices">
                                 <Review tabActive={tabActive} />
                             </Tab.Pane>
