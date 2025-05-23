@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
 import { Button, InputGroup, Modal, Form } from 'react-bootstrap';
-import { ValideFormContext } from '../../Context/ValideFormContext';
+import { ValideFormContext} from '../../Context/ValideFormContext';
 import axios from '../../Util/AxiosConfig';
 
-function SignUp({ setIsLogin }) {
-    const { validateForm, formErrors } = useContext(ValideFormContext);
+function SignUp({ setIsLogin, onSuccessfulSignup }) {
+    const { validateField, validateForm, formErrors } = useContext(ValideFormContext);
     const [registerData, setRegisterData] = useState({
         fullname: "", phone: "", email: "", signup_password: "", passwordConfirmed: ""
     });
@@ -21,6 +21,7 @@ function SignUp({ setIsLogin }) {
     const otpRefs = useRef([...Array(6)].map(() => React.createRef()));
 
     useEffect(() => {
+        console.log("1111111")
         let timer;
         if (resendCooldown > 0) {
             timer = setInterval(() => {
@@ -37,6 +38,7 @@ function SignUp({ setIsLogin }) {
     }, [resendCooldown]);
 
     useEffect(() => {
+        console.log("2222222")
         if (resendCooldown > 0) {
             const minutes = Math.floor(resendCooldown / 60);
             const seconds = resendCooldown % 60;
@@ -47,8 +49,9 @@ function SignUp({ setIsLogin }) {
     }, [resendCooldown]);
 
     useEffect(() => {
+        console.log("3333333")
         if (showOtpModal) {
-            const normalizedEmail = registerData.email.trim().toLowerCase();
+            const normalizedEmail = registerData?.email.trim().toLowerCase();
             if (normalizedEmail !== lastEmailUsed || !otpSent) {
                 handleSendOtp();
             }
@@ -56,24 +59,36 @@ function SignUp({ setIsLogin }) {
     }, [showOtpModal]);
 
     useEffect(() => {
+        console.log("44444444")
+
         const register = async () => {
-            if (!isValidOtp) return;
+            if (!isValidOtp || !showOtpModal) return;
+            
             try {
                 setLoading(true);
                 const otp = otpInputs.join("");
                 const payload = { ...registerData, otp };
                 await axios.post("/auth/register", payload);
-                // alert("Đăng ký thành công!");
+                
                 setShowOtpModal(false);
-                setIsLogin(true);
+                
+                // Gọi callback để truyền dữ liệu sang SignIn
+                if (onSuccessfulSignup) {
+                    onSuccessfulSignup(registerData);
+                } else {
+
+                    setIsLogin(true);
+                }
+                setIsValidOtp(false);
+                setOtpInputs(["", "", "", "", "", ""]);
             } catch (error) {
-                // alert(error.response?.data?.message || "Đăng ký thất bại.");
+                console.log(error)
             } finally {
                 setLoading(false);
             }
         };
         register();
-    }, [isValidOtp]);
+    }, [isValidOtp, showOtpModal, registerData, onSuccessfulSignup, setIsLogin, otpInputs]);
 
     useEffect(() => {
         if (showOtpModal) {
@@ -93,7 +108,6 @@ function SignUp({ setIsLogin }) {
         if (errors > 0) return;
 
         if (!passwordsMatch()) {
-            // alert("Mật khẩu xác nhận không khớp với mật khẩu đã nhập!");
             return;
         }
 
@@ -124,7 +138,7 @@ function SignUp({ setIsLogin }) {
                 // alert(`Mã OTP đã được gửi. Vui lòng đợi ${otpCountdown} để gửi lại.`);
             }
         } catch (error) {
-            // alert(error.response?.data?.message || "Không thể gửi mã OTP.");
+            console.log(error)
         } finally {
             setLoading(false);
         }
@@ -214,7 +228,12 @@ function SignUp({ setIsLogin }) {
                     placeholder="Họ và Tên"
                     value={registerData.fullname}
                     isInvalid={!!formErrors.fullname}
-                    onChange={(e) => setRegisterData({ ...registerData, fullname: e.target.value })}
+                    onChange={(e) => {
+                        const value = e.target.value;
+                        setRegisterData({ ...registerData, fullname: value });
+                        validateField("fullname", value);
+                    }}
+
                 />
                 <Form.Control.Feedback type="invalid">{formErrors.fullname}</Form.Control.Feedback>
 
@@ -223,7 +242,11 @@ function SignUp({ setIsLogin }) {
                     placeholder="Số điện thoại"
                     value={registerData.phone}
                     isInvalid={!!formErrors.phone}
-                    onChange={(e) => setRegisterData({ ...registerData, phone: e.target.value })}
+                    onChange={(e) => {
+                        const value = e.target.value;
+                        setRegisterData({ ...registerData, phone: value });
+                        validateField("phone", value);
+                    }}
                 />
                 <Form.Control.Feedback type="invalid">{formErrors.phone}</Form.Control.Feedback>
 
@@ -232,28 +255,40 @@ function SignUp({ setIsLogin }) {
                     placeholder="Email (Example@gmail.com)"
                     value={registerData.email}
                     isInvalid={!!formErrors.email}
-                    onChange={handleEmailChange}
+                    onChange={(e) => {
+                        const value = e.target.value;
+                        setRegisterData({ ...registerData, email: value });
+                        validateField("email", value);
+                    }}
                 />
                 <Form.Control.Feedback type="invalid">{formErrors.email}</Form.Control.Feedback>
 
                 <InputGroup className="my-1">
                     <Form.Control
-                        type={showPasswords ? "text" : "signup_password"}
+                        type={showPasswords ? "text" : "password"}
                         placeholder="Mật khẩu"
                         value={registerData.signup_password}
                         isInvalid={!!formErrors.signup_password}
-                        onChange={(e) => setRegisterData({ ...registerData, signup_password: e.target.value })}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            setRegisterData({ ...registerData, signup_password: value });
+                            validateField("signup_password", value);
+                        }}
                     />
                     <Form.Control.Feedback type="invalid">{formErrors.signup_password}</Form.Control.Feedback>
                 </InputGroup>
 
                 <InputGroup className="my-1">
                     <Form.Control
-                        type={showPasswords ? "text" : "signup_password"}
+                        type={showPasswords ? "text" : "password"}
                         placeholder="Xác nhận mật khẩu"
                         value={registerData.passwordConfirmed}
                         isInvalid={!!formErrors.passwordConfirmed || passwordMatchError}
-                        onChange={(e) => setRegisterData({ ...registerData, passwordConfirmed: e.target.value })}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            setRegisterData({ ...registerData, passwordConfirmed: value });
+                            validateField("passwordConfirmed", value);
+                        }}
                     />
                     <Form.Control.Feedback type="invalid">
                         {formErrors.passwordConfirmed || passwordMatchError}
@@ -280,7 +315,14 @@ function SignUp({ setIsLogin }) {
 
             <p>
                 Đã có tài khoản?{" "}
-                <Button variant="link" onClick={() => setIsLogin(true)}>Đăng nhập</Button>
+                <Button variant="link" onClick={() => {
+                    setIsLogin(true);
+                    setShowOtpModal(false);
+                    setIsValidOtp(false);
+                    setOtpInputs(["", "", "", "", "", ""]);
+                }}>
+                    Đăng nhập
+                </Button>
             </p>
 
             <Modal show={showOtpModal} onHide={handleCloseOtpModal} centered>

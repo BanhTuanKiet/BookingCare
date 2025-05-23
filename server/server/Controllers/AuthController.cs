@@ -57,9 +57,9 @@ namespace server.Controllers
             if (!isValidEmail)
                 throw new ErrorHandlingException(400, "Email không hợp lệ!");
 
-            var existingUser = await _userManager.FindByEmailAsync(request.Email);
-            if (existingUser != null)
-                throw new ErrorHandlingException(400, "Email đã tồn tại trong hệ thống!");
+            //var existingUser = await _userManager.FindByEmailAsync(request.Email);
+            //if (existingUser != null)
+            //    throw new ErrorHandlingException(400, "Email đã tồn tại trong hệ thống!");
 
             // Kiểm tra và rate-limit OTP
             if (!OtpUtil.CanGenerateNewOtp(request.Email))
@@ -71,7 +71,7 @@ namespace server.Controllers
 
             // Gửi OTP qua email
             bool emailSent = await OtpUtil.SendOtpEmail(request.Email, otp, _configuration);
-            
+            Console.WriteLine($"OTP: {otp}");
             if (!emailSent)
                 throw new ErrorHandlingException(500, "Không thể gửi mã OTP. Vui lòng thử lại sau.");
             
@@ -123,6 +123,9 @@ namespace server.Controllers
             if (string.IsNullOrEmpty(user.otp))
                 throw new ErrorHandlingException(400, "Vui lòng nhập mã OTP!");
 
+            if (string.IsNullOrEmpty(user.email))
+                throw new ErrorHandlingException(400, "Vui lòng nhập email!");
+
             // Xác thực OTP
             if (!OtpUtil.ValidateOtp(user.email, user.otp))
             {
@@ -138,11 +141,11 @@ namespace server.Controllers
             var existUser = await _userManager.FindByEmailAsync(user.email);
             var existPhone = await FindUserByPhoneNumberAsync(user.phone);
 
-            if (existUser != null)
-                throw new ErrorHandlingException(400, "Email đã tồn tại!");
+            //if (existUser != null)
+            //    throw new ErrorHandlingException(400, "Email đã tồn tại!");
 
-            if (existPhone != null)
-                throw new ErrorHandlingException(400, "Số điện thoại đã được sử dụng!");
+            //if (existPhone != null)
+            //    throw new ErrorHandlingException(400, "Số điện thoại đã được sử dụng!");
 
             var newUser = new ApplicationUser
             {
@@ -152,12 +155,14 @@ namespace server.Controllers
                 FullName = user.fullname
             };
 
-            var result = await _userManager.CreateAsync(newUser, user.password);
+            var result = await _userManager.CreateAsync(newUser, user.signup_password);
             if (!result.Succeeded)
             {
                 var firstError = result.Errors.FirstOrDefault();
                 throw new ErrorHandlingException(400, firstError?.Description ?? "Đăng ký thất bại");
             }
+
+            Console.WriteLine("User created successfully!:"+ newUser.Id);
 
             await _context.UserRoles.AddAsync(new IdentityUserRole<int>
             {
@@ -166,48 +171,14 @@ namespace server.Controllers
             });
 
             await _context.Patients.AddAsync(new Patient { UserId = newUser.Id });
-            
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception)
-            {
-                throw new ErrorHandlingException(500, "Lỗi khi lưu dữ liệu người dùng!");
-            }
+
+            await _context.SaveChangesAsync();
 
             // Xóa OTP sau khi đã sử dụng thành công
             OtpUtil.RemoveOtp(user.email);
 
             return Ok(new { message = "Đăng ký thành công!", user = newUser.Email });
         }
-
-        [Authorize]
-        [HttpPost("logout")]
-        public async Task<IActionResult> Logout(int userId)
-        {
-            // Log cookie before deleting
-            var beforeDelete = Request.Cookies["token"];
-            Console.WriteLine($"Cookie before delete: {beforeDelete}");
-
-            Response.Cookies.Delete("token");
-
-            // Xóa refresh token trong bảng ApplicationUser
-            if (userId != 0)
-            {
-                ApplicationUser user = await _context.Users.FirstOrDefaultAsync(user => user.Id == userId);
-                if (user != null)
-                {
-                    user.RefreshToken = null;
-                    await _context.SaveChangesAsync();
-                }
-            }
-            // Log cookie after deleting
-            var afterDelete = Request.Cookies["token"];
-            Console.WriteLine($"Cookie after delete: {afterDelete}");
-            return Ok(new { message = "Đăng xuất thành công!" });
-        }
-
 
         [Authorize(Roles = "doctor")]
         [HttpPost("auth_user")]

@@ -114,7 +114,6 @@ public partial class ClinicManagementContext : IdentityDbContext<ApplicationUser
             entity.Property(e => e.Diagnosis).HasMaxLength(255);
             entity.Property(e => e.Treatment).HasMaxLength(255);
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
-            entity.Property(e => e.Price).HasColumnType("float");
 
             entity.HasOne(d => d.Appointment).WithOne(p => p.MedicalRecord)
                 .HasForeignKey<MedicalRecord>(d => d.AppointmentId)
@@ -145,8 +144,9 @@ public partial class ClinicManagementContext : IdentityDbContext<ApplicationUser
             entity.Property(e => e.Messages).HasMaxLength(255);
             entity.Property(e => e.CreatedAt).HasColumnType("datetime");
 
-            entity.HasOne(d => d.Patient).WithOne(p => p.ContactMessages)
-                .HasForeignKey<Patient>(d => d.PatientId)
+            entity.HasOne(d => d.Patient)
+                .WithOne(p => p.ContactMessages)
+                .HasForeignKey<ContactMessages>(d => d.PatientId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__Messages__Patien__5FD33367");
         });
@@ -263,7 +263,7 @@ public partial class ClinicManagementContext : IdentityDbContext<ApplicationUser
             entity.Property(e => e.NormalizedEmail).HasMaxLength(256);
             entity.Property(e => e.NormalizedUserName).HasMaxLength(256);
             entity.Property(e => e.UserName).HasMaxLength(256);
-            entity.Property(e => e.FullName).HasMaxLength(256);
+                        entity.Property(e => e.FullName).HasMaxLength(256);
             entity.Property(e => e.PhoneNumber).HasMaxLength(256);
             entity.Property(e => e.RefreshToken).HasMaxLength(500);
         });

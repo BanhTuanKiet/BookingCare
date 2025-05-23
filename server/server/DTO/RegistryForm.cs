@@ -13,15 +13,15 @@ namespace server.DTO
         [Required(ErrorMessage = "Họ và tên không được để trống!")]
         public string? fullname { get; set; }
 
-        [Required(ErrorMessage = "Password không được để trống!")]
-        [MinLength(6, ErrorMessage = "Password tối thiểu 6 ký tự!")]
+        [Required(ErrorMessage = "mật khẩu đăng ký không được để trống!")]
+        [MinLength(6, ErrorMessage = "mật khẩu đăng ký tối thiểu 6 ký tự!")]
         // [DataType(DataType.Password)]
         // [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{6,}$",
         //     ErrorMessage = "Password phải có ít nhất 1 chữ cái viết hoa, 1 chữ cái viết thường và 1 số!")]
-        public string? password { get; set; }
+        public string? signup_password { get; set; }
 
-        [Required(ErrorMessage = "Password không được để trống!")]
-        [Compare(nameof(password), ErrorMessage = "Password xác nhận không khớp!")]
+        [Required(ErrorMessage = "mật khẩu đăng ký không được để trống!")]
+        [Compare(nameof(signup_password), ErrorMessage = "mật khẩu xác nhận không khớp!")]
         public string? passwordConfirmed { get; set; }
 
         [Required(ErrorMessage = "Số điện thoại không được để trống!")]

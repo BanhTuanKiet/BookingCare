@@ -40,7 +40,7 @@ instance.interceptors.response.use(function (response) {
       error.config.retry = true
       return instance(error.config)
     }
-
+    console.log(errorMessage)
     switch (statusCode) {
       case 400:
       case 404:
