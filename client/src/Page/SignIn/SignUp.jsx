@@ -21,6 +21,7 @@ function SignUp({ setIsLogin, onSuccessfulSignup }) {
     const otpRefs = useRef([...Array(6)].map(() => React.createRef()));
 
     useEffect(() => {
+        console.log("1111111")
         let timer;
         if (resendCooldown > 0) {
             timer = setInterval(() => {
@@ -37,6 +38,7 @@ function SignUp({ setIsLogin, onSuccessfulSignup }) {
     }, [resendCooldown]);
 
     useEffect(() => {
+        console.log("2222222")
         if (resendCooldown > 0) {
             const minutes = Math.floor(resendCooldown / 60);
             const seconds = resendCooldown % 60;
@@ -47,8 +49,9 @@ function SignUp({ setIsLogin, onSuccessfulSignup }) {
     }, [resendCooldown]);
 
     useEffect(() => {
+        console.log("3333333")
         if (showOtpModal) {
-            const normalizedEmail = registerData.email.trim().toLowerCase();
+            const normalizedEmail = registerData?.email.trim().toLowerCase();
             if (normalizedEmail !== lastEmailUsed || !otpSent) {
                 handleSendOtp();
             }
@@ -56,8 +59,11 @@ function SignUp({ setIsLogin, onSuccessfulSignup }) {
     }, [showOtpModal]);
 
     useEffect(() => {
+        console.log("44444444")
+
         const register = async () => {
-            if (!isValidOtp) return;
+            if (!isValidOtp || !showOtpModal) return;
+            
             try {
                 setLoading(true);
                 const otp = otpInputs.join("");
@@ -70,17 +76,19 @@ function SignUp({ setIsLogin, onSuccessfulSignup }) {
                 if (onSuccessfulSignup) {
                     onSuccessfulSignup(registerData);
                 } else {
-                    // Fallback nếu không có callback
+
                     setIsLogin(true);
                 }
+                setIsValidOtp(false);
+                setOtpInputs(["", "", "", "", "", ""]);
             } catch (error) {
-                // alert(error.response?.data?.message || "Đăng ký thất bại.");
+                console.log(error)
             } finally {
                 setLoading(false);
             }
         };
         register();
-    }, [isValidOtp, registerData, onSuccessfulSignup, setIsLogin]);
+    }, [isValidOtp, showOtpModal, registerData, onSuccessfulSignup, setIsLogin, otpInputs]);
 
     useEffect(() => {
         if (showOtpModal) {
@@ -100,7 +108,6 @@ function SignUp({ setIsLogin, onSuccessfulSignup }) {
         if (errors > 0) return;
 
         if (!passwordsMatch()) {
-            // alert("Mật khẩu xác nhận không khớp với mật khẩu đã nhập!");
             return;
         }
 
@@ -131,7 +138,7 @@ function SignUp({ setIsLogin, onSuccessfulSignup }) {
                 // alert(`Mã OTP đã được gửi. Vui lòng đợi ${otpCountdown} để gửi lại.`);
             }
         } catch (error) {
-            // alert(error.response?.data?.message || "Không thể gửi mã OTP.");
+            console.log(error)
         } finally {
             setLoading(false);
         }
@@ -308,7 +315,14 @@ function SignUp({ setIsLogin, onSuccessfulSignup }) {
 
             <p>
                 Đã có tài khoản?{" "}
-                <Button variant="link" onClick={() => setIsLogin(true)}>Đăng nhập</Button>
+                <Button variant="link" onClick={() => {
+                    setIsLogin(true);
+                    setShowOtpModal(false);
+                    setIsValidOtp(false);
+                    setOtpInputs(["", "", "", "", "", ""]);
+                }}>
+                    Đăng nhập
+                </Button>
             </p>
 
             <Modal show={showOtpModal} onHide={handleCloseOtpModal} centered>

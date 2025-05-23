@@ -57,9 +57,9 @@ namespace server.Controllers
             if (!isValidEmail)
                 throw new ErrorHandlingException(400, "Email không hợp lệ!");
 
-            var existingUser = await _userManager.FindByEmailAsync(request.Email);
-            if (existingUser != null)
-                throw new ErrorHandlingException(400, "Email đã tồn tại trong hệ thống!");
+            //var existingUser = await _userManager.FindByEmailAsync(request.Email);
+            //if (existingUser != null)
+            //    throw new ErrorHandlingException(400, "Email đã tồn tại trong hệ thống!");
 
             // Kiểm tra và rate-limit OTP
             if (!OtpUtil.CanGenerateNewOtp(request.Email))
@@ -141,11 +141,11 @@ namespace server.Controllers
             var existUser = await _userManager.FindByEmailAsync(user.email);
             var existPhone = await FindUserByPhoneNumberAsync(user.phone);
 
-            if (existUser != null)
-                throw new ErrorHandlingException(400, "Email đã tồn tại!");
+            //if (existUser != null)
+            //    throw new ErrorHandlingException(400, "Email đã tồn tại!");
 
-            if (existPhone != null)
-                throw new ErrorHandlingException(400, "Số điện thoại đã được sử dụng!");
+            //if (existPhone != null)
+            //    throw new ErrorHandlingException(400, "Số điện thoại đã được sử dụng!");
 
             var newUser = new ApplicationUser
             {
@@ -171,15 +171,8 @@ namespace server.Controllers
             });
 
             await _context.Patients.AddAsync(new Patient { UserId = newUser.Id });
-            
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception)
-            {
-                throw new ErrorHandlingException(500, "Lỗi khi lưu dữ liệu người dùng!");
-            }
+
+            await _context.SaveChangesAsync();
 
             // Xóa OTP sau khi đã sử dụng thành công
             OtpUtil.RemoveOtp(user.email);

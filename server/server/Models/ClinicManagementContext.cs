@@ -136,19 +136,20 @@ public partial class ClinicManagementContext : IdentityDbContext<ApplicationUser
                 .HasConstraintName("FK_Patients_AspNetUsers");
         });
 
-        // modelBuilder.Entity<ContactMessages>(entity =>
-        // {
-        //     entity.HasKey(e => e.Id).HasName("PK__Messages__3214EC0764207BF0 ");
+        modelBuilder.Entity<ContactMessages>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Messages__3214EC0764207BF0 ");
 
-        //     entity.Property(e => e.PatientId).HasColumnName("PatientId");
-        //     entity.Property(e => e.Messages).HasMaxLength(255);
-        //     entity.Property(e => e.CreatedAt).HasColumnType("datetime");
+            entity.Property(e => e.PatientId).HasColumnName("PatientId");
+            entity.Property(e => e.Messages).HasMaxLength(255);
+            entity.Property(e => e.CreatedAt).HasColumnType("datetime");
 
-        //     entity.HasOne(d => d.Patient).WithOne(p => p.ContactMessages)
-        //         .HasForeignKey<Patient>(d => d.PatientId)
-        //         .OnDelete(DeleteBehavior.Cascade)
-        //         .HasConstraintName("FK__Messages__Patien__5FD33367");
-        // });
+            entity.HasOne(d => d.Patient)
+                .WithOne(p => p.ContactMessages)
+                .HasForeignKey<ContactMessages>(d => d.PatientId)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("FK__Messages__Patien__5FD33367");
+        });
 
         modelBuilder.Entity<Payment>(entity =>
         {
