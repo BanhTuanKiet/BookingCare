@@ -43,7 +43,7 @@ const Index = () => {
           key={transferData ? `signin-with-data-${resetKey}` : `signin-${resetKey}`}
           setIsLogin={setIsLogin} 
           transferData={transferData}
-          clearTransferData={clearTransferData}
+          // clearTransferData={clearTransferData}
         />
       </Col>
 

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Container, Col, Form, Button, Alert } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "../Style/Signin.css";
+import "../Style/Forgot.css";
 import axios from '../Util/AxiosConfig';
 import { useNavigate } from "react-router-dom";
 
@@ -86,8 +86,8 @@ const ForgotPassword = () => {
   };
 
   return (
-    <Container className="auth-container">
-      <Col md={6} className="auth-section show">
+    <Container className="auth-container2 mx-auto d-flex justify-content-center align-items-center mt-5 w-50">
+      <Col md={6} className="auth-section2 show">
         {!verificationSent ? (
           <>
             <h2>Quên Mật Khẩu</h2>
