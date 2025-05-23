@@ -10,7 +10,7 @@ namespace server.Services
         Task<List<AppointmentDTO.AppointmentDetail>> GetAppointments();
         Task<List<AppointmentDTO.AppointmentDetail>> GetAppointmentsByMonthYear(int month, int year);
         Task<List<AppointmentDTO.AppointmentDetail>> GetAppointmentByPatientId(int? patientId, int quantity);
-        Task<Appointment> GetAppointmentById(int appointmentId);
+        // Task<Appointment> GetAppointmentById(int appointmentId);
         Task UpdateStatus(Appointment appointment, string newStatus);
         void CancelAppointment(Appointment appointment);
         Task<List<AppointmentDTO.DoctorScheduleDTO>> GetDoctorSchedule(int? doctorId);
@@ -26,5 +26,7 @@ namespace server.Services
         Task<List<AppointmentDTO.AppointmentDetail>> GetAppointmentsByPatientIdPaginated(int patientId, int page, int pageSize);
         Task<int> CountAppointsByDate(DateTime date, string time);
         Task<List<AppointmentDTO.AvailableAppointment>> CheckAvailableAppointment(int? doctorId, DateTime date, string time);
+        Task<int> CountAppointment(DateTime date, string time);
+        Task<Appointment> GetAppointmentById(int appointmentId);
     }
 }

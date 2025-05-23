@@ -104,10 +104,10 @@ namespace server.Services
             return appointmentDTOs;
         }
 
-        public async Task<Appointment> GetAppointmentById(int appointmentId)
-        {
-            return await _context.Appointments.FindAsync(appointmentId);
-        }
+        // public async Task<Appointment> GetAppointmentById(int appointmentId)
+        // {
+        //     return await _context.Appointments.FindAsync(appointmentId);
+        // }
 
         public void CancelAppointment(Appointment appointment)
         {
@@ -332,7 +332,25 @@ namespace server.Services
                     .Take(3)
                     .ToList();
 
-            return groupedAppointments;     
+            return groupedAppointments;
+        }
+
+        public async Task<Appointment> GetAppointmentById(int appointmentId)
+        {
+            var appointment = await _context.Appointments
+                .Include(a => a.Patient)
+                    .ThenInclude(p => p.User)
+                .Include(a => a.Doctor)
+                    .ThenInclude(d => d.User)
+                .Include(a => a.Service)
+                .FirstOrDefaultAsync(a => a.AppointmentId == appointmentId);
+
+            return appointment;
+        }
+
+        public async Task<int> CountAppointment(DateTime date, string time)
+        {
+            return 0;
         }
     }
 }

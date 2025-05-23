@@ -17,5 +17,6 @@ namespace server.Services.RatingRepository
         Task<List<ReviewRating>> GetServiceRatings(int serviceId);
         Task<List<ReviewRating>> GetMonthlyRatingReviews(int month, int year, int doctorId);
         Task<List<ReviewRating>> GetMonthlyServiceRatingReviews(int month, int year, int serviceId);
+        Task<List<DoctorReviewDetailDTO>> GetDoctorReviewDetail(int doctorId);
     }
 }

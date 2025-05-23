@@ -1,8 +1,26 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Col, Row } from 'react-bootstrap'
 import ReviewCard from '../../../Component/Card/ReviewCard'
+import axios from '../../../Util/AxiosConfig'
 
-function ReviewDoctor() {
+function ReviewDoctor({ tabActive }) {
+    const [reviews, setReviews] = useState()
+
+    useEffect(() => {
+        if (tabActive !== "reviews") return
+
+        const fetchReviews = async () => {
+            try {
+                const response = await axios.get(`/reviews/doctor/detail/`)
+                console.log(response.data)        
+            } catch (error) {
+                console.log(error)
+            }
+        }
+
+        fetchReviews()
+    }, [tabActive])
+
     const patients = [
         {
             patientName: "John Doe",

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using server.DTO;
@@ -15,10 +16,13 @@ namespace server.Controllers
     public class ReviewsController : Controller
     {
         private readonly IReview _reviewService;
+        private readonly IDoctor _doctorService;
         private readonly ClinicManagementContext _context;
-        public ReviewsController(IReview reviewService, ClinicManagementContext context)
+
+        public ReviewsController(IReview reviewService, ClinicManagementContext context, IDoctor doctorService)
         {
             _reviewService = reviewService;
+            _doctorService = doctorService;
             _context = context;
         }
 
@@ -87,6 +91,17 @@ namespace server.Controllers
             }
 
             return Ok(reviews);
+        }
+
+        [HttpGet("doctor")]
+        public async Task<ActionResult> GetDoctoReview()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int parsedUserId = Convert.ToInt32(userId);
+
+            var doctor = await _doctorService.GetDoctorById(parsedUserId);
+
+            return Ok(doctor.UserName);
         }
 
         [HttpGet("doctors/{specialtyName}")]

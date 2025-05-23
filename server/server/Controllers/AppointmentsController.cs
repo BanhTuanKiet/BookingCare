@@ -116,29 +116,16 @@ namespace server.Controllers
             {
                 throw new ErrorHandlingException(403, "Bạn không có quyền!");
             }
-                // Sử dụng Include() để load các thực thể liên quan
-            var appointment = await _context.Appointments
-                .Include(a => a.Patient)
-                    .ThenInclude(p => p.User)
-                .Include(a => a.Doctor)
-                    .ThenInclude(d => d.User)
-                .Include(a => a.Service)
-                .FirstOrDefaultAsync(a => a.AppointmentId == id);
-                
-            if (appointment == null)
-            {
-                return NotFound(new { message = "Không tìm thấy lịch hẹn" });
-            }
-                
+
+            var appointment = await _appointmentService.GetAppointmentById(id) ?? throw new ErrorHandlingException(404, "không tìm thấy lịch hẹn");
             string oldStatus = appointment.Status;
-            appointment.Status = statusUpdate.Status;
-            await _context.SaveChangesAsync();
-                
-                // Kiểm tra nếu patient và email tồn tại trước khi gửi email
-            if (appointment.Patient?.User?.Email == null)
+
+            await _appointmentService.UpdateStatus(appointment, statusUpdate.Status);
+
+            if (statusUpdate.Status != "Đã xác nhận")
             {
-                throw new ErrorHandlingException(404, "Không tìm thấy email bệnh nhân!");
-            }
+                return Ok(new { message = "Cập nhật trạng thái thành công" });
+            } 
             
             await SendStatusUpdateEmail(
                 appointment.Patient.User.Email,
@@ -150,7 +137,7 @@ namespace server.Controllers
                 statusUpdate.Status
             );
             
-            return Ok(new { message = "Cập nhật trạng thái thành công" });
+            return Ok(new { message = "Xác nhận lịch hẹn thành công" });
         }
 
         private async Task<bool> SendStatusUpdateEmail(string email, string patientName, string doctorName, DateTime appointmentDate, string serviceName, string oldStatus, string newStatus)

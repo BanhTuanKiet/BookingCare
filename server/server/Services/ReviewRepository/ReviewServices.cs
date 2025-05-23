@@ -36,7 +36,7 @@ namespace server.Services.RatingRepository
                 Comment = reviewForm.Comment,
                 CreatedAt = DateTime.Now
             };
-                    
+
             await _context.Reviews.AddAsync(review);
             await _context.SaveChangesAsync();
             return review;
@@ -167,7 +167,8 @@ namespace server.Services.RatingRepository
                 .Include(r => r.MedicalRecord.Appointment.Doctor)
                 .Where(r => r.MedicalRecord.Appointment.Doctor.DoctorId == doctorId)
                 .GroupBy(r => r.OverallRating)
-                .Select(group => new ReviewRating {
+                .Select(group => new ReviewRating
+                {
                     Rating = group.Key,
                     ReviewCount = group.Count()
                 })
@@ -192,7 +193,8 @@ namespace server.Services.RatingRepository
                 .Include(r => r.MedicalRecord.Appointment.Service)
                 .Where(r => r.MedicalRecord.Appointment.Service.ServiceId == serviceId)
                 .GroupBy(r => r.OverallRating)
-                .Select(group => new ReviewRating {
+                .Select(group => new ReviewRating
+                {
                     Rating = group.Key,
                     ReviewCount = group.Count()
                 })
@@ -214,13 +216,14 @@ namespace server.Services.RatingRepository
                 .Include(r => r.MedicalRecord)
                 .Include(r => r.MedicalRecord.Appointment)
                 .Include(r => r.MedicalRecord.Appointment.Doctor)
-                .Where(r => 
-                    r.MedicalRecord.Appointment.Doctor.DoctorId == doctorId 
-                    && r.MedicalRecord.Appointment.AppointmentDate.Value.Month == month 
+                .Where(r =>
+                    r.MedicalRecord.Appointment.Doctor.DoctorId == doctorId
+                    && r.MedicalRecord.Appointment.AppointmentDate.Value.Month == month
                     && r.MedicalRecord.Appointment.AppointmentDate.Value.Year == year
                 )
                 .GroupBy(r => r.OverallRating)
-                .Select(group => new ReviewRating {
+                .Select(group => new ReviewRating
+                {
                     Rating = group.Key,
                     ReviewCount = group.Count()
                 })
@@ -243,13 +246,14 @@ namespace server.Services.RatingRepository
                 .Include(r => r.MedicalRecord)
                 .Include(r => r.MedicalRecord.Appointment)
                 .Include(r => r.MedicalRecord.Appointment.Service)
-                .Where(r => 
-                    r.MedicalRecord.Appointment.Service.ServiceId == serviceId 
-                    && r.MedicalRecord.Appointment.AppointmentDate.Value.Month == month 
+                .Where(r =>
+                    r.MedicalRecord.Appointment.Service.ServiceId == serviceId
+                    && r.MedicalRecord.Appointment.AppointmentDate.Value.Month == month
                     && r.MedicalRecord.Appointment.AppointmentDate.Value.Year == year
                 )
                 .GroupBy(r => r.OverallRating)
-                .Select(group => new ReviewRating {
+                .Select(group => new ReviewRating
+                {
                     Rating = group.Key,
                     ReviewCount = group.Count()
                 })
@@ -263,7 +267,12 @@ namespace server.Services.RatingRepository
                 })
                 .ToList();
 
-            return result;            
+            return result;
+        }
+
+        public async Task<List<DoctorReviewDetailDTO>> GetDoctorReviewDetail(int doctorId)
+        {
+            return null;
         }
     }
 }

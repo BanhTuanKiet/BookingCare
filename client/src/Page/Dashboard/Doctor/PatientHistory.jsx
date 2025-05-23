@@ -4,6 +4,7 @@ import { extractDateOnly } from "../../../Util/DateUtils"
 import axios from "../../../Util/AxiosConfig"
 
 function PatientHistory({ tabActive }) {
+    console.log(tabActive)
     const [patients, setPatients] = useState([])
     const [loading, setLoading] = useState(true)
     const [showDetailsModal, setShowDetailsModal] = useState(false)
@@ -11,7 +12,7 @@ function PatientHistory({ tabActive }) {
 
     useEffect(() => {
         fetchExaminedPatients()
-    }, [])
+    }, [tabActive])
 
     const fetchExaminedPatients = async () => {
         if (tabActive !== "patientHistory") return
