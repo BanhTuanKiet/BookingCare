@@ -45,7 +45,8 @@ namespace server.Controllers
             {
                 PatientId = patient.PatientId,
                 Messages = message,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.Now,
+                Status = "Chưa phản hồi"
             };
 
             ContactMessages contact = await _contactService.SendMessage(contactMessages) ?? throw new ErrorHandlingException("Gửi thất bại!");
