@@ -39,13 +39,14 @@ namespace server.Controllers
 
             var patient = await _patientServices.GetPatientByUserId(parseUserId) ?? throw new ErrorHandlingException(404, "Patient not found");
 
-            if (message == null) throw new ErrorHandlingException(400, "Vui lòng nhập nội dung!");
+            if (message == "") throw new ErrorHandlingException(400, "Vui lòng nhập nội dung!");
 
             ContactMessages contactMessages = new ContactMessages
             {
                 PatientId = patient.PatientId,
                 Messages = message,
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.Now,
+                Status = "Chưa phản hồi"
             };
 
             ContactMessages contact = await _contactService.SendMessage(contactMessages) ?? throw new ErrorHandlingException("Gửi thất bại!");

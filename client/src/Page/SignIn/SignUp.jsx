@@ -12,16 +12,15 @@ function SignUp({ setIsLogin, onSuccessfulSignup }) {
     const [showOtpModal, setShowOtpModal] = useState(false);
     const [loading, setLoading] = useState(false);
     const [showPasswords, setShowPasswords] = useState(false);
-    const [isValidOtp, setIsValidOtp] = useState(false);
     const [resendCooldown, setResendCooldown] = useState(0);
     const [otpCountdown, setOtpCountdown] = useState("");
     const [lastEmailUsed, setLastEmailUsed] = useState("");
     const [otpSent, setOtpSent] = useState(false);
+    const [isRegistering, setIsRegistering] = useState(false); // Thêm flag để tránh call API nhiều lần
     
     const otpRefs = useRef([...Array(6)].map(() => React.createRef()));
 
     useEffect(() => {
-        console.log("1111111")
         let timer;
         if (resendCooldown > 0) {
             timer = setInterval(() => {
@@ -38,7 +37,6 @@ function SignUp({ setIsLogin, onSuccessfulSignup }) {
     }, [resendCooldown]);
 
     useEffect(() => {
-        console.log("2222222")
         if (resendCooldown > 0) {
             const minutes = Math.floor(resendCooldown / 60);
             const seconds = resendCooldown % 60;
@@ -49,7 +47,6 @@ function SignUp({ setIsLogin, onSuccessfulSignup }) {
     }, [resendCooldown]);
 
     useEffect(() => {
-        console.log("3333333")
         if (showOtpModal) {
             const normalizedEmail = registerData?.email.trim().toLowerCase();
             if (normalizedEmail !== lastEmailUsed || !otpSent) {
@@ -58,37 +55,35 @@ function SignUp({ setIsLogin, onSuccessfulSignup }) {
         }
     }, [showOtpModal]);
 
-    useEffect(() => {
-        console.log("44444444")
-
-        const register = async () => {
-            if (!isValidOtp || !showOtpModal) return;
+    // XÓA useEffect cũ và thay thế bằng function riêng biệt
+    // useEffect(() => {
+    //     const register = async () => {
+    //         if (!isValidOtp || !showOtpModal) return;
             
-            try {
-                setLoading(true);
-                const otp = otpInputs.join("");
-                const payload = { ...registerData, otp };
-                await axios.post("/auth/register", payload);
+    //         try {
+    //             setLoading(true);
+    //             const otp = otpInputs.join("");
+    //             const payload = { ...registerData, otp };
+    //             await axios.post("/auth/register", payload);
                 
-                setShowOtpModal(false);
+    //             setShowOtpModal(false);
                 
-                // Gọi callback để truyền dữ liệu sang SignIn
-                if (onSuccessfulSignup) {
-                    onSuccessfulSignup(registerData);
-                } else {
-
-                    setIsLogin(true);
-                }
-                setIsValidOtp(false);
-                setOtpInputs(["", "", "", "", "", ""]);
-            } catch (error) {
-                console.log(error)
-            } finally {
-                setLoading(false);
-            }
-        };
-        register();
-    }, [isValidOtp, showOtpModal, registerData, onSuccessfulSignup, setIsLogin, otpInputs]);
+    //             // Gọi callback để truyền dữ liệu sang SignIn
+    //             if (onSuccessfulSignup) {
+    //                 onSuccessfulSignup(registerData);
+    //             } else {
+    //                 setIsLogin(true);
+    //             }
+    //             setIsValidOtp(false);
+    //             setOtpInputs(["", "", "", "", "", ""]);
+    //         } catch (error) {
+    //             console.log(error)
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     };
+    //     register();
+    // }, [isValidOtp, showOtpModal, registerData, onSuccessfulSignup, setIsLogin, otpInputs]);
 
     useEffect(() => {
         if (showOtpModal) {
@@ -113,6 +108,7 @@ function SignUp({ setIsLogin, onSuccessfulSignup }) {
 
         setOtpInputs(["", "", "", "", "", ""]);
         setOtpSent(false);
+        setIsRegistering(false); // Reset flag
 
         const normalizedEmail = registerData.email.trim().toLowerCase();
         if (normalizedEmail !== lastEmailUsed) {
@@ -144,13 +140,47 @@ function SignUp({ setIsLogin, onSuccessfulSignup }) {
         }
     };
 
+    // Tạo function riêng để handle việc đăng ký
+    const handleRegisterWithOtp = async () => {
+        if (isRegistering) return; // Tránh call API nhiều lần
+        
+        try {
+            setIsRegistering(true);
+            setLoading(true);
+            const otp = otpInputs.join("");
+            const payload = { ...registerData, otp };
+            await axios.post("/auth/register", payload);
+            
+            setShowOtpModal(false);
+            
+            // Gọi callback để truyền dữ liệu sang SignIn
+            if (onSuccessfulSignup) {
+                onSuccessfulSignup(registerData);
+            } else {
+                setIsLogin(true);
+            }
+            
+            // Reset tất cả state
+            setOtpInputs(["", "", "", "", "", ""]);
+            setIsRegistering(false);
+        } catch (error) {
+            console.log(error);
+            setIsRegistering(false);
+            // Có thể thêm thông báo lỗi cho user ở đây
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleConfirmOtp = () => {
         const otp = otpInputs.join("");
         if (otp.length !== 6) {
-            // alert("Vui lòng nhập đủ 6 chữ số OTP.");
+            alert("Vui lòng nhập đủ 6 chữ số OTP.");
             return;
         }
-        setIsValidOtp(true);
+        
+        // Gọi function đăng ký thay vì set state
+        handleRegisterWithOtp();
     };
 
     const handleOtpInput = (e, index) => {
@@ -213,6 +243,7 @@ function SignUp({ setIsLogin, onSuccessfulSignup }) {
     const handleCloseOtpModal = () => {
         setShowOtpModal(false);
         setOtpInputs(["", "", "", "", "", ""]);
+        setIsRegistering(false); // Reset flag khi đóng modal
     };
 
     const passwordMatchError = !passwordsMatch() && registerData.passwordConfirmed !== "" 
@@ -318,8 +349,8 @@ function SignUp({ setIsLogin, onSuccessfulSignup }) {
                 <Button variant="link" onClick={() => {
                     setIsLogin(true);
                     setShowOtpModal(false);
-                    setIsValidOtp(false);
                     setOtpInputs(["", "", "", "", "", ""]);
+                    setIsRegistering(false); // Reset flag
                 }}>
                     Đăng nhập
                 </Button>
@@ -351,6 +382,7 @@ function SignUp({ setIsLogin, onSuccessfulSignup }) {
                                 onClick={() => handleOtpClick(index)}
                                 autoComplete="off"
                                 style={{ width: "40px", textAlign: "center", fontSize: "1.5rem" }}
+                                disabled={isRegistering} // Disable input khi đang xử lý
                             />
                         ))}
                         </div>
@@ -358,17 +390,17 @@ function SignUp({ setIsLogin, onSuccessfulSignup }) {
                 </Modal.Body>
                 <Modal.Footer className="flex-column align-items-start gap-2">
                     <div className="w-100 d-flex justify-content-between">
-                        <Button variant="link" onClick={handleSendOtp} disabled={resendCooldown > 0}>
+                        <Button variant="link" onClick={handleSendOtp} disabled={resendCooldown > 0 || isRegistering}>
                             {resendCooldown > 0
                                 ? `Gửi lại OTP sau ${otpCountdown}`
                                 : "Gửi lại mã OTP"}
                         </Button>
                         <div>
-                            <Button variant="secondary" onClick={handleCloseOtpModal} className="me-2">
+                            <Button variant="secondary" onClick={handleCloseOtpModal} className="me-2" disabled={isRegistering}>
                                 Hủy
                             </Button>
-                            <Button variant="primary" onClick={handleConfirmOtp} disabled={loading}>
-                                {loading ? "Đang xác thực..." : "Xác Nhận"}
+                            <Button variant="primary" onClick={handleConfirmOtp} disabled={loading || isRegistering}>
+                                {loading || isRegistering ? "Đang xác thực..." : "Xác Nhận"}
                             </Button>
                         </div>
                     </div>

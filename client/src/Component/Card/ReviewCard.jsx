@@ -68,9 +68,9 @@ export default function ReviewCard({ review }) {
                 {expanded ? 'Read less' : 'Read more'}
               </Button>
             )}
-            <Button variant="outline-primary" size="sm">
+            {/* <Button variant="outline-primary" size="sm">
               Details
-            </Button>
+            </Button> */}
           </div>
         </Card.Text>
         {/* <div className="text-end mt-3">

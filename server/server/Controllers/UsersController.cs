@@ -70,6 +70,27 @@ namespace server.Controllers
             return Ok(users);
         }
 
+        [Authorize(Roles = "admin")]
+        [HttpGet("search/patient/byAdmin")]
+        public async Task<IActionResult> SearchPatientsByAdmin([FromQuery] string keyword)
+        {
+            if (string.IsNullOrEmpty(keyword))
+            {
+                throw new ErrorHandlingException(400, "không có Keyword");
+            }
+            Console.WriteLine("Keyword: " + keyword);
+            var result = await _userService.SearchUserByKeyWord(keyword);
+            return Ok(result);
+        }
+
+        // public async Task<IActionResult> SearchPatientsWithQuery([FromQuery] string keyword)
+        // {
+        //     Console.WriteLine("Keyword: " + keyword);
+        //     var result = await _userService.SearchUserByKeyWord(keyword);
+        //     return Ok(result);
+        // }
+
+
         [HttpGet("profile")]
         public async Task<ActionResult> GetUserById()
         {
