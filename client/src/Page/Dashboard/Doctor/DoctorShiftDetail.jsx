@@ -303,14 +303,14 @@ function DoctorShiftDetail({ dateTime, setShowShiftDetail }) {
                                     </Badge>
                                 </td>
                                 <td>
-                                    <Button 
+                                    {/* <Button 
                                         variant="outline-primary" 
                                         size="sm"
                                         className="me-2"
                                         onClick={() => handleOpenStatusModal(appointment)}
                                     >
                                         Cập nhật
-                                    </Button>
+                                    </Button> */}
                                     <Button 
                                         variant="outline-success" 
                                         size="sm"

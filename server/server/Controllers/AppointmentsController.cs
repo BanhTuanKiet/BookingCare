@@ -55,7 +55,7 @@ namespace server.Controllers
 
             var dateNow = DateTime.Now;
 
-            if (appointmentForm.AppointmentDate <= dateNow.Date.AddDays(1))
+            if (appointmentForm.AppointmentDate <= dateNow.Date)
             {
                 throw new ErrorHandlingException(400, "Vui lòng đặt lịch khám tối thiểu trước 1 ngày");
             }

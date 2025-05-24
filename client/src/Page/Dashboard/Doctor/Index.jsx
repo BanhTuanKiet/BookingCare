@@ -8,7 +8,7 @@ import axios from '../../../Util/AxiosConfig'
 import UserProfileCard from '../../../Component/UserProfileCard'
 
 function Index() {
-    const [tabActive, setTabActive] = useState("overview")
+    const [tabActive, setTabActive] = useState("doctorSchedule")
     const [doctor, setDoctor] = useState()
 
     useEffect(() => {

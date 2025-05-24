@@ -89,12 +89,12 @@ function Index() {
                                         Phản Hồi Thắc Mắc
                                     </Nav.Link>
 
-                                    <Nav.Link 
+                                    {/* <Nav.Link 
                                         eventKey="users"
                                         className={`sidebar-link mb-2 ${tabActive === "users" ? "active" : ""}`}
                                     >
                                         Người Dùng
-                                    </Nav.Link>
+                                    </Nav.Link> */}
                                 </Nav>
 
                                 <div className="session-info mt-auto mx-3 mb-4">
