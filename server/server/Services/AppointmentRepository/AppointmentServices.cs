@@ -329,7 +329,7 @@ namespace server.Services
                 .ToList();
 
             var availableSlots = slotCounts
-                .Where(s => s.Count < 5 && !(s.Date == date.Date && s.Time == time))
+                .Where(s => s.Count < 12 && !(s.Date == date.Date && s.Time == time))
                 .OrderBy(s => s.Date)
                 .ThenBy(s => s.Time == "Sáng" ? 0 : 1)
                 .Take(3)
