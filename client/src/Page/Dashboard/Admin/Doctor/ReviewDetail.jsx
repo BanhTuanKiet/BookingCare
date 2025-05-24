@@ -23,6 +23,7 @@ const ReviewDetail = ({ specialty, doctor, review }) => {
     const fetchReview = async () => {
       try {
         const response = await axios.get(`/reviews/detail/${tabActive}/${"doctor"}/${doctor?.doctorId}`)
+        console.log(response.data)
         setReviews(response.data)
       } catch (error) {
         console.log(error)

@@ -22,7 +22,7 @@ const renderStars = (score) => {
 const ReviewDetailCard = ({ type, review }) => {
   const [labels, setLabels] = useState()
   const naviagte = useNavigate()
-
+console.log(review)
   const doctorLabels = [
     { label: "Thái độ", score: review?.attitude },
     { label: "Chuyên môn", score: review?.knowledge },
