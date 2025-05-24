@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Http;
 using server.DTO;
+using server.Middleware;
 
 namespace server.Util
 {
@@ -38,7 +39,20 @@ namespace server.Util
             DateTime payDate = DateTime.ParseExact(paymentDateTime, "yyyyMMddHHmmss", null);
 
             var isValid = ValidateSignature(vnpSecureHash, hashSecret);
-             
+
+            if (amount.Length >= 2)
+            {
+                amount = amount.Substring(0, amount.Length - 2);
+            }
+            if (long.TryParse(amount, out long parsedAmount))
+            {
+                amount = parsedAmount.ToString("N0", System.Globalization.CultureInfo.InvariantCulture);
+            }
+            else
+            {
+                throw new ErrorHandlingException(400, "Giá trị tiền không hợp lệ");
+            }
+
             return new PaymentDTO.PaymentCallBack
             {
                 PaymentInfo = orderInfo,
@@ -69,7 +83,7 @@ namespace server.Util
             }
             catch
             {
-                // Ignore exception, fallback to localhost
+
             }
 
             return "127.0.0.1";
@@ -95,10 +109,9 @@ namespace server.Util
 
         public string CreateRequestUrl(string baseUrl, string vnpHashSecret)
         {
-            // Sort the parameters alphabetically by key
             var sortedData = _requestData
                             .Where(kv => !string.IsNullOrEmpty(kv.Value))
-                            .OrderBy(kv => kv.Key)  // Sort by key in alphabetical order
+                            .OrderBy(kv => kv.Key)
                             .ToList();
 
             var data = new StringBuilder();

@@ -422,6 +422,19 @@ namespace Clinic_Management.Controllers
                     return Ok(new { paymentUrl });
                 }
         }
+        public async Task SendEmailPayment(PaymentDTO.PaymentInformationModel paymentInfo, string Email)
+        {
+            var subject = "Xác nhận thanh toán dịch vụ khám bệnh";
+
+            var body = $@"
+                        <h2>Thông tin thanh toán</h2>
+                        <p><strong>Họ tên bệnh nhân:</strong> {paymentInfo.Name}</p>
+                        <p><strong>Mô tả giao dịch:</strong> {paymentInfo.OrderDescription}</p>
+                        <p><strong>Số tiền:</strong> {paymentInfo.Amount} VNĐ</p>
+                        <p><strong>Thời gian thanh toán:</strong> {paymentInfo.Date.ToString("dd/MM/yyyy HH:mm:ss")}</p>
+                        <p>Cảm ơn quý khách đã sử dụng dịch vụ của chúng tôi!</p>";
+            await EmailUtil.SendEmailAsync(_configuration, Email, subject, body);
+        }
 
         [HttpGet("callback")]
         public async Task<PaymentDTO.PaymentInformationModel> PaymentCallbackVnpay()
@@ -442,19 +455,22 @@ namespace Clinic_Management.Controllers
                     throw new ErrorHandlingException(500, "Không tìm thấy lịch hẹn");
                 }
 
+                string email = appointment?.Patient?.User?.Email ?? throw new ErrorHandlingException(400, "Không tìm thấy email bệnh nhân!");
+
                 var oldStatus = appointment.Status;
                 appointment.Status = "Đã hoàn thành";
                 await _context.SaveChangesAsync();
-                return new PaymentDTO.PaymentInformationModel
-                {
-                    PaymentId = response.TransactionNo,
-                    Amount = response.Amount,
-                    Success = "success",
-                    Name = appointment?.Patient?.User?.FullName ?? "Không xác định",
-                    OrderDescription = response.PaymentInfo,
-                    Date = response.PaymentDateTime
-                };
-                // return Content("success");
+                PaymentDTO.PaymentInformationModel paymentInfo = new PaymentDTO.PaymentInformationModel
+                    {
+                        PaymentId = response.TransactionNo,
+                        Amount = response.Amount,
+                        Success = "success",
+                        Name = appointment?.Patient?.User?.FullName ?? "Không xác định",
+                        OrderDescription = response.PaymentInfo,
+                        Date = response.PaymentDateTime
+                    };
+                await SendEmailPayment(paymentInfo, email);
+                return paymentInfo;
             }
             else
             {
@@ -470,7 +486,6 @@ namespace Clinic_Management.Controllers
             }
         }
 
-        // Update CreatePayment method to generate OrderId and Amount on the backend
         [HttpPost("create-payment")]
         public async Task<IActionResult> CreatePayment([FromBody] MedicalRecordDTO.CreatePaymentRequest request)
         {
