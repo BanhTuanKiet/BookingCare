@@ -50,9 +50,27 @@ namespace Clinic_Management.Controllers
 
         [Authorize(Roles = "doctor")]
         [HttpPost("{appointmentId}")]
-        public async Task<ActionResult> AddMedicalRecord(int appointmentId, [FromBody] MedicalRecordDTO.PrescriptionRequest prescriptionRequest )
+        public async Task<ActionResult> AddMedicalRecord(int appointmentId, [FromBody] MedicalRecordDTO.PrescriptionRequest prescriptionRequest)
         {
             var appointment = await _appointmentService.GetAppointmentById(appointmentId) ?? throw new ErrorHandlingException("Không tìm thấy lịch hẹn!");
+
+            DateTime now = DateTime.Now;
+            int hour = now.Hour;
+
+            DateOnly appointmentDate = DateOnly.FromDateTime(appointment.AppointmentDate.Value);
+            DateOnly today = DateOnly.FromDateTime(now);
+
+            if (appointmentDate != today)
+            {
+                throw new ErrorHandlingException(400, "Chỉ được kê thuốc vào ngày khám!");
+            }
+
+            if (appointment.AppointmentTime == "Sáng" && (hour < 8 || hour > 12) ||
+                appointment.AppointmentTime == "Chiều" && (hour < 13 || hour > 17))
+            {
+                throw new ErrorHandlingException(400, $"Hiện tại không nằm trong khung giờ kê thuốc cho buổi {appointment.AppointmentTime.ToLower()}. Vui lòng kê thuốc trong khoảng thời gian quy định.");
+            }
+
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             int parsedUserId = Convert.ToInt32(userId);
             if (appointment.DoctorId != parsedUserId)
@@ -64,34 +82,34 @@ namespace Clinic_Management.Controllers
             var recordDetail = await _medicalRecordService.AddMedicalRecordDetail(record.RecordId, prescriptionRequest.Medicines) ?? throw new ErrorHandlingException(400, "Lỗi khi tạo toa thuốc");
 
             var patient = await _patientService.GetPatientById(appointment.PatientId.Value) ?? throw new ErrorHandlingException(400, "Không tìm thấy bệnh nhân!");
-            
+
             await _appointmentService.UpdateStatus(appointment, "Đã khám");
-            
+
             try
             {
-                 await SendEmailForPatient(patient.Email, appointment, prescriptionRequest, record.RecordId);
+                await SendEmailForPatient(patient.Email, appointment, prescriptionRequest, record.RecordId);
             }
             catch (Exception ex)
             {
                 throw new ErrorHandlingException(500, $"Không thể gửi email: {ex.Message}");
             }
- 
+
             return Ok(new { message = "Tạo toa thuốc thành công!" });
         }
 
         private async Task SendEmailForPatient(string Email, Appointment appointment, MedicalRecordDTO.PrescriptionRequest prescriptionRequest, int recordId)
         {
             var doctor = await _doctorService.GetDoctorById(appointment.DoctorId.Value) ?? throw new ErrorHandlingException(400, "Không tìm thấy bác sĩ!");
- 
+
             var recordDetail = await _medicalRecordService.GetRecordDetail(recordId);
 
             if (recordDetail == null || !recordDetail.Any())
             {
                 throw new ErrorHandlingException("Không tìm thấy chi tiết toa thuốc!");
             }
- 
+
             string subject = "Toa thuốc của bạn từ phòng khám";
- 
+
             string body = $@"
                 <p>Bạn đã được bác sĩ <b>{doctor.UserName}</b> kê toa thuốc trong buổi khám ngày <b>{appointment.AppointmentDate:dd/MM/yyyy}</b>.</p>
                 <p>Chẩn đoán bệnh: <b>{prescriptionRequest.Diagnosis}</b></p>
@@ -121,12 +139,12 @@ namespace Clinic_Management.Controllers
                         <td>{item.Quantity}</td>
                     </tr>";
             }
- 
+
             body += $@"</table>
                 <p>Lời dặn của bác sĩ: <b>{prescriptionRequest.Notes}</b></p>
                 <br><p><i>Lưu ý: Vui lòng sử dụng thuốc đúng theo hướng dẫn và quay lại tái khám nếu cần.</i></p>
                 <p>Chúc bạn mau hồi phục sức khỏe!</p>";
- 
+
             await EmailUtil.SendEmailAsync(_configuration, Email, subject, body);
         }
 
@@ -141,8 +159,8 @@ namespace Clinic_Management.Controllers
 
             var appointments = await _appointmentService.GetAppointmentsId(patient.PatientId);
 
-            var medicalRecords = await _medicalRecordService.GetMedicalRecords(appointments) ?? throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");;
-        
+            var medicalRecords = await _medicalRecordService.GetMedicalRecords(appointments) ?? throw new ErrorHandlingException("Không tìm thấy bệnh nhân!"); ;
+
             return Ok(medicalRecords);
         }
 
@@ -289,7 +307,7 @@ namespace Clinic_Management.Controllers
                     .ToListAsync();
 
                 // Truy vấn đơn thuốc dựa trên danh sách appointmentId
-                var medicalRecords = await _medicalRecordService.GetMedicalRecordsForAdmin(appointmentIds) 
+                var medicalRecords = await _medicalRecordService.GetMedicalRecordsForAdmin(appointmentIds)
                                     ?? throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");
 
                 // Lọc thêm theo dịch vụ và trạng thái nếu có
@@ -319,10 +337,11 @@ namespace Clinic_Management.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpGet("details/{recordId}")]
-        public async Task<ActionResult> GetMedicalRecordDetailByRecordId(int recordId) {
+        public async Task<ActionResult> GetMedicalRecordDetailByRecordId(int recordId)
+        {
             var recordDetail = await _medicalRecordService.GetRecordDetail(recordId) ?? throw new ErrorHandlingException("Không tìm thấy chi tiết toa thuốc!");
             var recorRecentDetail = await _medicalRecordService.GetMedicalRecordsByRecoredId(recordId) ?? throw new ErrorHandlingException("Không tìm thấy chi tiết toa thuốc!");
-            
+
             string body = $@"
                  <p>Bạn đã được bác sĩ <b>{recorRecentDetail.DoctorName}</b> kê toa thuốc trong buổi khám ngày <b>{recorRecentDetail.AppointmentDate:dd/MM/yyyy}</b>.</p>
                  <p>Chẩn đoán bệnh: <b>{recorRecentDetail.Diagnosis}</b></p>
@@ -338,10 +357,10 @@ namespace Clinic_Management.Controllers
                          <th>Số lượng</th>
                          <th>Đơn vị thuốc</th>
                      </tr>";
- 
-             foreach (var item in recordDetail)
-             {
-                 body += $@"
+
+            foreach (var item in recordDetail)
+            {
+                body += $@"
                      <tr style='text-align: center;'>
                          <td>{item.MedicineName}</td>
                          <td>{item.Dosage}</td>
@@ -351,9 +370,9 @@ namespace Clinic_Management.Controllers
                          <td>X {item.Quantity}</td>
                          <td>{item.Unit}</td>
                      </tr>";
-             }
- 
-             body += $@"</table>
+            }
+
+            body += $@"</table>
                  <p>Lời dặn của bác sĩ: <b>{recorRecentDetail.Notes}</b></p>";
             return Content(body, "text/html");
         }
@@ -366,7 +385,7 @@ namespace Clinic_Management.Controllers
             var parsedUserId = Convert.ToInt32(userId);
 
             var patient = await _patientService.GetPatientByUserId(parsedUserId) ?? throw new ErrorHandlingException(400, "Không tìm thấy bệnh nhân!");
-            
+
             var appointments = await _appointmentService.GetAppointmentsId(patient.PatientId) ?? throw new ErrorHandlingException(400, "Không tìm thấy lịch hẹn!");
 
             var medicalRecords = await _medicalRecordService.GetRecentMedicalRecords(appointments) ?? throw new ErrorHandlingException("Không tìm thấy hồ sơ bệnh án!");
@@ -391,36 +410,37 @@ namespace Clinic_Management.Controllers
         [HttpPost("create-vnpay/{recordId}")]
         public async Task<IActionResult> CreatePayment(int recordId)
         {
-                Console.WriteLine($"Mã record: {recordId}");
-                var appointment = await _context.Appointments
-                .Include(a => a.Service)
-                .Include(a => a.Patient)
-                    .ThenInclude(p => p.User)
-                .FirstOrDefaultAsync(a => a.MedicalRecord.RecordId == recordId);
+            Console.WriteLine($"Mã record: {recordId}");
+            var appointment = await _context.Appointments
+            .Include(a => a.Service)
+            .Include(a => a.Patient)
+                .ThenInclude(p => p.User)
+            .FirstOrDefaultAsync(a => a.MedicalRecord.RecordId == recordId);
 
 
-                if (appointment == null)
-                    throw new ErrorHandlingException(404,"Không tìm thấy lịch hẹn.");
-                if(appointment.Status != "Đã khám")
-                    throw new ErrorHandlingException(400,"Lịch hẹn chưa hoàn thành.");
-                else{
-                    int totalAmount = await _medicalRecordService.CalculateAmountFromRecordId(recordId);
+            if (appointment == null)
+                throw new ErrorHandlingException(404, "Không tìm thấy lịch hẹn.");
+            if (appointment.Status != "Đã khám")
+                throw new ErrorHandlingException(400, "Lịch hẹn chưa hoàn thành.");
+            else
+            {
+                int totalAmount = await _medicalRecordService.CalculateAmountFromRecordId(recordId);
 
-                    // Bạn set sẵn ở backend
-                    string orderType = "other";
-                    string orderDescription = "thanh toán đơn thuốc";
-                    string name = $"{appointment.Patient?.User?.FullName ?? "Unknown"}";
+                // Bạn set sẵn ở backend
+                string orderType = "other";
+                string orderDescription = "thanh toán đơn thuốc";
+                string name = $"{appointment.Patient?.User?.FullName ?? "Unknown"}";
 
 
-                    Console.WriteLine($"Mã record: {appointment.Patient?.User?.FullName ?? "Unknown"}");
+                Console.WriteLine($"Mã record: {appointment.Patient?.User?.FullName ?? "Unknown"}");
 
-                    var paymentUrl = await _medicalRecordService.CreatePaymentUrl(HttpContext, totalAmount, recordId.ToString(), orderType, orderDescription, name);
-                    if(paymentUrl == null)
-                    {
-                        throw new ErrorHandlingException(500, "Không thể tạo URL thanh toán");
-                    }
-                    return Ok(new { paymentUrl });
+                var paymentUrl = await _medicalRecordService.CreatePaymentUrl(HttpContext, totalAmount, recordId.ToString(), orderType, orderDescription, name);
+                if (paymentUrl == null)
+                {
+                    throw new ErrorHandlingException(500, "Không thể tạo URL thanh toán");
                 }
+                return Ok(new { paymentUrl });
+            }
         }
         public async Task SendEmailPayment(PaymentDTO.PaymentInformationModel paymentInfo, string Email)
         {
@@ -461,14 +481,14 @@ namespace Clinic_Management.Controllers
                 appointment.Status = "Đã hoàn thành";
                 await _context.SaveChangesAsync();
                 PaymentDTO.PaymentInformationModel paymentInfo = new PaymentDTO.PaymentInformationModel
-                    {
-                        PaymentId = response.TransactionNo,
-                        Amount = response.Amount,
-                        Success = "success",
-                        Name = appointment?.Patient?.User?.FullName ?? "Không xác định",
-                        OrderDescription = response.PaymentInfo,
-                        Date = response.PaymentDateTime
-                    };
+                {
+                    PaymentId = response.TransactionNo,
+                    Amount = response.Amount,
+                    Success = "success",
+                    Name = appointment?.Patient?.User?.FullName ?? "Không xác định",
+                    OrderDescription = response.PaymentInfo,
+                    Date = response.PaymentDateTime
+                };
                 await SendEmailPayment(paymentInfo, email);
                 return paymentInfo;
             }
@@ -489,7 +509,7 @@ namespace Clinic_Management.Controllers
         [HttpPost("create-payment")]
         public async Task<IActionResult> CreatePayment([FromBody] MedicalRecordDTO.CreatePaymentRequest request)
         {
-            Console.WriteLine("Mã toa thuốc : "+request.RecordId.ToString());
+            Console.WriteLine("Mã toa thuốc : " + request.RecordId.ToString());
             if (request == null || string.IsNullOrWhiteSpace(request.OrderInfo))
             {
                 return BadRequest("Invalid request");
@@ -503,7 +523,7 @@ namespace Clinic_Management.Controllers
 
             if (appointment == null)
                 throw new Exception("Không tìm thấy lịch hẹn.");
-            if(appointment.Status != "Đã khám")
+            if (appointment.Status != "Đã khám")
                 throw new Exception("Lịch hẹn chưa hoàn thành.");
 
             // Generate OrderId and Amount on the backend

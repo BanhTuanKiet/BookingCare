@@ -93,8 +93,8 @@ namespace server.Controllers
         [HttpGet()]
         public async Task<ActionResult<List<AppointmentDTO.AppointmentDetail>>> GetAppointments()
         {
-            var userId = HttpContext.Items["UserId"];
-            int parsedUserId = Convert.ToInt32(userId.ToString());
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int parsedUserId = Convert.ToInt32(userId);
 
             var appointments = await _appointmentService.GetAppointments();
 
@@ -105,8 +105,8 @@ namespace server.Controllers
         [HttpGet("{month}/{year}")]
         public async Task<ActionResult<List<AppointmentDTO.AppointmentDetail>>> GetAppointmentsByMonthYear(int month, int year)
         {
-            var userId = HttpContext.Items["UserId"];
-            int parsedUserId = Convert.ToInt32(userId.ToString());
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int parsedUserId = Convert.ToInt32(userId);
 
             var appointments = await _appointmentService.GetAppointmentsByMonthYear(month, year);
 
@@ -219,10 +219,8 @@ namespace server.Controllers
         [HttpPost("by-patient")]
         public async Task<ActionResult> GetAppointmentByPatientId([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            var userId = HttpContext.Items["UserId"];
-            int parsedUserId = Convert.ToInt32(userId.ToString());
-
-            Console.WriteLine("UserId: " + parsedUserId);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int parsedUserId = Convert.ToInt32(userId);
 
             var patient = await _patientService.GetPatientByUserId(parsedUserId) ?? throw new ErrorHandlingException("Không tim thấy bệnh nhân");
             if (!patient.PatientId.HasValue)
@@ -251,8 +249,8 @@ namespace server.Controllers
         [HttpGet("schedule")]
         public async Task<ActionResult<List<AppointmentDTO.DoctorScheduleDTO>>> GetDoctorSchedule()
         {
-            var userId = HttpContext.Items["UserId"];
-            int parsedUserId = Convert.ToInt32(userId.ToString());
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int parsedUserId = Convert.ToInt32(userId);
 
             var doctor = await _doctorService.GetDoctorById(parsedUserId) ?? throw new ErrorHandlingException("Không tìm thấy bác sĩ!");
 
@@ -265,8 +263,8 @@ namespace server.Controllers
         [HttpGet("schedule_detail")]
         public async Task<ActionResult> GetDoctorScheduleByDateTime([FromQuery] string date, [FromQuery] string time)
         {
-            var userId = HttpContext.Items["UserId"];
-            int parsedUserId = Convert.ToInt32(userId.ToString());
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int parsedUserId = Convert.ToInt32(userId);
 
             var doctor = await _doctorService.GetDoctorById(parsedUserId) ?? throw new ErrorHandlingException("Không tìm thấy bác sĩ!");
 
@@ -279,7 +277,7 @@ namespace server.Controllers
         [HttpGet("examined_patients")]
         public async Task<ActionResult> GetPatientByStatus()
         {
-            var userId = HttpContext.Items["UserId"].ToString();
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             int parsedUserId = Convert.ToInt32(userId);
 
             var doctor = await _doctorService.GetDoctorById(parsedUserId) ?? throw new ErrorHandlingException("Không tìm thấy bác sĩ!");
@@ -293,7 +291,7 @@ namespace server.Controllers
         [HttpGet("recently")]
         public async Task<ActionResult> GetRecentAppointment()
         {
-            var userId = HttpContext.Items["UserId"].ToString();
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             int parsedUserId = Convert.ToInt32(userId);
 
             var patient = await _patientService.GetPatientByUserId(parsedUserId) ?? throw new ErrorHandlingException("Không tìm thấy bệnh nhân!");
