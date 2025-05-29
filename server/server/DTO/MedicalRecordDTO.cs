@@ -6,7 +6,7 @@ namespace server.DTO
         {
             public string Diagnosis { get; set; }
             public string Treatment { get; set; }
-            public string Notes { get; set; }
+            public string Notes { get; set; } = "Uống sau khi ăn";
             public List<MedicineDto> Medicines { get; set; }
         }
 

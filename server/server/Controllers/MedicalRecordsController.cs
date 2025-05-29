@@ -55,11 +55,12 @@ namespace Clinic_Management.Controllers
             var appointment = await _appointmentService.GetAppointmentById(appointmentId) ?? throw new ErrorHandlingException("Không tìm thấy lịch hẹn!");
 
             DateTime now = DateTime.Now;
-            string date = now.ToString("yyyy/MM/dd");
-            // string time = dateTime.ToString("HH:mm");
             int hour = now.Hour;
 
-            if (appointment.AppointmentTime != date)
+            DateOnly appointmentDate = DateOnly.FromDateTime(appointment.AppointmentDate.Value);
+            DateOnly today = DateOnly.FromDateTime(now);
+
+            if (appointmentDate != today)
             {
                 throw new ErrorHandlingException(400, "Chỉ được kê thuốc vào ngày khám!");
             }
