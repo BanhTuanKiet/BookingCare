@@ -2,10 +2,12 @@ import React, { useEffect, useState } from "react"
 import { Container, Card } from "react-bootstrap"
 import { Calendar, momentLocalizer } from "react-big-calendar"
 import moment from "moment"
+import "moment/locale/vi" // Thêm locale tiếng Việt
 import "react-big-calendar/lib/css/react-big-calendar.css"
 import axios from "../../../Util/AxiosConfig"
 import DoctorShiftDetail from "./DoctorShiftDetail"
 
+moment.locale("vi") // Đặt ngôn ngữ là tiếng Việt
 const localizer = momentLocalizer(moment)
 
 const DoctorSchedule = ({ tabActive }) => {
@@ -13,21 +15,21 @@ const DoctorSchedule = ({ tabActive }) => {
   const [schedules, setSchedules] = useState()
   const [showShiftDetail, setShowShiftDetail] = useState(false)
   const [dateTime, setDateTime] = useState({
-      date: null,
-      time: null
+    date: null,
+    time: null
   })
 
   useEffect(() => {
     if (tabActive !== "doctorSchedule") return
 
     const fetchDoctorSchedule = async () => {
-        try {
-            const response = await axios.get("/appointments/schedule")
-            console.log(response.data)
-            setSchedules(response.data)
-        } catch (error) {
-            console.log(error)
-        }
+      try {
+        const response = await axios.get("/appointments/schedule")
+        console.log(response.data)
+        setSchedules(response.data)
+      } catch (error) {
+        console.log(error)
+      }
     }
 
     fetchDoctorSchedule()
@@ -38,14 +40,14 @@ const DoctorSchedule = ({ tabActive }) => {
       if (!schedules || schedules.length === 0) return
 
       const schedulesTmp = []
-  
+
       schedules.forEach((group, groupIndex) => {
         const date = new Date(group.date)
         const time = group.appointmentTime
 
         const start = new Date(date)
         const end = new Date(date)
-  
+
         if (time === "Sáng") {
           start.setHours(7, 0, 0)
           end.setHours(11, 0, 0)
@@ -53,7 +55,7 @@ const DoctorSchedule = ({ tabActive }) => {
           start.setHours(13, 0, 0)
           end.setHours(17, 0, 0)
         }
-  
+
         schedulesTmp.push({
           id: groupIndex,
           title: time === "Sáng" ? `Sáng ${group.patientCount} bệnh nhân` : `Chiều ${group.patientCount} bệnh nhân`,
@@ -62,15 +64,15 @@ const DoctorSchedule = ({ tabActive }) => {
           time,
         })
       })
-  
+
       setEvents(schedulesTmp)
     }
-  
+
     formatSchedule()
   }, [schedules])
 
   const eventStyleGetter = (event) => {
-    let backgroundColor = "#3174ad" 
+    let backgroundColor = "#3174ad"
     let color = "white"
 
     if (event.time === "Sáng") {
@@ -84,7 +86,7 @@ const DoctorSchedule = ({ tabActive }) => {
     }
 
     const style = {
-      backgroundColor, 
+      backgroundColor,
       color,
       borderRadius: "5px",
       display: "flex",
@@ -105,7 +107,6 @@ const DoctorSchedule = ({ tabActive }) => {
   return (
     <Container className="p-0">
       <Card className="border-0 w-100 mx-auto p-0">
-        <h4 className="mb-4 fw-bold">Quản Lý Lịch Làm Việc</h4>
         <div style={{ height: "600px" }}>
           <Calendar
             localizer={localizer}
@@ -125,8 +126,21 @@ const DoctorSchedule = ({ tabActive }) => {
                 time: event.time
               })
             }}
-            // onSelectSlot={(slotInfo) => console.log("Slot selected: ", slotInfo)}
             eventPropGetter={eventStyleGetter}
+            messages={{
+              next: "Tiếp",
+              previous: "Trước",
+              today: "Hôm nay",
+              month: "Tháng",
+              week: "Tuần",
+              day: "Ngày",
+              agenda: "Lịch biểu",
+              date: "Ngày",
+              time: "Giờ",
+              event: "Sự kiện",
+              noEventsInRange: "Không có lịch trình trong khoảng thời gian này.",
+              showMore: (total) => `+${total} thêm`
+            }}
           />
         </div>
       </Card>
