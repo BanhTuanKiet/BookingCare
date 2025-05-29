@@ -15,7 +15,7 @@ const DepartmentDetail = () => {
     const [infor, setInfor] = useState(activeTab === "overview" ? "" : [])
     const [inforSpecialty, setInforspecialty] = useState(activeTab === "overview" ? "" : [])
     const [recommendSpecialties, setRecommendSpecialties] = useState()
-console.log(activeTab)
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -261,7 +261,7 @@ console.log(activeTab)
                             </Card.Body>
                         </Card>
         
-                        <Card className="border-0 shadow-sm mb-4">
+                        <Card className="border-0 shadow-sm mb-4 bg-white">
                             <Card.Header className="bg-white p-3 border-bottom">
                                 <h5 className="mb-0 fw-bold">Chuyên khoa khác</h5>
                             </Card.Header>
