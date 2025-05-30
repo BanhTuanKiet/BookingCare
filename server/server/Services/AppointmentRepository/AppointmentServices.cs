@@ -351,6 +351,7 @@ namespace server.Services
                 .Include(a => a.Doctor)
                     .ThenInclude(d => d.User)
                 .Include(a => a.Service)
+                .Include(a => a.MedicalRecord)
                 .FirstOrDefaultAsync(a => a.AppointmentId == appointmentId);
 
             return appointment;

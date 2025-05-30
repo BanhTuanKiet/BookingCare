@@ -407,6 +407,63 @@ namespace Clinic_Management.Controllers
             return Ok(recordDetail);
         }
 
+        [HttpGet("recorddetail/{appointmentId}")]
+        public async Task<ActionResult> GetMedicalRecordDetails(int appointmentId)
+        {
+            Console.WriteLine("AAAAAAAAAAAAA");
+
+            var appointment = await _appointmentService.GetAppointmentById(appointmentId);
+            if (appointment == null)
+                return NotFound(new { ErrorMessage = "Không tìm thấy lịch hẹn!" });
+
+            if (appointment.MedicalRecord == null)
+                return NotFound(new { ErrorMessage = "Không có hồ sơ bệnh án nào được liên kết với lịch hẹn này!" });
+
+            var recordDetail = await _medicalRecordService.GetRecordDetail(appointment.MedicalRecord.RecordId);
+            if (recordDetail == null)
+                throw new ErrorHandlingException("Không tìm thấy chi tiết toa thuốc!");
+
+            var recorRecentDetail = await _medicalRecordService.GetMedicalRecordsByRecoredId(appointment.MedicalRecord.RecordId);
+            if (recorRecentDetail == null)
+                throw new ErrorHandlingException("Không tìm thấy chi tiết toa thuốc!");
+
+            string body = $@"
+                <p>Bạn đã được bác sĩ <b>{recorRecentDetail.DoctorName}</b> kê toa thuốc trong buổi khám ngày <b>{recorRecentDetail.AppointmentDate:dd/MM/yyyy}</b>.</p>
+                <p>Chẩn đoán bệnh: <b>{recorRecentDetail.Diagnosis}</b></p>
+                <p>Hướng điều trị: <b>{recorRecentDetail.Treatment}</b></p>
+                <h3>Chi tiết toa thuốc:</h3>
+                <table border='1' cellpadding='8' cellspacing='0' style='border-collapse:collapse;'>
+                    <tr>
+                        <th>Tên thuốc</th>
+                        <th>Liều dùng</th>
+                        <th>Số lần/ngày</th>
+                        <th>Số ngày</th>
+                        <th>Cách dùng</th>
+                        <th>Số lượng</th>
+                        <th>Đơn vị thuốc</th>
+                    </tr>";
+
+            foreach (var item in recordDetail)
+            {
+                body += $@"
+                    <tr style='text-align: center;'>
+                        <td>{item.MedicineName}</td>
+                        <td>{item.Dosage}</td>
+                        <td>{item.FrequencyPerDay}</td>
+                        <td>{item.DurationInDays}</td>
+                        <td>{item.Usage}</td>
+                        <td>X {item.Quantity}</td>
+                        <td>{item.Unit}</td>
+                    </tr>";
+            }
+
+            body += $@"</table>
+                <p>Lời dặn của bác sĩ: <b>{recorRecentDetail.Notes}</b></p>";
+
+            return Content(body, "text/html");
+        }
+
+
         [HttpPost("create-vnpay/{recordId}")]
         public async Task<IActionResult> CreatePayment(int recordId)
         {

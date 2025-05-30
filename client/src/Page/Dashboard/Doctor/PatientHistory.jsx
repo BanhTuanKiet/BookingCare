@@ -9,6 +9,8 @@ function PatientHistory({ tabActive }) {
     const [loading, setLoading] = useState(true)
     const [showDetailsModal, setShowDetailsModal] = useState(false)
     const [selectedPatient, setSelectedPatient] = useState(null)
+    const [showMedicalRecordDetail, setShowMedicalRecordDetail] = useState(false)
+    const [htmlPrescription, setHtmlPrescription] = useState("")
 
     useEffect(() => {
         fetchExaminedPatients()
@@ -17,7 +19,7 @@ function PatientHistory({ tabActive }) {
     const fetchExaminedPatients = async () => {
         if (tabActive !== "patientHistory") return
         setLoading(true)
-
+    
         try {
             const response = await axios.get('/appointments/examined_patients')
             setPatients(response.data.schedules || [])
@@ -38,6 +40,28 @@ function PatientHistory({ tabActive }) {
         setSelectedPatient(null)
     }
 
+    const handleMedicalRecordDetail = async (appointmentId) => {
+        try {
+            console.log(appointmentId)
+            const response = await axios.get(`/medicalrecords/recorddetail/${appointmentId}`, {
+  headers: {
+    'Accept': 'text/html'
+  },
+  responseType: 'text'
+})
+
+            setHtmlPrescription(response.data)
+            setShowMedicalRecordDetail(true)
+        } catch (error) {
+            console.error('Lỗi khi lấy toa thuốc:', error.response?.data || error.message)
+        }
+    }
+
+    const handleCloseMedicalRecordDetail = () => {
+        setShowMedicalRecordDetail(false)
+        setHtmlPrescription("")
+    }
+
     if (loading) {
         return (
             <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '300px' }}>
@@ -51,7 +75,7 @@ function PatientHistory({ tabActive }) {
     return (
         <Container fluid className="mt-4">
             <h2 className="mb-4">Danh sách bệnh nhân đã khám</h2>
-            
+
             <Table responsive striped bordered hover>
                 <thead>
                     <tr>
@@ -81,12 +105,20 @@ function PatientHistory({ tabActive }) {
                                     </Badge>
                                 </td>
                                 <td>
-                                    <Button 
-                                        variant="outline-info" 
+                                    <Button
+                                        variant="outline-info"
                                         size="sm"
                                         onClick={() => handleViewDetails(patient)}
+                                        className="me-2"
                                     >
                                         Xem chi tiết
+                                    </Button>
+                                    <Button
+                                        variant="outline-success"
+                                        size="sm"
+                                        onClick={() => handleMedicalRecordDetail(patient.appointmentId)}
+                                    >
+                                        Toa thuốc đã kê
                                     </Button>
                                 </td>
                             </tr>
@@ -139,6 +171,25 @@ function PatientHistory({ tabActive }) {
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleCloseDetailsModal}>
+                        Đóng
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            {/* Modal Chi tiết toa thuốc */}
+            <Modal show={showMedicalRecordDetail} onHide={handleCloseMedicalRecordDetail} size="lg">
+                <Modal.Header closeButton>
+                    <Modal.Title>Chi tiết toa thuốc đã kê</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {htmlPrescription ? (
+                        <div dangerouslySetInnerHTML={{ __html: htmlPrescription }} />
+                    ) : (
+                        <p>Không có toa thuốc nào được kê.</p>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleCloseMedicalRecordDetail}>
                         Đóng
                     </Button>
                 </Modal.Footer>
