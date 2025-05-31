@@ -674,5 +674,39 @@ namespace Clinic_Management.Controllers
                 });
             }
         }
+
+        [HttpPost("pay-by-cash")]
+        public async Task<IActionResult> PaymentByCash([FromBody] CashDTO paymentCash)
+        {
+            var appointment = await _context.Appointments
+                .Include(a => a.Service)
+                .Include(a => a.Patient)
+                    .ThenInclude(p => p.User)
+                .FirstOrDefaultAsync(a => a.MedicalRecord.RecordId == paymentCash.RecordId);
+
+            if (appointment == null)
+                throw new ErrorHandlingException(404, "Không tìm thấy lịch hẹn.");
+            if (appointment.Status != "Đã khám")
+                throw new ErrorHandlingException(400, "Lịch hẹn chưa hoàn thành.");
+
+            int totalAmount = await _medicalRecordService.CalculateAmountFromRecordId(paymentCash.RecordId);
+            int total = totalAmount + paymentCash.CashBalance;
+
+            if (total != paymentCash.Amount)
+                throw new ErrorHandlingException(400, "Thanh toán tiền mặt sai.");
+
+            string oldStatus = appointment.Status;
+            appointment.Status = "Đã hoàn thành";
+            await _context.SaveChangesAsync();
+
+            return Ok("success");
+        }
+
+        [HttpGet("total-cash{recordId}")]
+        public async Task<IActionResult> TotalCash(int recordId)
+        {
+            int total = await _medicalRecordService.CalculateAmountFromRecordId(recordId);
+            return Ok(total);
+        }
     }
 }

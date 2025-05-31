@@ -4,6 +4,7 @@ import axios from '../../../../../Util/AxiosConfig'
 import { extractDateOnly } from '../../../../../Util/DateUtils'
 import PrescriptionCard from '../../../../../Component/Card/PrescriptionCard'
 import PrescriptionDetail from './PrescriptionDetail'
+import CashPaymentModal from './CashPaymentModel';
 
 const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
   const [patientPrescriptions, setPatientPrescriptions] = useState([])
@@ -12,6 +13,7 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
   const [selectedPrescriptionId, setSelectedPrescriptionId] = useState(null)
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [selectedRecord, setSelectedRecord] = useState(null)
+  const [showCashModal, setShowCashModal] = useState(false);
   
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
@@ -19,6 +21,8 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
   const [selectedStatus, setSelectedStatus] = useState('')
   const [uniqueServices, setUniqueServices] = useState([])
   const [uniqueStatuses, setUniqueStatuses] = useState([])
+  const [cashGiven, setCashGiven] = useState('')
+  const [changeAmount, setChangeAmount] = useState(0)
 
   useEffect(() => {
     if (patientId) {
@@ -84,7 +88,7 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
     setEndDate('');
     setSelectedService('');
     setSelectedStatus('');
-    fetchPatientPrescriptions(); // Fetch without filters
+    fetchPatientPrescriptions();
   }
 
   const handleSelectPrescription = (recordId) => {
@@ -139,6 +143,11 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
       alert("Có lỗi xảy ra khi tạo thanh toán.");
     }
   }
+
+  const openCashPaymentModal = () => {
+    setShowPaymentModal(false);
+    setShowCashModal(true);
+  };
 
   const renderFilterSection = () => {
     return (
@@ -381,6 +390,21 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
               />
               Thanh toán qua VNPay
             </Button>
+
+            <Button 
+              variant="primary" 
+              size="lg" 
+              onClick={openCashPaymentModal}
+              className="d-flex align-items-center justify-content-center"
+              style={{ backgroundColor: '#40649A', borderColor: '#40649A' }}
+            >
+              <img 
+                src="https://cdn-icons-png.freepik.com/512/7630/7630510.png" 
+                alt="VNPay" 
+                style={{ height: '30px', marginRight: '10px' }} 
+              />
+              Thanh toán bằng tiền mặt
+            </Button>
           </div>
         </Modal.Body>
         <Modal.Footer>
@@ -389,8 +413,17 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
           </Button>
         </Modal.Footer>
       </Modal>
+      <CashPaymentModal
+        show={showCashModal}
+        handleClose={() => setShowCashModal(false)}
+        record={selectedRecord}
+        onPaymentSuccess={() => {
+          fetchPatientPrescriptions();
+          setShowCashModal(false);
+        }}
+      />
     </Container>
-  )
+  );
 }
 
 export default PatientPrescriptions
