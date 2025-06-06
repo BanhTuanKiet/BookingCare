@@ -140,6 +140,7 @@ const Contact = () => {
                       placeholder="Nhập nội dung tin nhắn"
                       rows={5}
                       isInvalid={!!formErrors.message}
+                      spellCheck={false}
                     />
                     <Form.Control.Feedback type="invalid">{formErrors.message}</Form.Control.Feedback>
                   </Form.Group>

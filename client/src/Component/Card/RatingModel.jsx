@@ -125,14 +125,12 @@ function RatingModal({ show, onHide, recordId, isExist }) {
 
   const DetailRating = ({ category, label }) => {
     return (
-      <div className="mb-3">
-        <Form.Label>{label}</Form.Label>
-        <div>
+      <div className="d-flex align-items-center mb-2">
+        <Form.Label className="mb-0 me-3" style={{ minWidth: '200px' }}>{label}</Form.Label>
           <StarRating
             value={detailRatings[category]}
             onChange={(value) => handleDetailRatingChange(category, value)}
           />
-        </div>
       </div>
     )
   }
@@ -145,8 +143,15 @@ function RatingModal({ show, onHide, recordId, isExist }) {
 
       <Modal.Body>
         <Form>
-          <p className="text-muted mb-3">
-            Chia sẻ trải nghiệm của bạn sẽ giúp người khác tìm được dịch vụ y tế phù hợp
+          <p className="text-muted mb-3 p-2 rounded"
+              style={{
+                backgroundColor: "#CFF4FC",
+                color: "#055160",
+                textAlign: "center",
+                fontStyle: "italic",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+              }}>
+            Câu chuyện của bạn có thể là ánh sáng dẫn đường, giúp người khác tìm được bác sĩ tận tâm hay dịch vụ y tế chất lượng nhất. Hãy chia sẻ trải nghiệm của bạn để lan tỏa điều tốt đẹp!
           </p>
 
           <div className="mb-3">
@@ -171,55 +176,90 @@ function RatingModal({ show, onHide, recordId, isExist }) {
             </div>
           </div>
 
-          <div className="mb-4">
-            <Form.Label>
-              Đánh giá tổng thể <span className="text-danger">*</span>
+          <div className="mb-4 d-flex align-items-center">
+            <Form.Label className="mb-0 me-3" style={{ minWidth: '200px' }}>
+              <b>Đánh giá tổng thể </b><span className="text-danger">*</span>
             </Form.Label>
-            <div>
-              <StarRating
-                value={overallRating}
-                onChange={setOverallRating}
-              />
-            </div>
+            <StarRating value={overallRating} onChange={setOverallRating} />
           </div>
 
           <div className="mb-4">
-            <h6 className="mb-3">Đánh giá chi tiết</h6>
+            <h6 className="mb-3"><b>Đánh giá chi tiết:</b></h6>
 
             {ratingType === "doctor" ? (
-              <Row>
-                <Col md={6}>
-                  <DetailRating category="knowledge" label="Kiến thức chuyên môn" />
-                </Col>
-                <Col md={6}>
-                  <DetailRating category="attitude" label="Thái độ phục vụ" />
-                </Col>
-                <Col md={6}>
-                  <DetailRating category="dedication" label="Sự tận tâm" />
-                </Col>
-                <Col md={6}>
-                  <DetailRating category="communicationSkill" label="Kỹ năng giao tiếp" />
-                </Col>
-              </Row>
+              <div className="mb-4 ">
+                <div className="mb-3 ">
+                  <DetailRating category="knowledge" label="- Kiến thức chuyên môn" />
+                </div>
+                <div className="mb-3">
+                  <DetailRating category="attitude" label="- Thái độ phục vụ" />
+                </div>
+                <div className="mb-3">
+                  <DetailRating category="dedication" label="- Sự tận tâm" />
+                </div>
+                <div className="mb-3">
+                  <DetailRating category="communicationSkill" label="- Kỹ năng giao tiếp" />
+                </div>
+              </div>
+
             ) : (
-              <Row>
-                <Col md={6}>
+              <div className="mb-4">
+                <div className="mb-3">
                   <DetailRating category="effectiveness" label="Hiệu quả dịch vụ" />
-                </Col>
-                <Col md={6}>
+                </div>
+                <div className="mb-3">
                   <DetailRating category="price" label="Giá cả hợp lý" />
-                </Col>
-                <Col md={6}>
+                </div>
+                <div className="mb-3">
                   <DetailRating category="serviceSpeed" label="Tốc độ phục vụ" />
-                </Col>
-                <Col md={6}>
+                </div>
+                <div className="mb-3">
                   <DetailRating category="convenience" label="Sự thuận tiện" />
-                </Col>
-              </Row>
+                </div>
+              </div>
+
             )}
           </div>
 
-          <div className="mb-3">
+          <div
+            className="d-flex flex-wrap gap-2 p-3"
+            style={{
+              borderRadius: "12px",
+              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.05)",
+            }}
+          >
+            {[
+              "Bác sĩ nhiệt tình. Dịch vụ xuất sắc.",
+              "Gói dịch vụ OK.",
+              "Chức năng đặt online thuận tiện, nhanh chóng.",
+              "Thời gian khám nhanh.",
+              "Dễ dàng sử dụng.",
+            ].map((text, index) => (
+              <div
+                key={index}
+                className="px-3 py-2 rounded-pill border text-muted small"
+                style={{
+                  backgroundColor: "#fff",
+                  borderColor: "#b6e0ea",
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                }}
+                onClick={() => setComment(text)}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.backgroundColor = "#d1f3fa";
+                  e.currentTarget.style.boxShadow = "0 2px 6px rgba(0,0,0,0.1)";
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.backgroundColor = "#fff";
+                  e.currentTarget.style.boxShadow = "none";
+                }}
+              >
+                {text}
+              </div>
+            ))}
+          </div>
+
+          <div className="mb-3 mt-3">
             <Form.Label>Nhận xét chi tiết</Form.Label>
             <Form.Control
               as="textarea"
@@ -227,8 +267,10 @@ function RatingModal({ show, onHide, recordId, isExist }) {
               placeholder="Chia sẻ trải nghiệm của bạn..."
               value={comment}
               onChange={(e) => setComment(e.target.value)}
+              spellCheck={false}
             />
           </div>
+
         </Form>
       </Modal.Body>
 

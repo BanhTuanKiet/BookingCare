@@ -43,14 +43,14 @@ function About() {
   return (
     <Container fluid className="py-5 bg-light">
       <Container className="w-75">
-        <Row className="mb-4">
+        <Row className="mb-3">
           <Col lg={12}>
             <Card className="border-0 shadow-sm overflow-hidden">
               <Row className="g-0">
                 <Col md={6} className="bg-primary text-white p-5 d-flex flex-column justify-content-center">
                   <h1 className="fw-bold mb-3">Phòng Khám Đa Khoa X</h1>
-                  <p className="fs-5 mb-4">Địa Chỉ Tin Cậy Cho Sức Khỏe Của Bạn</p>
-                  <p className="mb-4">
+                  {/* <p className="fs-5 mb-4">Địa Chỉ Tin Cậy Cho Sức Khỏe Của Bạn</p> */}
+                  <p className="mb-3">
                     Phòng Khám Đa Khoa X là một cơ sở y tế tư nhân, chính thức đi vào hoạt động từ năm 2025, với sứ mệnh
                     mang đến dịch vụ khám chữa bệnh chất lượng cao, đáp ứng nhu cầu chăm sóc sức khỏe cho mọi đối tượng.
                   </p>

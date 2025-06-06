@@ -79,7 +79,7 @@ function Index() {
                                         eventKey="salary"
                                         className={`sidebar-link mb-2 ${tabActive === "salary" ? "active" : ""}`}
                                     >
-                                        Lương
+                                        Quản lý doanh thu
                                     </Nav.Link>         
 
                                     <Nav.Link 

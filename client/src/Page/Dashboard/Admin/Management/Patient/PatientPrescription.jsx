@@ -361,7 +361,7 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
         </Modal.Header>
         <Modal.Body>
           <div className="d-grid gap-3">
-            <Button 
+            {/* <Button 
               variant="warning" 
               size="lg" 
               onClick={handleMomoPayment}
@@ -374,7 +374,7 @@ const PatientPrescriptions = ({ patientId, patientName, goBack }) => {
                 style={{ height: '30px', marginRight: '10px' }} 
               />
               Thanh toán qua MoMo
-            </Button>
+            </Button> */}
             
             <Button 
               variant="primary" 
