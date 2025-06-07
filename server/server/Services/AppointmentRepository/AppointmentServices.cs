@@ -23,7 +23,7 @@ namespace server.Services
         public async Task<Appointment> IsExistAppointment(int? patientId, DateTime appointmentDate, string appointmentTime)
         {
             var appointment = await _context.Appointments
-                .Where(a => a.PatientId == patientId && a.AppointmentDate == appointmentDate && a.AppointmentTime == appointmentTime && a.Status == "Chờ xác nhận")
+                .Where(a => a.PatientId == patientId && a.AppointmentDate == appointmentDate && a.AppointmentTime == appointmentTime)
                 .FirstOrDefaultAsync();
 
             return appointment;
