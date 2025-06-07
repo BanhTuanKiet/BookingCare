@@ -4,7 +4,7 @@ import axios from '../../../../Util/AxiosConfig'
 import { extractDateOnly } from '../../../../Util/DateUtils'
 import { PencilSquare } from 'react-bootstrap-icons'
 
-const statusOptions = ['Đã xác nhận', 'Đã hủy']
+const statusOptions = ['', 'Đã xác nhận', 'Đã hủy']
 
 const statusColors = {
   'Chờ xác nhận': 'warning',
