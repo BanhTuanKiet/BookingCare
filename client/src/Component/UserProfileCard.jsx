@@ -111,9 +111,9 @@ const UserProfileCard = ({ user, setUser, userType = "patient" }) => {
 
             <Row className="mb-2">
               <Col xs={5} md={4} className="fw-semibold text-muted">
-                Giới tính:
+                Email: 
               </Col>
-              <Col xs={7} md={8}>{user?.sex || "Chưa cập nhật"}</Col>
+              <Col xs={7} md={8}>{user?.email || "Chưa cập nhật"}</Col>
             </Row>
 
             <Row className="mb-2">

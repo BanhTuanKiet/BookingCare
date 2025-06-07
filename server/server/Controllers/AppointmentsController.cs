@@ -62,7 +62,7 @@ namespace server.Controllers
 
             if (isExistAppointment != null)
             {
-                throw new ErrorHandlingException(400, $"Lịch hẹn {appointmentForm.AppointmentDate} {appointmentForm.AppointmentTime} đang chờ xác nhận");
+                throw new ErrorHandlingException(400, $"Bạn chưa hoàn thành lịch hẹn {appointmentForm.AppointmentDate} {appointmentForm.AppointmentTime}");
             }
 
             if (appointmentForm.AppointmentDate <= dateNow)
