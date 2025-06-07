@@ -392,6 +392,7 @@ function DoctorShiftDetail({ dateTime, setShowShiftDetail }) {
                                     value={prescriptionInfo.diagnosis}
                                     onChange={(e) => handlePrescriptionChange('diagnosis', e.target.value)}
                                     placeholder="Nhập chẩn đoán"
+                                    spellCheck={false}
                                 />
                             </Form.Group>
 
@@ -403,6 +404,7 @@ function DoctorShiftDetail({ dateTime, setShowShiftDetail }) {
                                     value={prescriptionInfo.treatment}
                                     onChange={(e) => handlePrescriptionChange('treatment', e.target.value)}
                                     placeholder="Nhập hướng điều trị"
+                                    spellCheck={false}
                                 />
                             </Form.Group>
                             
@@ -423,6 +425,7 @@ function DoctorShiftDetail({ dateTime, setShowShiftDetail }) {
                                                         onBlur={handleSearchInputBlur}
                                                         placeholder="Nhập từ khóa để tìm thuốc..."
                                                         autoComplete="off"
+                                                        spellCheck={false}
                                                     />
                                                     {showSuggestions && medicineSuggestions.length > 0 && (
                                                         <div 
@@ -527,6 +530,7 @@ function DoctorShiftDetail({ dateTime, setShowShiftDetail }) {
                                                     value={currentMedicine.usage}
                                                     onChange={(e) => handleMedicineChange('usage', e.target.value)}
                                                     placeholder="VD: Uống sau khi ăn"
+                                                    spellCheck={false}
                                                 />
                                             </Form.Group>
                                         </Col>
@@ -576,6 +580,7 @@ function DoctorShiftDetail({ dateTime, setShowShiftDetail }) {
                                     value={prescriptionInfo.notes}
                                     onChange={(e) => handlePrescriptionChange('notes', e.target.value)}
                                     placeholder="Nhập các lưu ý bổ sung về đơn thuốc..."
+                                    spellCheck={false}
                                 />
                             </Form.Group>
                         </Form>

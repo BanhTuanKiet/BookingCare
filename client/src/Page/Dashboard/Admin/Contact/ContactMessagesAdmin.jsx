@@ -149,6 +149,7 @@ const ContactMessagesAdmin = () => {
                   rows={4}
                   value={replyMessage}
                   onChange={(e) => setReplyMessage(e.target.value)}
+                  spellCheck={false}
                 />
               </Form.Group>
             </>

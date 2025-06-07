@@ -81,6 +81,7 @@ const Doctor = () => {
               className="border-start-0"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              spellCheck={false}
             />
           </InputGroup>
         </Form>

@@ -310,6 +310,7 @@ function SpecialtyAdmin({ tabActive }) {
                                     placeholder="Tìm kiếm chuyên khoa..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
+                                    spellCheck={false}
                                 />
                                 {searchTerm && (
                                     <Button 

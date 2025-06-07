@@ -174,7 +174,7 @@ function Appointment() {
               </Row>
 
               <Form.Group className="mb-4">
-                <Form.Control as="textarea" rows={4} placeholder="Triệu chứng" name="symptoms" onChange={handleChange} />
+                <Form.Control as="textarea" rows={4} placeholder="Triệu chứng" name="symptoms" onChange={handleChange} spellCheck={false}/>
               </Form.Group>
 
               <div className="text-end">
