@@ -75,6 +75,7 @@ const PrescriptionOverView = ({ tabActive }) => {
                   placeholder="Nhập tên, sđt hoặc email bệnh nhân"
                   value={searchKeyword}
                   onChange={(e) => setSearchKeyword(e.target.value)}
+                  spellCheck={false}
                 />
               </Col>
               <Col md="auto">

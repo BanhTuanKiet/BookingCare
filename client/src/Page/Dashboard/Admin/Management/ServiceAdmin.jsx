@@ -386,6 +386,7 @@ function ServiceAdmin({ tabActive }) {
                                     placeholder="Tìm kiếm dịch vụ..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
+                                    spellCheck={false}
                                 />
                                 {searchTerm && (
                                     <Button 
