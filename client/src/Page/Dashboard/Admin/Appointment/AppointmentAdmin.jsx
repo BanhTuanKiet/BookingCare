@@ -4,7 +4,7 @@ import axios from '../../../../Util/AxiosConfig'
 import { extractDateOnly } from '../../../../Util/DateUtils'
 import { PencilSquare } from 'react-bootstrap-icons'
 
-const statusOptions = ['Chờ xác nhận', 'Đã xác nhận', 'Đã hoàn thành', 'Đã hủy']
+const statusOptions = ['Đã xác nhận', 'Đã hủy']
 
 const statusColors = {
   'Chờ xác nhận': 'warning',
@@ -165,7 +165,7 @@ const AppointmentAdmin = ({ month, year }) => {
           <Button
             variant="primary"
             onClick={updateStatus}
-            disabled={updating || newStatus === selected?.status}
+            // disabled={updating || newStatus === selected?.status}
           >
             {updating ? 'Đang cập nhật...' : 'Cập nhật'}
           </Button>
