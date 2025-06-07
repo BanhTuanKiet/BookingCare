@@ -33,7 +33,7 @@ function Index() {
                 
                 <Col md={9}>
                     <Tab.Container id="dashboard-tabs" activeKey={tabActive} onSelect={(k) => setTabActive(k)}>
-                        <Nav variant="tabs" className="mb-2 pt-0">
+                        <Nav variant="tabs" className="pt-0">
                             <Nav.Item>
                                 <Nav.Link eventKey="overview" className="d-flex align-items-center">
                                     <span className="me-2">
