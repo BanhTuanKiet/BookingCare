@@ -4,7 +4,7 @@ import axios from '../../../../Util/AxiosConfig'
 import { extractDateOnly } from '../../../../Util/DateUtils'
 import { PencilSquare } from 'react-bootstrap-icons'
 
-const statusOptions = ['Đã xác nhận', 'Đã hủy']
+const statusOptions = ['Đã xác nhận', 'Đã hủy', 'Chờ xác nhận']
 
 const statusColors = {
   'Chờ xác nhận': 'warning',
@@ -51,6 +51,16 @@ const AppointmentAdmin = ({ month, year }) => {
     setShowModal(false)
     setSelected(null)
     setNewStatus('')
+  }
+
+  const getAvailableStatusOptions = (currentStatus) => {
+    if (currentStatus === 'Đã hoàn thành' || currentStatus === 'Đã hủy') {
+      return statusOptions.filter(status => status !== 'Chờ xác nhận')
+    }
+    if (currentStatus === 'Đã xác nhận') {
+      return statusOptions.filter(status => status !== 'Chờ xác nhận')
+    }
+    return statusOptions
   }
 
   const updateStatus = async () => {
@@ -153,7 +163,7 @@ const AppointmentAdmin = ({ month, year }) => {
               <p><strong>Bác sĩ:</strong> {selected.doctorName}</p>
               <p><strong>Ngày hẹn:</strong> {extractDateOnly(selected.appointmentDate)}</p>
               <Form.Select value={newStatus} onChange={(e) => setNewStatus(e.target.value)}>
-                {statusOptions.map(status => (
+                {getAvailableStatusOptions(selected.status).map(status => (
                   <option key={status} value={status}>{status}</option>
                 ))}
               </Form.Select>
