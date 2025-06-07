@@ -103,7 +103,7 @@ namespace Clinic_Management.Controllers
 
             var recordDetail = await _medicalRecordService.GetRecordDetail(recordId);
 
-            if (recordDetail == null || !recordDetail.Any())
+            if (recordDetail == null || recordDetail.Count() == 0)
             {
                 throw new ErrorHandlingException("Không tìm thấy chi tiết toa thuốc!");
             }
