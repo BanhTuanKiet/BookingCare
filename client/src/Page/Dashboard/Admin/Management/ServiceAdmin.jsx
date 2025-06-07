@@ -1,14 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useContext } from 'react'
 import { Button, Form, Table, Modal, Container, Row, Col, Card, Badge, InputGroup, FormControl, Spinner, Alert, Pagination, Image} from 'react-bootstrap'
 import { Search, PlusCircle, Pencil, Trash, XCircle, ArrowClockwise, Upload, Image as ImageIcon, XSquare} from 'react-bootstrap-icons'
 import axios from '../../../../Util/AxiosConfig'
+import { NavContext } from "../../../../Context/NavContext"
+import { ValideFormContext } from '../../../../Context/ValideFormContext'
 
 function ServiceAdmin({ tabActive }) {
     const [services, setServices] = useState([])
     const [filteredServices, setFilteredServices] = useState([])
     const [showModal, setShowModal] = useState(false)
     const [editing, setEditing] = useState(false)
-    const [formData, setFormData] = useState({ name: '', description: '' })
+    const [formData, setFormData] = useState({ name: '', description: '', price: '', specialtyName: '' })
     const [selectedId, setSelectedId] = useState(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
@@ -18,6 +20,9 @@ function ServiceAdmin({ tabActive }) {
     const [previewImage, setPreviewImage] = useState(null)
     const [imageFile, setImageFile] = useState(null)
     const fileInputRef = useRef(null)
+    const { specialties } = useContext(NavContext)
+    const { formErrors } = useContext(ValideFormContext)
+
     
     // Thêm state cho icon
     const [previewIcon, setPreviewIcon] = useState(null)
@@ -65,7 +70,7 @@ function ServiceAdmin({ tabActive }) {
     }
 
     const handleShowCreate = () => {
-        setFormData({ serviceName: '', description: '', price: '' })
+        setFormData({ serviceName: '', description: '', price: '' , specialtyName: ''})
         setEditing(false)
         setShowModal(true)
         setPreviewImage(null)
@@ -80,7 +85,8 @@ function ServiceAdmin({ tabActive }) {
         setFormData({ 
             serviceName: service.serviceName || '', 
             description: service.description || '',
-            price: service.price
+            price: service.price  || '',
+            specialtyName: service.specialty|| ''
         })
         setSelectedId(service.serviceId)
         setEditing(true)
@@ -120,12 +126,20 @@ function ServiceAdmin({ tabActive }) {
         }
     }
 
+    const handleChange = (e) => {
+        const { name, value } = e.target
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }))
+    }
+
     const handleSubmit = async (e) => {
         if (tabActive !== "services") return
         
         e.preventDefault()
         setLoading(true)
-
+        console.log("Submitting form data:", formData)
         try {
             if (editing) {
                 await axios.put(`/services/${selectedId}`, formData)
@@ -511,33 +525,83 @@ function ServiceAdmin({ tabActive }) {
                         <Row>
                             <Col md={8}>
                                 <Form.Group className="mb-3">
-                                    <Form.Label>Tên dịch vụ <span className="text-danger">*</span></Form.Label>
+                                    <Form.Label>Chuyên khoa</Form.Label>
+                                    <Form.Select 
+                                        name="specialtyName" 
+                                        value={formData.specialtyName}
+                                        onChange={handleChange} 
+                                        isInvalid={!!formErrors?.specialtyName}
+                                    >
+                                        <option value="">Chọn chuyên khoa</option>
+                                        {specialties.map((specialty, index) => (
+                                            <option key={index} value={specialty.id}>
+                                                {specialty.name}
+                                            </option>
+                                        ))}
+                                    </Form.Select>
+                                    {formErrors?.specialty && (
+                                        <Form.Control.Feedback type="invalid">
+                                            {formErrors.specialty}
+                                        </Form.Control.Feedback>
+                                    )}
+                                </Form.Group>
+
+                                <Form.Group className="mb-3">
+                                    <Form.Label>
+                                        Tên dịch vụ <span className="text-danger">*</span>
+                                    </Form.Label>
                                     <Form.Control
                                         type="text"
+                                        name="serviceName"
                                         required
                                         placeholder="Nhập tên dịch vụ"
                                         value={formData.serviceName}
-                                        onChange={(e) => setFormData({ ...formData, serviceName: e.target.value })}
+                                        onChange={handleChange}
+                                        isInvalid={!!formErrors?.serviceName}
                                     />
+                                    {formErrors?.serviceName && (
+                                        <Form.Control.Feedback type="invalid">
+                                            {formErrors.serviceName}
+                                        </Form.Control.Feedback>
+                                    )}
                                 </Form.Group>
+
                                 <Form.Group className="mb-3">
                                     <Form.Label>Mô tả</Form.Label>
                                     <Form.Control
                                         as="textarea"
                                         rows={5}
+                                        name="description"
                                         placeholder="Nhập mô tả chi tiết về dịch vụ (không bắt buộc)"
-                                        value={formData.description || ''}
-                                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                        value={formData.description}
+                                        onChange={handleChange}
+                                        isInvalid={!!formErrors?.description}
                                     />
+                                    {formErrors?.description && (
+                                        <Form.Control.Feedback type="invalid">
+                                            {formErrors.description}
+                                        </Form.Control.Feedback>
+                                    )}
                                 </Form.Group>
+
                                 <Form.Group className="mb-3">
-                                    <Form.Label>Giá</Form.Label>
+                                    <Form.Label>Giá dịch vụ</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        placeholder="Nhập giá dịch vụ (không bắt buộc)"
-                                        value={formData.price || ''}
-                                        onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                                        name="price"
+                                        placeholder="Nhập giá dịch vụ (VD: 500000 hoặc 'Liên hệ')"
+                                        value={formData.price}
+                                        onChange={handleChange}
+                                        isInvalid={!!formErrors?.price}
                                     />
+                                    <Form.Text className="text-muted">
+                                        Có thể nhập số tiền hoặc văn bản như "Liên hệ", "Tùy theo tình trạng"
+                                    </Form.Text>
+                                    {formErrors?.price && (
+                                        <Form.Control.Feedback type="invalid">
+                                            {formErrors.price}
+                                        </Form.Control.Feedback>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col md={4}>

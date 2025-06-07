@@ -42,6 +42,10 @@ namespace server.Services
         {
             return await _context.Specialties.FindAsync(id);
         }
+        public async Task<Specialty?> GetByName(string name)
+        {
+            return await _context.Specialties.FirstOrDefaultAsync(s => s.Name == name);
+        }
 
         public async Task<Specialty> Create(Specialty specialty)
         {

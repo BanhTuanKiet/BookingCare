@@ -150,7 +150,7 @@ const ValideFormProvider = ({ children }) => {
     }
 
     return (
-        <ValideFormContext.Provider value={{ validateForm, formErrors, setFormErrors, clearFieldError,validateField }}>
+        <ValideFormContext.Provider value={{ validateForm, formErrors, setFormErrors, clearFieldError,validateField}}>
         {children}
         </ValideFormContext.Provider>
     )

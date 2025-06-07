@@ -12,6 +12,7 @@ using server.Models;
 using server.Services;
 using server.DTO;
 using Microsoft.AspNetCore.Authorization;
+using Server.DTO;
 
 namespace server.Controllers
 {
@@ -21,12 +22,14 @@ namespace server.Controllers
     {
         private readonly ClinicManagementContext _context;
         private readonly IService _serviceService;
+        private readonly ISpecialty _speciatyService;
 
 
-        public ServicesController(ClinicManagementContext context, IService serviceService)
+        public ServicesController(ClinicManagementContext context, IService serviceService, ISpecialty speciatyService)
         {
             _context = context;
             _serviceService = serviceService;
+            _speciatyService = speciatyService;
         }
 
         // GET: Services
@@ -149,9 +152,26 @@ namespace server.Controllers
 
         [Authorize(Roles = "admin")]
         [HttpPost]
-        public async Task<IActionResult> CreateService(Service service)
+        public async Task<IActionResult> CreateService(ServiceForm service)
         {
-            var result = await _serviceService.Create(service);
+            Console.WriteLine(" AAAAAAAAAAAAAAAAAAAAAAAAAAAAA Creating service: " + service.ServiceName + " - " + service.SpecialtyName);
+            var newService = new Service
+            {
+                ServiceName = service.ServiceName,
+                Description = service.Description,
+                Price = service.Price ?? 0,
+            };
+            var result = await _serviceService.Create(newService);
+            var specialty = await _speciatyService.GetByName(service.SpecialtyName);
+            if (specialty == null)
+                return NotFound();
+            var link = new SpecialtyService
+            {
+                SpecialtyId = specialty.SpecialtyId,
+                ServiceId   = result.ServiceId
+            };
+            _context.SpecialtyService.Add(link);
+            await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetService), new { id = result.ServiceId }, result);
         }
 

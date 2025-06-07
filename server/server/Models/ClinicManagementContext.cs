@@ -47,6 +47,7 @@ public partial class ClinicManagementContext : IdentityDbContext<ApplicationUser
     public virtual DbSet<ServiceRegistration> ServiceRegistrations { get; set; }
 
     public virtual DbSet<Specialty> Specialties { get; set; }
+    public virtual DbSet<SpecialtyService> SpecialtyService { get; set; }
     public virtual DbSet<Review> Reviews { get; set; }
     public virtual DbSet<ContactMessages> ContactMessages { get; set;}
     public virtual DbSet<DoctorReviewDetail> DoctorReviewDetails { get; set; }
@@ -82,6 +83,30 @@ public partial class ClinicManagementContext : IdentityDbContext<ApplicationUser
                 .HasForeignKey(d => d.ServiceId)
                 .HasConstraintName("FK_Appointments_Services");
         });
+
+        modelBuilder.Entity<SpecialtyService>(entity =>
+        {
+            entity.HasKey(e => new { e.SpecialtyId, e.ServiceId })
+                .HasName("PK__Specialt__6B394DA853777237");
+
+            entity.ToTable("SpecialtyService");
+
+            entity.Property(e => e.SpecialtyId).HasColumnName("SpecialtyId");
+            entity.Property(e => e.ServiceId).HasColumnName("ServiceId");
+
+            entity.HasOne(e => e.Specialty)
+                .WithMany(s => s.SpecialtyServices)
+                .HasForeignKey(e => e.SpecialtyId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Specialty__Speci__0880433F");
+
+            entity.HasOne(e => e.Service)
+                .WithMany(s => s.SpecialtyServices)
+                .HasForeignKey(e => e.ServiceId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Specialty__Servi__09746778");
+        });
+
 
         modelBuilder.Entity<Doctor>(entity =>
         {
