@@ -65,7 +65,7 @@ namespace Clinic_Management.Controllers
                 throw new ErrorHandlingException(400, "Chỉ được kê thuốc vào ngày khám!");
             }
 
-            if (appointment.AppointmentTime == "Sáng" && (hour < 8 || hour > 12) ||
+            if (appointment.AppointmentTime == "Sáng" && (hour < 7 || hour > 12) ||
                 appointment.AppointmentTime == "Chiều" && (hour < 13 || hour > 17))
             {
                 throw new ErrorHandlingException(400, $"Hiện tại không nằm trong khung giờ kê thuốc cho buổi {appointment.AppointmentTime.ToLower()}. Vui lòng kê thuốc trong khoảng thời gian quy định.");

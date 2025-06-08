@@ -55,20 +55,20 @@ namespace server.Controllers
 
             var dateNow = DateTime.Now;
 
-            if (appointmentForm.AppointmentDate <= dateNow.Date)
-            {
-                throw new ErrorHandlingException(400, "Vui lòng đặt lịch khám tối thiểu trước 1 ngày");
-            }
+            // if (appointmentForm.AppointmentDate <= dateNow.Date)
+            // {
+            //     throw new ErrorHandlingException(400, "Vui lòng đặt lịch khám tối thiểu trước 1 ngày");
+            // }
 
             if (isExistAppointment != null)
             {
                 throw new ErrorHandlingException(400, $"Bạn chưa hoàn thành lịch hẹn {appointmentForm.AppointmentDate} {appointmentForm.AppointmentTime}");
             }
 
-            if (appointmentForm.AppointmentDate <= dateNow)
-            {
-                throw new ErrorHandlingException(400, "Không được chọn ngày trong quá khứ");
-            }
+            // if (appointmentForm.AppointmentDate <= dateNow)
+            // {
+            //     throw new ErrorHandlingException(400, "Không được chọn ngày trong quá khứ");
+            // }
 
             if (appointmentForm.AppointmentDate >= dateNow.AddDays(15))
             {
