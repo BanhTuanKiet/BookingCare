@@ -71,14 +71,17 @@ const getIconStyle = (status) => {
   }
 }
 
-// Hàm xác định trạng thái của từng bước dựa trên title trùng appointment.status
+// Cập nhật logic trạng thái
 const getStepStatus = (stepTitle, currentTitle) => {
   const statusOrder = steps.map(s => s.title)
   const currentIndex = statusOrder.indexOf(currentTitle)
   const stepIndex = statusOrder.indexOf(stepTitle)
 
   if (stepIndex < currentIndex) return "done"
-  if (stepIndex === currentIndex) return "current"
+  if (stepIndex === currentIndex) {
+    // Nếu là bước "Đã hoàn thành", xem như đã hoàn tất
+    return stepTitle === "Đã hoàn thành" ? "done" : "current"
+  }
   return "upcoming"
 }
 
@@ -167,7 +170,9 @@ const AppointmentStatus = ({ appointment }) => {
                       {index + 1}
                     </div>
 
-                    {isCurrent && <div className="status-indicator current-indicator"></div>}
+                    {isCurrent && step.title !== "Đã hoàn thành" && (
+                      <div className="status-indicator current-indicator"></div>
+                    )}
                     {isCompleted && (
                       <div className="status-indicator completed-indicator">
                         <CheckCircle size={10} color="white" />
@@ -190,13 +195,13 @@ const AppointmentStatus = ({ appointment }) => {
                         {step.description}
                       </p>
 
-                      {isCurrent && (
+                      {isCurrent && step.title !== "Đã hoàn thành" && (
                         <Badge bg="primary" className="mt-2">
                           Đang thực hiện
                         </Badge>
                       )}
 
-                      {isCompleted && (
+                      {(isCompleted || (isCurrent && step.title === "Đã hoàn thành")) && (
                         <Badge bg="success" className="mt-2">
                           Hoàn thành
                         </Badge>
