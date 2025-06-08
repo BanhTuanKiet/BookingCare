@@ -143,7 +143,7 @@ namespace server.Services
             // Áp dụng tìm kiếm nếu có
             if (!string.IsNullOrEmpty(searchKeyword))
             {
-                query = query.Where(d => d.User.FullName.Contains(searchKeyword));
+                query = query.Where(d => d.User.FullName.Contains(searchKeyword) || d.Specialty.Name.Contains(searchKeyword) || d.Position.Contains(searchKeyword));
             }
             
             // Đếm tổng số bác sĩ thỏa mãn điều kiện
