@@ -81,7 +81,7 @@ const DoctorSchedule = ({ tabActive }) => {
       backgroundColor = "#f39c12"
     }
 
-    if (event.start < new Date()) {
+    if (event.end < new Date()) {
       backgroundColor = "#e74c3c"
     }
 
