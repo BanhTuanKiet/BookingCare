@@ -81,6 +81,7 @@ namespace server.Services.RatingRepository
                 .Include(review => review.MedicalRecord.Appointment.Service)
                 .Where(r => r.MedicalRecord.Appointment.Service.ServiceId == serviceId)
                 .Take(3)
+                .AsNoTracking()
                 .ToListAsync();
 
             var serviceReviewDTOs = _mapper.Map<List<ServiceReview>>(serviceReviews);

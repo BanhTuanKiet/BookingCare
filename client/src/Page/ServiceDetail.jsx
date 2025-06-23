@@ -41,9 +41,7 @@ const ServiceDetail = () => {
       try {
         const type = "service"
         const response = await axios.get(`/reviews/${type}/${service?.serviceId}`)
-        const filteredData = response.data.filter(item => item.patientName !== null)
-        setReviews(filteredData)
-        console.log(filteredData)
+        setReviews(response.data)
       } catch (error) {
         console.log(error)
       }
