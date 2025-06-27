@@ -30,7 +30,7 @@ namespace server.Configs
                         ValidateAudience = true,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-                        ValidIssuer = "http://127.0.0.1:5140",
+                        ValidIssuer = "http://host.docker.internal:2908",
                         ValidAudience = "http://127.0.0.1:3000",
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("MộtPassphraseDàiÍtNhất32KýTự1234567890"))
                     };

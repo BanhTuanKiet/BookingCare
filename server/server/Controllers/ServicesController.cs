@@ -33,9 +33,10 @@ namespace server.Controllers
         [HttpGet]
         public async Task<List<ServiceDTO.ServiceDetail>> GetService()
         {
-             var service = await _serviceService.GetAllServices();
-             Console.WriteLine(service);
-             return service;
+            
+            var service = await _serviceService.GetAllServices();
+            Console.WriteLine(service);
+            return service;
         }
 
         // GET: ServicesByName

@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  cloudsql-proxy:
+    image: gcr.io/cloudsql-docker/gce-proxy:1.33.0
+    command: >
+      /cloud_sql_proxy
+      -instances=sql-server:asia-southeast1:sql-server=tcp:1433
+      -credential_file=/secrets/service-account.json
+    volumes:
+      - ./secrets:/secrets:ro
+    expose:
+      - "1433"
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "2908:2908"
+    environment:
+     - ASPNETCORE_URLS=http://+:2908
+     - ConnectionStrings__DefaultConnection=Server=cloudsql-proxy;Port=1433;Database=Clinic_Management;User Id=sqlserver;Password=290804
+    depends_on:
+      - cloudsql-proxy
