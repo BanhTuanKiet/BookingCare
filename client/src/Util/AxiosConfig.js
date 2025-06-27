@@ -2,7 +2,8 @@ import axios from "axios"
 import { SuccessNotify, WarningNotify, ErrorNotify } from "./ToastConfig"
 
 const instance = axios.create({
-    baseURL: "http://127.0.0.1:5140/api",
+    // baseURL: "http://127.0.0.1:5140/api",
+    baseURL: "https://clinic-cj96.onrender.com/api",
     withCredentials: true,
 })
 
