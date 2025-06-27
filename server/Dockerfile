@@ -17,8 +17,8 @@ RUN dotnet publish "server.csproj" -c Release -o /app/publish
 
 # Stage 3: Run Stage
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
-ENV ASPNETCORE_HTTP_PORTS=5140
-EXPOSE 5140
+ENV ASPNETCORE_HTTP_PORTS=2908
+EXPOSE 2908
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "server.dll"]
