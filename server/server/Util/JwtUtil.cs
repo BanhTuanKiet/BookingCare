@@ -16,7 +16,8 @@ namespace server.Util
 
         public static string GenerateToken(ApplicationUser user, IList<string> roles, int timeExp, IConfiguration _configuration)
         {
-            var key = Encoding.UTF8.GetBytes("MộtPassphraseDàiÍtNhất32KýTự1234567890");
+            var key = Encoding.UTF8.GetBytes( _configuration["Jwt:SecretKey"]);
+
             var tokenHandler = new JwtSecurityTokenHandler();
             var claims = new List<Claim>
             {
@@ -47,16 +48,16 @@ namespace server.Util
         {
             var jwtHandler = new JwtSecurityTokenHandler();
             var jwtToken = jwtHandler.ReadJwtToken(token);
-            
+
             var nameIdClaim = jwtToken.Claims.FirstOrDefault(claim => claim.Type == "nameid");
             var roleClaim = jwtToken.Claims.FirstOrDefault(claim => claim.Type == "role");
 
             if (nameIdClaim == null && roleClaim == null) return null;
-                    
+
             string userId = nameIdClaim.Value;
             string userRole = roleClaim.Value;
 
-            return new DecodedToken { UserId = userId, UserRole = userRole };            
+            return new DecodedToken { UserId = userId, UserRole = userRole };
         }
     }
 }
