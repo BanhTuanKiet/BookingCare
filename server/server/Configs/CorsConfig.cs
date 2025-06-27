@@ -11,7 +11,7 @@ namespace server.Configs
             {
                 options.AddPolicy("_allowSpecificOrigins", policy =>
                 {
-                    policy.WithOrigins("http://localhost:3000", "http://127.0.0.1:3000", "https://clinic-8cce7.web.app/")
+                    policy.WithOrigins("http://localhost:3000", "http://127.0.0.1:3000", "https://clinic-8cce7.web.app")
                           .AllowAnyHeader()
                           .AllowAnyMethod()
                           .AllowCredentials();
