@@ -71,7 +71,6 @@ const getIconStyle = (status) => {
   }
 }
 
-// Cập nhật logic trạng thái
 const getStepStatus = (stepTitle, currentTitle) => {
   const statusOrder = steps.map(s => s.title)
   const currentIndex = statusOrder.indexOf(currentTitle)
@@ -79,13 +78,23 @@ const getStepStatus = (stepTitle, currentTitle) => {
 
   if (stepIndex < currentIndex) return "done"
   if (stepIndex === currentIndex) {
-    // Nếu là bước "Đã hoàn thành", xem như đã hoàn tất
     return stepTitle === "Đã hoàn thành" ? "done" : "current"
   }
   return "upcoming"
 }
 
 const AppointmentStatus = ({ appointment }) => {
+  if (!appointment || !appointment.appointmentDate) {
+    return (
+      <Container className="my-4 mt-0">
+        <Card className="shadow border-0 text-center py-5 d-flex flex-column align-items-center" style={{ borderRadius: "15px" }}>
+          <Calendar size={48} color="#adb5bd" className="mb-3" />
+          <h5 className="text-muted">Không có lịch hẹn sắp tới</h5>
+        </Card>
+      </Container>
+    );
+  }
+
   return (
     <Container className="my-4 mt-0">
       <Card className="shadow border-0" style={{ borderRadius: "15px", overflow: "hidden" }}>

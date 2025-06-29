@@ -21,7 +21,6 @@ const AuthProvider = ({ children }) => {
     }, [])
 
     const login = (name, role) => {
-        console.log(role)
         localStorage.setItem("UserName", name)
         localStorage.setItem("userRole", role)
         setIsAuthenticated(true)

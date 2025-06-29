@@ -16,6 +16,7 @@ function Overview({ tabActive, setTabActive }) {
         const fetchAppointment = async () => {
             try {
                 const response = await axios.get("/appointments/recently")
+
                 setAppointment(response.data)
             } catch (error) {
                 console.log(error)

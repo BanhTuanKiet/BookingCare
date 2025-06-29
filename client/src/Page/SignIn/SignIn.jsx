@@ -39,7 +39,7 @@ function SignIn({ setIsLogin, transferData, clearTransferData }) {
         const errors = validateForm(loginData)
            
         if (errors > 0) return
-        console.log(loginData)
+
         try {
             const response = await axios.post("/auth/Signin", loginData)
             login(response.data.userName, response.data.role)
