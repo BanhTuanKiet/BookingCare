@@ -30,8 +30,8 @@ namespace server.Configs
                         ValidateAudience = true,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-                        ValidIssuer = "http://127.0.0.1:5140",
-                        ValidAudience = "http://127.0.0.1:3000",
+                        ValidIssuer = "https://clinic-cj96.onrender.com",
+                        ValidAudience = "https://clinic-8cce7.web.app",
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("MộtPassphraseDàiÍtNhất32KýTự1234567890"))
                     };
 
