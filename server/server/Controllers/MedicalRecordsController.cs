@@ -68,7 +68,7 @@ namespace Clinic_Management.Controllers
             if (appointment.AppointmentTime == "Sáng" && (hour < 7 || hour > 12) ||
                 appointment.AppointmentTime == "Chiều" && (hour < 13 || hour > 17))
             {
-                throw new ErrorHandlingException(400, $"Hiện tại không nằm trong khung giờ kê thuốc cho buổi {appointment.AppointmentTime.ToLower()}. Vui lòng kê thuốc trong khoảng thời gian quy định.");
+                throw new ErrorHandlingException(400, $"{hour}  Hiện tại không nằm trong khung giờ kê thuốc cho buổi {appointment.AppointmentTime.ToLower()}. Vui lòng kê thuốc trong khoảng thời gian quy định.");
             }
 
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
