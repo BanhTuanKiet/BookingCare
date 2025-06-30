@@ -52,8 +52,8 @@ namespace server.Controllers
             var service = await _serviceServices.GetServiceByName(appointmentForm.Service);
 
             var isExistAppointment = await _appointmentService.IsExistAppointment(patient.PatientId, appointmentForm.AppointmentDate, appointmentForm.AppointmentTime);
-
-            var dateNow = DateTime.Now;
+            TimeZoneInfo vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            DateTime dateNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vnTimeZone);
 
             if (appointmentForm.AppointmentDate <= dateNow.Date)
             {

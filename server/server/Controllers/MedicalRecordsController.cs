@@ -54,7 +54,8 @@ namespace Clinic_Management.Controllers
         {
             var appointment = await _appointmentService.GetAppointmentById(appointmentId) ?? throw new ErrorHandlingException("Không tìm thấy lịch hẹn!");
 
-            DateTime now = DateTime.Now;
+            TimeZoneInfo vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            DateTime now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vnTimeZone);
             int hour = now.Hour;
 
             DateOnly appointmentDate = DateOnly.FromDateTime(appointment.AppointmentDate.Value);
