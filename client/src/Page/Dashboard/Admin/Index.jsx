@@ -114,6 +114,7 @@ function Index() {
                                                 className="w-100 d-flex align-items-center justify-content-center" 
                                                 onClick={handleLogout}
                                                 size="sm"
+                                                data-testid="logout-btn"
                                             >
                                                 <i className="bi bi-box-arrow-right me-1"></i>
                                                 Đăng xuất

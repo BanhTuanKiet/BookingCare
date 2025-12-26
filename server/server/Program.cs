@@ -1,37 +1,48 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using server.Configs;
-using server.Controllers;
-using server.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using DotNetEnv;
+using server.Configs;
 using server.Middleware;
 using server.Services;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
-using Microsoft.AspNetCore.Mvc;
-using server.Filter;
-using System.Text;
-using System.Text.Json;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using server.Services.RatingRepository;
+using server.Filter;
+using server.Models;
+using System.Text;
 
+// ----------------------------------------------------
+// LOAD .env
+// ----------------------------------------------------
 Env.Load();
-
-string db_server = Environment.GetEnvironmentVariable("DATABASE_SERVER");
-string db_port = Environment.GetEnvironmentVariable("DATABASE_PORT");
-string db_name = Environment.GetEnvironmentVariable("DATABASE_NAME");
-string user_id = Environment.GetEnvironmentVariable("USER_ID");
-string db_password = Environment.GetEnvironmentVariable("DATABASE_PASSWORD");
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration["ConnectionStrings:DefaultConnection"] = $"Server={db_server},{db_port};Database={db_name};User Id={user_id};Password={db_password};TrustServerCertificate=True;Connect Timeout=180;";
+// ----------------------------------------------------
+// ĐỌC BIẾN MÔI TRƯỜNG TỪ .env
+// ----------------------------------------------------
+string dbServer = Environment.GetEnvironmentVariable("DATABASE_SERVER");
+string dbName = Environment.GetEnvironmentVariable("DATABASE_NAME");
+string trusted = Environment.GetEnvironmentVariable("TRUSTED_CONNECTION") ?? "True";
+string mars = Environment.GetEnvironmentVariable("MULTIPLEACTIVE_RESULTSETS") ?? "True";
 
+// ----------------------------------------------------
+// TẠO CONNECTION STRING
+// ----------------------------------------------------
+string connectionString =
+    $"Server={dbServer};Database={dbName};Trusted_Connection={trusted};" +
+    $"MultipleActiveResultSets={mars};TrustServerCertificate=True;";
+
+// Gán vào cấu hình
+builder.Configuration["ConnectionStrings:DefaultConnection"] = connectionString;
+
+// ----------------------------------------------------
+// ĐĂNG KÝ SERVICE
+// ----------------------------------------------------
 builder.Services.AddCorsPolicy();
-
-// Add services to the container.
+builder.Services.AddHttpClient();
 builder.Services.AddAutoMapper(typeof(Program));
+
 builder.Services.AddScoped<ISpecialty, SpecialtyServices>();
 builder.Services.AddScoped<IService, ServiceServices>();
 builder.Services.AddScoped<IUser, UserServices>();
@@ -43,30 +54,35 @@ builder.Services.AddScoped<IMedicalRecord, MedicalRecordService>();
 builder.Services.AddScoped<IAuth, AuthServices>();
 builder.Services.AddScoped<IReview, ReviewServices>();
 builder.Services.AddScoped<IContact, ContactServices>();
-//Connect Momo API Payment
-// Binding config cho MOMO
+
+// MOMO
 builder.Services.AddOptions<MomoOptionModel>()
     .Bind(builder.Configuration.GetSection("MomoAPI"))
     .ValidateDataAnnotations()
     .ValidateOnStart();
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
+// ----------------------------------------------------
+// ENTITY FRAMEWORK + SQL SERVER
+// ----------------------------------------------------
 builder.Services.AddDbContext<ClinicManagementContext>(options =>
     options.UseSqlServer(connectionString, sqlOptions =>
-        sqlOptions.EnableRetryOnFailure(
-            maxRetryCount: 5,
-            maxRetryDelay: TimeSpan.FromSeconds(10),
-            errorNumbersToAdd: null)
+        sqlOptions.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null)
     )
 );
 
+// ----------------------------------------------------
+// ASP.NET IDENTITY
+// ----------------------------------------------------
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
     .AddEntityFrameworkStores<ClinicManagementContext>()
     .AddDefaultTokenProviders();
 
-builder.Services.AddJWT(); 
+// JWT
+builder.Services.AddJWT();
 
+// ----------------------------------------------------
+// MVC + VALIDATION
+// ----------------------------------------------------
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.Events.OnRedirectToLogin = context =>
@@ -93,32 +109,27 @@ builder.Services.AddControllers(options =>
     options.ModelMetadataDetailsProviders.Add(new SystemTextJsonValidationMetadataProvider());
 });
 
-
-
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
-builder.Services.AddAutoMapper(typeof(AutoMapperConfig));
+// SWAGGER + API DOC
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddHttpClient();
-
-
 builder.Services.AddSwaggerGen();
+builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+// ----------------------------------------------------
+// MIDDLEWARE PIPELINE
+// ----------------------------------------------------
 app.UseMiddleware<ExceptionHandlingMiddleware>();
-app.UseCors("_allowSpecificOrigins");
 app.UseRouting();
+app.UseCors("_allowSpecificOrigins");
 app.UseAuthentication();
 app.UseAuthorization();
-// Configure the HTTP request pipeline.
+
+// Swagger chỉ bật khi dev
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    // app.UseSwagger();
-    // app.UseSwaggerUI();
 }
 
 app.MapControllers();
-
 app.Run();

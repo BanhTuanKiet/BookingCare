@@ -140,8 +140,8 @@ const UserProfileCard = ({ user, setUser, userType = "patient" }) => {
             <div className="d-flex justify-content-center mt-4">
               <Button variant="outline-success" onClick={handleEditToggle}>
                 ✏️ Chỉnh sửa
-              </Button>
-              <Button variant="outline-danger" className="ms-2" onClick={handleLogout}>
+              </Button> 
+              <Button variant="outline-danger" className="ms-2" onClick={handleLogout} data-testid="logout-btn" name="logout"> 
                 🚪 Đăng xuất
               </Button>
             </div>

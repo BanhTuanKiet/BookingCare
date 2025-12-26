@@ -44,7 +44,7 @@ function SignIn({ setIsLogin, transferData, clearTransferData }) {
             const response = await axios.post("/auth/Signin", loginData)
             login(response.data.userName, response.data.role)
             setLoading(true)
-            navigate("/")
+            navigate("/thông tin cá nhân")
         } catch (error) {
             console.log(error)
             setLoading(false)
@@ -75,6 +75,7 @@ function SignIn({ setIsLogin, transferData, clearTransferData }) {
 
                 <Form.Control
                     type="password"
+                    name="password"
                     placeholder="Mật khẩu"
                     value={loginData.password}
                     onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}

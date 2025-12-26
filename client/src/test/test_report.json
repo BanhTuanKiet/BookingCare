@@ -1,0 +1,26 @@
+[
+  {
+    "Case": "Thành công",
+    "Email": "datteo192004@gmail.com",
+    "Status": "PASS",
+    "Note": "Đăng nhập và chuyển trang thành công"
+  },
+  {
+    "Case": "Sai mật khẩu",
+    "Email": "datteo192004@gmail.com",
+    "Status": "PASS",
+    "Note": "Hệ thống chặn đăng nhập đúng như mong đợi"
+  },
+  {
+    "Case": "Email không tồn tại",
+    "Email": "none@gmail.com",
+    "Status": "PASS",
+    "Note": "Hệ thống chặn đăng nhập đúng như mong đợi"
+  },
+  {
+    "Case": "Để trống email",
+    "Email": "",
+    "Status": "PASS",
+    "Note": "Hệ thống chặn đăng nhập đúng như mong đợi"
+  }
+]
