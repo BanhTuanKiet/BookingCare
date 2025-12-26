@@ -14,7 +14,7 @@ namespace server.Configs
     {
         public static class JWTConfigs
         {
-            public static void AddJWT(this IServiceCollection services)
+            public static void AddJWT(this IServiceCollection services, IConfiguration _configuration)
             {
                 services.AddAuthentication(options =>
                 {
@@ -30,9 +30,9 @@ namespace server.Configs
                         ValidateAudience = true,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-                        ValidIssuer = "https://clinic-cj96.onrender.com",
-                        ValidAudience = "https://clinic-8cce7.web.app",
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("MộtPassphraseDàiÍtNhất32KýTự1234567890"))
+                        ValidIssuer = _configuration["Jwt:Issuer"],
+                        ValidAudience = _configuration["Jwt:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:SecretKey"]))
                     };
 
                     options.Events = new JwtBearerEvents

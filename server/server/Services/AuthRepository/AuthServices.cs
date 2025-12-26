@@ -21,7 +21,7 @@ namespace server.Services
         public async Task<string> GetRefreshToken(int userId)
         {
             ApplicationUser user = await _context.Users.FirstOrDefaultAsync(user => user.Id == userId);
-            return user?.RefreshToken;
+            return user?.RefreshToken ?? "";
         }
 
         public bool VerifyToken(string token)

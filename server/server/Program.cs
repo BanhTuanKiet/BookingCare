@@ -19,14 +19,14 @@ using server.Services.RatingRepository;
 Env.Load();
 
 string db_server = Environment.GetEnvironmentVariable("DATABASE_SERVER");
-string db_port = Environment.GetEnvironmentVariable("DATABASE_PORT");
+// string db_port = Environment.GetEnvironmentVariable("DATABASE_PORT");
 string db_name = Environment.GetEnvironmentVariable("DATABASE_NAME");
 string user_id = Environment.GetEnvironmentVariable("USER_ID");
 string db_password = Environment.GetEnvironmentVariable("DATABASE_PASSWORD");
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration["ConnectionStrings:DefaultConnection"] = $"Server={db_server},{db_port};Database={db_name};User Id={user_id};Password={db_password};TrustServerCertificate=True;Connect Timeout=180;";
+builder.Configuration["ConnectionStrings:DefaultConnection"] = $"Server={db_server};Database={db_name};User Id={user_id};Password={db_password};TrustServerCertificate=True;Connect Timeout=180;";
 
 builder.Services.AddCorsPolicy();
 
@@ -65,7 +65,7 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>()
     .AddEntityFrameworkStores<ClinicManagementContext>()
     .AddDefaultTokenProviders();
 
-builder.Services.AddJWT(); 
+builder.Services.AddJWT(builder.Configuration); 
 
 builder.Services.ConfigureApplicationCookie(options =>
 {

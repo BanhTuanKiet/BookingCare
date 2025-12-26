@@ -40,7 +40,7 @@ namespace server.Controllers
             _serviceServices = serviceServices;
             _configuration = configuration;
         }
-        // GET: Appointments
+
         [Authorize(Roles = "patient")]
         [HttpPost]
         public async Task<ActionResult> Appointment([FromBody] AppointmentForm appointmentForm)
@@ -60,10 +60,10 @@ namespace server.Controllers
                 throw new ErrorHandlingException(400, "Vui lòng đặt lịch khám tối thiểu trước 1 ngày");
             }
 
-            if (isExistAppointment != null)
-            {
-                throw new ErrorHandlingException(400, $"Bạn chưa hoàn thành lịch hẹn {isExistAppointment.AppointmentDate} {isExistAppointment.AppointmentTime}");
-            }
+            // if (isExistAppointment != null)
+            // {
+            //     throw new ErrorHandlingException(400, $"Bạn chưa hoàn thành lịch hẹn {isExistAppointment.AppointmentDate} {isExistAppointment.AppointmentTime}");
+            // }
 
             if (isExistAppointment != null)
             {
