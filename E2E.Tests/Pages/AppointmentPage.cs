@@ -10,30 +10,24 @@ public class AppointmentPage
     public AppointmentPage(IWebDriver driver)
     {
         this.driver = driver;
-        wait = new WebDriverWait(driver, TimeSpan.FromSeconds(20));
+        wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
     }
 
-    private IWebElement GetSelect(string id)
+    public void SelectDropdownByText(string id, string text)
     {
-        return wait.Until(d =>
+        var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(8));
+
+        var selectElement = wait.Until(d =>
         {
-            var select = d.FindElement(By.Id(id));
-            return select.FindElements(By.TagName("option")).Count > 1 ? select : null;
+            var element = d.FindElement(By.Id(id));
+            var select = new SelectElement(element);
+
+            return select.Options.Any(o => o.Text.Trim() == text)
+                ? element
+                : null;
         });
-    }
 
-    private void SelectDropdownByText(string id, string text)
-    {
-        var element = GetSelect(id);
-        var select = new SelectElement(element);
-        select.SelectByText(text);
-
-        // 🔥 BẮT BUỘC: trigger React onChange
-        IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
-        js.ExecuteScript(
-            "arguments[0].dispatchEvent(new Event('change', { bubbles: true }));",
-            element
-        );
+        new SelectElement(selectElement).SelectByText(text);
     }
 
     public void SelectDepartment(string value)
@@ -48,23 +42,35 @@ public class AppointmentPage
     public void SelectTime(string value)
         => SelectDropdownByText("appointmentTime", value);
 
-    public void SelectDate(string date)
-    {
-        IWebElement dateInput = wait.Until(
-            ExpectedConditions.ElementIsVisible(By.Id("appointmentDate"))
-        );
+public void SelectDate(string date)
+{
+    var dateInput = driver.FindElement(By.Id("appointmentDate"));
+    IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
 
-        dateInput.Clear();
-        dateInput.SendKeys(date);
+    js.ExecuteScript(@"
+        const input = arguments[0];
+        const value = arguments[1];
 
-        IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
-        js.ExecuteScript("arguments[0].value = arguments[1];", dateInput, date);
-        js.ExecuteScript("arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", dateInput);
-        js.ExecuteScript("arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", dateInput);
-    }
+        const nativeInputValueSetter =
+            Object.getOwnPropertyDescriptor(
+                window.HTMLInputElement.prototype,
+                'value'
+            ).set;
+
+        nativeInputValueSetter.call(input, value);
+
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+    ", dateInput, date);
+}
 
     private IWebElement SubmitButton =>
-        wait.Until(d => d.FindElement(By.Id("btn-submit-appointment")));
+        wait.Until(ExpectedConditions.ElementToBeClickable(By.Id("btn-submit-appointment")));
 
-    public void Submit() => SubmitButton.Click();
+    public void Submit()
+    {
+        // cho React render xong trước khi submit
+        Thread.Sleep(300);
+        SubmitButton.Click();
+    }
 }

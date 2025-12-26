@@ -75,27 +75,26 @@ function Appointment() {
     const submit = async (e) => {
         try {
             e.preventDefault()
+            e.stopPropagation()
             console.log(appointmentForm)
-            const response = await axios.post("/appointments", {
-                appointmentForm: {
-                    appointmentDate: appointmentForm.appointmentDate,
-                    appointmentTime: appointmentForm.appointmentTime,
-                    department: appointmentForm.department,
-                    doctor: appointmentForm.doctor,
-                    service: appointmentForm.service,
-                    symptoms: appointmentForm.symptoms
-                }
+
+            const formData = new FormData()
+            Object.entries(appointmentForm).forEach(([key, value]) => {
+                formData.append(key, value)
             })
 
-            // if (response.data?.availableAppointments) {
-            //     setSuggestedAppointments(response.data.availableAppointments)
-            //     setShowModal(true)
-            // } else {
-            //     setSuggestedAppointments([])
-            // }
+            const response = await axios.post("/appointments", formData)
+            console.log(response.data)
+            if (response.data?.availableAppointments) {
+                setSuggestedAppointments(response.data.availableAppointments)
+                setShowModal(true)
+            } else {
+                setSuggestedAppointments([])
+            }
 
         } catch (error) {
             console.log(error)
+            // alert("Đã có lỗi xảy ra. Vui lòng thử lại.")
         }
     }
 

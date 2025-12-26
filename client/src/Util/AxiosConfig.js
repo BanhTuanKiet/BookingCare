@@ -16,33 +16,21 @@ instance.interceptors.request.use(function (config) {
     return Promise.reject(error)
 })
 
-// Add a response interceptor
-instance.interceptors.response.use(function (response) {
-    // MỞ COMMENT ĐOẠN NÀY ĐỂ HIỆN ALERT KHI THÀNH CÔNG
-    if (response.status === 200 && response.data.message) {
-        if (response.data.message === "Đăng nhập thành công!") return response
-        alert(response.data.message); 
-    }
-    return response;
-}, function (error) {
-    // ... các đoạn code xử lý lỗi giữ nguyên ...
-    if (error && error.response && error.response.data) {
-        const errorMessage = error.response.data.ErrorMessage || error.response.data.errorMessage || "Lỗi không xác định";
-        const statusCode = error.response.status;
-        
-        switch (statusCode) {
-            case 400:
-            case 401:
-            case 403:
-            case 404:
-            case 500:
-                alert(errorMessage); // Dùng alert đồng nhất cho tất cả các lỗi
-                break;
-            default:
-                alert("Đã có lỗi xảy ra");
+instance.interceptors.response.use(
+    function (response) {
+        if (response.status === 200 && response.data.message) {
+            if (response.data.message === "Đăng nhập thành công!") return response
+            alert(response.data.message);
         }
-    }
-    return Promise.reject(error);
-});
+        return response;
+    },
+    function (error) {
+        if (error && error.response && error.response.data) {
+            const errorMessage = error.response.data.ErrorMessage || "Lỗi không xác định";
+
+            alert(errorMessage);
+        }
+        return Promise.reject(error);
+    });
 
 export default instance

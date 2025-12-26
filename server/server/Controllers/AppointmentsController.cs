@@ -17,6 +17,7 @@ using server.Models;
 using server.Services;
 using server.Util;
 using Server.DTO;
+using System.Globalization;
 
 namespace server.Controllers
 {
@@ -43,58 +44,93 @@ namespace server.Controllers
 
         [Authorize(Roles = "patient")]
         [HttpPost]
-        public async Task<ActionResult> Appointment([FromBody] AppointmentForm appointmentForm)
+        public async Task<ActionResult> Appointment([FromForm] AppointmentForm appointmentForm)
         {
+            if (appointmentForm == null)
+                throw new ErrorHandlingException(400, "Appointment form is null");
+
+            var appointmentDate = DateOnly.Parse(appointmentForm.AppointmentDate).ToDateTime(TimeOnly.MinValue);
+
+            // 🇻🇳 VN timezone
+            TimeZoneInfo vnTimeZone =
+                TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+
+            DateTime today =
+                TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vnTimeZone).Date;
+
+            int diffDays = (appointmentDate - today).Days;
+
+            // 1️⃣ Không cho đặt hôm nay & quá khứ
+            if (diffDays < 1)
+                throw new ErrorHandlingException(
+                    400,
+                    "Vui lòng đặt lịch khám tối thiểu trước 1 ngày"
+                );
+
+            // 2️⃣ Không cho đặt quá 15 ngày
+            if (diffDays > 15)
+                throw new ErrorHandlingException(
+                    400,
+                    "Ngày khám không được cách quá 15 ngày so với hôm nay"
+                );
+
             var doctor = await _doctorService.GetDoctorByName(appointmentForm.Doctor);
+
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             int parsedUserId = Convert.ToInt32(userId);
+
             var patient = await _patientService.GetPatientByUserId(parsedUserId);
             var service = await _serviceServices.GetServiceByName(appointmentForm.Service);
 
-            var isExistAppointment = await _appointmentService.IsExistAppointment(patient.PatientId, appointmentForm.AppointmentDate, appointmentForm.AppointmentTime);
-            TimeZoneInfo vnTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-            DateTime dateNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vnTimeZone);
-
-            if (appointmentForm.AppointmentDate <= dateNow.Date)
-            {
-                throw new ErrorHandlingException(400, "Vui lòng đặt lịch khám tối thiểu trước 1 ngày");
-            }
-
-            // if (isExistAppointment != null)
-            // {
-            //     throw new ErrorHandlingException(400, $"Bạn chưa hoàn thành lịch hẹn {isExistAppointment.AppointmentDate} {isExistAppointment.AppointmentTime}");
-            // }
+            // 3️⃣ Kiểm tra lịch tồn tại
+            var isExistAppointment = await _appointmentService.IsExistAppointment(
+                patient.PatientId,
+                appointmentDate.Date,
+                appointmentForm.AppointmentTime
+            );
 
             if (isExistAppointment != null)
             {
-                var appointmentDateOnly = DateOnly.FromDateTime(isExistAppointment.AppointmentDate.Value);
-                throw new ErrorHandlingException(400, $"Bạn chưa hoàn thành lịch hẹn {appointmentDateOnly} {isExistAppointment.AppointmentTime}");
+                var dateOnly =
+                    DateOnly.FromDateTime(isExistAppointment.AppointmentDate!.Value);
+
+                throw new ErrorHandlingException(
+                    400,
+                    $"Bạn chưa hoàn thành lịch hẹn {dateOnly} {isExistAppointment.AppointmentTime}"
+                );
             }
 
-            if (appointmentForm.AppointmentDate <= dateNow)
-            {
-                throw new ErrorHandlingException(400, "Không được chọn ngày trong quá khứ");
-            }
-
-            if (appointmentForm.AppointmentDate >= dateNow.AddDays(15))
-            {
-                throw new ErrorHandlingException(400, "Ngày khám không được cách quá 15 ngày so với hôm nay");
-            }
-
-            int quantityAppointment = await _appointmentService.CountAppointsByDate(appointmentForm.AppointmentDate, appointmentForm.AppointmentTime);
+            // 4️⃣ Giới hạn số lượng
+            int quantityAppointment =
+                await _appointmentService.CountAppointsByDate(
+                    appointmentDate.Date,
+                    appointmentForm.AppointmentTime
+                );
 
             if (quantityAppointment > 15)
             {
-                var availableAppointments = await _appointmentService.CheckAvailableAppointment(doctor.DoctorId, appointmentForm.AppointmentDate, appointmentForm.AppointmentTime);
+                var availableAppointments =
+                    await _appointmentService.CheckAvailableAppointment(
+                        doctor.DoctorId,
+                        appointmentDate.Date,
+                        appointmentForm.AppointmentTime
+                    );
 
-                return Ok(new { availableAppointments = availableAppointments });
+                return Ok(new { availableAppointments });
             }
 
-            var appointment = await _appointmentService.Appointment(patient.PatientId, doctor.DoctorId, service.ServiceId, appointmentForm.AppointmentDate, appointmentForm.AppointmentTime, "Chờ xác nhận");
+            // 5️⃣ Tạo lịch
+            await _appointmentService.Appointment(
+                patient.PatientId,
+                doctor.DoctorId,
+                service.ServiceId,
+                appointmentDate.Date,
+                appointmentForm.AppointmentTime,
+                "Chờ xác nhận"
+            );
 
             return Ok(new { message = "Đặt lịch thành công!" });
         }
-
         [Authorize(Roles = "admin")]
         [HttpGet()]
         public async Task<ActionResult<List<AppointmentDTO.AppointmentDetail>>> GetAppointments()

@@ -89,7 +89,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 
 builder.Services.AddControllers(options =>
 {
-    options.Filters.Add<ValidationFilter>();
+    // options.Filters.Add<ValidationFilter>();
     options.ModelMetadataDetailsProviders.Add(new SystemTextJsonValidationMetadataProvider());
 });
 

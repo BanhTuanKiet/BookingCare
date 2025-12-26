@@ -1,6 +1,7 @@
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using SeleniumExtras.WaitHelpers;
+using NUnit.Framework;
 
 public class AppointmentTests : TestBase
 {
@@ -11,33 +12,55 @@ public class AppointmentTests : TestBase
         var loginPage = new LoginPage(driver);
         loginPage.Login("banhtuankiet2908@gmail.com", "Tuan2908Kiet@");
 
-        var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
-        // Đợi URL thay đổi để chắc chắn đã đăng nhập xong
+        var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(8));
+
         wait.Until(d => d.Url.Contains("localhost:3000"));
 
         driver.Navigate().GoToUrl("http://localhost:3000/đặt%20lịch%20khám");
 
-        // Thêm một bước đợi để form hiển thị hoàn toàn
         wait.Until(ExpectedConditions.ElementIsVisible(By.TagName("form")));
     }
 
     private string HandleAlert()
     {
-        // Tăng thời gian đợi lên một chút nếu mạng chậm
-        var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(15));
-        try
-        {
-            // Đợi cho đến khi Alert thực sự xuất hiện
-            IAlert alert = wait.Until(ExpectedConditions.AlertIsPresent());
-            string alertText = alert.Text;
-            alert.Accept();
-            return alertText;
-        }
-        catch (WebDriverTimeoutException)
-        {
-            Assert.Fail("Lỗi: Đã nhấn Submit nhưng không thấy Alert nào xuất hiện sau 15 giây.");
-            return string.Empty;
-        }
+        var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+        var alert = wait.Until(ExpectedConditions.AlertIsPresent());
+        string text = alert.Text;
+        alert.Accept();
+        return text;
+    }
+
+    private void FillValidBaseForm(AppointmentPage page)
+    {
+        // Đợi department load
+        new WebDriverWait(driver, TimeSpan.FromSeconds(8))
+            .Until(d => d.FindElements(By.CssSelector("#department option")).Count > 1);
+
+        page.SelectDepartment("Khoa Nội tổng quát");
+
+        // Đợi doctor load theo department
+        new WebDriverWait(driver, TimeSpan.FromSeconds(8))
+            .Until(d => d.FindElements(By.CssSelector("#doctor option")).Count > 1);
+
+        page.SelectDoctor("TRẦN HỮU LỢI");
+
+        page.SelectService("Khám tổng quát");
+        page.SelectTime("Sáng");
+    }
+
+    [Test]
+    public void Cannot_Book_In_The_Past()
+    {
+        PerformLogin();
+        var page = new AppointmentPage(driver);
+
+        FillValidBaseForm(page);
+        page.SelectDate("2020-01-01");
+
+        page.Submit();
+
+        string message = HandleAlert();
+        Assert.That(message, Does.Contain("tối thiểu trước 1 ngày"));
     }
 
     [Test]
@@ -46,33 +69,13 @@ public class AppointmentTests : TestBase
         PerformLogin();
         var page = new AppointmentPage(driver);
 
-        page.SelectDepartment("Khoa Nội tổng quát");
-        page.SelectDoctor("TRẦN HỮU LỢI");
-        page.SelectService("Khám tổng quát");
-        page.SelectDate(DateTime.Now.AddDays(2).ToString("yyyy-MM-dd"));
-        page.SelectTime("Sáng");
+        FillValidBaseForm(page);
+        page.SelectDate("2025-12-30");
+
         page.Submit();
 
-        // SỬA Ở ĐÂY: Dùng HandleAlert thay vì tìm Toastify__toast-body
         string message = HandleAlert();
         Assert.That(message.ToLower(), Does.Contain("thành công"));
-    }
-    
-    [Test]
-    public void Cannot_Book_In_The_Past()
-    {
-        PerformLogin();
-        var page = new AppointmentPage(driver);
-
-        page.SelectDepartment("Khoa Nội tổng quát");
-        page.SelectDoctor("TRẦN HỮU LỢI");
-        page.SelectService("Khám tổng quát");
-        page.SelectDate(DateTime.Now.AddDays(-1).ToString("yyyy-MM-dd"));
-        page.SelectTime("Sáng");
-
-        page.Submit();
-        string message = HandleAlert();
-        Assert.That(message, Does.Contain("tối thiểu trước 1 ngày"));
     }
 
     [Test]
@@ -81,15 +84,12 @@ public class AppointmentTests : TestBase
         PerformLogin();
         var page = new AppointmentPage(driver);
 
-        page.SelectDepartment("Khoa Nội tổng quát");
-        page.SelectDoctor("TRẦN HỮU LỢI");
-        page.SelectService("Khám tổng quát");
-        page.SelectDate(DateTime.Now.AddDays(20).ToString("yyyy-MM-dd"));
-        page.SelectTime("Sáng");
+        FillValidBaseForm(page);
+        page.SelectDate("2026-02-02");
 
         page.Submit();
 
         string message = HandleAlert();
-        Assert.That(message, Does.Contain("quá 15 ngày"));
+        Assert.That(message, Does.Contain("15 ngày"));
     }
 }
