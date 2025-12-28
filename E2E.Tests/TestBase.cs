@@ -9,8 +9,8 @@ public class TestBase
     [SetUp]
     public void Setup()
     {
-        // driver = new ChromeDriver();
-        // driver.Manage().Window.Maximize();
+        driver = new ChromeDriver();
+        driver.Manage().Window.Maximize();
     }
 
     [TearDown]

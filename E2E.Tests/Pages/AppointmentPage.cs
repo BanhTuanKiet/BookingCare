@@ -42,12 +42,15 @@ public class AppointmentPage
     public void SelectTime(string value)
         => SelectDropdownByText("appointmentTime", value);
 
-public void SelectDate(string date)
-{
-    var dateInput = driver.FindElement(By.Id("appointmentDate"));
-    IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
+    public void SelectSymptoms(string value)
+        => SelectDropdownByText("symptoms", value);
 
-    js.ExecuteScript(@"
+    public void SelectDate(string date)
+    {
+        var dateInput = driver.FindElement(By.Id("appointmentDate"));
+        IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
+
+        js.ExecuteScript(@"
         const input = arguments[0];
         const value = arguments[1];
 
@@ -62,7 +65,7 @@ public void SelectDate(string date)
         input.dispatchEvent(new Event('input', { bubbles: true }));
         input.dispatchEvent(new Event('change', { bubbles: true }));
     ", dateInput, date);
-}
+    }
 
     private IWebElement SubmitButton =>
         wait.Until(ExpectedConditions.ElementToBeClickable(By.Id("btn-submit-appointment")));
