@@ -23,9 +23,6 @@ function Appointment() {
 
     const handleCloseModal = () => setShowModal(false)
 
-    /* =======================
-       FETCH DOCTORS
-    ======================= */
     useEffect(() => {
         const fetchDoctors = async () => {
             try {
@@ -38,9 +35,6 @@ function Appointment() {
         if (specialty) fetchDoctors()
     }, [specialty])
 
-    /* =======================
-       FETCH SERVICES
-    ======================= */
     useEffect(() => {
         const fetchServices = async () => {
             try {
@@ -53,9 +47,6 @@ function Appointment() {
         if (specialty) fetchServices()
     }, [specialty])
 
-    /* =======================
-       HANDLE CHANGE (NO VALIDATE)
-    ======================= */
     const handleChange = (event) => {
         const { name, value } = event.target
 
@@ -69,9 +60,6 @@ function Appointment() {
         }))
     }
 
-    /* =======================
-       SUBMIT (NO UI VALIDATION)
-    ======================= */
     const submit = async (e) => {
         try {
             e.preventDefault()
@@ -84,7 +72,7 @@ function Appointment() {
             })
 
             const response = await axios.post("/appointments", formData)
-            console.log(response.data)
+
             if (response.data?.availableAppointments) {
                 setSuggestedAppointments(response.data.availableAppointments)
                 setShowModal(true)

@@ -30,14 +30,16 @@ namespace server.Controllers
         private readonly IPatient _patientService;
         private readonly IAppointment _appointmentService;
         private readonly IService _serviceServices;
+        private readonly ISpecialty _specialtyService;
         private readonly IConfiguration _configuration;
 
-        public AppointmentsController(ClinicManagementContext context, IDoctor doctorService, IPatient patientService, IAppointment appointmentService, IService serviceServices, IConfiguration configuration)
+        public AppointmentsController(ClinicManagementContext context, IDoctor doctorService, IPatient patientService, IAppointment appointmentService, ISpecialty specialtyService, IService serviceServices, IConfiguration configuration)
         {
             _context = context;
             _doctorService = doctorService;
             _patientService = patientService;
             _appointmentService = appointmentService;
+            _specialtyService = specialtyService;
             _serviceServices = serviceServices;
             _configuration = configuration;
         }
@@ -47,11 +49,43 @@ namespace server.Controllers
         public async Task<ActionResult> Appointment([FromForm] AppointmentForm appointmentForm)
         {
             if (appointmentForm == null)
-                throw new ErrorHandlingException(400, "Appointment form is null");
+                throw new ErrorHandlingException(400, "Dữ liệu không hợp lệ");
+
+            if (string.IsNullOrWhiteSpace(appointmentForm.Department))
+                throw new ErrorHandlingException(400, "Vui lòng chọn khoa");
+
+            if (string.IsNullOrWhiteSpace(appointmentForm.Doctor))
+                throw new ErrorHandlingException(400, "Vui lòng chọn bác sĩ");
+
+            if (string.IsNullOrWhiteSpace(appointmentForm.Service))
+                throw new ErrorHandlingException(400, "Vui lòng chọn dịch vụ");
+
+            if (string.IsNullOrWhiteSpace(appointmentForm.AppointmentDate))
+                throw new ErrorHandlingException(400, "Vui lòng chọn ngày khám");
+
+            if (string.IsNullOrWhiteSpace(appointmentForm.AppointmentTime))
+                throw new ErrorHandlingException(400, "Vui lòng chọn buổi khám");
+
+            if (!string.IsNullOrWhiteSpace(appointmentForm.Symptoms) && appointmentForm.Symptoms.Count() > 500)
+                throw new ErrorHandlingException(400, "Triệu chứng quá dài");
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            int parsedUserId = Convert.ToInt32(userId);
+
+            var department = await _specialtyService.GetSpecialty(appointmentForm.Department)
+                ?? throw new ErrorHandlingException(404, "Không tìm thấy khoa");
+
+            var doctor = await _doctorService.GetDoctorByName(appointmentForm.Doctor)
+                ?? throw new ErrorHandlingException(404, "Không tìm thấy bác sĩ");
+
+            var patient = await _patientService.GetPatientByUserId(parsedUserId)
+                ?? throw new ErrorHandlingException(404, "Không tìm thấy bệnh nhân");
+
+            var service = await _serviceServices.GetServiceByName(appointmentForm.Service)
+                ?? throw new ErrorHandlingException(404, "Không tìm thấy dịch vụ");
 
             var appointmentDate = DateOnly.Parse(appointmentForm.AppointmentDate).ToDateTime(TimeOnly.MinValue);
 
-            // 🇻🇳 VN timezone
             TimeZoneInfo vnTimeZone =
                 TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
 
@@ -60,29 +94,18 @@ namespace server.Controllers
 
             int diffDays = (appointmentDate - today).Days;
 
-            // 1️⃣ Không cho đặt hôm nay & quá khứ
             if (diffDays < 1)
                 throw new ErrorHandlingException(
                     400,
                     "Vui lòng đặt lịch khám tối thiểu trước 1 ngày"
                 );
 
-            // 2️⃣ Không cho đặt quá 15 ngày
             if (diffDays > 15)
                 throw new ErrorHandlingException(
                     400,
                     "Ngày khám không được cách quá 15 ngày so với hôm nay"
                 );
 
-            var doctor = await _doctorService.GetDoctorByName(appointmentForm.Doctor);
-
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            int parsedUserId = Convert.ToInt32(userId);
-
-            var patient = await _patientService.GetPatientByUserId(parsedUserId);
-            var service = await _serviceServices.GetServiceByName(appointmentForm.Service);
-
-            // 3️⃣ Kiểm tra lịch tồn tại
             var isExistAppointment = await _appointmentService.IsExistAppointment(
                 patient.PatientId,
                 appointmentDate.Date,
@@ -100,7 +123,6 @@ namespace server.Controllers
                 );
             }
 
-            // 4️⃣ Giới hạn số lượng
             int quantityAppointment =
                 await _appointmentService.CountAppointsByDate(
                     appointmentDate.Date,
@@ -119,7 +141,6 @@ namespace server.Controllers
                 return Ok(new { availableAppointments });
             }
 
-            // 5️⃣ Tạo lịch
             await _appointmentService.Appointment(
                 patient.PatientId,
                 doctor.DoctorId,
@@ -131,6 +152,7 @@ namespace server.Controllers
 
             return Ok(new { message = "Đặt lịch thành công!" });
         }
+
         [Authorize(Roles = "admin")]
         [HttpGet()]
         public async Task<ActionResult<List<AppointmentDTO.AppointmentDetail>>> GetAppointments()

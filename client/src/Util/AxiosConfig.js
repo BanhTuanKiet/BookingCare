@@ -27,7 +27,11 @@ instance.interceptors.response.use(
     function (error) {
         if (error && error.response && error.response.data) {
             const errorMessage = error.response.data.ErrorMessage || "Lỗi không xác định";
-
+            if (error.response.status === 401 || errorMessage.includes("Vui lòng đăng nhập")) {
+                alert(errorMessage)
+                window.location.href = "/đăng%20nhập";
+                return Promise.reject(error);
+            }
             alert(errorMessage);
         }
         return Promise.reject(error);

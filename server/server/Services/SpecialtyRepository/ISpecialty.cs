@@ -8,6 +8,7 @@ namespace server.Services
     {
         Task<List<SpecialtyDTO>> GetSpecialties();
         Task<SpecialtyDTO?> GetDescription(string specialty);
+        Task<Specialty> GetSpecialty(string name);
         Task<List<Specialty>> GetRandomSpecialties();
         Task<Specialty?> GetById(int id);
         Task<Specialty> Create(Specialty specialty);

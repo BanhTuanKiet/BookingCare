@@ -70,5 +70,11 @@ namespace server.Services
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<Specialty> GetSpecialty(string name)
+        {
+            var specialty = await _context.Specialties.FirstOrDefaultAsync(s => s.Name == name);
+            return specialty;
+        }
     }
 }
